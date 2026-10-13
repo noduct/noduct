@@ -1,0 +1,18 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ToolCard from '@/components/tools/ToolCard.astro';
+import { categories } from '@/data/categories';
+import { tools } from '@/data/tools';
+export function getStaticPaths() { return categories.map((category) => ({ params: { category: category.id }, props: { category } })); }
+const { category } = Astro.props;
+const categoryTools = tools.filter((tool) => tool.category === category.id);
+---
+<BaseLayout title={category.name} description={`${category.description} Explore Tolvira's published tools and transparent roadmap for ${category.name.toLowerCase()}.`}>
+  <header class="page-head"><div class="container"><nav aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true"> / </span><span aria-current="page">{category.name}</span></nav><p class="eyebrow">Category</p><h1>{category.name}</h1><p class="lede">{category.description}</p></div></header>
+  <section class="section container"><div class="notice surface"><strong>Roadmap status</strong><p>Items labeled Planned are not live tools yet. Published applications will link directly to their independent Tolvira project sites.</p></div><h2 class="sr-only">{category.name} roadmap</h2><div class="grid grid-3 tool-grid">{categoryTools.map((tool) => <ToolCard tool={tool} />)}</div></section>
+</BaseLayout>
+<style>
+  nav { margin-bottom: 1.5rem; color: var(--color-text-secondary); font-size: .85rem; } nav a { color: inherit; }
+  .notice { padding: 1rem 1.2rem; } .notice p { margin: .2rem 0 0; color: var(--color-text-secondary); }
+  .tool-grid { margin-top: 1.5rem; }
+</style>

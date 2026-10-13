@@ -1,0 +1,5 @@
+---
+const { hubUrl = 'https://tolvira.github.io/' } = Astro.props as { hubUrl?: string };
+---
+<footer class="tv-footer"><div class="tv-wrap"><span>© {new Date().getFullYear()} Tolvira contributors.</span><nav aria-label="Legal"><a href={`${hubUrl}privacy/`}>Privacy</a><a href={`${hubUrl}terms/`}>Terms</a></nav></div></footer>
+<style>.tv-footer{margin-top:4rem;border-top:1px solid var(--color-border);color:var(--color-text-secondary)}.tv-wrap{display:flex;width:min(calc(100% - 2rem),var(--content-width));margin:auto;padding:1.5rem 0;justify-content:space-between;gap:1rem}.tv-footer nav{display:flex;gap:1rem}.tv-footer a{color:inherit}@media(max-width:560px){.tv-wrap{flex-direction:column}}</style>

@@ -1,0 +1,43 @@
+---
+import Header from '@/components/layout/Header.astro';
+import Footer from '@/components/layout/Footer.astro';
+import { siteConfig } from '@/config/site';
+import { createSeoMetadata } from '@/lib/seo';
+import '@/styles/global.css';
+
+interface Props { title: string; description: string; image?: string; noindex?: boolean; }
+const { title, description, image = '/brand/social-card.svg', noindex = false } = Astro.props;
+const seo = createSeoMetadata(Astro.url.pathname, title, description, image, noindex);
+const organization = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Tolvira', url: siteConfig.url };
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={seo.description} />
+    {seo.noindex && <meta name="robots" content="noindex,follow" />}
+    <link rel="canonical" href={seo.canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tolvira" />
+    <meta property="og:title" content={seo.fullTitle} />
+    <meta property="og:description" content={seo.description} />
+    <meta property="og:url" content={seo.canonical} />
+    <meta property="og:image" content={seo.image} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seo.fullTitle} />
+    <meta name="twitter:description" content={seo.description} />
+    <title>{seo.fullTitle}</title>
+    <script type="application/ld+json" set:html={JSON.stringify(organization)} />
+    <script is:inline>try{const t=localStorage.getItem('tolvira-theme');if(t)document.documentElement.dataset.theme=t}catch{document.documentElement.removeAttribute('data-theme')}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <Header />
+    <main id="main-content"><slot /></main>
+    <Footer />
+  </body>
+</html>

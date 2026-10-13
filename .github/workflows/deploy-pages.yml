@@ -1,0 +1,35 @@
+name: Deploy to GitHub Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run validate
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: dist }
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Confirm hosting compliance before enabling this workflow
+        run: echo "Commercial mode must remain prelaunch until GitHub Pages policy review is complete."
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

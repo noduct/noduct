@@ -1,0 +1,12 @@
+---
+import BrandHeader from './BrandHeader.astro';
+import BrandFooter from './BrandFooter.astro';
+import '../tokens.css';
+const { hubUrl = 'https://tolvira.github.io/' } = Astro.props as { hubUrl?: string };
+---
+<BrandHeader hubUrl={hubUrl} />
+<main class="tv-tool-frame"><slot /></main>
+<BrandFooter hubUrl={hubUrl} />
+<style is:global>
+  *,*::before,*::after{box-sizing:border-box}html{color-scheme:light dark}body{margin:0;background:var(--color-background);color:var(--color-text);font-family:Inter,ui-sans-serif,system-ui,sans-serif;line-height:1.6}a{color:var(--color-primary);text-underline-offset:3px}:focus-visible{outline:3px solid var(--color-focus);outline-offset:3px}.tv-tool-frame{width:min(calc(100% - 2rem),900px);margin:auto}button,input,textarea{font:inherit}
+</style>

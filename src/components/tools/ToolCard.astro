@@ -1,0 +1,18 @@
+---
+import type { ToolDefinition } from '@/types/tool';
+import { getCategory } from '@/data/categories';
+import styles from './ToolCard.module.css';
+const { tool } = Astro.props as { tool: ToolDefinition };
+const category = getCategory(tool.category);
+---
+{tool.status === 'planned' ? (
+  <article class:list={['card', styles.toolCard]} data-search-item data-search={`${tool.name} ${tool.description} ${tool.keywords.join(' ')}`}>
+    <div class={styles.cardTop}><span class={styles.toolIcon} aria-hidden="true">{tool.name.slice(0, 1)}</span><span class="tag">Planned</span></div>
+    <h3>{tool.name}</h3><p>{tool.description}</p><small>{category?.name}</small>
+  </article>
+) : (
+  <a class:list={['card', styles.toolCard]} href={tool.url} data-search-item data-search={`${tool.name} ${tool.description} ${tool.keywords.join(' ')}`}>
+    <div class={styles.cardTop}><span class={styles.toolIcon} aria-hidden="true">{tool.name.slice(0, 1)}</span>{tool.status === 'beta' && <span class="tag">Beta</span>}</div>
+    <h3>{tool.name}</h3><p>{tool.description}</p><small>{category?.name} <span aria-hidden="true">→</span></small>
+  </a>
+)}

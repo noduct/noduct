@@ -1,0 +1,5 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+<BaseLayout title="Page Not Found" description="The requested Tolvira page could not be found." noindex={true}><section class="section narrow not-found"><p class="eyebrow">404 error</p><h1>That page is not here</h1><p class="lede">The address may be outdated, or the tool may not be published yet.</p><div class="actions"><a class="button" href="/">Go to homepage</a><a class="button secondary" href="/tools/">Browse all tools</a></div></section></BaseLayout>
+<style>.not-found { min-height: 55vh; display: grid; align-content: center; }.actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }</style>

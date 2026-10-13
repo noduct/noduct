@@ -1,0 +1,7 @@
+.footer { margin-top: 3rem; padding-block: 3rem 1.5rem; background: var(--color-surface); border-top: 1px solid var(--color-border); }
+.footerGrid { display: flex; justify-content: space-between; gap: 2rem; }
+.footer p { margin: .3rem 0; color: var(--color-text-secondary); }
+.footer nav { display: flex; flex-wrap: wrap; align-items: start; justify-content: end; gap: .5rem 1rem; }
+.footer nav a { color: var(--color-text-secondary); font-size: .9rem; text-decoration: none; }
+.legal { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: .82rem; }
+@media (max-width: 640px) { .footerGrid { display: grid; } .footer nav { justify-content: start; } }

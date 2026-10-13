@@ -1,0 +1,13 @@
+name: Bug report
+description: Report a reproducible problem in the Tolvira hub
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Problem, description: Describe what happened and what you expected. }
+    validations: { required: true }
+  - type: input
+    id: route
+    attributes: { label: Page or tool URL }
+  - type: textarea
+    id: environment
+    attributes: { label: Browser and device }

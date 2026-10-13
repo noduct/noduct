@@ -1,0 +1,12 @@
+---
+import styles from './Footer.module.css';
+---
+<footer class={styles.footer}>
+  <div class:list={['container', styles.footerGrid]}>
+    <div><strong>Tolvira</strong><p>Free, focused tools for everyday tasks.</p></div>
+    <nav aria-label="Footer navigation">
+      <a href="/tools/">All tools</a><a href="/about/">About</a><a href="/sponsor/">Sponsor</a><a href="/contact/">Contact</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a>
+    </nav>
+  </div>
+  <div class:list={['container', styles.legal]}>© {new Date().getFullYear()} Tolvira contributors. Open source under the MIT License.</div>
+</footer>

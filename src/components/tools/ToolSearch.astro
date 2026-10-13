@@ -1,0 +1,46 @@
+---
+import ToolCard from './ToolCard.astro';
+import type { ToolDefinition } from '@/types/tool';
+const { tools, showResults = true, compact = false } = Astro.props as { tools: ToolDefinition[]; showResults?: boolean; compact?: boolean };
+---
+<div class="search" data-tool-search data-compact={compact ? 'true' : 'false'}>
+  <label for="tool-search">Search tools</label>
+  <div class="input-wrap"><span aria-hidden="true">⌕</span><input id="tool-search" type="search" placeholder="Search by name, description or keyword…" autocomplete="off" aria-describedby="search-help search-status" /><kbd>Ctrl K</kbd></div>
+  <small id="search-help">Press Ctrl+K or Command+K from anywhere to focus search.</small>
+  <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
+  {showResults && <h2 class="sr-only">Search results</h2>}
+  {showResults && <div class="grid grid-3 results" data-results hidden={compact}>{tools.map((tool) => <ToolCard tool={tool} />)}</div>}
+  {showResults && <div class="surface empty" data-empty hidden>No tools match your search. Try a broader term.</div>}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-tool-search]').forEach((root) => {
+    const input = root.querySelector<HTMLInputElement>('input[type="search"]');
+    const items = [...root.querySelectorAll<HTMLElement>('[data-search-item]')];
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    const status = root.querySelector<HTMLElement>('[role="status"]');
+    const update = () => {
+      const query = input?.value.trim().toLowerCase() ?? '';
+      const compact = root.dataset.compact === 'true';
+      let count = 0;
+      for (const item of items) { const match = Boolean(query) && (item.dataset.search ?? '').toLowerCase().includes(query); item.hidden = compact ? !match || count >= 6 : Boolean(query) && !match; if (match) count++; }
+      const results = root.querySelector<HTMLElement>('[data-results]');
+      if (results && compact) results.hidden = !query;
+      if (empty) empty.hidden = !query || count !== 0;
+      if (status) status.textContent = query ? `${count} ${count === 1 ? 'tool' : 'tools'} found.` : '';
+    };
+    input?.addEventListener('input', update);
+    document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); input?.focus(); } });
+  });
+</script>
+<style>
+  .search { margin-top: 2rem; }
+  label { display: block; margin-bottom: .5rem; font-weight: 700; }
+  .input-wrap { display: flex; align-items: center; gap: .65rem; padding: .3rem .65rem; background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgb(15 23 42 / 6%); }
+  .input-wrap:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent); }
+  input { width: 100%; min-height: 48px; border: 0; outline: 0; background: transparent; color: var(--color-text); }
+  kbd { padding: .15rem .4rem; border: 1px solid var(--color-border); border-radius: 5px; color: var(--color-text-secondary); font-size: .72rem; white-space: nowrap; }
+  small { display: block; margin-top: .5rem; color: var(--color-text-secondary); }
+  .results { margin-top: 2rem; }
+  .sr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  [hidden] { display: none !important; }
+</style>

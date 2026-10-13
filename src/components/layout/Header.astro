@@ -1,0 +1,42 @@
+---
+import { categories } from '@/data/categories';
+import styles from './Header.module.css';
+---
+<header class={styles.siteHeader}>
+  <div class:list={['container', styles.navWrap]}>
+    <a class={styles.brand} href="/" aria-label="Tolvira home"><span aria-hidden="true" class={styles.brandMark}>T</span><span>Tolvira</span></a>
+    <nav aria-label="Primary navigation" id="primary-nav">
+      <a href="/tools/">All tools</a>
+      <details>
+        <summary>Categories</summary>
+        <div class={styles.menu}>
+          {categories.map((category) => <a href={`/${category.id}/`}>{category.name}</a>)}
+        </div>
+      </details>
+      <a href="/about/">About</a>
+      <button id="theme-toggle" class={styles.iconButton} type="button" aria-label="Switch color theme" title="Switch color theme"><span aria-hidden="true">◐</span></button>
+    </nav>
+    <button class={styles.menuButton} data-menu-button type="button" aria-controls="primary-nav" aria-expanded="false">Menu</button>
+  </div>
+</header>
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+    const saved = localStorage.getItem('tolvira-theme');
+    if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
+    const toggle = document.querySelector('#theme-toggle');
+    toggle?.addEventListener('click', () => {
+      const current = root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      localStorage.setItem('tolvira-theme', next);
+    });
+    const menu = document.querySelector('[data-menu-button]');
+    const nav = document.querySelector('#primary-nav');
+    menu?.addEventListener('click', () => {
+      const open = menu.getAttribute('aria-expanded') === 'true';
+      menu.setAttribute('aria-expanded', String(!open));
+      nav?.classList.toggle('open', !open);
+    });
+  })();
+</script>

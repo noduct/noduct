@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+playwright-report/
+test-results/
+lighthouse-report/
+.lighthouseci/
+.env
+.DS_Store
+packages/tool-template/node_modules/
+packages/tool-template/dist/

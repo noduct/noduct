@@ -1,0 +1,17 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { siteConfig } from '@/config/site';
+---
+<BaseLayout title="Sponsor a Tolvira Tool" description="Learn about Tolvira's planned direct sponsorship program for focused online tools, including pricing, review and placement rules.">
+  <header class="page-head"><div class="narrow"><p class="eyebrow">Sponsor Tolvira</p><h1>Support free tools with one discreet placement</h1><p class="lede">Our planned sponsorship program offers one compact placement after a tool's main interface for US$10 per month.</p></div></header>
+  <section class="section narrow prose">
+    <div class="prelaunch surface"><strong>Pre-launch notice</strong><p>Commercial activation is currently paused while hosting-policy and legal requirements are reviewed. No payment link is active.</p></div>
+    <h2>What is included</h2><ul><li>One clearly labeled placement in one approved tool.</li><li>Your name, a short factual description and one HTTPS destination link.</li><li>A monthly placement that can be canceled before the next renewal.</li><li>Manual creative review and publication.</li></ul>
+    <h2>Price and term</h2><p>The intended price is <strong>US${siteConfig.sponsor.monthlyPriceUsd}/month per placement</strong>. Availability is specific to each tool. We do not guarantee minimum impressions, clicks, leads or conversions.</p>
+    <h2>Approval process</h2><ol><li>Ask about an available tool placement.</li><li>Submit your public creative and destination URL.</li><li>We review relevance, clarity, safety and policy compliance.</li><li>If approved, you receive official payment instructions.</li><li>Publication happens only after manual payment confirmation.</li></ol>
+    <h2>Advertiser rules</h2><p>We do not accept deceptive, illegal, harmful, adult, gambling, surveillance or malware-related advertising. Claims must be verifiable. Tolvira may reject or remove a placement that conflicts with user safety or product values.</p>
+    <h2>Payments and cancellation</h2><p>The intended recurring payment method is an official PayPal subscription link configured by the administrator. A normal one-time payment URL is not treated as a subscription. Cancellation and renewal follow the terms shown by PayPal; placement remains subject to manual status checks.</p>
+    <h2>Contact</h2><p>Contact intake is not configured yet. When the program is activated, this page will provide the verified public contact channel and official payment instructions.</p>
+  </section>
+</BaseLayout>
+<style>.prelaunch { padding: 1rem 1.25rem; border-left: 4px solid var(--color-primary); }.prelaunch p { margin-top: .2rem; }</style>

@@ -1,0 +1,23 @@
+.siteHeader { position: sticky; z-index: 20; top: 0; background: color-mix(in srgb, var(--color-background) 94%, transparent); border-bottom: 1px solid var(--color-border); backdrop-filter: blur(10px); }
+.navWrap { display: flex; align-items: center; justify-content: space-between; min-height: 64px; }
+.brand { display: flex; align-items: center; gap: .65rem; color: var(--color-text); font-size: 1.15rem; font-weight: 800; text-decoration: none; }
+.brandMark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; background: var(--color-primary); color: #fff; font-size: .92rem; }
+.siteHeader nav { display: flex; align-items: center; gap: .25rem; }
+.siteHeader nav > a, .siteHeader summary { padding: .55rem .75rem; color: var(--color-text-secondary); font-size: .9rem; font-weight: 650; text-decoration: none; cursor: pointer; }
+.siteHeader nav > a:hover, .siteHeader summary:hover { color: var(--color-text); }
+.siteHeader details { position: relative; }
+.siteHeader summary { list-style: none; }
+.siteHeader summary::-webkit-details-marker { display: none; }
+.menu { position: absolute; top: calc(100% + .5rem); right: 0; width: 220px; padding: .5rem; background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 16px 40px rgb(15 23 42 / 12%); }
+.menu a { display: block; padding: .55rem .65rem; border-radius: var(--radius-sm); color: var(--color-text); text-decoration: none; }
+.menu a:hover { background: var(--color-surface); }
+.iconButton, .menuButton { min-width: 42px; min-height: 42px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); cursor: pointer; }
+.menuButton { display: none; }
+@media (max-width: 720px) {
+  .menuButton { display: block; }
+  .siteHeader nav { display: none; position: absolute; top: 64px; right: 1rem; left: 1rem; align-items: stretch; padding: .75rem; background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 16px 40px rgb(15 23 42 / 12%); }
+  .siteHeader nav:global(.open) { display: grid; }
+  .siteHeader nav > a, .siteHeader summary { display: block; }
+  .menu { position: static; width: auto; box-shadow: none; }
+  .iconButton { justify-self: start; }
+}
