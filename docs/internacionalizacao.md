@@ -4,7 +4,7 @@
 
 O hub publica conteúdo completo em inglês, português brasileiro e espanhol. O inglês usa URLs sem prefixo; português usa `/pt-br/` e espanhol usa `/es/`.
 
-Na entrada por uma URL inglesa, um script curto no `head` consulta somente `navigator.languages` e `navigator.language`. Qualquer variante de português usa PT-BR, qualquer variante de espanhol usa espanhol e qualquer idioma não mapeado permanece em inglês. Ao redirecionar, o script oculta o documento inglês (`display: none`) para que ele não seja estilizado nem pintado enquanto a versão traduzida carrega. O menu de configurações do header permite fixar um idioma manualmente: a escolha é salva em `localStorage` (`tolvira-locale`) e, nas URLs inglesas, tem prioridade sobre o navegador. A opção "Automático" remove a chave e volta a seguir o navegador. Não há cookie nem parâmetro de URL; os links de idioma do menu apontam para a mesma página no idioma escolhido e funcionam sem JavaScript.
+Na entrada por uma URL inglesa, um script curto no `head` consulta somente `navigator.languages` e `navigator.language`. Qualquer variante de português usa PT-BR, qualquer variante de espanhol usa espanhol e qualquer idioma não mapeado permanece em inglês. Ao redirecionar, o script oculta o documento inglês (`display: none`) para que ele não seja estilizado nem pintado enquanto a versão traduzida carrega. O idioma nunca é salvo em `localStorage`: os links do menu permitem visitar diretamente outra tradução, mas uma nova entrada pela raiz volta a seguir exclusivamente o navegador. Não há cookie nem parâmetro de URL.
 
 URLs localizadas acessadas diretamente são respeitadas para permitir compartilhamento, indexação e navegação previsível. Sem JavaScript, a URL sem prefixo entrega o conteúdo inglês como fallback.
 

@@ -140,8 +140,8 @@ const checkIcon = 'M4 10.5l3.5 3.5L16 6';
 </div>
 
 <script>
-  import { localizePath, resolveBrowserLocale, isLocale } from '@/i18n/config';
-  import { preferenceKeys, readPreference, writePreference, setPreference } from '@/lib/preferences';
+  import { localizePath, resolveBrowserLocale } from '@/i18n/config';
+  import { preferenceKeys, setPreference } from '@/lib/preferences';
 
   const root = document.querySelector<HTMLElement>('[data-settings]');
   const trigger = root?.querySelector<HTMLButtonElement>('[data-settings-trigger]');
@@ -160,11 +160,10 @@ const checkIcon = 'M4 10.5l3.5 3.5L16 6';
       themeInputs.forEach((input) => { input.checked = input.value === theme; });
       artSwitch?.setAttribute('aria-checked', String(html.dataset.art !== 'off'));
       motionSwitch?.setAttribute('aria-checked', String(html.dataset.motion === 'reduce'));
-      const saved = readPreference(preferenceKeys.locale);
-      const selected = saved && isLocale(saved) ? saved : 'auto';
+      const selected = resolveBrowserLocale(navigator.languages?.length ? navigator.languages : [navigator.language]);
       languageOptions.forEach((option) => {
         option.dataset.selected = String(option.dataset.prefLocale === selected);
-        if (option instanceof HTMLButtonElement) option.setAttribute('aria-pressed', String(selected === 'auto'));
+        if (option instanceof HTMLButtonElement) option.setAttribute('aria-pressed', String(root.dataset.locale === selected));
       });
     };
 
@@ -196,12 +195,8 @@ const checkIcon = 'M4 10.5l3.5 3.5L16 6';
     languageOptions.forEach((option) => {
       option.addEventListener('click', (event) => {
         const choice = option.dataset.prefLocale ?? 'auto';
-        if (choice !== 'auto') {
-          writePreference(preferenceKeys.locale, choice);
-          return; // O link segue para a página no idioma escolhido.
-        }
+        if (choice !== 'auto') return; // O link altera somente a URL atual; a próxima entrada volta a seguir o navegador.
         event.preventDefault();
-        writePreference(preferenceKeys.locale, null);
         const target = resolveBrowserLocale(navigator.languages?.length ? navigator.languages : [navigator.language]);
         if (target !== root.dataset.locale) window.location.assign(localizePath(window.location.pathname, target));
         else render();
