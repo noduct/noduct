@@ -12,6 +12,9 @@ describe('internationalization', () => {
   });
 
   it('creates stable localized paths', () => {
+    expect(localizePath('/', 'en')).toBe('/tolvira/');
+    expect(localizePath('/tolvira/', 'pt-BR')).toBe('/tolvira/pt-br/');
+    expect(localizePath('/tolvira/pt-br/', 'es')).toBe('/tolvira/es/');
     expect(localizePath('/tools/', 'en')).toBe('/tolvira/tools/');
     expect(localizePath('/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
     expect(localizePath('/es/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
