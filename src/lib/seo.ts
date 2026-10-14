@@ -1,4 +1,5 @@
 import { siteConfig } from '@/config/site';
+import { localizePath } from '@/i18n/config';
 
 export interface SeoMetadata {
   title: string;
@@ -14,8 +15,8 @@ export function createSeoMetadata(pathname: string, title: string, description: 
     title,
     fullTitle: title.includes('Tolvira') ? title : `${title} | Tolvira`,
     description,
-    canonical: new URL(pathname, siteConfig.url),
-    image: new URL(image, siteConfig.url),
+    canonical: new URL(localizePath(pathname, 'en'), siteConfig.url),
+    image: new URL(localizePath(image, 'en'), siteConfig.url),
     noindex
   };
 }

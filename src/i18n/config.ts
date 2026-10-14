@@ -2,6 +2,7 @@ export const locales = ['en', 'pt-BR', 'es'] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = 'en';
+export const siteBasePath = '/tolvira';
 export const localePrefixes: Record<Locale, string> = { en: '', 'pt-BR': '/pt-br', es: '/es' };
 
 export function isLocale(value: string): value is Locale {
@@ -20,6 +21,8 @@ export function resolveBrowserLocale(languages: readonly string[]): Locale {
 
 export function localizePath(pathname: string, locale: Locale): string {
   const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
-  const normalized = path === '/' ? '/' : `${path.replace(/^\/(?:pt-br|es)(?=\/|$)/, '').replace(/\/$/, '')}/`;
-  return locale === 'en' ? normalized : `${localePrefixes[locale]}${normalized === '/' ? '/' : normalized}`;
+  const withoutBase = path.replace(new RegExp(`^${siteBasePath}(?=/|$)`), '') || '/';
+  const normalized = withoutBase === '/' ? '/' : `${withoutBase.replace(/^\/(?:pt-br|es)(?=\/|$)/, '').replace(/\/$/, '')}/`;
+  const localized = locale === 'en' ? normalized : `${localePrefixes[locale]}${normalized === '/' ? '/' : normalized}`;
+  return localized === '/' ? `${siteBasePath}/` : `${siteBasePath}${localized}`;
 }

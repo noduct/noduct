@@ -29,7 +29,7 @@ const redirectPaths = locale === 'en' ? { ptBR: alternates.ptBR, es: alternates.
     <link rel="alternate" hreflang="pt-BR" href={new URL(alternates.ptBR, siteConfig.url)} />
     <link rel="alternate" hreflang="es" href={new URL(alternates.es, siteConfig.url)} />
     <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, siteConfig.url)} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={localizePath('/favicon.svg', 'en')} type="image/svg+xml" />
     <meta name="theme-color" content="#2563eb" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Tolvira" />

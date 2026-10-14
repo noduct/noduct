@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
-import { localizePath, resolveBrowserLocale } from '@/i18n/config';
-import { getLocalizedTools } from '@/data/tools';
 import { getLocalizedCategories } from '@/data/categories';
+import { getLocalizedTools } from '@/data/tools';
+import { localizePath, resolveBrowserLocale } from '@/i18n/config';
+import { describe, expect, it } from 'vitest';
 
 describe('internationalization', () => {
   it('maps browser language families and falls back to English', () => {
@@ -12,9 +12,9 @@ describe('internationalization', () => {
   });
 
   it('creates stable localized paths', () => {
-    expect(localizePath('/tools/', 'en')).toBe('/tools/');
-    expect(localizePath('/tools/', 'pt-BR')).toBe('/pt-br/tools/');
-    expect(localizePath('/es/tools/', 'pt-BR')).toBe('/pt-br/tools/');
+    expect(localizePath('/tools/', 'en')).toBe('/tolvira/tools/');
+    expect(localizePath('/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
+    expect(localizePath('/es/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
   });
 
   it('has a complete localized catalog', () => {
