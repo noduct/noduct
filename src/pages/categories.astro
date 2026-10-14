@@ -1,10 +1,4 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { categories } from '@/data/categories';
-import { tools } from '@/data/tools';
+import CategoriesPage from '@/components/pages/CategoriesPage.astro';
 ---
-<BaseLayout title="Tool Categories" description="Explore Tolvira tools by category: PDF, image, text, data, developer tools and general utilities.">
-  <header class="page-head"><div class="container"><p class="eyebrow">Directory</p><h1>Tool categories</h1><p class="lede">Start with the kind of task you want to complete. Every category shows published tools and the clearly labeled roadmap.</p></div></header>
-  <section class="section container"><div class="grid grid-3">{categories.map((category) => <a class="card" href={`/${category.id}/`}><h2>{category.name}</h2><p>{category.description}</p><strong>{tools.filter((tool) => tool.category === category.id).length} planned tools →</strong></a>)}</div></section>
-</BaseLayout>
-<style>h2 { font-size: 1.25rem; } strong { display: block; margin-top: 1rem; color: var(--color-primary); font-size: .85rem; }</style>
+<CategoriesPage locale="en" />

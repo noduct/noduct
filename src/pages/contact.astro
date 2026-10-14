@@ -1,9 +1,4 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { siteConfig } from '@/config/site';
-const configured = Boolean(siteConfig.contactUrl || siteConfig.contactEmail);
+import InfoPage from '@/components/pages/InfoPage.astro';
 ---
-<BaseLayout title="Contact Tolvira" description="Find the configured public contact options for Tolvira feedback, tool issues and sponsorship questions.">
-  <header class="page-head"><div class="narrow"><p class="eyebrow">Contact</p><h1>How can we help?</h1><p class="lede">Use the relevant public channel for feedback, bug reports or sponsorship questions.</p></div></header>
-  <section class="section narrow">{configured ? <div class="grid"><p>Choose the configured contact channel below. Never send passwords, payment evidence or sensitive files.</p>{siteConfig.contactUrl && <a class="button" href={siteConfig.contactUrl}>Open contact form</a>}{siteConfig.contactEmail && <a class="button secondary" href={`mailto:${siteConfig.contactEmail}`}>Send email</a>}</div> : <div class="surface empty"><strong>Contact is not configured yet.</strong><p>A verified public channel will be added before launch. No personal address is exposed in this pre-launch build.</p></div>}</section>
-</BaseLayout>
+<InfoPage locale="en" kind="contact" />

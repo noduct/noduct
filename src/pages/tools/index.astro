@@ -1,9 +1,4 @@
 ---
-import HubLayout from '@/layouts/HubLayout.astro';
-import ToolSearch from '@/components/tools/ToolSearch.astro';
-import { tools } from '@/data/tools';
+import DirectoryPage from '@/components/pages/DirectoryPage.astro';
 ---
-<HubLayout title="All Online Tools" description="Browse Tolvira's published tools and transparent product roadmap for PDF, image, text, data, developer and general tasks.">
-  <header class="page-head"><div class="container"><p class="eyebrow">Tool directory</p><h1>All tools</h1><p class="lede">Search the complete Tolvira roadmap. Planned tools are visible for transparency but cannot be opened until their independent applications are published.</p></div></header>
-  <section class="section container"><ToolSearch tools={tools} /></section>
-</HubLayout>
+<DirectoryPage locale="en" />

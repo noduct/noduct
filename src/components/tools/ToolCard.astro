@@ -1,18 +1,77 @@
 ---
 import type { ToolDefinition } from '@/types/tool';
 import { getCategory } from '@/data/categories';
+import ToolIcon from './ToolIcon.astro';
 import styles from './ToolCard.module.css';
-const { tool } = Astro.props as { tool: ToolDefinition };
-const category = getCategory(tool.category);
+import { getMessages } from '@/i18n/messages';
+import type { Locale } from '@/i18n/config';
+
+const { tool, locale = 'en' } = Astro.props as { tool: ToolDefinition; locale?: Locale };
+const category = getCategory(tool.category, locale);
+const m = getMessages(locale);
 ---
+
 {tool.status === 'planned' ? (
-  <article class:list={['card', styles.toolCard]} data-search-item data-search={`${tool.name} ${tool.description} ${tool.keywords.join(' ')}`}>
-    <div class={styles.cardTop}><span class={styles.toolIcon} aria-hidden="true">{tool.name.slice(0, 1)}</span><span class="tag">Planned</span></div>
-    <h3>{tool.name}</h3><p>{tool.description}</p><small>{category?.name}</small>
+  <article
+    class:list={['card', styles.toolCard, styles.isPlanned]}
+    data-search-item
+    data-search={`${tool.name} ${tool.description} ${tool.keywords.join(' ')}`}
+  >
+    <div class={styles.cardHeader}>
+      <ToolIcon category={tool.category} />
+      <span class={styles.statusBadge}>{m.common.planned}</span>
+    </div>
+    <div class={styles.cardBody}>
+      <h3 class={styles.toolName}>{tool.name}</h3>
+      <p class={styles.toolDesc}>{tool.description}</p>
+    </div>
+    <div class={styles.cardFooter}>
+      <span class={styles.categoryLabel}>{category?.name}</span>
+    </div>
   </article>
 ) : (
-  <a class:list={['card', styles.toolCard]} href={tool.url} data-search-item data-search={`${tool.name} ${tool.description} ${tool.keywords.join(' ')}`}>
-    <div class={styles.cardTop}><span class={styles.toolIcon} aria-hidden="true">{tool.name.slice(0, 1)}</span>{tool.status === 'beta' && <span class="tag">Beta</span>}</div>
-    <h3>{tool.name}</h3><p>{tool.description}</p><small>{category?.name} <span aria-hidden="true">→</span></small>
+  <a
+    class:list={['card', styles.toolCard, styles.isAvailable]}
+    href={tool.url}
+    data-recent-id={tool.id}
+    data-search-item
+    data-search={`${tool.name} ${tool.description} ${tool.keywords.join(' ')}`}
+  >
+    <div class={styles.cardHeader}>
+      <ToolIcon category={tool.category} />
+      {tool.status === 'beta' ? (
+        <span class:list={[styles.statusBadge, styles.isBeta]}>{m.common.beta}</span>
+      ) : (
+        <span class={styles.openAffordance}>
+          <span>{m.common.open}</span>
+          <svg class={styles.arrowIcon} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <use href="#icon-chevron" />
+          </svg>
+        </span>
+      )}
+    </div>
+    <div class={styles.cardBody}>
+      <h3 class={styles.toolName}>{tool.name}</h3>
+      <p class={styles.toolDesc}>{tool.description}</p>
+    </div>
+    <div class={styles.cardFooter}>
+      <span class={styles.categoryLabel}>{category?.name}</span>
+    </div>
   </a>
 )}
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('[data-recent-id]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const id = link.dataset.recentId;
+      if (!id) return;
+      let recent: string[] = [];
+      try {
+        recent = JSON.parse(localStorage.getItem('tolvira-recent-tools') ?? '[]');
+      } catch {
+        recent = [];
+      }
+      localStorage.setItem('tolvira-recent-tools', JSON.stringify([id, ...recent.filter((item) => item !== id)].slice(0, 6)));
+    });
+  });
+</script>

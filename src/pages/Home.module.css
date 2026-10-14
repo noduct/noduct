@@ -1,0 +1,387 @@
+.hero {
+  padding-block: clamp(2rem, 4vw, 3rem) clamp(1.75rem, 3.5vw, 2.5rem);
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.heroInner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 460px);
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .3rem .75rem;
+  margin-bottom: .85rem;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: .78rem;
+  font-weight: 550;
+  box-shadow: var(--rim-light-subtle);
+}
+
+.heroBadgeDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+.heroTitle {
+  font-size: clamp(1.75rem, 3.5vw, 2.25rem);
+  font-weight: 650;
+  line-height: 1.2;
+  letter-spacing: -.03em;
+  color: var(--color-text);
+  max-width: 580px;
+}
+
+.heroCopy {
+  margin-top: .75rem;
+  color: var(--color-text-secondary);
+  font-size: .95rem;
+  line-height: 1.5;
+  max-width: 540px;
+}
+
+.heroSearch {
+  width: 100%;
+}
+
+.workspace {
+  padding-block: 28px 56px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: start;
+  gap: 24px;
+}
+
+.layout > *,
+.heroInner > * {
+  min-width: 0;
+}
+
+/* Functional Island: App Library */
+.libraryIsland {
+  min-width: 0;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm), var(--rim-light);
+}
+
+.libraryHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 1.25rem;
+}
+
+.libraryTitle {
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -.02em;
+  color: var(--color-text);
+}
+
+.librarySubtitle {
+  margin: 4px 0 0;
+  color: var(--color-text-secondary);
+  font-size: .86rem;
+}
+
+.directoryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: .35rem .85rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: .82rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm), var(--rim-light-subtle);
+  transform: scale(1);
+  transition:
+    transform var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple),
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .directoryLink:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-primary);
+    background: var(--color-surface-hover);
+  }
+
+  .directoryLink:hover .linkArrow {
+    transform: translateX(3px);
+  }
+}
+
+.directoryLink:active {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+.linkArrow {
+  width: 14px;
+  height: 14px;
+  transform: translateX(0);
+  transition: transform var(--duration-fast) var(--ease-apple);
+}
+
+/* Integrated Category Segment Bar (Responsive & Touch-ready) */
+.categoryNav {
+  width: 100%;
+  max-width: 100%;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.categoryTab {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  min-height: 42px;
+  padding: .5rem .75rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm), var(--rim-light-subtle);
+  transform: scale(1);
+  transition:
+    transform var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple),
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .categoryTab:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+  }
+}
+
+.categoryTab:active {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+.categoryTab :global(.icon) {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-xs);
+  border: 0;
+  background: transparent;
+}
+
+.categoryTab :global(.icon svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.tabName {
+  font-size: .8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabCount {
+  margin-left: auto;
+  padding: 1px 7px;
+  border-radius: var(--radius-xs);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  font-size: .7rem;
+  font-weight: 600;
+}
+
+/* Category Sections */
+.categoriesContent {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.categorySection {
+  scroll-margin-top: 80px;
+  /* Seções fora da tela não são pintadas (scroll e troca de tema mais leves). */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 560px;
+}
+
+.categorySection + .categorySection {
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.categoryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.categoryInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.categoryTitle {
+  font-size: 1.08rem;
+  font-weight: 650;
+  color: var(--color-text);
+}
+
+.categoryCount {
+  color: var(--color-text-muted);
+  font-size: .8rem;
+}
+
+.seeCategoryLink {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  min-height: 32px;
+  color: var(--color-text-secondary);
+  font-size: .8rem;
+  font-weight: 600;
+  text-decoration: none;
+  transform: scale(1);
+  transition:
+    transform var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .seeCategoryLink:hover {
+    color: var(--color-primary);
+  }
+
+  .seeCategoryLink:hover .linkChevron {
+    transform: translateX(3px);
+  }
+}
+
+.seeCategoryLink:active {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+.linkChevron {
+  width: 14px;
+  height: 14px;
+  transform: translateX(0);
+  transition: transform var(--duration-fast) var(--ease-apple);
+}
+
+.toolGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sidebar {
+  position: relative;
+}
+
+/* Tablet & Mobile Responsiveness com Física Elástica */
+@media (max-width: 1100px) {
+  .categoryNav {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .categoryNav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .categoryTab {
+    flex: 0 0 auto;
+    min-width: 130px;
+    scroll-snap-align: start;
+  }
+}
+
+@media (max-width: 1024px) {
+  .heroInner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .toolGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .hero {
+    padding-block: 24px 20px;
+  }
+
+  .workspace {
+    padding-block: 20px 40px;
+  }
+
+  .libraryIsland {
+    padding: 1.15rem;
+    border-radius: var(--radius-md);
+  }
+
+  .libraryHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .toolGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .categoryTab {
+    min-width: 120px;
+  }
+}

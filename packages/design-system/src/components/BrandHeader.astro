@@ -1,7 +1,9 @@
 ---
-const { hubUrl = 'https://tolvira.github.io/' } = Astro.props as { hubUrl?: string };
+import { designMessages, designPath, type DesignLocale } from '../i18n';
+const { hubUrl = 'https://tolvira.github.io/', locale = 'en' } = Astro.props as { hubUrl?: string; locale?: DesignLocale };
+const m = designMessages[locale];
 ---
-<header class="tv-header"><div class="tv-wrap"><a class="tv-brand" href={hubUrl} aria-label="Tolvira home"><span aria-hidden="true">T</span>Tolvira</a><nav aria-label="Tolvira"><a href={`${hubUrl}tools/`}>All tools</a><a href={`${hubUrl}categories/`}>Categories</a><a href={`${hubUrl}about/`}>About</a></nav></div></header>
+<header class="tv-header"><div class="tv-wrap"><a class="tv-brand" href={`${hubUrl}${designPath('', locale)}`} aria-label={m.home}><span aria-hidden="true">T</span>Tolvira</a><nav aria-label="Tolvira"><a href={`${hubUrl}${designPath('tools/', locale)}`}>{m.allTools}</a><a href={`${hubUrl}${designPath('categories/', locale)}`}>{m.categories}</a><a href={`${hubUrl}${designPath('about/', locale)}`}>{m.about}</a></nav></div></header>
 <style>
   .tv-header{border-bottom:1px solid var(--color-border);background:var(--color-background)}.tv-wrap{display:flex;min-height:64px;width:min(calc(100% - 2rem),var(--content-width));margin:auto;align-items:center;justify-content:space-between;gap:1rem}.tv-brand{display:flex;align-items:center;gap:.6rem;color:var(--color-text);font-size:1.1rem;font-weight:800;text-decoration:none}.tv-brand span{display:grid;width:30px;height:30px;place-items:center;border-radius:8px;background:var(--color-primary);color:#fff}.tv-header nav{display:flex;gap:1rem}.tv-header nav a{color:var(--color-text-secondary);font-size:.9rem;font-weight:650;text-decoration:none}@media(max-width:560px){.tv-header nav a:not(:first-child){display:none}}
 </style>

@@ -1,42 +1,87 @@
 ---
-import { categories } from '@/data/categories';
+import { getLocalizedCategories } from '@/data/categories';
+import { getMessages } from '@/i18n/messages';
+import { localizePath, type Locale } from '@/i18n/config';
+import SettingsMenu from './SettingsMenu.astro';
 import styles from './Header.module.css';
+const { locale = 'en' } = Astro.props as { locale?: Locale };
+const categories = getLocalizedCategories(locale);
+const m = getMessages(locale);
 ---
+
 <header class={styles.siteHeader}>
   <div class:list={['container', styles.navWrap]}>
-    <a class={styles.brand} href="/" aria-label="Tolvira home"><span aria-hidden="true" class={styles.brandMark}>T</span><span>Tolvira</span></a>
-    <nav aria-label="Primary navigation" id="primary-nav">
-      <a href="/tools/">All tools</a>
-      <details>
-        <summary>Categories</summary>
+    <a class={styles.brand} href={localizePath('/', locale)} aria-label={m.nav.home}>
+      <span class={styles.brandMark} aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="16" rx="3.5" stroke="currentColor" stroke-width="1.8" />
+          <path d="M7 9h10M12 9v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+      <span class={styles.brandName}>Tolvira</span>
+    </a>
+
+    <nav aria-label={m.nav.primary} id="primary-nav" class={styles.primaryNav}>
+      <a href={localizePath('/tools/', locale)} class={styles.navLink}>{m.nav.allTools}</a>
+      <details class={styles.detailsMenu} data-categories-menu>
+        <summary class={styles.navLink}>
+          <span>{m.nav.categories}</span>
+          <svg class={styles.chevronIcon} viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
         <div class={styles.menu}>
-          {categories.map((category) => <a href={`/${category.id}/`}>{category.name}</a>)}
+          {categories.map((category) => (
+            <a href={localizePath(`/${category.id}/`, locale)} class={styles.menuItem}>{category.name}</a>
+          ))}
         </div>
       </details>
-      <a href="/about/">About</a>
-      <button id="theme-toggle" class={styles.iconButton} type="button" aria-label="Switch color theme" title="Switch color theme"><span aria-hidden="true">◐</span></button>
+      <a href={localizePath('/about/', locale)} class={styles.navLink}>{m.nav.about}</a>
     </nav>
-    <button class={styles.menuButton} data-menu-button type="button" aria-controls="primary-nav" aria-expanded="false">Menu</button>
+
+    <div class={styles.actions}>
+      <div class={styles.navDivider} aria-hidden="true"></div>
+      <SettingsMenu locale={locale} />
+      <button class={styles.menuButton} data-menu-button type="button" aria-controls="primary-nav" aria-expanded="false" aria-label={m.nav.menu}>
+        <span class="sr-only">{m.nav.menu}</span>
+        <svg class={styles.menuIcon} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
   </div>
 </header>
+
 <script is:inline>
   (() => {
-    const root = document.documentElement;
-    const saved = localStorage.getItem('tolvira-theme');
-    if (saved === 'light' || saved === 'dark') root.dataset.theme = saved;
-    const toggle = document.querySelector('#theme-toggle');
-    toggle?.addEventListener('click', () => {
-      const current = root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      const next = current === 'dark' ? 'light' : 'dark';
-      root.dataset.theme = next;
-      localStorage.setItem('tolvira-theme', next);
-    });
     const menu = document.querySelector('[data-menu-button]');
     const nav = document.querySelector('#primary-nav');
     menu?.addEventListener('click', () => {
       const open = menu.getAttribute('aria-expanded') === 'true';
       menu.setAttribute('aria-expanded', String(!open));
       nav?.classList.toggle('open', !open);
+    });
+
+    // Fechar dropdown de Categorias ao clicar fora
+    const catDetails = document.querySelector('[data-categories-menu]');
+    document.addEventListener('click', (event) => {
+      if (catDetails && catDetails.hasAttribute('open') && !catDetails.contains(event.target)) {
+        catDetails.removeAttribute('open');
+      }
+    });
+
+    // Fechar ao pressionar Escape
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && catDetails && catDetails.hasAttribute('open')) {
+        catDetails.removeAttribute('open');
+      }
+    });
+
+    // Fechar ao clicar em qualquer link interno do dropdown
+    catDetails?.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        catDetails.removeAttribute('open');
+      });
     });
   })();
 </script>

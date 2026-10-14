@@ -8,12 +8,16 @@ const schema = z.object({
   slug: z.string().regex(slug),
   description: z.string().min(20).max(160),
   category: z.enum(categoryIds),
+  categoryId: z.enum(categoryIds).optional(),
   keywords: z.array(z.string().min(1)).min(1),
+  tags: z.array(z.string().min(1)).optional(),
   icon: z.string().min(1),
-  url: z.string().url().optional(),
+  url: z.string().url().or(z.string().startsWith('/')).optional(),
+  directoryUrl: z.string().optional(),
   repositoryUrl: z.string().url().optional(),
-  status: z.enum(['planned', 'beta', 'published']),
+  status: z.enum(['planned', 'beta', 'published', 'ready', 'new']),
   featured: z.boolean(),
+  visible: z.boolean().optional(),
   sponsorPlacementId: z.string().optional()
 });
 

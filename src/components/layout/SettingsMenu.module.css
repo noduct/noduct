@@ -1,0 +1,303 @@
+.settings {
+  position: relative;
+}
+
+/* Botão de ícone da top bar (mesmo acabamento dos controles do header). */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-card);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm), var(--rim-light);
+  touch-action: manipulation;
+  transform: scale(1);
+  transition:
+    transform var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple),
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .trigger:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+}
+
+.trigger:active {
+  transform: scale(var(--scale-active-icon));
+  transition-duration: var(--duration-instant);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+}
+
+.trigger[aria-expanded='true'] {
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.gear {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--duration-normal) var(--ease-apple-spring);
+}
+
+.trigger[aria-expanded='true'] .gear {
+  transform: rotate(60deg);
+}
+
+/* Painel: a casca vem de Popover.module.css. */
+.panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: min(300px, calc(100vw - 2rem));
+  transform-origin: top right;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  padding: .35rem;
+}
+
+.group,
+.option {
+  margin: 0;
+  padding: .65rem;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.group + .option,
+.option + .option,
+.option + .group {
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.label {
+  padding: 0;
+  color: var(--color-text);
+  font-size: .84rem;
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: .74rem;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+/* Tema: controle segmentado com rádios nativos. */
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 2px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.segment {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  height: 32px;
+  border-radius: var(--radius-xs);
+  color: var(--color-text-secondary);
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple),
+    box-shadow var(--duration-fast) var(--ease-apple);
+}
+
+.segment input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segment svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .segment:hover {
+    color: var(--color-text);
+  }
+}
+
+.segment:has(input:checked) {
+  background: var(--color-surface-card);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm), var(--rim-light);
+}
+
+.segment:has(input:focus-visible) {
+  box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+}
+
+/* Opções com switch. */
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: .1rem;
+  min-width: 0;
+}
+
+.switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface-hover);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple);
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.25);
+  transition: transform var(--duration-normal) var(--ease-apple-spring);
+}
+
+.switch[aria-checked='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.switch[aria-checked='true']::after {
+  /* !important: a posição indica o estado e precisa resistir à redução global de movimento. */
+  transform: translateX(14px) !important;
+}
+
+.switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+}
+
+/* Idioma: lista no mesmo padrão dos itens do dropdown de busca. */
+.languages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.language {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  width: 100%;
+  min-height: 36px;
+  padding: .45rem .6rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font-size: .84rem;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .language:hover {
+    background: var(--color-surface-hover);
+  }
+}
+
+.language:active {
+  background: var(--color-primary-soft);
+}
+
+.language:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+}
+
+.languageText {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+}
+
+.check {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+  opacity: 0;
+  transform: scale(.7);
+  transition:
+    opacity var(--duration-fast) var(--ease-apple),
+    transform var(--duration-fast) var(--ease-apple-spring);
+}
+
+.language[data-selected='true'] {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.language[data-selected='true'] .check {
+  opacity: 1;
+  transform: scale(1);
+}

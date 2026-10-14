@@ -1,0 +1,173 @@
+---
+import { sponsorships } from '@/data/sponsorships';
+import { activeSponsorFor } from '@/lib/sponsorships';
+import { getMessages } from '@/i18n/messages';
+import { localizePath, type Locale } from '@/i18n/config';
+const { locale = 'en' } = Astro.props as { locale?: Locale };
+const m = getMessages(locale);
+
+const sponsors = ['home-rail-primary', 'home-rail-secondary']
+  .map((placement) => activeSponsorFor(sponsorships, placement))
+  .filter((sponsor) => sponsor !== undefined);
+---
+
+<aside class="rail" aria-label={m.sponsors.label}>
+  <div class="rail-header">
+    <p class="rail-title">{sponsors.length > 0 ? m.sponsors.partners : m.sponsors.sponsorship}</p>
+  </div>
+
+  {sponsors.map((sponsor) => (
+    <a class="sponsor card" href={sponsor.destinationUrl} rel="sponsored noopener noreferrer" target="_blank">
+      <div class="sponsor-top">
+        <span class="badge">{m.sponsors.sponsored}</span>
+        {sponsor.logoUrl && <img src={sponsor.logoUrl} alt="" width="28" height="28" loading="lazy" class="logo" />}
+      </div>
+      <strong>{sponsor.sponsorName}</strong>
+      <span class="description">{sponsor.description}</span>
+      <span class="action">
+        <span>{m.sponsors.visit}</span>
+        <svg class="action-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="sr-only"> ({m.common.opensNewTab})</span>
+      </span>
+    </a>
+  ))}
+
+  <a class="advertise card" href={localizePath('/sponsor/', locale)}>
+    <div class="sponsor-top">
+      <span class="badge">{m.sponsors.placement}</span>
+    </div>
+    <strong>{m.sponsors.title}</strong>
+    <span class="description">{m.sponsors.description}</span>
+    <span class="action">
+      <span>{m.sponsors.advertise}</span>
+      <svg class="action-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <use href="#icon-chevron" />
+      </svg>
+    </span>
+  </a>
+</aside>
+
+<style>
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .rail-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 2px;
+  }
+
+  .rail-title {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .sponsor, .advertise {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 1.1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-card);
+    color: var(--color-text);
+    text-decoration: none;
+    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+  }
+
+  .sponsor:hover, .advertise:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-hover);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .sponsor-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .badge {
+    display: inline-flex;
+    padding: .15rem .4rem;
+    border-radius: var(--radius-xs);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+
+  strong {
+    font-size: .88rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--color-text);
+  }
+
+  .description {
+    color: var(--color-text-secondary);
+    font-size: .8rem;
+    line-height: 1.45;
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-top: 4px;
+    color: var(--color-primary);
+    font-size: .8rem;
+    font-weight: 600;
+  }
+
+  .action-icon {
+    width: 14px;
+    height: 14px;
+    transition: transform .15s ease;
+  }
+
+  .sponsor:hover .action-icon, .advertise:hover .action-icon {
+    transform: translateX(2px);
+  }
+
+  .logo {
+    object-fit: contain;
+    border-radius: var(--radius-xs);
+  }
+
+  @media (min-width: 1061px) {
+    .rail {
+      position: sticky;
+      top: 72px;
+    }
+  }
+
+  @media (max-width: 1060px) {
+    .rail {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .rail-header {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .rail {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+</style>

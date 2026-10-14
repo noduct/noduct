@@ -1,52 +1,159 @@
 :root {
+  /* Brand & Accents */
   --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
   --color-primary-strong: #1e40af;
-  --color-primary-soft: #dbeafe;
+  --color-primary-soft: #eff6ff;
+
+  /* Surfaces & Canvas */
   --color-background: #ffffff;
-  --color-surface: #f8fafc;
-  --color-surface-hover: #f1f5f9;
-  --color-text: #0f172a;
-  --color-text-secondary: #526176;
-  --color-border: #dbe3ed;
-  --color-focus: #60a5fa;
+  --color-surface: #f8f9fb;
+  --color-surface-card: #ffffff;
+  --color-surface-hover: #f1f3f6;
+
+  /* Borders & Dividers */
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-border-subtle: #edf2f7;
+
+  /* Typography (WCAG AA compliant) */
+  --color-text: #0f172a;           /* Ratio ~15:1 */
+  --color-text-secondary: #475569; /* Ratio ~7.5:1 */
+  --color-text-muted: #596780;     /* Ratio ~5.1:1 */
+
+  /* Functional */
+  --color-focus: #2563eb;
+  --color-focus-ring: rgba(37, 99, 235, 0.28);
   --color-success: #15803d;
   --color-error: #b91c1c;
+
+  /* Apple-inspired Layered Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
+  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+  --shadow-card-hover: 0 8px 24px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+
+  /* Rim Light / Specular Edge Highlight (Polimento Ótico Apple) */
+  --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+  --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+
+  /* Apple Motion Timing & Easing Curves */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);       /* Deceleração quintic fluida Apple */
+  --ease-apple-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15); /* Micro-ressalto mecânico */
+  --ease-out-quad: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Motion Durations */
+  --duration-instant: 100ms;  /* Feedback de clique / :active */
+  --duration-fast: 180ms;     /* Hovers, ícones, cores */
+  --duration-normal: 260ms;   /* Modais, expansões, cards */
+  --duration-slow: 400ms;     /* Transições de página e gavetas */
+
+  /* Scale Press Ratios */
+  --scale-active-button: 0.98;
+  --scale-active-card: 0.988;
+  --scale-active-icon: 0.92;
+
+  /* Geometry */
+  --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --content-width: 1120px;
+  --radius-lg: 10px;
+  --content-width: 1280px;
+
+  /* Custom Scrollbar Tokens */
+  --scrollbar-width: 8px;
+  --scrollbar-thumb: rgba(100, 116, 139, 0.32);
+  --scrollbar-thumb-hover: rgba(100, 116, 139, 0.55);
+  --scrollbar-track: transparent;
 }
 
 [data-theme='dark'] {
-  --color-primary: #60a5fa;
-  --color-primary-hover: #93c5fd;
-  --color-primary-strong: #bfdbfe;
-  --color-primary-soft: #172554;
-  --color-background: #0b1120;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-primary-strong: #93c5fd;
+  --color-primary-soft: rgba(59, 130, 246, 0.18);
+
+  --color-background: #0b0f17;
   --color-surface: #111827;
-  --color-surface-hover: #1e293b;
-  --color-text: #f1f5f9;
-  --color-text-secondary: #aebbd0;
-  --color-border: #2b3a50;
-  --color-focus: #93c5fd;
+  --color-surface-card: #161f30;
+  --color-surface-hover: #1f2c42;
+
+  --color-border: #28374d;
+  --color-border-strong: #3b4c66;
+  --color-border-subtle: #1e293b;
+
+  --color-text: #f8fafc;           /* Ratio ~16:1 */
+  --color-text-secondary: #cbd5e1; /* Ratio ~10.9:1 */
+  --color-text-muted: #94a3b8;     /* Ratio ~6.4:1 */
+
+  --color-focus: #60a5fa;
+  --color-focus-ring: rgba(96, 165, 250, 0.32);
   --color-success: #4ade80;
   --color-error: #f87171;
+
+  --scrollbar-thumb: rgba(148, 163, 184, 0.3);
+  --scrollbar-thumb-hover: rgba(148, 163, 184, 0.58);
+  --scrollbar-track: transparent;
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 14px 34px 0 rgba(0, 0, 0, 0.7);
+  --shadow-card-hover: 0 8px 26px 0 rgba(0, 0, 0, 0.65);
+
+  /* Rim Light no modo escuro (borda interna translúcida que simula vidro biselado) */
+  --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-primary: #60a5fa;
-    --color-primary-hover: #93c5fd;
-    --color-primary-strong: #bfdbfe;
-    --color-primary-soft: #172554;
-    --color-background: #0b1120;
+    --color-primary: #3b82f6;
+    --color-primary-hover: #60a5fa;
+    --color-primary-strong: #93c5fd;
+    --color-primary-soft: rgba(59, 130, 246, 0.18);
+
+    --color-background: #0b0f17;
     --color-surface: #111827;
-    --color-surface-hover: #1e293b;
-    --color-text: #f1f5f9;
-    --color-text-secondary: #aebbd0;
-    --color-border: #2b3a50;
-    --color-focus: #93c5fd;
+    --color-surface-card: #161f30;
+    --color-surface-hover: #1f2c42;
+
+    --color-border: #28374d;
+    --color-border-strong: #3b4c66;
+    --color-border-subtle: #1e293b;
+
+    --color-text: #f8fafc;
+    --color-text-secondary: #cbd5e1;
+    --color-text-muted: #94a3b8;
+
+    --color-focus: #60a5fa;
+    --color-focus-ring: rgba(96, 165, 250, 0.32);
+
+    --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
   }
+}
+
+/* Redução de movimento a nível de tokens para reatividade universal */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0.001ms;
+    --duration-fast: 0.001ms;
+    --duration-normal: 0.001ms;
+    --duration-slow: 0.001ms;
+    --scale-active-button: 1;
+    --scale-active-card: 1;
+    --scale-active-icon: 1;
+  }
+}
+
+/* Mesma redução quando a pessoa escolhe "Reduzir animações" nas configurações do hub. */
+:root[data-motion='reduce'] {
+  --duration-instant: 0.001ms;
+  --duration-fast: 0.001ms;
+  --duration-normal: 0.001ms;
+  --duration-slow: 0.001ms;
+  --scale-active-button: 1;
+  --scale-active-card: 1;
+  --scale-active-icon: 1;
 }

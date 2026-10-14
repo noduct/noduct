@@ -41,7 +41,7 @@ test('internal links, structured data, robots and sitemap are valid', async ({ p
 test('navigation, search, mobile menu and planned tool states behave correctly', async ({ page }) => {
   await page.goto('/tools/');
   await page.keyboard.press('Control+k');
-  const search = page.getByRole('searchbox'); await expect(search).toBeFocused();
+  const search = page.getByRole('combobox'); await expect(search).toBeFocused();
   await search.fill('json formatter'); await expect(page.getByRole('heading', { name: 'JSON Formatter' })).toBeVisible();
   await search.fill('not-a-real-tool'); await expect(page.getByText('No tools match your search.')).toBeVisible();
   const menu = page.getByRole('button', { name: 'Menu' });

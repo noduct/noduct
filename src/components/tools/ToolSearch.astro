@@ -1,46 +1,598 @@
 ---
+import ToolIcon from './ToolIcon.astro';
 import ToolCard from './ToolCard.astro';
+import { getCategory } from '@/data/categories';
 import type { ToolDefinition } from '@/types/tool';
-const { tools, showResults = true, compact = false } = Astro.props as { tools: ToolDefinition[]; showResults?: boolean; compact?: boolean };
+import { getMessages } from '@/i18n/messages';
+import { localizePath, type Locale } from '@/i18n/config';
+import popover from '@/components/ui/Popover.module.css';
+
+interface Props {
+  tools: ToolDefinition[];
+  compact?: boolean;
+  showDirectory?: boolean;
+  locale?: Locale;
+}
+
+const { tools, compact = false, showDirectory = false, locale = 'en' } = Astro.props;
+const m = getMessages(locale);
 ---
-<div class="search" data-tool-search data-compact={compact ? 'true' : 'false'}>
-  <label for="tool-search">Search tools</label>
-  <div class="input-wrap"><span aria-hidden="true">⌕</span><input id="tool-search" type="search" placeholder="Search by name, description or keyword…" autocomplete="off" aria-describedby="search-help search-status" /><kbd>Ctrl K</kbd></div>
-  <small id="search-help">Press Ctrl+K or Command+K from anywhere to focus search.</small>
+
+<div class="search" data-tool-search data-compact={compact ? 'true' : 'false'} data-one-result={m.search.oneResult} data-many-results={m.search.results}>
+  <label for="tool-search" class="sr-only">{m.search.label}</label>
+  <div class="input-wrap">
+    <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M9 15A6 6 0 1 0 9 3a6 6 0 0 0 0 12zM16 16l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <input
+      id="tool-search"
+      type="search"
+      placeholder={m.search.placeholder}
+      autocomplete="off"
+      spellcheck="false"
+      role="combobox"
+      aria-expanded="false"
+      aria-autocomplete="list"
+      aria-controls="search-dropdown-menu"
+      aria-describedby="search-help search-status"
+    />
+    <kbd aria-hidden="true">Ctrl K</kbd>
+  </div>
+  <small id="search-help" class="sr-only">{m.search.help}</small>
   <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
-  {showResults && <h2 class="sr-only">Search results</h2>}
-  {showResults && <div class="grid grid-3 results" data-results hidden={compact}>{tools.map((tool) => <ToolCard tool={tool} />)}</div>}
-  {showResults && <div class="surface empty" data-empty hidden>No tools match your search. Try a broader term.</div>}
+
+  <!-- Menu Select Flutuante em Live Search (Apple Spotlight Style) -->
+  <div id="search-dropdown-menu" class:list={[popover.panel, 'search-dropdown']} data-dropdown hidden>
+    <div class={popover.header}>
+      <span class={popover.title}>{m.search.suggested}</span>
+      <span class="dropdown-count" data-count-badge>0 {m.search.results}</span>
+    </div>
+
+    <ul class="dropdown-list" role="listbox" data-dropdown-list></ul>
+
+    <!--
+      Itens da busca em <template>: conteúdo inerte (fora do cálculo de estilo e layout) até o
+      primeiro uso. Metade do DOM da página ficava aqui, escondida, em todo carregamento.
+    -->
+    <template data-dropdown-items>
+      {tools.map((tool) => {
+        const cat = getCategory(tool.category, locale);
+        const url = tool.url || localizePath(tool.directoryUrl || `/tools/${tool.id}/`, locale);
+        const isClickable = tool.status === 'published' || tool.status === 'beta' || tool.status === 'ready';
+
+        return (
+          <li
+            class="dropdown-item"
+            role="option"
+            data-search-item
+            data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
+            data-url={url}
+            data-clickable={isClickable ? 'true' : 'false'}
+            hidden
+          >
+            <a
+              href={isClickable ? url : undefined}
+              class="item-link"
+              tabindex="-1"
+            >
+              <span class="item-icon-box" aria-hidden="true">
+                <ToolIcon category={tool.category} />
+              </span>
+              <div class="item-body">
+                <div class="item-head">
+                  <span class="item-title">{tool.name}</span>
+                  <span class="item-category">{cat?.name}</span>
+                </div>
+                <p class="item-desc">{tool.description}</p>
+              </div>
+              <div class="item-meta">
+                <span class:list={['status-tag', `status-${tool.status}`]}>
+                  <span class="status-dot"></span>
+                  <span>{tool.status === 'published' || tool.status === 'ready' ? m.common.open : tool.status === 'beta' ? m.common.beta : m.common.planned}</span>
+                </span>
+                {isClickable ? (
+                  <svg class="item-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <use href="#icon-chevron" />
+                  </svg>
+                ) : (
+                  <span class="roadmap-badge">{m.search.roadmap}</span>
+                )}
+              </div>
+            </a>
+          </li>
+        );
+      })}
+    </template>
+
+    <!-- Estado Vazio Dentro do Dropdown -->
+    <div class="dropdown-empty" data-empty hidden>
+      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
+        <path d="m20 20-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <path d="M8.5 11h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+      <p class="empty-title">{m.search.noResults}</p>
+      <p class="empty-desc">{m.search.noResultsHelp}</p>
+    </div>
+  </div>
+
+  <!-- Diretório estático quando renderizado em páginas completas (ex: /tools/) -->
+  {showDirectory && (
+    <div class="grid grid-3 directory-grid">
+      {tools.map((tool) => (
+        <ToolCard tool={tool} locale={locale} />
+      ))}
+    </div>
+  )}
 </div>
+
 <script>
   document.querySelectorAll<HTMLElement>('[data-tool-search]').forEach((root) => {
     const input = root.querySelector<HTMLInputElement>('input[type="search"]');
-    const items = [...root.querySelectorAll<HTMLElement>('[data-search-item]')];
-    const empty = root.querySelector<HTMLElement>('[data-empty]');
-    const status = root.querySelector<HTMLElement>('[role="status"]');
-    const update = () => {
-      const query = input?.value.trim().toLowerCase() ?? '';
-      const compact = root.dataset.compact === 'true';
-      let count = 0;
-      for (const item of items) { const match = Boolean(query) && (item.dataset.search ?? '').toLowerCase().includes(query); item.hidden = compact ? !match || count >= 6 : Boolean(query) && !match; if (match) count++; }
-      const results = root.querySelector<HTMLElement>('[data-results]');
-      if (results && compact) results.hidden = !query;
-      if (empty) empty.hidden = !query || count !== 0;
-      if (status) status.textContent = query ? `${count} ${count === 1 ? 'tool' : 'tools'} found.` : '';
+    const dropdown = root.querySelector<HTMLElement>('[data-dropdown]');
+    const list = root.querySelector<HTMLElement>('[data-dropdown-list]');
+    const template = root.querySelector<HTMLTemplateElement>('template[data-dropdown-items]');
+    let items: HTMLElement[] = [];
+
+    // Monta os itens a partir do <template> só quando a busca é usada pela primeira vez.
+    const ensureItems = () => {
+      if (items.length || !list || !template) return;
+      list.append(template.content.cloneNode(true));
+      items = [...list.querySelectorAll<HTMLElement>('[data-search-item]')];
     };
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    const countBadge = root.querySelector<HTMLElement>('[data-count-badge]');
+    const status = root.querySelector<HTMLElement>('[role="status"]');
+
+    let activeIndex = -1;
+
+    const getVisibleItems = () => items.filter((item) => !item.hidden);
+
+    const setActiveItem = (index: number) => {
+      const visible = getVisibleItems();
+      visible.forEach((item, i) => {
+        if (i === index) {
+          item.classList.add('is-active');
+          item.setAttribute('aria-selected', 'true');
+          item.scrollIntoView({ block: 'nearest' });
+        } else {
+          item.classList.remove('is-active');
+          item.removeAttribute('aria-selected');
+        }
+      });
+      activeIndex = index;
+    };
+
+    const openDropdown = () => {
+      if (!dropdown) return;
+      dropdown.hidden = false;
+      input?.setAttribute('aria-expanded', 'true');
+    };
+
+    const closeDropdown = () => {
+      if (!dropdown) return;
+      dropdown.hidden = true;
+      input?.setAttribute('aria-expanded', 'false');
+      setActiveItem(-1);
+    };
+
+    const update = () => {
+      ensureItems();
+      const query = input?.value.trim().toLowerCase() ?? '';
+      if (!query) {
+        closeDropdown();
+        if (status) status.textContent = '';
+        return;
+      }
+
+      let count = 0;
+      for (const item of items) {
+        const text = (item.dataset.search ?? '').toLowerCase();
+        const match = text.includes(query);
+        item.hidden = !match;
+        if (match) count++;
+      }
+
+      openDropdown();
+      if (empty) empty.hidden = count !== 0;
+      const label = count === 1 ? root.dataset.oneResult : root.dataset.manyResults;
+      if (countBadge) countBadge.textContent = `${count} ${label}`;
+      if (status) status.textContent = query ? `${count} ${label}` : '';
+
+      setActiveItem(count > 0 ? 0 : -1);
+    };
+
     input?.addEventListener('input', update);
-    document.addEventListener('keydown', (event) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); input?.focus(); } });
+    input?.addEventListener('focus', () => {
+      if (input.value.trim()) update();
+    });
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', (event) => {
+      if (!root.contains(event.target as Node)) {
+        closeDropdown();
+      }
+    });
+
+    // Navegação via teclado (ArrowDown, ArrowUp, Enter, Esc)
+    input?.addEventListener('keydown', (event) => {
+      const visible = getVisibleItems();
+      if (dropdown?.hidden) {
+        if (event.key === 'ArrowDown' && input.value.trim()) {
+          event.preventDefault();
+          update();
+        }
+        return;
+      }
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        const next = activeIndex + 1 >= visible.length ? 0 : activeIndex + 1;
+        setActiveItem(next);
+      } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        const prev = activeIndex - 1 < 0 ? visible.length - 1 : activeIndex - 1;
+        setActiveItem(prev);
+      } else if (event.key === 'Enter') {
+        if (activeIndex >= 0 && activeIndex < visible.length) {
+          event.preventDefault();
+          const target = visible[activeIndex];
+          const link = target?.querySelector<HTMLAnchorElement>('a');
+          if (link && link.href) {
+            window.location.href = link.href;
+          }
+        }
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        closeDropdown();
+      }
+    });
+
+    // Atalho global Ctrl+K / Cmd+K
+    document.addEventListener('keydown', (event) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        input?.focus();
+        if (input?.value.trim()) {
+          openDropdown();
+        }
+      }
+    });
   });
 </script>
+
 <style>
-  .search { margin-top: 2rem; }
-  label { display: block; margin-bottom: .5rem; font-weight: 700; }
-  .input-wrap { display: flex; align-items: center; gap: .65rem; padding: .3rem .65rem; background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgb(15 23 42 / 6%); }
-  .input-wrap:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent); }
-  input { width: 100%; min-height: 48px; border: 0; outline: 0; background: transparent; color: var(--color-text); }
-  kbd { padding: .15rem .4rem; border: 1px solid var(--color-border); border-radius: 5px; color: var(--color-text-secondary); font-size: .72rem; white-space: nowrap; }
-  small { display: block; margin-top: .5rem; color: var(--color-text-secondary); }
-  .results { margin-top: 2rem; }
-  .sr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-  [hidden] { display: none !important; }
+  .search {
+    position: relative;
+    width: 100%;
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    height: 44px;
+    padding: 0 .75rem 0 1rem;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm), var(--rim-light);
+    transition:
+      border-color var(--duration-fast) var(--ease-apple),
+      box-shadow var(--duration-fast) var(--ease-apple),
+      background-color var(--duration-fast) var(--ease-apple);
+  }
+
+  /* Halo de foco ótico Apple na cápsula externa */
+  .input-wrap:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring), var(--shadow-md);
+  }
+
+  .search-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    transition: color var(--duration-fast) var(--ease-apple), transform var(--duration-fast) var(--ease-apple);
+  }
+
+  .input-wrap:focus-within .search-icon {
+    color: var(--color-primary);
+    transform: scale(1.05);
+  }
+
+  /* Input 100% livre de bordas e anéis internos indesejados */
+  input {
+    width: 100%;
+    height: 100%;
+    border: 0 !important;
+    outline: 0 !important;
+    padding: 0;
+    background: transparent;
+    color: var(--color-text);
+    font-size: .88rem;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input:focus,
+  input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-box-shadow: none !important;
+  }
+
+  input::placeholder {
+    color: var(--color-text-muted);
+    transition: opacity var(--duration-fast) var(--ease-apple);
+  }
+
+  .input-wrap:focus-within input::placeholder {
+    opacity: 0.65;
+  }
+
+  input::-webkit-search-cancel-button {
+    cursor: pointer;
+  }
+
+  kbd {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 .45rem;
+    border: 1px solid var(--color-border);
+    border-bottom-width: 2px;
+    border-radius: var(--radius-xs);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .02em;
+    white-space: nowrap;
+    user-select: none;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Popover da busca: casca visual em Popover.module.css; aqui só posição e altura. */
+  .search-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 999;
+    max-height: 420px;
+  }
+
+  .search-dropdown[hidden] {
+    display: none;
+  }
+
+  .dropdown-count {
+    font-size: .7rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    padding: .1rem .45rem;
+    border-radius: 999px;
+    background: var(--color-surface-sunken);
+  }
+
+  .dropdown-list {
+    margin: 0;
+    padding: .35rem;
+    list-style: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    max-height: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  .dropdown-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .dropdown-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .dropdown-list::-webkit-scrollbar-thumb {
+    background-color: var(--scrollbar-thumb);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .dropdown-list::-webkit-scrollbar-thumb:hover {
+    background-color: var(--scrollbar-thumb-hover);
+  }
+
+  .dropdown-item {
+    border-radius: var(--radius-sm);
+    transition: background-color var(--duration-fast) var(--ease-apple);
+  }
+
+  .dropdown-item.is-active,
+  .dropdown-item:hover {
+    background: var(--color-surface-hover);
+  }
+
+  .item-link {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .55rem .65rem;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .item-icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .item-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-head {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    line-height: 1.2;
+  }
+
+  .item-title {
+    margin: 0;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-category {
+    font-size: .7rem;
+    color: var(--color-text-muted);
+    padding: .05rem .35rem;
+    background: var(--color-surface-sunken);
+    border-radius: var(--radius-xs);
+    white-space: nowrap;
+  }
+
+  .item-desc {
+    margin: .2rem 0 0;
+    font-size: .78rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .item-meta {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-shrink: 0;
+  }
+
+  /* Tags de Status Adequadas */
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    font-size: .68rem;
+    font-weight: 600;
+    padding: .15rem .5rem;
+    border-radius: 999px;
+    letter-spacing: .02em;
+    white-space: nowrap;
+  }
+
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status-published,
+  .status-ready {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.28);
+  }
+
+  .status-beta {
+    background: rgba(245, 158, 11, 0.12);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.28);
+  }
+
+  .status-planned {
+    background: var(--color-surface-sunken);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+  }
+
+  .roadmap-badge {
+    font-size: .68rem;
+    color: var(--color-text-muted);
+  }
+
+  .item-arrow {
+    width: 14px;
+    height: 14px;
+    color: var(--color-text-muted);
+    transition: transform var(--duration-fast) var(--ease-apple), color var(--duration-fast) var(--ease-apple);
+  }
+
+  .dropdown-item.is-active .item-arrow,
+  .dropdown-item:hover .item-arrow {
+    color: var(--color-primary);
+    transform: translateX(2px);
+  }
+
+  /* Estado vazio no dropdown */
+  .dropdown-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+
+  .empty-icon {
+    width: 28px;
+    height: 28px;
+    color: var(--color-text-muted);
+    margin-bottom: .5rem;
+  }
+
+  .empty-title {
+    margin: 0;
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .empty-desc {
+    margin: .25rem 0 0;
+    font-size: .78rem;
+    color: var(--color-text-secondary);
+    max-width: 280px;
+  }
+
+  .directory-grid {
+    margin-top: 2rem;
+  }
+
+  .sr-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  @media (max-width: 620px) {
+    kbd {
+      display: none;
+    }
+  }
 </style>

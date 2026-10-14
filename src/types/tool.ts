@@ -8,7 +8,7 @@ export const categoryIds = [
 ] as const;
 
 export type ToolCategory = (typeof categoryIds)[number];
-export type ToolStatus = 'planned' | 'beta' | 'published';
+export type ToolStatus = 'planned' | 'beta' | 'published' | 'ready' | 'new';
 
 export interface ToolDefinition {
   id: string;
@@ -16,18 +16,23 @@ export interface ToolDefinition {
   slug: string;
   description: string;
   category: ToolCategory;
+  categoryId?: ToolCategory | undefined;
   keywords: string[];
+  tags?: string[] | undefined;
   icon: string;
-  url?: string;
-  repositoryUrl?: string;
+  url?: string | undefined;
+  directoryUrl?: string | undefined;
+  repositoryUrl?: string | undefined;
   status: ToolStatus;
   featured: boolean;
-  sponsorPlacementId?: string;
+  visible?: boolean | undefined;
+  sponsorPlacementId?: string | undefined;
 }
 
 export interface CategoryDefinition {
   id: ToolCategory;
   name: string;
+  shortName: string;
   description: string;
   icon: string;
 }

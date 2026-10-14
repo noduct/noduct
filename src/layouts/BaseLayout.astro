@@ -1,17 +1,23 @@
 ---
 import Header from '@/components/layout/Header.astro';
 import Footer from '@/components/layout/Footer.astro';
+import AmbientArtwork from '@/components/layout/AmbientArtwork.astro';
+import IconSprite from '@/components/ui/IconSprite.astro';
 import { siteConfig } from '@/config/site';
 import { createSeoMetadata } from '@/lib/seo';
+import { localizePath, type Locale } from '@/i18n/config';
 import '@/styles/global.css';
 
-interface Props { title: string; description: string; image?: string; noindex?: boolean; }
-const { title, description, image = '/brand/social-card.svg', noindex = false } = Astro.props;
+interface Props { title: string; description: string; image?: string; noindex?: boolean; locale?: Locale; }
+const { title, description, image = '/brand/social-card.svg', noindex = false, locale = 'en' } = Astro.props;
 const seo = createSeoMetadata(Astro.url.pathname, title, description, image, noindex);
+const speculationRules = { prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { selector_matches: '[target], [download], [rel~=nofollow]' } }] }, eagerness: 'moderate' }] };
 const organization = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Tolvira', url: siteConfig.url };
+const alternates = { en: localizePath(Astro.url.pathname, 'en'), ptBR: localizePath(Astro.url.pathname, 'pt-BR'), es: localizePath(Astro.url.pathname, 'es') };
+const redirectPaths = locale === 'en' ? { ptBR: alternates.ptBR, es: alternates.es } : undefined;
 ---
 <!doctype html>
-<html lang="en">
+<html lang={locale} data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -19,6 +25,10 @@ const organization = { '@context': 'https://schema.org', '@type': 'Organization'
     <meta name="description" content={seo.description} />
     {seo.noindex && <meta name="robots" content="noindex,follow" />}
     <link rel="canonical" href={seo.canonical} />
+    <link rel="alternate" hreflang="en" href={new URL(alternates.en, siteConfig.url)} />
+    <link rel="alternate" hreflang="pt-BR" href={new URL(alternates.ptBR, siteConfig.url)} />
+    <link rel="alternate" hreflang="es" href={new URL(alternates.es, siteConfig.url)} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, siteConfig.url)} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#2563eb" />
     <meta property="og:type" content="website" />
@@ -32,12 +42,17 @@ const organization = { '@context': 'https://schema.org', '@type': 'Organization'
     <meta name="twitter:description" content={seo.description} />
     <title>{seo.fullTitle}</title>
     <script type="application/ld+json" set:html={JSON.stringify(organization)} />
-    <script is:inline>try{const t=localStorage.getItem('tolvira-theme');if(t)document.documentElement.dataset.theme=t}catch{document.documentElement.removeAttribute('data-theme')}</script>
+    {/* Navegação instantânea: Chrome/Edge pré-renderizam links internos após ~200ms de hover. Sem JS; outros navegadores ignoram. */}
+    <script type="speculationrules" set:html={JSON.stringify(speculationRules)} />
+    {/* Aplica as preferências salvas antes da pintura; chaves espelham src/lib/preferences.ts. Tema claro é o padrão. */}
+    <script is:inline>(() => { const root = document.documentElement; try { if (localStorage.getItem('tolvira-theme') === 'dark') root.dataset.theme = 'dark'; if (localStorage.getItem('tolvira-art') === 'off') root.dataset.art = 'off'; if (localStorage.getItem('tolvira-motion') === 'reduce') root.dataset.motion = 'reduce'; } catch { /* armazenamento indisponível */ } })();</script>
+    {redirectPaths && <script is:inline define:vars={{ redirectPaths }}>(() => { let saved = null; try { saved = localStorage.getItem('tolvira-locale'); } catch { /* armazenamento indisponível */ } const list = navigator.languages?.length ? navigator.languages : [navigator.language]; let locale = 'en'; if (saved === 'en' || saved === 'pt-BR' || saved === 'es') locale = saved; else for (const value of list) { const code = String(value).toLowerCase(); if (code === 'pt' || code.startsWith('pt-')) { locale = 'pt-BR'; break; } if (code === 'es' || code.startsWith('es-')) { locale = 'es'; break; } if (code === 'en' || code.startsWith('en-')) break; } const target = locale === 'pt-BR' ? redirectPaths.ptBR : locale === 'es' ? redirectPaths.es : ''; if (target && location.pathname !== target) { document.documentElement.style.display = 'none'; location.replace(`${target}${location.search}${location.hash}`); } })();</script>}
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to main content</a>
-    <Header />
+    <IconSprite />
+    <AmbientArtwork />
+    <Header locale={locale} />
     <main id="main-content"><slot /></main>
-    <Footer />
+    <Footer locale={locale} />
   </body>
 </html>

@@ -1,0 +1,48 @@
+---
+import HubLayout from '@/layouts/HubLayout.astro';
+import ToolSearch from '@/components/tools/ToolSearch.astro';
+import ToolCard from '@/components/tools/ToolCard.astro';
+import ToolIcon from '@/components/tools/ToolIcon.astro';
+import RecentTools from '@/components/tools/RecentTools.astro';
+import SponsorRail from '@/components/sponsors/SponsorRail.astro';
+import { getLocalizedCategories } from '@/data/categories';
+import { getLocalizedTools } from '@/data/tools';
+import { getMessages } from '@/i18n/messages';
+import { localizePath, type Locale } from '@/i18n/config';
+import styles from '@/pages/Home.module.css';
+
+const { locale } = Astro.props as { locale: Locale };
+const categories = getLocalizedCategories(locale);
+const tools = getLocalizedTools(locale);
+const m = getMessages(locale);
+---
+<HubLayout title={m.home.title} description={m.home.description} locale={locale}>
+  <header class={styles.hero}>
+    <div class:list={['container', styles.heroInner]}>
+      <div class={styles.heroText}>
+        <div class={styles.heroBadge}><span class={styles.heroBadgeDot}></span><span>{m.home.badge}</span></div>
+        <h1 class={styles.heroTitle}>{m.home.heading}</h1>
+        <p class={styles.heroCopy}>{m.home.intro}</p>
+      </div>
+      <div class={styles.heroSearch}><ToolSearch tools={tools} compact={true} locale={locale} /></div>
+    </div>
+  </header>
+  <div class:list={['container', styles.workspace]}>
+    <RecentTools tools={tools} locale={locale} />
+    <div class={styles.layout}>
+      <div class={styles.libraryIsland}>
+        <div class={styles.libraryHeader}>
+          <div><h2 class={styles.libraryTitle}>{m.home.libraryTitle}</h2><p class={styles.librarySubtitle}>{m.home.libraryIntro}</p></div>
+          <a class={styles.directoryLink} href={localizePath('/tools/', locale)}><span>{m.home.fullDirectory}</span><svg class={styles.linkArrow} viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="#icon-chevron" /></svg></a>
+        </div>
+        <nav class={styles.categoryNav} aria-label={m.home.categoryNav}>
+          {categories.map((category) => { const count = tools.filter((tool) => tool.category === category.id).length; return <a href={`#${category.id}`} class={styles.categoryTab}><ToolIcon category={category.id} /><span class={styles.tabName}>{category.shortName}</span><span class={styles.tabCount}>{count}</span></a>; })}
+        </nav>
+        <div class={styles.categoriesContent}>
+          {categories.map((category) => { const categoryTools = tools.filter((tool) => tool.category === category.id).slice(0, 6); const count = tools.filter((tool) => tool.category === category.id).length; return <section class={styles.categorySection} id={category.id} aria-labelledby={`${category.id}-title`}><div class={styles.categoryHead}><div class={styles.categoryInfo}><h2 id={`${category.id}-title`} class={styles.categoryTitle}>{category.name}</h2><span class={styles.categoryCount}>({count} {m.common.tools})</span></div><a href={localizePath(`/${category.id}/`, locale)} class={styles.seeCategoryLink} aria-label={`${m.home.seeAllCategory} ${category.name}`}><span>{m.home.seeCategory}</span><span class="sr-only"> ({category.name})</span><svg class={styles.linkChevron} viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="#icon-chevron" /></svg></a></div><div class={styles.toolGrid}>{categoryTools.map((tool) => <ToolCard tool={tool} locale={locale} />)}</div></section>; })}
+        </div>
+      </div>
+      <div class={styles.sidebar}><SponsorRail locale={locale} /></div>
+    </div>
+  </div>
+</HubLayout>

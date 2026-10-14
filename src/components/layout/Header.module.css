@@ -1,23 +1,252 @@
-.siteHeader { position: sticky; z-index: 20; top: 0; background: color-mix(in srgb, var(--color-background) 94%, transparent); border-bottom: 1px solid var(--color-border); backdrop-filter: blur(10px); }
-.navWrap { display: flex; align-items: center; justify-content: space-between; min-height: 64px; }
-.brand { display: flex; align-items: center; gap: .65rem; color: var(--color-text); font-size: 1.15rem; font-weight: 800; text-decoration: none; }
-.brandMark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 8px; background: var(--color-primary); color: #fff; font-size: .92rem; }
-.siteHeader nav { display: flex; align-items: center; gap: .25rem; }
-.siteHeader nav > a, .siteHeader summary { padding: .55rem .75rem; color: var(--color-text-secondary); font-size: .9rem; font-weight: 650; text-decoration: none; cursor: pointer; }
-.siteHeader nav > a:hover, .siteHeader summary:hover { color: var(--color-text); }
-.siteHeader details { position: relative; }
-.siteHeader summary { list-style: none; }
-.siteHeader summary::-webkit-details-marker { display: none; }
-.menu { position: absolute; top: calc(100% + .5rem); right: 0; width: 220px; padding: .5rem; background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 16px 40px rgb(15 23 42 / 12%); }
-.menu a { display: block; padding: .55rem .65rem; border-radius: var(--radius-sm); color: var(--color-text); text-decoration: none; }
-.menu a:hover { background: var(--color-surface); }
-.iconButton, .menuButton { min-width: 42px; min-height: 42px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); color: var(--color-text); cursor: pointer; }
-.menuButton { display: none; }
+.siteHeader {
+  position: sticky;
+  z-index: 30;
+  top: 0;
+  /* Fundo sólido: backdrop-filter era recalculado a cada scroll e troca de tema. */
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.navWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 54px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .65rem;
+  color: var(--color-text);
+  text-decoration: none;
+  transform: scale(1);
+  transition: transform var(--duration-fast) var(--ease-apple);
+}
+
+.brand:active {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+.brandMark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--rim-light-subtle);
+}
+
+.brandMark svg {
+  width: 18px;
+  height: 18px;
+}
+
+.brandName {
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -.02em;
+  color: var(--color-text);
+}
+
+.primaryNav {
+  display: flex;
+  margin-left: auto;
+  align-items: center;
+  gap: .25rem;
+}
+
+.navLink {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .4rem .75rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: .86rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transform: scale(1);
+  transition:
+    transform var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple),
+    background-color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navLink:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+  }
+}
+
+.navLink:active {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+.detailsMenu {
+  position: relative;
+}
+
+.detailsMenu summary {
+  list-style: none;
+  user-select: none;
+}
+
+.detailsMenu summary::-webkit-details-marker {
+  display: none;
+}
+
+.chevronIcon {
+  width: 14px;
+  height: 14px;
+  opacity: .7;
+  transition: transform var(--duration-fast) var(--ease-apple);
+}
+
+.detailsMenu[open] .chevronIcon {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Menu com visual de Popover macOS (fade + scale de 0.97 para 1) */
+.menu {
+  position: absolute;
+  top: calc(100% + .4rem);
+  right: 0;
+  width: 220px;
+  padding: .35rem;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg), var(--rim-light);
+  transform-origin: top right;
+  animation: menuAppear var(--duration-fast) var(--ease-apple) forwards;
+}
+
+@keyframes menuAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.menuItem {
+  display: block;
+  padding: .5rem .75rem;
+  border-radius: var(--radius-xs);
+  color: var(--color-text);
+  font-size: .84rem;
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menuItem:hover {
+    background: var(--color-surface-hover);
+    color: var(--color-primary);
+  }
+}
+
+.menuItem:active {
+  background: var(--color-primary-soft);
+}
+
+.navDivider {
+  width: 1px;
+  height: 18px;
+  margin-inline: .35rem;
+  background: var(--color-border);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.menuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm), var(--rim-light-subtle);
+  transform: scale(1);
+  transition: transform var(--duration-fast) var(--ease-apple);
+}
+
+.menuButton:active {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+.menuIcon {
+  width: 20px;
+  height: 20px;
+}
+
 @media (max-width: 720px) {
-  .menuButton { display: block; }
-  .siteHeader nav { display: none; position: absolute; top: 64px; right: 1rem; left: 1rem; align-items: stretch; padding: .75rem; background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 16px 40px rgb(15 23 42 / 12%); }
-  .siteHeader nav:global(.open) { display: grid; }
-  .siteHeader nav > a, .siteHeader summary { display: block; }
-  .menu { position: static; width: auto; box-shadow: none; }
-  .iconButton { justify-self: start; }
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .primaryNav {
+    display: none;
+    position: absolute;
+    top: 54px;
+    right: 1rem;
+    left: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    padding: .75rem;
+    background: var(--color-surface-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg), var(--rim-light);
+  }
+
+  .primaryNav:global(.open) {
+    display: flex;
+    animation: menuAppear var(--duration-fast) var(--ease-apple) forwards;
+  }
+
+  .navDivider {
+    display: none;
+  }
+
+  .navLink, .detailsMenu summary {
+    width: 100%;
+    padding: .65rem .75rem;
+  }
+
+  .menu {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    border: 0;
+    padding-left: .5rem;
+    background: transparent;
+    animation: none;
+  }
+
+  .actions {
+    margin-left: auto;
+  }
 }

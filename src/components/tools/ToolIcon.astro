@@ -1,0 +1,31 @@
+---
+import type { ToolCategory } from '@/types/tool';
+
+const { category, label } = Astro.props as { category: ToolCategory; label?: string };
+---
+
+<span class="icon" data-category={category} aria-hidden={label ? undefined : 'true'} aria-label={label}>
+  <svg viewBox="0 0 24 24"><use href={`#tool-icon-${category}`} /></svg>
+</span>
+
+<style>
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-primary);
+    flex-shrink: 0;
+    transition:
+      background-color var(--duration-fast) var(--ease-apple),
+      border-color var(--duration-fast) var(--ease-apple);
+  }
+
+  svg {
+    width: 17px;
+    height: 17px;
+  }
+</style>

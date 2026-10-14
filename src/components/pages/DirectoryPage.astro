@@ -1,0 +1,14 @@
+---
+import HubLayout from '@/layouts/HubLayout.astro';
+import ToolSearch from '@/components/tools/ToolSearch.astro';
+import { getLocalizedTools } from '@/data/tools';
+import { getMessages } from '@/i18n/messages';
+import type { Locale } from '@/i18n/config';
+const { locale } = Astro.props as { locale: Locale };
+const m = getMessages(locale);
+const tools = getLocalizedTools(locale);
+---
+<HubLayout title={m.directory.title} description={m.directory.description} locale={locale}>
+  <header class="page-head"><div class="container"><p class="eyebrow">{m.directory.eyebrow}</p><h1>{m.directory.heading}</h1><p class="lede">{m.directory.intro}</p></div></header>
+  <section class="section container"><ToolSearch tools={tools} showDirectory={true} locale={locale} /></section>
+</HubLayout>

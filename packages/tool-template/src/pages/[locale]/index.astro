@@ -1,0 +1,7 @@
+---
+import ToolDemo from '../../components/ToolDemo.astro';
+import type { DesignLocale } from '@tolvira/design-system';
+export function getStaticPaths() { return [{ params: { locale: 'pt-br' }, props: { locale: 'pt-BR' } }, { params: { locale: 'es' }, props: { locale: 'es' } }]; }
+const { locale } = Astro.props as { locale: DesignLocale };
+---
+<ToolDemo locale={locale} />

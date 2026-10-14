@@ -1,0 +1,221 @@
+---
+import { getMessages } from '@/i18n/messages';
+import { localizePath, locales, type Locale } from '@/i18n/config';
+import popover from '@/components/ui/Popover.module.css';
+import styles from './SettingsMenu.module.css';
+
+interface Props { locale: Locale; }
+
+const { locale } = Astro.props;
+const m = getMessages(locale);
+// Nomes de idioma sempre no próprio idioma, para que qualquer pessoa reconheça o seu.
+const languageNames: Record<Locale, string> = { en: 'English', 'pt-BR': 'Português (Brasil)', es: 'Español' };
+const languages = locales.map((code) => ({ code, name: languageNames[code], href: localizePath(Astro.url.pathname, code) }));
+const checkIcon = 'M4 10.5l3.5 3.5L16 6';
+---
+
+<div class={styles.settings} data-settings data-locale={locale}>
+  <button
+    class={styles.trigger}
+    type="button"
+    aria-label={m.settings.open}
+    title={m.settings.title}
+    aria-expanded="false"
+    aria-controls="settings-panel"
+    data-settings-trigger
+  >
+    <svg class={styles.gear} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6" />
+    </svg>
+  </button>
+
+  <div
+    id="settings-panel"
+    class:list={[popover.panel, styles.panel]}
+    role="dialog"
+    aria-labelledby="settings-title"
+    data-settings-panel
+    hidden
+  >
+    <div class={popover.header}>
+      <h2 id="settings-title" class={popover.title}>{m.settings.title}</h2>
+    </div>
+
+    <div class={styles.body}>
+      <fieldset class={styles.group}>
+        <legend class={styles.label}>{m.settings.theme}</legend>
+        <div class={styles.segmented}>
+          <label class={styles.segment}>
+            <input type="radio" name="settings-theme" value="light" checked data-pref-theme />
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <circle cx="10" cy="10" r="3.5" stroke="currentColor" stroke-width="1.6" />
+              <path d="M10 2.5v1.8M10 15.7v1.8M2.5 10h1.8M15.7 10h1.8M4.7 4.7l1.3 1.3M14 14l1.3 1.3M4.7 15.3L6 14M14 6l1.3-1.3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            <span>{m.settings.light}</span>
+          </label>
+          <label class={styles.segment}>
+            <input type="radio" name="settings-theme" value="dark" data-pref-theme />
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M16.5 12.6A6.8 6.8 0 0 1 7.4 3.5a6.8 6.8 0 1 0 9.1 9.1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            </svg>
+            <span>{m.settings.dark}</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div class={styles.option}>
+        <div class={styles.optionText}>
+          <span id="settings-art-label" class={styles.label}>{m.settings.artwork}</span>
+          <span id="settings-art-hint" class={styles.hint}>{m.settings.artworkHint}</span>
+        </div>
+        <button
+          class={styles.switch}
+          type="button"
+          role="switch"
+          aria-checked="true"
+          aria-labelledby="settings-art-label"
+          aria-describedby="settings-art-hint"
+          data-pref-art
+        ></button>
+      </div>
+
+      <div class={styles.option}>
+        <div class={styles.optionText}>
+          <span id="settings-motion-label" class={styles.label}>{m.settings.motion}</span>
+          <span id="settings-motion-hint" class={styles.hint}>{m.settings.motionHint}</span>
+        </div>
+        <button
+          class={styles.switch}
+          type="button"
+          role="switch"
+          aria-checked="false"
+          aria-labelledby="settings-motion-label"
+          aria-describedby="settings-motion-hint"
+          data-pref-motion
+        ></button>
+      </div>
+
+      <div class={styles.group} role="group" aria-labelledby="settings-language-label">
+        <span id="settings-language-label" class={styles.label}>{m.settings.language}</span>
+        <ul class={styles.languages}>
+          <li>
+            <button class={styles.language} type="button" aria-pressed="true" data-pref-locale="auto">
+              <span class={styles.languageText}>
+                <span>{m.settings.automatic}</span>
+                <span class={styles.hint}>{m.settings.automaticHint}</span>
+              </span>
+              <svg class={styles.check} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d={checkIcon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </li>
+          {languages.map((language) => (
+            <li>
+              <a
+                class={styles.language}
+                href={language.href}
+                hreflang={language.code}
+                lang={language.code}
+                aria-current={language.code === locale ? 'page' : undefined}
+                data-pref-locale={language.code}
+              >
+                <span class={styles.languageText}>{language.name}</span>
+                <svg class={styles.check} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d={checkIcon} stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { localizePath, resolveBrowserLocale, isLocale } from '@/i18n/config';
+  import { preferenceKeys, readPreference, writePreference, setPreference } from '@/lib/preferences';
+
+  const root = document.querySelector<HTMLElement>('[data-settings]');
+  const trigger = root?.querySelector<HTMLButtonElement>('[data-settings-trigger]');
+  const panel = root?.querySelector<HTMLElement>('[data-settings-panel]');
+
+  if (root && trigger && panel) {
+    const html = document.documentElement;
+    const themeInputs = root.querySelectorAll<HTMLInputElement>('[data-pref-theme]');
+    const artSwitch = root.querySelector<HTMLButtonElement>('[data-pref-art]');
+    const motionSwitch = root.querySelector<HTMLButtonElement>('[data-pref-motion]');
+    const languageOptions = root.querySelectorAll<HTMLElement>('[data-pref-locale]');
+
+    // Reflete no painel o estado já aplicado ao <html> pelo script do <head>.
+    const render = (): void => {
+      const theme = html.dataset.theme === 'dark' ? 'dark' : 'light';
+      themeInputs.forEach((input) => { input.checked = input.value === theme; });
+      artSwitch?.setAttribute('aria-checked', String(html.dataset.art !== 'off'));
+      motionSwitch?.setAttribute('aria-checked', String(html.dataset.motion === 'reduce'));
+      const saved = readPreference(preferenceKeys.locale);
+      const selected = saved && isLocale(saved) ? saved : 'auto';
+      languageOptions.forEach((option) => {
+        option.dataset.selected = String(option.dataset.prefLocale === selected);
+        if (option instanceof HTMLButtonElement) option.setAttribute('aria-pressed', String(selected === 'auto'));
+      });
+    };
+
+    const update = (key: string, value: string | null): void => {
+      setPreference(key, value);
+      render();
+    };
+
+    const open = (): void => {
+      render();
+      panel.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      root.querySelector<HTMLInputElement>('[data-pref-theme]:checked')?.focus();
+    };
+
+    const close = (restoreFocus = false): void => {
+      if (panel.hidden) return;
+      panel.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      if (restoreFocus) trigger.focus();
+    };
+
+    trigger.addEventListener('click', () => (panel.hidden ? open() : close()));
+
+    themeInputs.forEach((input) => input.addEventListener('change', () => update(preferenceKeys.theme, input.value)));
+    artSwitch?.addEventListener('click', () => update(preferenceKeys.art, html.dataset.art === 'off' ? null : 'off'));
+    motionSwitch?.addEventListener('click', () => update(preferenceKeys.motion, html.dataset.motion === 'reduce' ? null : 'reduce'));
+
+    languageOptions.forEach((option) => {
+      option.addEventListener('click', (event) => {
+        const choice = option.dataset.prefLocale ?? 'auto';
+        if (choice !== 'auto') {
+          writePreference(preferenceKeys.locale, choice);
+          return; // O link segue para a página no idioma escolhido.
+        }
+        event.preventDefault();
+        writePreference(preferenceKeys.locale, null);
+        const target = resolveBrowserLocale(navigator.languages?.length ? navigator.languages : [navigator.language]);
+        if (target !== root.dataset.locale) window.location.assign(localizePath(window.location.pathname, target));
+        else render();
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!root.contains(event.target as Node)) close();
+    });
+    root.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') close(true);
+    });
+    root.addEventListener('focusout', (event) => {
+      if (event.relatedTarget instanceof Node && !root.contains(event.relatedTarget)) close();
+    });
+  }
+</script>
