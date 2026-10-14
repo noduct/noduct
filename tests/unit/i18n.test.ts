@@ -1,6 +1,6 @@
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
-import { localizePath, resolveBrowserLocale } from '@/i18n/config';
+import { assetPath, localizePath, resolveBrowserLocale } from '@/i18n/config';
 import { describe, expect, it } from 'vitest';
 
 describe('internationalization', () => {
@@ -18,6 +18,11 @@ describe('internationalization', () => {
     expect(localizePath('/tools/', 'en')).toBe('/tolvira/tools/');
     expect(localizePath('/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
     expect(localizePath('/es/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
+  });
+
+  it('preserves file paths under the GitHub Pages base', () => {
+    expect(assetPath('/favicon.svg')).toBe('/tolvira/favicon.svg');
+    expect(assetPath('/brand/social-card.png')).toBe('/tolvira/brand/social-card.png');
   });
 
   it('has a complete localized catalog', () => {

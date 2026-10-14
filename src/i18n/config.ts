@@ -26,3 +26,10 @@ export function localizePath(pathname: string, locale: Locale): string {
   const localized = locale === 'en' ? normalized : `${localePrefixes[locale]}${normalized === '/' ? '/' : normalized}`;
   return localized === '/' ? `${siteBasePath}/` : `${siteBasePath}${localized}`;
 }
+
+/** Adiciona o base path do GitHub Pages sem transformar arquivos em rotas de diretório. */
+export function assetPath(pathname: string): string {
+  const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  const withoutBase = path.replace(new RegExp(`^${siteBasePath}(?=/|$)`), '') || '/';
+  return `${siteBasePath}${withoutBase}`;
+}

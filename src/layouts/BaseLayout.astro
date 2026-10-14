@@ -5,11 +5,11 @@ import AmbientArtwork from '@/components/layout/AmbientArtwork.astro';
 import IconSprite from '@/components/ui/IconSprite.astro';
 import { siteConfig } from '@/config/site';
 import { createSeoMetadata } from '@/lib/seo';
-import { localizePath, type Locale } from '@/i18n/config';
+import { assetPath, localizePath, type Locale } from '@/i18n/config';
 import '@/styles/global.css';
 
 interface Props { title: string; description: string; image?: string; noindex?: boolean; locale?: Locale; }
-const { title, description, image = '/brand/social-card.svg', noindex = false, locale = 'en' } = Astro.props;
+const { title, description, image = '/brand/social-card.png', noindex = false, locale = 'en' } = Astro.props;
 const seo = createSeoMetadata(Astro.url.pathname, title, description, image, noindex);
 const speculationRules = { prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { selector_matches: '[target], [download], [rel~=nofollow]' } }] }, eagerness: 'moderate' }] };
 const organization = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Tolvira', url: siteConfig.url };
@@ -29,7 +29,8 @@ const redirectPaths = locale === 'en' ? { ptBR: alternates.ptBR, es: alternates.
     <link rel="alternate" hreflang="pt-BR" href={new URL(alternates.ptBR, siteConfig.url)} />
     <link rel="alternate" hreflang="es" href={new URL(alternates.es, siteConfig.url)} />
     <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, siteConfig.url)} />
-    <link rel="icon" href={localizePath('/favicon.svg', 'en')} type="image/svg+xml" />
+    <link rel="icon" href={assetPath('/favicon.svg')} type="image/svg+xml" />
+    <link rel="apple-touch-icon" href={assetPath('/brand/apple-touch-icon.png')} />
     <meta name="theme-color" content="#2563eb" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Tolvira" />
@@ -37,9 +38,14 @@ const redirectPaths = locale === 'en' ? { ptBR: alternates.ptBR, es: alternates.
     <meta property="og:description" content={seo.description} />
     <meta property="og:url" content={seo.canonical} />
     <meta property="og:image" content={seo.image} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Tolvira — Free Online Tools" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={seo.fullTitle} />
     <meta name="twitter:description" content={seo.description} />
+    <meta name="twitter:image" content={seo.image} />
     <title>{seo.fullTitle}</title>
     <script type="application/ld+json" set:html={JSON.stringify(organization)} />
     {/* Navegação instantânea: Chrome/Edge pré-renderizam links internos após ~200ms de hover. Sem JS; outros navegadores ignoram. */}
