@@ -1,7 +1,7 @@
 ---
 import SeoHead from '@tolvira/design-system/components/SeoHead.astro';
 import ToolFrame from '@tolvira/design-system/components/ToolFrame.astro';
-import SponsoredPlacement from '@tolvira/design-system/components/SponsoredPlacement.astro';
+import SponsorshipSlot from '@tolvira/design-system/components/SponsorshipSlot.astro';
 import type { DesignLocale } from '@tolvira/design-system';
 import { toolConfig } from '../config';
 import { toolMessages } from '../i18n';
@@ -13,7 +13,7 @@ const prefix = locale === 'en' ? '' : locale === 'pt-BR' ? 'pt-br/' : 'es/';
     <nav class="crumbs" aria-label={m.breadcrumb as string}><a href={`https://tolvira.github.io/${prefix}`}>Tolvira</a> / <a href={`https://tolvira.github.io/${prefix}text-tools/`}>{m.category}</a> / <span aria-current="page">{m.name}</span></nav>
     <h1>{m.name}</h1><p>{m.description}</p>
     <section class="tool" aria-labelledby="tool-title"><h2 id="tool-title">{m.toolTitle}</h2><label for="source">{m.label}</label><textarea id="source" placeholder={m.placeholder as string}></textarea><div class="actions"><button id="process" type="button">{m.process}</button><button id="clear" class="secondary" type="button">{m.clear}</button></div><p class="notice">{m.privacy}</p><div class="result" id="result" role="status" aria-live="polite" data-empty-message={m.empty} hidden></div></section>
-    <SponsoredPlacement locale={locale}/><section><h2>{m.howTitle}</h2><ol>{(m.how as string[]).map((item) => <li>{item}</li>)}</ol></section><section><h2>{m.limitsTitle}</h2><p>{m.limits}</p></section><section><h2>{m.relatedTitle}</h2><p>{m.related}</p></section>
+    <SponsorshipSlot placementId={toolConfig.sponsorPlacementId} registryUrl={toolConfig.sponsorshipRegistryUrl} enabled={toolConfig.sponsorshipEnabled} locale={locale}/><section><h2>{m.howTitle}</h2><ol>{(m.how as string[]).map((item) => <li>{item}</li>)}</ol></section><section><h2>{m.limitsTitle}</h2><p>{m.limits}</p></section><section><h2>{m.relatedTitle}</h2><p>{m.related}</p></section>
   </ToolFrame>
   <script>import { cleanText } from '../lib/clean-text'; const source=document.querySelector('#source');const result=document.querySelector('#result');document.querySelector('#process')?.addEventListener('click',()=>{if(!(source instanceof HTMLTextAreaElement)||!(result instanceof HTMLElement))return;result.textContent=cleanText(source.value)||result.dataset.emptyMessage||'';result.hidden=false});document.querySelector('#clear')?.addEventListener('click',()=>{if(source instanceof HTMLTextAreaElement)source.value='';if(result instanceof HTMLElement){result.textContent='';result.hidden=true}if(source instanceof HTMLElement)source.focus()});</script>
 </body></html>

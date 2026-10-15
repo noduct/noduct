@@ -1,0 +1,196 @@
+---
+import SponsorCard from '../../../../../packages/design-system/src/components/SponsorCard.astro';
+import SponsorshipSlot from '../../../../../packages/design-system/src/components/SponsorshipSlot.astro';
+import '../../../../../packages/design-system/src/tokens.css';
+import type { SponsorCampaign } from '../../../../../packages/design-system/src/sponsorship';
+
+export function getStaticPaths() {
+  return [
+    'active',
+    'no-logo',
+    'empty',
+    'invalid',
+    'disabled',
+    'remote',
+    'remote-empty',
+    'long-text',
+    'unbroken-text',
+    'duplicate',
+    'card'
+  ].map((scenario) => ({ params: { scenario }, props: { scenario } }));
+}
+interface Props {
+  scenario: string;
+}
+const { scenario } = Astro.props;
+const campaign: SponsorCampaign = {
+  id: 'example-campaign',
+  placementId: 'merge-pdf.primary',
+  sponsorName:
+    scenario === 'unbroken-text'
+      ? 'A'.repeat(50)
+      : scenario === 'long-text'
+        ? 'Example Sponsor Supporting Independent Local Tools'
+        : 'Example Sponsor',
+  description:
+    scenario === 'unbroken-text'
+      ? 'A'.repeat(120)
+      : scenario === 'long-text'
+        ? 'Independent software for focused teams working with documents and local files. Useful tools with a clear privacy policy.'
+        : 'Synthetic sponsor supporting independent tools.',
+  destinationUrl: 'https://example.com/sponsor',
+  ...(scenario === 'no-logo'
+    ? {}
+    : { logoUrl: 'https://example.com/sponsorship/logos/example-sponsor.webp' }),
+  status: 'active',
+  startsAt: '2020-01-01T00:00:00.000Z',
+  expiresAt: '2099-01-01T00:00:00.000Z'
+};
+const registry: unknown = {
+  schemaVersion: scenario === 'invalid' ? 2 : 1,
+  placements: [{ id: 'merge-pdf.primary', toolId: 'merge-pdf', enabled: true }],
+  campaigns: ['empty', 'remote-empty'].includes(scenario) ? [] : [campaign]
+};
+const remote = ['remote', 'remote-empty'].includes(scenario);
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Independent sponsorship component fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>Independent tool fixture</h1>
+      <section id="workspace" aria-label="Local file workspace">
+        <label for="file">Choose a local file</label>
+        <input id="file" type="file" />
+        <div id="drop-zone">Drop a local file here</div>
+        <p id="file-status" role="status">No file selected</p>
+        <button id="download" type="button">Download local result</button>
+      </section>
+      <div data-fixture-slot>
+        {
+          scenario === 'card' ? (
+            <SponsorCard campaign={campaign} />
+          ) : (
+            <SponsorshipSlot
+              placementId="merge-pdf.primary"
+              registry={registry}
+              registryUrl={remote ? 'https://registry.example/data/sponsorships.json' : undefined}
+              enabled={scenario !== 'disabled'}
+            />
+          )
+        }
+        {
+          scenario === 'duplicate' && (
+            <SponsorshipSlot placementId="merge-pdf.primary" registry={registry} enabled={true} />
+          )
+        }
+      </div>
+      <section id="complementary" aria-label="Tool instructions">
+        <h2>How to use this fixture</h2>
+        <p>Choose or drop a file, then download the local result.</p>
+      </section>
+      <div class="scroll-space" aria-hidden="true"></div>
+    </main>
+    <script>
+      const input = document.querySelector<HTMLInputElement>('#file');
+      const status = document.querySelector<HTMLParagraphElement>('#file-status');
+      const dropZone = document.querySelector<HTMLDivElement>('#drop-zone');
+      let selectedName = '';
+      function selectFile(file: File | undefined) {
+        selectedName = file?.name ?? '';
+        if (status)
+          status.textContent = selectedName ? `Ready: ${selectedName}` : 'No file selected';
+      }
+      input?.addEventListener('change', () => selectFile(input.files?.[0]));
+      dropZone?.addEventListener('dragover', (event) => event.preventDefault());
+      dropZone?.addEventListener('drop', (event) => {
+        event.preventDefault();
+        selectFile(event.dataTransfer?.files[0]);
+      });
+      document.querySelector('#download')?.addEventListener('click', () => {
+        const url = URL.createObjectURL(
+          new Blob([selectedName || 'No file selected'], { type: 'text/plain' })
+        );
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'local-result.txt';
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 0);
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+    font:
+      16px/1.5 system-ui,
+      sans-serif;
+  }
+  main {
+    width: min(calc(100% - 32px), 900px);
+    margin: 24px auto;
+  }
+  h1 {
+    margin: 0 0 16px;
+    font-size: 26px;
+  }
+  #workspace {
+    padding: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+  label {
+    display: block;
+    font-weight: 600;
+  }
+  input {
+    max-width: 100%;
+  }
+  button,
+  input {
+    font: inherit;
+  }
+  button {
+    padding: 8px 16px;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+  }
+  #drop-zone {
+    margin: 12px 0;
+    padding: 16px;
+    border: 1px dashed var(--color-border-strong);
+  }
+  [data-fixture-slot] {
+    display: contents;
+  }
+  #complementary {
+    margin-top: 20px;
+  }
+  #complementary h2 {
+    font-size: 20px;
+  }
+  .scroll-space {
+    height: 100vh;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+</style>

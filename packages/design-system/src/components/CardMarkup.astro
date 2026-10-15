@@ -1,0 +1,49 @@
+---
+import type { SponsorCampaign } from '../sponsorship/contracts';
+import { designMessages, type DesignLocale } from '../i18n';
+import styles from './SponsorCard.module.css';
+
+interface Props {
+  campaign?: SponsorCampaign;
+  locale?: DesignLocale;
+}
+
+const { campaign, locale = 'en' } = Astro.props;
+const m = designMessages[locale];
+---
+
+<aside
+  data-sponsor-card
+  data-placement-id={campaign?.placementId}
+  data-expires-at={campaign?.expiresAt}
+  class={styles.card}
+  aria-label={m.sponsoredContent}
+>
+  <img
+    data-sponsor-logo
+    class={styles.logo}
+    src={campaign?.logoUrl}
+    hidden={!campaign?.logoUrl}
+    alt=""
+    width="32"
+    height="32"
+    loading="lazy"
+    referrerpolicy="no-referrer"
+  />
+  <div class={styles.body}>
+    <small class={styles.label}>{m.sponsored}</small>
+    <strong data-sponsor-name class={styles.name}>{campaign?.sponsorName}</strong>
+    <p data-sponsor-description class={styles.description}>{campaign?.description}</p>
+  </div>
+  <a
+    data-sponsor-link
+    class={styles.link}
+    href={campaign?.destinationUrl}
+    target="_blank"
+    rel="sponsored noopener noreferrer"
+  >
+    <span>{m.visitSponsor}</span>
+    <span aria-hidden="true">↗</span>
+    <span class={styles.srOnly}> ({m.opensNewTab})</span>
+  </a>
+</aside>

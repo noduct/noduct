@@ -61,6 +61,16 @@
   --radius-lg: 10px;
   --content-width: 1280px;
 
+  /* Shared spacing and sponsorship geometry */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --sponsor-height-desktop: 96px;
+  --sponsor-height-mobile: 120px;
+  --sponsor-logo-size: 32px;
+
   /* Custom Scrollbar Tokens */
   --scrollbar-width: 8px;
   --scrollbar-thumb: rgba(100, 116, 139, 0.32);

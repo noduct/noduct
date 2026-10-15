@@ -1,6 +1,6 @@
 {
   "name": "@tolvira/design-system",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "peerDependencies": {
@@ -17,6 +17,8 @@
     "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",
     "./components/SeoHead.astro": "./src/components/SeoHead.astro",
     "./components/SponsoredPlacement.astro": "./src/components/SponsoredPlacement.astro",
+    "./components/SponsorCard.astro": "./src/components/SponsorCard.astro",
+    "./components/SponsorshipSlot.astro": "./src/components/SponsorshipSlot.astro",
     "./components/ToolFrame.astro": "./src/components/ToolFrame.astro"
   }
 }

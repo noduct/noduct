@@ -5,6 +5,8 @@ playwright-report/
 test-results/
 lighthouse-report/
 .lighthouseci/
+.sponsorship-fixture/
+tests/fixtures/sponsorship-app/.astro/
 .env
 .DS_Store
 packages/tool-template/node_modules/

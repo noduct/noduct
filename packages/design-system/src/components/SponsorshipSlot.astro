@@ -1,0 +1,47 @@
+---
+import CardMarkup from './CardMarkup.astro';
+import { resolveCampaign } from '../sponsorship/resolver';
+import { placementSchema } from '../sponsorship/contracts';
+import type { DesignLocale } from '../i18n';
+
+interface Props {
+  placementId: string;
+  registry?: unknown;
+  registryUrl?: string | undefined;
+  enabled?: boolean;
+  locale?: DesignLocale;
+}
+
+const { placementId, registry, registryUrl, enabled = false, locale = 'en' } = Astro.props;
+const validPlacement = placementSchema.safeParse({
+  id: placementId,
+  toolId: placementId.split('.')[0],
+  enabled: true
+}).success;
+// Claim a placement once per rendered page, including the no-JavaScript HTML.
+const state = Astro.locals as { [key: symbol]: Set<string> | undefined };
+const claims = (state[Symbol.for('tolvira.sponsorship.placements')] ??= new Set<string>());
+const displayEnabled = enabled === true && validPlacement && !claims.has(placementId);
+if (displayEnabled) claims.add(placementId);
+const active = displayEnabled ? resolveCampaign(registry, placementId) : undefined;
+---
+
+{
+  displayEnabled && (
+    <>
+      {active && <CardMarkup campaign={active} locale={locale} />}
+      <template
+        data-sponsorship-slot
+        data-placement-id={placementId}
+        data-registry-url={registryUrl}
+      >
+        <CardMarkup locale={locale} />
+      </template>
+    </>
+  )
+}
+
+<script>
+  import { initializeSponsorshipSlots } from '../sponsorship/slot-runtime';
+  initializeSponsorshipSlots(document);
+</script>

@@ -1,8 +1,13 @@
 ---
-import { designMessages, type DesignLocale } from '../i18n';
-interface Props { sponsor?: { name: string; description: string; url: string }; locale?: DesignLocale }
+import SponsorCard from './SponsorCard.astro';
+import type { SponsorCampaign } from '../sponsorship/contracts';
+import type { DesignLocale } from '../i18n';
+// Deprecated import path. Use SponsorCard or SponsorshipSlot with the v1 contract.
+interface Props {
+  sponsor?: SponsorCampaign;
+  locale?: DesignLocale;
+}
 const { sponsor, locale = 'en' } = Astro.props;
-const m = designMessages[locale];
 ---
-{sponsor && <aside class="tv-sponsor" aria-label={m.sponsoredContent}><div><small>{m.sponsored}</small><strong>{sponsor.name}</strong><p>{sponsor.description}</p></div><a href={sponsor.url} target="_blank" rel="sponsored noopener noreferrer">{m.visitSponsor}<span> ({m.opensNewTab})</span></a></aside>}
-<style>.tv-sponsor{display:flex;min-height:112px;margin:2rem 0;padding:1rem 1.25rem;align-items:center;justify-content:space-between;gap:1rem;border:1px solid var(--color-border);border-radius:var(--radius-lg)}small{display:block;color:var(--color-text-secondary);font-weight:800;letter-spacing:.1em;text-transform:uppercase}strong{display:block}p{margin:0;color:var(--color-text-secondary)}a{font-weight:700;white-space:nowrap}a span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:560px){.tv-sponsor{align-items:start;flex-direction:column}}</style>
+
+{sponsor && <SponsorCard campaign={sponsor} locale={locale} />}

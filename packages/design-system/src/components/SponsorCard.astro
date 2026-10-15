@@ -1,0 +1,27 @@
+---
+import CardMarkup from './CardMarkup.astro';
+import { sponsorCampaignSchema, type SponsorCampaign } from '../sponsorship/contracts';
+import type { DesignLocale } from '../i18n';
+
+interface Props {
+  campaign?: SponsorCampaign | undefined;
+  locale?: DesignLocale;
+}
+const { campaign, locale = 'en' } = Astro.props;
+const result = sponsorCampaignSchema.safeParse(campaign);
+const now = Date.now();
+const active =
+  result.success &&
+  result.data.status === 'active' &&
+  Date.parse(result.data.startsAt) <= now &&
+  now < Date.parse(result.data.expiresAt)
+    ? result.data
+    : undefined;
+---
+
+{active && <CardMarkup campaign={active} locale={locale} />}
+
+<script>
+  import { initializeSponsorCards } from '../sponsorship/card-runtime';
+  initializeSponsorCards(document);
+</script>

@@ -1,18 +1,20 @@
 ---
-import { sponsorships } from '@/data/sponsorships';
-import { activeSponsorFor } from '@/lib/sponsorships';
-import { getMessages } from '@/i18n/messages';
+import SponsorshipSlot from '@tolvira/design-system/components/SponsorshipSlot.astro';
+import { sponsorshipRegistry } from '../../../sponsorship';
+import { siteConfig } from '@/config/site';
 import type { Locale } from '@/i18n/config';
-const { placementId, locale = 'en' } = Astro.props as { placementId: string; locale?: Locale };
-const sponsor = activeSponsorFor(sponsorships, placementId);
-const m = getMessages(locale);
+const {
+  placementId,
+  locale = 'en',
+  enabled = false
+} = Astro.props as { placementId: string; locale?: Locale; enabled?: boolean };
+const displayEnabled = enabled && siteConfig.sponsor.commercialMode !== 'prelaunch';
 ---
-{sponsor && <aside class="sponsor" aria-label={m.sponsors.label}><div><span>{m.sponsors.sponsored}</span><strong>{sponsor.sponsorName}</strong><p>{sponsor.description}</p></div><a href={sponsor.destinationUrl} rel="sponsored noopener noreferrer" target="_blank">{m.sponsors.visit} <span aria-hidden="true">↗</span><span class="sr-only"> ({m.common.opensNewTab})</span></a></aside>}
-<style>
-  .sponsor { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 112px; margin-block: 2rem; padding: 1rem 1.25rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
-  span:first-child { display: block; color: var(--color-text-secondary); font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-  strong { display: block; margin-top: .2rem; } p { margin: 0; color: var(--color-text-secondary); }
-  a { white-space: nowrap; font-weight: 700; }
-  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
-  @media(max-width: 560px) { .sponsor { align-items: start; flex-direction: column; } }
-</style>
+
+<SponsorshipSlot
+  placementId={placementId}
+  locale={locale}
+  registry={sponsorshipRegistry}
+  registryUrl={`${siteConfig.url}/data/sponsorships.json`}
+  enabled={displayEnabled}
+/>
