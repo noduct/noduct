@@ -6,7 +6,9 @@
 
 ## Convenções
 
-URLs inglesas, minúsculas e estáveis. Uma página tem um H1 e descrição específica. Não há `hreflang` até existir tradução completa. Planned tools não ganham páginas públicas. SoftwareApplication só deve ser adicionado na ferramenta real e com dados verificáveis.
+URLs inglesas, minúsculas e estáveis, com prefixos de idioma para as traduções existentes. Cada página tem um H1, descrição específica e canonical autorreferente no idioma renderizado; versões PT-BR e ES não devem apontar seu canonical para a versão inglesa. `BaseLayout.astro` informa o locale a `createSeoMetadata` e publica os alternates `en`, `pt-BR`, `es` e `x-default`. Planned tools não ganham páginas públicas. SoftwareApplication só deve ser adicionado na ferramenta real e com dados verificáveis.
+
+O sitemap e sua referência em `public/robots.txt` incluem o base path `/tolvira` do GitHub Pages. Os testes de navegador usam o mesmo prefixo para validar as rotas realmente publicadas.
 
 ## Validação e Search Console
 

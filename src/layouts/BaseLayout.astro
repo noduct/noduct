@@ -10,7 +10,7 @@ import '@/styles/global.css';
 
 interface Props { title: string; description: string; image?: string; noindex?: boolean; locale?: Locale; }
 const { title, description, image = '/brand/social-card.png', noindex = false, locale = 'en' } = Astro.props;
-const seo = createSeoMetadata(Astro.url.pathname, title, description, image, noindex);
+const seo = createSeoMetadata(Astro.url.pathname, title, description, image, noindex, locale);
 const speculationRules = { prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { selector_matches: '[target], [download], [rel~=nofollow]' } }] }, eagerness: 'moderate' }] };
 const organization = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Tolvira', url: siteConfig.url };
 const alternates = { en: localizePath(Astro.url.pathname, 'en'), ptBR: localizePath(Astro.url.pathname, 'pt-BR'), es: localizePath(Astro.url.pathname, 'es') };

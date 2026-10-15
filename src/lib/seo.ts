@@ -1,5 +1,5 @@
 import { siteConfig } from '@/config/site';
-import { assetPath, localizePath } from '@/i18n/config';
+import { assetPath, localizePath, type Locale } from '@/i18n/config';
 
 export interface SeoMetadata {
   title: string;
@@ -10,12 +10,19 @@ export interface SeoMetadata {
   noindex: boolean;
 }
 
-export function createSeoMetadata(pathname: string, title: string, description: string, image: string, noindex = false): SeoMetadata {
+export function createSeoMetadata(
+  pathname: string,
+  title: string,
+  description: string,
+  image: string,
+  noindex = false,
+  locale: Locale = 'en'
+): SeoMetadata {
   return {
     title,
     fullTitle: title.includes('Tolvira') ? title : `${title} | Tolvira`,
     description,
-    canonical: new URL(localizePath(pathname, 'en'), siteConfig.url),
+    canonical: new URL(localizePath(pathname, locale), siteConfig.url),
     image: new URL(assetPath(image), siteConfig.url),
     noindex
   };
