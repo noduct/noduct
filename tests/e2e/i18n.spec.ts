@@ -44,7 +44,7 @@ test('localized SEO metadata is self-consistent', async ({ page }) => {
   await expect(page.locator('link[rel="alternate"][hreflang="es"]')).toHaveAttribute('href', 'https://tolvira.github.io/es/privacy/');
 });
 
-test('manual language link does not override browser detection on the next root visit', async ({ browser }) => {
+test('manual language choice overrides the browser language and can be reset to automatic', async ({ browser }) => {
   const context = await browser.newContext({ locale: 'pt-BR' });
   const page = await context.newPage();
   await page.goto('/');
@@ -53,6 +53,22 @@ test('manual language link does not override browser detection on the next root 
   await page.getByRole('link', { name: 'Español' }).click();
   await page.waitForURL('**/es/');
   await page.goto('/');
+  await page.waitForURL('**/es/');
+  await page.getByRole('button', { name: 'Abrir configuración' }).click();
+  await page.getByRole('button', { name: /Automático/ }).click();
   await page.waitForURL('**/pt-br/');
+  await context.close();
+});
+
+test('manual language choice to English stays on English and does not revert to browser Portuguese', async ({ browser }) => {
+  const context = await browser.newContext({ locale: 'pt-BR' });
+  const page = await context.newPage();
+  await page.goto('/');
+  await page.waitForURL('**/pt-br/');
+  await page.getByRole('button', { name: 'Abrir configurações' }).click();
+  await page.getByRole('link', { name: 'English' }).click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await context.close();
 });
