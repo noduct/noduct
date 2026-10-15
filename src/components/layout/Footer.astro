@@ -2,14 +2,37 @@
 import styles from './Footer.module.css';
 import { getMessages } from '@/i18n/messages';
 import { localizePath, type Locale } from '@/i18n/config';
+import { siteConfig } from '@/config/site';
+import { getValidatedSupportUrl } from '@/lib/support';
+
 const { locale = 'en' } = Astro.props as { locale?: Locale };
 const m = getMessages(locale);
+const supportUrl = getValidatedSupportUrl(siteConfig.support);
 ---
 <footer class={styles.footer}>
   <div class:list={['container', styles.footerGrid]}>
     <div class={styles.brandCol}>
       <div class={styles.brandRow}><span class={styles.brandMark} aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="16" rx="3.5" stroke="currentColor" stroke-width="1.8" /><path d="M7 9h10M12 9v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg></span><strong class={styles.brandTitle}>Tolvira</strong></div>
       <p class={styles.tagline}>{m.footer.tagline}</p>
+      {supportUrl && (
+        <div class={styles.support}>
+          <p class={styles.supportPrompt}>{m.footer.supportPrompt}</p>
+          <a
+            class={styles.supportLink}
+            href={supportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={m.footer.supportAriaLabel}
+          >
+            <svg class={styles.supportIcon} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M17 8h1a4 4 0 0 1 0 8h-1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M3 8h14v8.5a4.5 4.5 0 0 1-4.5 4.5h-5A4.5 4.5 0 0 1 3 16.5V8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity="0.14" />
+              <path d="M7 2c0 1.5 1 2 1 3M11 2c0 1.5 1 2 1 3M15 2c0 1.5 1 2 1 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+            <span>{m.footer.supportLink}</span>
+          </a>
+        </div>
+      )}
     </div>
     <nav aria-label={m.nav.footer} class={styles.nav}>
       <a href={localizePath('/tools/', locale)}>{m.nav.allTools}</a><a href={localizePath('/about/', locale)}>{m.nav.about}</a><a href={localizePath('/sponsor/', locale)}>{m.nav.sponsor}</a><a href={localizePath('/contact/', locale)}>{m.nav.contact}</a><a href={localizePath('/privacy/', locale)}>{m.nav.privacy}</a><a href={localizePath('/terms/', locale)}>{m.nav.terms}</a>
