@@ -10,6 +10,8 @@ URLs inglesas, minúsculas e estáveis, com prefixos de idioma para as traduçõ
 
 O sitemap e sua referência em `public/robots.txt` incluem o base path `/tolvira` do GitHub Pages. Os testes de navegador usam o mesmo prefixo para validar as rotas realmente publicadas.
 
+A auditoria Lighthouse usa o preview Astro na porta 4322 com URLs sob `/tolvira/`. O servidor genérico de `staticDistDir` não reproduz esse base path e pode retornar 404 para CSS e JavaScript; por isso não é usado. A porta separada evita conflito com o preview do Playwright na porta 4321. Os limites de qualidade permanecem definidos em `lighthouserc.cjs`.
+
 ## Validação e Search Console
 
 `npm run build` verifica títulos, descriptions, canonicals, H1, robots e sitemap. Depois de publicar, cadastre o domínio/propriedade no Search Console e envie o sitemap do hub e o de cada project site. Isso auxilia descoberta, não garante indexação ou posição.

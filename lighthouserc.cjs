@@ -1,12 +1,14 @@
 module.exports = {
   ci: {
     collect: {
-      staticDistDir: './dist',
+      startServerCommand: 'npm run preview -- --host 127.0.0.1 --port 4322',
+      startServerReadyPattern: 'Local',
+      startServerReadyTimeout: 120000,
       url: [
-        'http://localhost/',
-        'http://localhost/tools/',
-        'http://localhost/pdf-tools/',
-        'http://localhost/sponsor/'
+        'http://127.0.0.1:4322/tolvira/',
+        'http://127.0.0.1:4322/tolvira/tools/',
+        'http://127.0.0.1:4322/tolvira/pdf-tools/',
+        'http://127.0.0.1:4322/tolvira/sponsor/'
       ],
       numberOfRuns: 1,
       settings: {
