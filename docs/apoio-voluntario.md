@@ -1,8 +1,8 @@
-# Proposta de apoio voluntário — Buy Me a Coffee
+# Apoio voluntário — Buy Me a Coffee
 
 ## Estado e objetivo
 
-Proposta de produto e implementação, registrada em 15/10/2026. Nenhuma interface, conta externa, cobrança ou configuração de produção foi alterada. O responsável informou que já possui uma conta no Buy Me a Coffee; a URL pública e a identificação do beneficiário ainda precisam ser fornecidas para uma futura implementação.
+Planejamento registrado em 15/10/2026 e implementado posteriormente no PR #8, integrado à branch principal. O convite de apoio está habilitado no rodapé do Hub com a URL pública `https://buymeacoffee.com/plajiw`. Este documento preserva as decisões de apresentação, convivência com patrocinadores e evolução futura.
 
 Oferecer uma forma discreta de contribuir com o desenvolvimento da Tolvira, mantendo o acesso gratuito às ferramentas e preservando a visibilidade dos patrocínios. A contribuição é opcional e não compra publicidade, recursos, prioridade de processamento ou retirada de anúncios.
 
@@ -64,21 +64,21 @@ Se surgir necessidade concreta de passar do computador para o celular, uma segun
 
 Nesse cenário, baixar o QR pelo painel oficial ou gerá-lo localmente a partir da URL revisada, conferir o destino decodificado e testar a leitura antes de publicar. Uma mudança de URL exige conferir novamente imagem e link. Não usar serviço remoto de geração no navegador, QR dinâmico com redirecionador ou payload de pagamento direto.
 
-## Implementação futura
+## Implementação atual e evolução
 
-O primeiro incremento pode usar o rodapé existente em `src/components/layout/Footer.astro` e seu CSS Module. Manter a composição pequena, com tokens atuais; não há necessidade de criar um componente compartilhado antes de existir um segundo consumidor.
+O primeiro incremento usa o rodapé existente em `src/components/layout/Footer.astro` e seu CSS Module. O convite fica na coluna `brandCol`, depois de `tagline`, com HTML estático, foco visível, rótulo de abertura externa e tokens existentes. A composição permanece pequena; não há necessidade de criar um componente compartilhado antes de existir um segundo consumidor.
 
-Proposta de configuração separada em `src/config/site.ts`:
+Configuração separada em `src/config/site.ts`:
 
 ```ts
 support: {
-  enabled: false,
+  enabled: true,
   provider: 'buy-me-a-coffee',
-  url: ''
+  url: 'https://buymeacoffee.com/plajiw'
 }
 ```
 
-Esse trecho é somente um contrato proposto, ainda não implementado. A configuração contém apenas informação pública. `enabled` deve ser independente de `sponsor.commercialMode`: ativar o apoio não ativa anúncios ou contratação, e uma campanha não ativa o apoio. A URL aprovada deve usar HTTPS, o host oficial exato `buymeacoffee.com` e o caminho público da conta, sem credenciais ou parâmetros de checkout. Validar com o parser de URL, sem aceitar domínios por correspondência parcial.
+A configuração contém apenas informação pública. `enabled` é independente de `sponsor.commercialMode`: ativar o apoio não ativa anúncios ou contratação, e uma campanha não ativa o apoio. `getValidatedSupportUrl` em `src/lib/support.ts` verifica habilitação, provedor, HTTPS, host oficial exato `buymeacoffee.com`, caminho único de conta pública e ausência de credenciais, query string ou fragmento. A URL é interpretada pelo parser nativo, sem correspondência parcial de domínio.
 
 Renderizar somente quando a configuração estiver habilitada e a URL validada. Ausência ou erro de configuração resulta em ausência do convite, sem link vazio ou espaço reservado. O link é gerado no build; sua atualização exige novo deploy do consumidor. Ele não herda a atualização remota de campanhas prevista no M2.
 
@@ -88,16 +88,16 @@ Em uma segunda etapa, se aprovado para ferramentas independentes, extrair uma AP
 
 A documentação atual do GitHub Pages restringe sites cuja finalidade principal seja facilitar transações comerciais e o uso para transações sensíveis. Ela não oferece, na página consultada, uma aprovação específica para esta integração. O apoio externo opcional deve ser avaliado no contexto de um projeto de ferramentas gratuitas, mantendo o checkout fora do Pages. Essa é uma consideração de implantação, não uma conclusão de que todo link de apoio seja proibido. [Limites do GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
 
-O gate de patrocínio comercial registrado no épico continua em vigor. A decisão sobre apoio voluntário deve ser registrada separadamente e não resolve a pendência sobre venda de publicidade. Este planejamento não ativa qualquer um dos fluxos.
+O gate de patrocínio comercial registrado no épico continua em vigor. A ativação do apoio voluntário foi incorporada pelo PR #8 e não resolve a pendência sobre venda de publicidade. `sponsor.commercialMode` permanece `prelaunch`.
 
-A operação futura consiste em conferir a conta e seu perfil público, publicar apenas a URL aprovada e revisar periodicamente se o destino continua correto. Dados de pagamento, mensagens privadas, extratos e identidade de apoiadores permanecem fora do repositório e da aplicação. Não adicionar ranking de apoiadores, metas, telemetria ou confirmação automática de pagamento neste incremento.
+A operação consiste em conferir a conta e seu perfil público, publicar apenas a URL aprovada e revisar periodicamente se o destino continua correto. Dados de pagamento, mensagens privadas, extratos e identidade de apoiadores permanecem fora do repositório e da aplicação. Não adicionar ranking de apoiadores, metas, telemetria ou confirmação automática de pagamento neste incremento.
 
 Para retirar o convite, desabilitar a configuração e republicar os consumidores habilitados. A remoção não depende da disponibilidade do Buy Me a Coffee e não interfere no registry de campanhas.
 
-## Plano de execução e aceite futuro
+## Verificações de implantação e evolução
 
-1. Receber a URL pública e conferir identificação do beneficiário e contexto da conta. Registrar a decisão de ativação para a hospedagem utilizada.
-2. Implementar configuração e convite no rodapé do Hub, com estilo secundário e mensagem em inglês.
+1. Conferir periodicamente a URL pública, a identificação do beneficiário e o contexto da conta. Preservar o registro da decisão de ativação.
+2. Manter configuração e convite no rodapé do Hub, com estilo secundário e mensagem em inglês.
 3. Verificar configuração ausente ou inválida, HTML sem JavaScript, teclado, foco, contraste, desktop e mobile. Conferir na rede que o provedor só é acessado por escolha do usuário.
 4. Comparar as situações com e sem patrocinador usando fixtures de teste, preservando a hierarquia e as ações principais. Não publicar campanha real para essa verificação.
 5. Se houver interesse em ferramentas independentes, definir a API do rodapé compartilhado e realizar uma atualização versionada. Avaliar QR code somente depois de identificar a necessidade.
@@ -106,8 +106,7 @@ O aceite exige convite único e discreto, patrocínio preservado, ferramentas pl
 
 ## Pendências
 
-- URL pública da conta e identificação correta de quem recebe o apoio.
-- Decisão futura de ativação na hospedagem utilizada.
-- Avaliação visual da proposta quando houver implementação.
+- Reavaliar a hierarquia visual na integração do componente patrocinado do M3.
+- Avaliar ferramentas independentes e QR code somente se houver necessidade.
 
-Não é necessário obter credenciais, acessar o painel da conta ou realizar um pagamento para preparar essa implementação.
+Não é necessário obter credenciais, acessar o painel da conta ou realizar um pagamento para verificar essa implementação.

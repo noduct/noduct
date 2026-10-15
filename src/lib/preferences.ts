@@ -7,6 +7,7 @@ export const preferenceKeys = {
   theme: 'tolvira-theme',
   art: 'tolvira-art',
   motion: 'tolvira-motion',
+  locale: 'tolvira-locale',
 } as const;
 
 export const preferencesChangeEvent = 'tolvira:preferences';

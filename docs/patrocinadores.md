@@ -19,4 +19,4 @@ Os campos, as regras de datas, a exclusividade por posicionamento e os limites d
 
 ## Apoio voluntário ao projeto
 
-A [proposta de apoio via Buy Me a Coffee](apoio-voluntario.md) prevê um convite discreto no rodapé, separado dos placements contratados. Uma contribuição não compra publicidade nem ativa campanhas. A proposta está apenas documentada; sua eventual ativação não libera o modo comercial de patrocínios.
+O [apoio via Buy Me a Coffee](apoio-voluntario.md), incorporado pelo PR #8, apresenta um convite discreto no rodapé, separado dos placements contratados. Uma contribuição não compra publicidade nem ativa campanhas. Sua ativação é independente e não libera o modo comercial de patrocínios.
