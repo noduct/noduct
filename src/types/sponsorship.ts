@@ -1,11 +1,2 @@
-export interface Sponsorship {
-  id: string;
-  placementId: string;
-  sponsorName: string;
-  description: string;
-  destinationUrl: string;
-  logoUrl?: string;
-  status: 'pending' | 'active' | 'paused' | 'expired';
-  startsAt?: string;
-  expiresAt?: string;
-}
+// Compatibility alias for existing hub components. The v1 schema owns the type.
+export type { SponsorCampaign as Sponsorship } from '../features/sponsorship';

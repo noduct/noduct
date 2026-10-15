@@ -1,11 +1,17 @@
 {
   "name": "@tolvira/design-system",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "peerDependencies": { "astro": "^5.0.0" },
+  "peerDependencies": {
+    "astro": "^5.0.0"
+  },
+  "dependencies": {
+    "zod": "^3.25.0"
+  },
   "exports": {
     ".": "./src/index.ts",
+    "./sponsorship": "./src/sponsorship/index.ts",
     "./tokens.css": "./src/tokens.css",
     "./components/BrandHeader.astro": "./src/components/BrandHeader.astro",
     "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",

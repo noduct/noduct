@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && npm run validate:seo && npm run validate:i18n",
+    "build": "astro build && npm run validate:seo && npm run validate:i18n && npm run validate:sponsorship-registry",
     "preview": "astro preview",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -22,7 +22,8 @@
     "validate:catalog": "tsx scripts/validate-catalog.ts",
     "validate:seo": "tsx scripts/validate-seo.ts",
     "validate:i18n": "tsx scripts/validate-i18n.ts",
-    "check:sponsors": "tsx scripts/validate-sponsors.ts"
+    "check:sponsors": "tsx scripts/validate-sponsors.ts",
+    "validate:sponsorship-registry": "tsx scripts/validate-sponsorship-registry.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
@@ -38,6 +39,7 @@
     "@types/node": "^22.0.0",
     "eslint": "^9.0.0",
     "eslint-plugin-astro": "^1.3.0",
+    "esbuild": "^0.27.7",
     "globals": "^16.0.0",
     "prettier": "^3.6.0",
     "prettier-plugin-astro": "^0.14.0",

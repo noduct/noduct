@@ -14,4 +14,6 @@ Componentes do hub adotam CSS Modules como convenção principal. `styles/tokens
 
 ## Validação e limitações
 
+Os [contratos de patrocínio v1](contratos-patrocinio.md) são compartilhados por `packages/design-system/src/sponsorship/` e reexportados por `src/features/sponsorship/`. A configuração administrativa pública fica em `sponsorship/`; os adaptadores anteriores do hub delegam a essa fonte. Campanhas exigem datas UTC e posicionamentos derivados do catálogo. O [registry estático](registry-patrocinio.md) é projetado por allowlist no build e consumido pelo cliente compartilhado sem rebuild das ferramentas.
+
 Execute `npm run validate`. O hub não executa processamento de arquivos e não possui backend. Disponibilidade de uma ferramenta depende do respectivo repositório e deploy.
