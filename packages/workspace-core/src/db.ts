@@ -1,0 +1,155 @@
+import {
+  type NewWorkspaceDocument,
+  type WorkspaceDocument,
+  type WorkspaceStateRecord,
+  WorkspaceError,
+  WorkspaceUnavailableError
+} from './types';
+
+export const WORKSPACE_DB_NAME = 'noduct_workspace_db';
+export const CURRENT_SCHEMA_VERSION = 1;
+export const DOCUMENTS_STORE = 'documents';
+export const STATE_STORE = 'workspace_state';
+
+function getFactory(customFactory?: IDBFactory): IDBFactory {
+  if (customFactory) return customFactory;
+  if (typeof indexedDB !== 'undefined') return indexedDB;
+  if (typeof window !== 'undefined' && window.indexedDB) return window.indexedDB;
+  if (typeof globalThis !== 'undefined' && (globalThis as unknown as { indexedDB?: IDBFactory }).indexedDB) {
+    return (globalThis as unknown as { indexedDB: IDBFactory }).indexedDB;
+  }
+  throw new WorkspaceUnavailableError();
+}
+
+export function openDatabase(
+  factory?: IDBFactory
+): Promise<IDBDatabase> {
+  const idb = getFactory(factory);
+
+  return new Promise((resolve, reject) => {
+    let request: IDBOpenDBRequest;
+    try {
+      request = idb.open(WORKSPACE_DB_NAME, CURRENT_SCHEMA_VERSION);
+    } catch (error) {
+      reject(new WorkspaceUnavailableError(undefined, error));
+      return;
+    }
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+
+      if (!db.objectStoreNames.contains(DOCUMENTS_STORE)) {
+        const docStore = db.createObjectStore(DOCUMENTS_STORE, { keyPath: 'id' });
+        docStore.createIndex('createdAt', 'createdAt', { unique: false });
+        docStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+        docStore.createIndex('name', 'name', { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains(STATE_STORE)) {
+        const stateStore = db.createObjectStore(STATE_STORE, { keyPath: 'key' });
+        stateStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(new WorkspaceError('Failed to open workspace database', 'DB_OPEN_ERROR', request.error));
+    request.onblocked = () => {
+      console.warn('[noduct-workspace] Database open blocked by another active tab.');
+    };
+  });
+}
+
+function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(new WorkspaceError('Database request failed', 'REQUEST_ERROR', request.error));
+  });
+}
+
+export async function dbPutDocument(
+  db: IDBDatabase,
+  doc: NewWorkspaceDocument
+): Promise<WorkspaceDocument> {
+  const now = Date.now();
+  const id = doc.id ?? crypto.randomUUID();
+  const fullDoc: WorkspaceDocument = {
+    id,
+    name: doc.name,
+    size: doc.size ?? doc.blob.size,
+    mimeType: doc.mimeType ?? doc.blob.type ?? 'application/pdf',
+    pageCount: doc.pageCount,
+    createdAt: now,
+    updatedAt: now,
+    blob: doc.blob,
+    metadata: doc.metadata
+  };
+
+  const tx = db.transaction(DOCUMENTS_STORE, 'readwrite');
+  const store = tx.objectStore(DOCUMENTS_STORE);
+  await requestToPromise(store.put(fullDoc));
+  return fullDoc;
+}
+
+export async function dbGetDocument(
+  db: IDBDatabase,
+  id: string
+): Promise<WorkspaceDocument | undefined> {
+  const tx = db.transaction(DOCUMENTS_STORE, 'readonly');
+  const store = tx.objectStore(DOCUMENTS_STORE);
+  const result = await requestToPromise(store.get(id));
+  return (result as WorkspaceDocument) || undefined;
+}
+
+export async function dbListDocuments(
+  db: IDBDatabase
+): Promise<readonly WorkspaceDocument[]> {
+  const tx = db.transaction(DOCUMENTS_STORE, 'readonly');
+  const store = tx.objectStore(DOCUMENTS_STORE);
+  const result = await requestToPromise(store.getAll());
+  return (result as WorkspaceDocument[]) || [];
+}
+
+export async function dbDeleteDocument(
+  db: IDBDatabase,
+  id: string
+): Promise<boolean> {
+  const existing = await dbGetDocument(db, id);
+  if (!existing) return false;
+
+  const tx = db.transaction(DOCUMENTS_STORE, 'readwrite');
+  const store = tx.objectStore(DOCUMENTS_STORE);
+  await requestToPromise(store.delete(id));
+  return true;
+}
+
+export async function dbClearDocuments(db: IDBDatabase): Promise<void> {
+  const tx = db.transaction(DOCUMENTS_STORE, 'readwrite');
+  const store = tx.objectStore(DOCUMENTS_STORE);
+  await requestToPromise(store.clear());
+}
+
+export async function dbGetState(
+  db: IDBDatabase,
+  key: string
+): Promise<unknown | undefined> {
+  const tx = db.transaction(STATE_STORE, 'readonly');
+  const store = tx.objectStore(STATE_STORE);
+  const result = (await requestToPromise(store.get(key))) as WorkspaceStateRecord | undefined;
+  return result?.value;
+}
+
+export async function dbSetState(
+  db: IDBDatabase,
+  key: string,
+  value: unknown
+): Promise<void> {
+  const tx = db.transaction(STATE_STORE, 'readwrite');
+  const store = tx.objectStore(STATE_STORE);
+  const record: WorkspaceStateRecord = {
+    key,
+    value,
+    updatedAt: Date.now()
+  };
+  await requestToPromise(store.put(record));
+}
+

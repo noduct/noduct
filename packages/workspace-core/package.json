@@ -1,0 +1,14 @@
+{
+  "name": "@noduct/workspace-core",
+  "version": "0.1.0",
+  "description": "Client-side IndexedDB persistence and multi-tab coordination for Noduct tools",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "keywords": ["noduct", "workspace", "indexeddb", "privacy-first"],
+  "license": "MIT"
+}
+

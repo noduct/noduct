@@ -6,7 +6,8 @@
       "@/*": ["src/*"],
       "@noduct/design-system": ["packages/design-system/src/index.ts"],
       "@noduct/design-system/*": ["packages/design-system/*"],
-      "@noduct/pdf-core": ["packages/pdf-core/src/index.ts"]
+      "@noduct/pdf-core": ["packages/pdf-core/src/index.ts"],
+      "@noduct/workspace-core": ["packages/workspace-core/src/index.ts"]
     },
     "noUncheckedIndexedAccess": true
   },
