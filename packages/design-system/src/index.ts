@@ -9,3 +9,4 @@ export { default as DropZone } from './components/DropZone.astro';
 export { default as ReorderableList } from './components/ReorderableList.astro';
 export { default as ProcessingFeedback } from './components/ProcessingFeedback.astro';
 export { default as DownloadCard } from './components/DownloadCard.astro';
+export { default as WorkspaceDrawer } from './components/WorkspaceDrawer.astro';

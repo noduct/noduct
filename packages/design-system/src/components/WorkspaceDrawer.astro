@@ -1,0 +1,67 @@
+---
+import type { DesignLocale } from '../i18n';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import styles from './WorkspaceDrawer.module.css';
+
+export interface Props {
+  readonly id?: string | undefined;
+  readonly locale?: DesignLocale | undefined;
+}
+
+const { id = 'workspace-drawer', locale = 'en' } = Astro.props;
+const currentLocale = resolveWorkspaceUiLocale(locale);
+const m = workspaceUiMessages[currentLocale];
+---
+
+<div class={styles.root} id={id} data-workspace-root data-locale={currentLocale}>
+  <button type="button" class={styles.trigger} data-workspace-trigger>
+    <span aria-hidden="true">📁</span>
+    <span>{m.triggerLabel}</span>
+  </button>
+
+  <dialog class={styles.dialog} data-workspace-dialog aria-labelledby={`${id}-title`}>
+    <div class={styles.header}>
+      <h2 id={`${id}-title`} class={styles.title}>{m.drawerTitle}</h2>
+      <button
+        type="button"
+        class={styles.closeButton}
+        data-workspace-close
+        aria-label={m.closeLabel}
+      >
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <p class={styles.privacyBanner}>
+      <span aria-hidden="true">🔒 </span>
+      {m.privacyNotice}
+    </p>
+
+    <div class={styles.storageBar}>
+      <span data-workspace-usage>{m.storageUsage('0.0', '250')}</span>
+    </div>
+
+    <p class={styles.emptyState} data-workspace-empty>
+      {m.emptyMessage}
+    </p>
+
+    <ul class={styles.list} data-workspace-list aria-label={m.drawerTitle}></ul>
+
+    <div class={styles.footer}>
+      <button
+        type="button"
+        class={styles.clearButton}
+        data-workspace-clear-all
+        hidden
+      >
+        {m.clearAll}
+      </button>
+    </div>
+  </dialog>
+</div>
+
+<script>
+  import { initializeWorkspaceDrawers } from '../workspace-ui/workspace-drawer-runtime';
+  initializeWorkspaceDrawers(document);
+</script>
+

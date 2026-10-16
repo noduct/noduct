@@ -8,6 +8,9 @@ export default defineConfig({
       '@noduct/design-system/file-workflow': fileURLToPath(
         new URL('./packages/design-system/src/file-workflow/index.ts', import.meta.url)
       ),
+      '@noduct/design-system/workspace-ui': fileURLToPath(
+        new URL('./packages/design-system/src/workspace-ui/index.ts', import.meta.url)
+      ),
       '@noduct/design-system': fileURLToPath(
         new URL('./packages/design-system/src/index.ts', import.meta.url)
       ),

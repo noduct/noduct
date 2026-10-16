@@ -224,3 +224,69 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
   await expect(page.locator('h1')).toHaveText('Combinar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Combinar archivos PDF');
 });
+
+test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages files, and clears data', async ({
+  page
+}) => {
+  await page.goto(toolUrl);
+
+  const trigger = page.locator('[data-workspace-trigger]');
+  await expect(trigger).toBeVisible();
+  await expect(trigger).toHaveText(/Local Workspace/);
+
+  // Open drawer
+  await trigger.click();
+  const dialog = page.locator('[data-workspace-dialog]');
+  await expect(dialog).toBeVisible();
+
+  // Verify privacy notice is rendered
+  const privacyNotice = page.locator('[data-workspace-dialog] p');
+  await expect(privacyNotice.first()).toContainText('IndexedDB');
+
+  // Verify empty state initially
+  await expect(page.locator('[data-workspace-empty]')).toBeVisible();
+
+  // Close via close button
+  await page.locator('[data-workspace-close]').click();
+  await expect(dialog).not.toHaveAttribute('open');
+
+  // Perform a merge to persist a document in workspace
+  const file1 = {
+    name: 'alpha.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Alpha')
+  };
+  const file2 = {
+    name: 'beta.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Beta')
+  };
+
+  await page.locator('#merge-drop-zone').setInputFiles([file1, file2]);
+  await page.locator('#start-merge-btn').click();
+  await expect(page.locator('#merge-download-card')).toBeVisible();
+
+  // Re-open workspace drawer
+  await trigger.click();
+  await expect(dialog).toBeVisible();
+
+  // The merged file should now be listed in workspace
+  const item = page.locator('[data-workspace-item]');
+  await expect(item).toBeVisible();
+  await expect(item).toContainText('merged.pdf');
+
+  // Clear all files
+  page.on('dialog', (d) => d.accept());
+  const clearAllBtn = page.locator('[data-workspace-clear-all]');
+  await expect(clearAllBtn).toBeVisible();
+  await clearAllBtn.click();
+
+  // Workspace list should now be empty again
+  await expect(page.locator('[data-workspace-empty]')).toBeVisible();
+  await expect(page.locator('[data-workspace-item]')).toHaveCount(0);
+
+  // Close via Escape
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toHaveAttribute('open');
+});
+

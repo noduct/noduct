@@ -13,8 +13,17 @@
   text-decoration: underline;
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-2);
+}
+
 .title {
-  margin: 0 0 var(--space-2);
+  margin: 0;
   font-size: clamp(2rem, 5vw, 2.75rem);
   font-weight: 800;
   letter-spacing: -0.02em;

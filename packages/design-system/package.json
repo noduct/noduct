@@ -13,6 +13,7 @@
     ".": "./src/index.ts",
     "./sponsorship": "./src/sponsorship/index.ts",
     "./file-workflow": "./src/file-workflow/index.ts",
+    "./workspace-ui": "./src/workspace-ui/index.ts",
     "./tokens.css": "./src/tokens.css",
     "./components/BrandHeader.astro": "./src/components/BrandHeader.astro",
     "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",
@@ -24,6 +25,7 @@
     "./components/DropZone.astro": "./src/components/DropZone.astro",
     "./components/ReorderableList.astro": "./src/components/ReorderableList.astro",
     "./components/ProcessingFeedback.astro": "./src/components/ProcessingFeedback.astro",
-    "./components/DownloadCard.astro": "./src/components/DownloadCard.astro"
+    "./components/DownloadCard.astro": "./src/components/DownloadCard.astro",
+    "./components/WorkspaceDrawer.astro": "./src/components/WorkspaceDrawer.astro"
   }
 }

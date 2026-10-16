@@ -17,6 +17,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "build:test-fixtures": "astro build --root tests/fixtures/sponsorship-app",
+    "dev:merge-pdf": "astro dev --root packages/merge-pdf",
     "build:merge-pdf": "astro build --root packages/merge-pdf",
     "build:pages": "npm run build && npm run build:merge-pdf && node scripts/assemble-pages.mjs",
     "test:e2e": "npm run build:test-fixtures && npm run build:merge-pdf && playwright test",
