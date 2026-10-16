@@ -47,6 +47,7 @@
 .title:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+  box-shadow: none;
 }
 
 .meta {
@@ -120,6 +121,7 @@
 .secondary:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+  box-shadow: none;
 }
 
 @media (max-width: 599px) {

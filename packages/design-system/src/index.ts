@@ -1,5 +1,7 @@
 export const designSystemVersion = '0.4.0';
 export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disabled';
+export { THEME_COLOR_TOKEN, themeColors } from './theme';
+export type { ThemeName } from './theme';
 export { designMessages, designPath } from './i18n';
 export type { DesignLocale } from './i18n';
 export { default as ScrollArea } from './components/ScrollArea.astro';

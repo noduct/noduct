@@ -1,14 +1,15 @@
 ---
 import { topology, type Alternate } from '@noduct/tool-runtime';
+import { themeColors } from '../theme';
 
 interface Props {
   title: string;
   description: string;
   canonical: string;
-  image?: string;
-  imageAlt?: string;
-  alternates?: readonly Alternate[];
-  noindex?: boolean;
+  image?: string | undefined;
+  imageAlt?: string | undefined;
+  alternates?: readonly Alternate[] | undefined;
+  noindex?: boolean | undefined;
 }
 const {
   title,
@@ -33,8 +34,8 @@ const languageAlternates =
   ))
 }
 {noindex && <meta name="robots" content="noindex,follow" />}
-<meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content={themeColors.light} media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content={themeColors.dark} media="(prefers-color-scheme: dark)" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Noduct" />
 <meta property="og:title" content={title} />

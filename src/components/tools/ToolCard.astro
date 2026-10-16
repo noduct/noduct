@@ -1,5 +1,6 @@
 ---
 import type { ToolDefinition } from '@/types/tool';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import styles from './ToolCard.module.css';
 import { getMessages } from '@/i18n/messages';
 import type { Locale } from '@/i18n/config';
@@ -37,9 +38,7 @@ const m = getMessages(locale);
         ) : (
           <span class={styles.openAffordance}>
             <span>{m.common.open}</span>
-            <svg class={styles.arrowIcon} viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <use href="#icon-chevron" />
-            </svg>
+            <Icon class={styles.arrowIcon} name="chevron-right" />
           </span>
         )}
       </div>
@@ -51,21 +50,3 @@ const m = getMessages(locale);
   )
 }
 
-<script>
-  document.querySelectorAll<HTMLAnchorElement>('[data-recent-id]').forEach((link) => {
-    link.addEventListener('click', () => {
-      const id = link.dataset.recentId;
-      if (!id) return;
-      let recent: string[] = [];
-      try {
-        recent = JSON.parse(localStorage.getItem('noduct-recent-tools') ?? '[]');
-      } catch {
-        recent = [];
-      }
-      localStorage.setItem(
-        'noduct-recent-tools',
-        JSON.stringify([id, ...recent.filter((item) => item !== id)].slice(0, 6))
-      );
-    });
-  });
-</script>

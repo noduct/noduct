@@ -124,3 +124,42 @@ test('runtime payload stays lightweight', async ({ page }) => {
   expect(scripts.length).toBeLessThanOrEqual(3);
   expect(scripts.reduce((sum, resource) => sum + resource.size, 0)).toBeLessThan(50_000);
 });
+
+test('shell controls keep one visible focus indicator and 44px touch targets', async ({
+  page
+}) => {
+  await page.goto(topology.hubPath());
+  const focusables = page.locator('header a:visible, header button:visible, footer a:visible');
+
+  for (let index = 0; index < (await focusables.count()); index += 1) {
+    const target = focusables.nth(index);
+    await target.focus();
+    const indicators = await target.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const outlineVisible = style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0;
+      const shadowVisible = style.boxShadow !== 'none';
+      return Number(outlineVisible) + Number(shadowVisible);
+    });
+    expect(indicators, `focus indicator for shell control ${index}`).toBe(1);
+  }
+
+  for (const target of await page.locator('[data-settings-trigger], [data-menu-button]:visible').all()) {
+    const box = await target.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+  }
+});
+
+test('active theme color is read from the design token', async ({ page }) => {
+  await page.goto(topology.hubPath());
+
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate((value) => localStorage.setItem('noduct-theme', value), theme);
+    await page.reload();
+    const colors = await page.evaluate(() => ({
+      meta: document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.content,
+      token: getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim()
+    }));
+    expect(colors.meta).toBe(colors.token);
+  }
+});

@@ -1,5 +1,6 @@
 ---
 import { sponsorships } from '@/data/sponsorships';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import { activeSponsorFor } from '@/lib/sponsorships';
 import { getMessages } from '@/i18n/messages';
 import { localizePath, type Locale } from '@/i18n/config';
@@ -26,9 +27,7 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
       <span class="description">{sponsor.description}</span>
       <span class="action">
         <span>{m.sponsors.visit}</span>
-        <svg class="action-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <Icon class="action-icon" name="arrow-up-right" />
         <span class="sr-only"> ({m.common.opensNewTab})</span>
       </span>
     </a>
@@ -42,9 +41,7 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
     <span class="description">{m.sponsors.description}</span>
     <span class="action">
       <span>{m.sponsors.advertise}</span>
-      <svg class="action-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <use href="#icon-chevron" />
-      </svg>
+      <Icon class="action-icon" name="chevron-right" />
     </span>
   </a>
 </aside>

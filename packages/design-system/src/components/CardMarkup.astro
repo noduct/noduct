@@ -1,5 +1,6 @@
 ---
 import type { SponsorCampaign } from '../sponsorship/contracts';
+import Icon from '../icons/Icon.astro';
 import { designMessages, type DesignLocale } from '../i18n';
 import styles from './SponsorCard.module.css';
 
@@ -43,7 +44,7 @@ const m = designMessages[locale];
     rel="sponsored noopener noreferrer"
   >
     <span>{m.visitSponsor}</span>
-    <span aria-hidden="true">↗</span>
+    <Icon name="arrow-up-right" />
     <span class={styles.srOnly}> ({m.opensNewTab})</span>
   </a>
 </aside>

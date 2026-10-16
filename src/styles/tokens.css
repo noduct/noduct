@@ -1,7 +1,5 @@
 @import '../../packages/design-system/src/tokens.css';
 
 :root {
-  --layout-max-width: var(--content-width);
-  --layout-padding: 1rem;
   --radius-card: var(--radius-lg);
 }

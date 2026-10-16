@@ -1,5 +1,6 @@
 ---
 import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
+import Icon from '../icons/Icon.astro';
 import type { DesignLocale } from '../i18n';
 import styles from './DropZone.module.css';
 
@@ -35,7 +36,7 @@ const statusId = `${id}-status`;
   data-disabled={disabled ? 'true' : 'false'}
   data-state="idle"
 >
-  <span class={styles.icon} aria-hidden="true">↥</span>
+  <span class={styles.icon}><Icon name="upload" /></span>
   {
     description && (
       <p id={descriptionId} class={styles.description}>

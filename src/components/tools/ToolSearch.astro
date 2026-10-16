@@ -1,11 +1,12 @@
 ---
 import ToolIcon from './ToolIcon.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import ToolCard from './ToolCard.astro';
 import { getCategory } from '@/data/categories';
 import type { ToolDefinition } from '@/types/tool';
 import { getMessages } from '@/i18n/messages';
 import type { Locale } from '@/i18n/config';
-import popover from '@/components/ui/Popover.module.css';
+import popover from '@noduct/design-system/shell/Popover.module.css';
 
 interface Props {
   tools: ToolDefinition[];
@@ -21,9 +22,7 @@ const m = getMessages(locale);
 <div class="search" data-tool-search data-compact={compact ? 'true' : 'false'} data-one-result={m.search.oneResult} data-many-results={m.search.results}>
   <label for="tool-search" class="sr-only">{m.search.label}</label>
   <div class="input-wrap">
-    <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M9 15A6 6 0 1 0 9 3a6 6 0 0 0 0 12zM16 16l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
+    <Icon class="search-icon" name="search" />
     <input
       id="tool-search"
       type="search"
@@ -91,9 +90,7 @@ const m = getMessages(locale);
                   <span>{tool.status === 'published' || tool.status === 'ready' ? m.common.open : tool.status === 'beta' ? m.common.beta : m.common.planned}</span>
                 </span>
                 {isClickable ? (
-                  <svg class="item-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <use href="#icon-chevron" />
-                  </svg>
+                  <Icon class="item-arrow" name="chevron-right" />
                 ) : (
                   <span class="roadmap-badge">{m.search.roadmap}</span>
                 )}
@@ -106,11 +103,7 @@ const m = getMessages(locale);
 
     <!-- Estado Vazio Dentro do Dropdown -->
     <div class="dropdown-empty" data-empty hidden>
-      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
-        <path d="m20 20-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        <path d="M8.5 11h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-      </svg>
+      <Icon class="empty-icon" name="search-x" />
       <p class="empty-title">{m.search.noResults}</p>
       <p class="empty-desc">{m.search.noResultsHelp}</p>
     </div>
@@ -353,7 +346,7 @@ const m = getMessages(locale);
     letter-spacing: .02em;
     white-space: nowrap;
     user-select: none;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-key);
   }
 
   /* Popover da busca: casca visual em Popover.module.css; aqui só posição e altura. */
@@ -508,15 +501,15 @@ const m = getMessages(locale);
 
   .status-published,
   .status-ready {
-    background: rgba(16, 185, 129, 0.12);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.28);
+    background: var(--color-success-soft);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
   }
 
   .status-beta {
-    background: rgba(245, 158, 11, 0.12);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.28);
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning-border);
   }
 
   .status-planned {

@@ -23,7 +23,7 @@
   .ambient {
     position: fixed;
     inset: 0;
-    z-index: 0;
+    z-index: var(--z-artwork);
     display: none;
     pointer-events: none;
     user-select: none;
@@ -64,7 +64,7 @@
 </style>
 
 <script>
-  import { preferencesChangeEvent } from '@/lib/preferences';
+  import { preferencesChangeEvent } from './preferences';
 
   const root = document.querySelector<HTMLElement>('[data-ambient-art]');
 
@@ -91,7 +91,7 @@
     });
 
     const colors: Partial<Record<string, string>> = {};
-    let color = '#2563eb';
+    let color = 'currentColor';
     let baseAlpha = 0.2;
     let lightAlpha = 0.6;
     let scrollY = 0;

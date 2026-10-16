@@ -15,7 +15,6 @@ interface RawToolItem {
   status: ToolDefinition['status'];
   keywords?: string[];
   tags?: string[];
-  icon?: string;
   featured?: boolean;
   visible?: boolean;
   sponsorPlacementId?: string;
@@ -41,7 +40,6 @@ const buildTools = (locale: Locale): ToolDefinition[] => (rawCatalog as RawToolI
     categoryId: cat,
     keywords: translation?.keywords ?? item.keywords ?? item.tags ?? [],
     tags: item.tags || item.keywords || [],
-    icon: item.icon || 'Wand2',
     url: resolvedUrl,
     status: item.status || 'planned',
     featured: Boolean(item.featured),

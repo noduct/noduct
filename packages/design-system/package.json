@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@noduct/tool-runtime": "*",
+    "lucide": "1.50.0",
     "zod": "^3.25.0"
   },
   "exports": {
@@ -16,6 +17,15 @@
     "./file-workflow": "./src/file-workflow/index.ts",
     "./workspace-ui": "./src/workspace-ui/index.ts",
     "./tokens.css": "./src/tokens.css",
+    "./base.css": "./src/base.css",
+    "./theme": "./src/theme.ts",
+    "./icons": "./src/icons/registry.ts",
+    "./icons/category": "./src/icons/category.ts",
+    "./icons/Icon.astro": "./src/icons/Icon.astro",
+    "./icons/IconSprite.astro": "./src/icons/IconSprite.astro",
+    "./shell/AppShell.astro": "./src/shell/AppShell.astro",
+    "./shell/preferences": "./src/shell/preferences.ts",
+    "./shell/Popover.module.css": "./src/shell/Popover.module.css",
     "./components/BrandHeader.astro": "./src/components/BrandHeader.astro",
     "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",
     "./components/SeoHead.astro": "./src/components/SeoHead.astro",

@@ -1,0 +1,30 @@
+---
+import { iconRegistry, type IconName } from './registry';
+import IconNode from './IconNode.astro';
+
+interface Props {
+  name: IconName;
+  size?: number | string | undefined;
+  label?: string | undefined;
+  class?: string | undefined;
+}
+
+const { name, size = '1em', label, class: className } = Astro.props;
+---
+
+<svg
+  class={className}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="var(--icon-stroke)"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden={label ? undefined : 'true'}
+  role={label ? 'img' : undefined}
+>
+  {label && <title>{label}</title>}
+  <IconNode nodes={iconRegistry[name]} />
+</svg>

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import ToolIcon from '@/components/tools/ToolIcon.astro';
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
@@ -10,7 +11,7 @@ const m = getMessages(locale); const categories = getLocalizedCategories(locale)
 ---
 <BaseLayout title={m.categoriesPage.title} description={m.categoriesPage.description} locale={locale}>
   <header class="page-head"><div class="container"><p class="eyebrow">{m.categoriesPage.eyebrow}</p><h1>{m.categoriesPage.heading}</h1><p class="lede">{m.categoriesPage.intro}</p></div></header>
-  <section class="section container"><div class="grid grid-3">{categories.map((category) => { const count = tools.filter((tool) => tool.category === category.id).length; return <a class="card category-card" href={localizePath(`/${category.id}/`, locale)}><div class="card-head"><ToolIcon category={category.id} /><span class="tool-count">{count} {m.common.tools}</span></div><h2>{category.name}</h2><p>{category.description}</p><div class="card-footer"><span>{m.categoriesPage.explore}</span><svg class="arrow-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true"><use href="#icon-chevron" /></svg></div></a>; })}</div></section>
+  <section class="section container"><div class="grid grid-3">{categories.map((category) => { const count = tools.filter((tool) => tool.category === category.id).length; return <a class="card category-card" href={localizePath(`/${category.id}/`, locale)}><div class="card-head"><ToolIcon category={category.id} /><span class="tool-count">{count} {m.common.tools}</span></div><h2>{category.name}</h2><p>{category.description}</p><div class="card-footer"><span>{m.categoriesPage.explore}</span><Icon class="arrow-icon" name="chevron-right" /></div></a>; })}</div></section>
 </BaseLayout>
 <style>
   .category-card { display:flex; flex-direction:column; justify-content:space-between; gap:.75rem; } .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.25rem; } .tool-count { padding:.15rem .45rem; border-radius:var(--radius-xs); background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text-secondary); font-size:.72rem; font-weight:600; } h2 { font-size:1.15rem; font-weight:650; margin:0; } p { margin:0; flex:1; color:var(--color-text-secondary); font-size:.88rem; line-height:1.45; } .card-footer { display:inline-flex; align-items:center; gap:.35rem; margin-top:.75rem; padding-top:.65rem; border-top:1px solid var(--color-border-subtle); color:var(--color-primary); font-size:.82rem; font-weight:600; } .arrow-icon { width:14px; height:14px; }

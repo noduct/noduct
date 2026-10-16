@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import ToolCard from '@/components/tools/ToolCard.astro';
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
@@ -14,15 +15,10 @@ const m = getMessages(locale); const category = getLocalizedCategories(locale).f
     <div class="container">
       <nav class="breadcrumb" aria-label={m.categoryPage.breadcrumb}>
         <a class="breadcrumb-link" href={localizePath('/', locale)}>
-          <svg class="breadcrumb-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M2.5 6.5L8 2.2l5.5 4.3V13a1 1 0 01-1 1h-9a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M6 14V8.5h4V14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <Icon class="breadcrumb-icon" name="house" />
           <span>{m.common.home}</span>
         </a>
-        <svg class="breadcrumb-sep" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <Icon class="breadcrumb-sep" name="chevron-right" />
         <span class="breadcrumb-current" aria-current="page">{category.name}</span>
       </nav>
 

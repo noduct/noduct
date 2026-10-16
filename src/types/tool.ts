@@ -15,7 +15,6 @@ export interface ToolDefinition {
   categoryId?: ToolCategory | undefined;
   keywords: string[];
   tags?: string[] | undefined;
-  icon: string;
   url?: string | undefined;
   repositoryUrl?: string | undefined;
   status: ToolStatus;
@@ -29,5 +28,4 @@ export interface CategoryDefinition {
   name: string;
   shortName: string;
   description: string;
-  icon: string;
 }

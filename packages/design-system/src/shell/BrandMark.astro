@@ -1,0 +1,20 @@
+---
+const { size = 24, label } = Astro.props as { size?: number; label?: string };
+const maskId = `noduct-mark-${Math.random().toString(36).slice(2)}`;
+---
+
+<svg width={size} height={size} viewBox="80 80 380 352" role={label ? 'img' : undefined} aria-hidden={label ? undefined : 'true'}>
+  {label && <title>{label}</title>}
+  <defs>
+    <mask id={maskId}>
+      <rect x="0" y="0" width="512" height="512" fill="white" />
+      <path d="M278 190Q348 176 418 190A16 16 0 0 1 432 206V254C432 308 386 346 348 366C310 346 264 308 264 254V206A16 16 0 0 1 278 190Z" fill="black" stroke="black" stroke-width="28" stroke-linejoin="round" />
+      <rect x="250" y="0" width="200" height="220" fill="black" />
+    </mask>
+  </defs>
+  <path d="M116 116H200L306 276V116H390V396H306L200 236V396H116Z" fill="var(--brand-mark-primary)" mask={`url(#${maskId})`} />
+  <g fill="var(--brand-mark-lock)">
+    <path d="M314 196V156A34 34 0 0 1 382 156V196" fill="none" stroke="var(--brand-mark-lock)" stroke-width="24" stroke-linecap="round" />
+    <path d="M278 190Q348 176 418 190A16 16 0 0 1 432 206V254C432 308 386 346 348 366C310 346 264 308 264 254V206A16 16 0 0 1 278 190Z" />
+  </g>
+</svg>

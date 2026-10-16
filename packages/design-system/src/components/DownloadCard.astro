@@ -1,5 +1,6 @@
 ---
 import { formatFileSize } from '../file-workflow/contracts';
+import Icon from '../icons/Icon.astro';
 import { fileWorkflowMessages } from '../file-workflow/messages';
 import type { DesignLocale } from '../i18n';
 import styles from './DownloadCard.module.css';
@@ -28,7 +29,7 @@ const titleId = `${id}-title`;
   data-download-card
   data-locale={locale}
 >
-  <span class={styles.icon} aria-hidden="true">✓</span>
+  <span class={styles.icon}><Icon name="circle-check" /></span>
   <div class={styles.body}>
     <h2 id={titleId} class={styles.title} tabindex="-1" data-download-title>{title}</h2>
     <p class={styles.meta}>

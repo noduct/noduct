@@ -12,7 +12,6 @@ const schema = z.object({
   categoryId: z.enum(categoryIds).optional(),
   keywords: z.array(z.string().min(1)).min(1),
   tags: z.array(z.string().min(1)).optional(),
-  icon: z.string().min(1),
   url: z.string().url().optional(),
   repositoryUrl: z.string().url().optional(),
   status: z.enum(TOOL_STATUSES),

@@ -8,6 +8,7 @@ export const preferenceKeys = {
   art: 'noduct-art',
   motion: 'noduct-motion',
   locale: 'noduct-locale',
+  recentTools: 'noduct-recent-tools'
 } as const;
 
 export const preferencesChangeEvent = 'noduct:preferences';

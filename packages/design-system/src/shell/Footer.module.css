@@ -116,12 +116,8 @@
   width: 16px;
   height: 16px;
   flex-shrink: 0;
-  color: #d97706;
+  color: var(--color-brand-support);
   transition: transform var(--duration-fast) var(--ease-apple);
-}
-
-:global([data-theme='dark']) .supportIcon {
-  color: #fbbf24;
 }
 
 .supportLink:hover .supportIcon {

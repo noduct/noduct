@@ -13,7 +13,6 @@
       "documents",
       "merge"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -30,7 +29,6 @@
       "pdf",
       "separate"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -47,7 +45,6 @@
       "shrink",
       "pdf"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -65,7 +62,6 @@
       "jpeg",
       "pdf"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -83,7 +79,6 @@
       "jpeg",
       "pdf"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -101,7 +96,6 @@
       "turn",
       "pdf"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -118,7 +112,6 @@
       "select",
       "pdf"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -136,7 +129,6 @@
       "sort",
       "pdf"
     ],
-    "icon": "pdf",
     "featured": false,
     "visible": true
   },
@@ -154,7 +146,6 @@
       "size",
       "image"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -172,7 +163,6 @@
       "height",
       "image"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -190,7 +180,6 @@
       "crop",
       "aspect"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -208,7 +197,6 @@
       "jpg",
       "format"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -226,7 +214,6 @@
       "png",
       "format"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -244,7 +231,6 @@
       "image",
       "format"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -262,7 +248,6 @@
       "image",
       "extract"
     ],
-    "icon": "image",
     "featured": false,
     "visible": true
   },
@@ -280,7 +265,6 @@
       "lines",
       "stats"
     ],
-    "icon": "text",
     "featured": false,
     "visible": true
   },
@@ -298,7 +282,6 @@
       "letters",
       "spaces"
     ],
-    "icon": "text",
     "featured": false,
     "visible": true
   },
@@ -316,7 +299,6 @@
       "camelcase",
       "slug"
     ],
-    "icon": "text",
     "featured": false,
     "visible": true
   },
@@ -334,7 +316,6 @@
       "changes",
       "text"
     ],
-    "icon": "text",
     "featured": false,
     "visible": true
   },
@@ -352,7 +333,6 @@
       "lines",
       "filter"
     ],
-    "icon": "text",
     "featured": false,
     "visible": true
   },
@@ -370,7 +350,6 @@
       "trim",
       "normalize"
     ],
-    "icon": "text",
     "featured": false,
     "visible": true
   },
@@ -388,7 +367,6 @@
       "data",
       "preview"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -406,7 +384,6 @@
       "json",
       "transform"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -424,7 +401,6 @@
       "csv",
       "export"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -442,7 +418,6 @@
       "json",
       "beautify"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -460,7 +435,6 @@
       "json",
       "errors"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -478,7 +452,6 @@
       "json",
       "parse"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -496,7 +469,6 @@
       "yml",
       "json"
     ],
-    "icon": "data",
     "featured": false,
     "visible": true
   },
@@ -514,7 +486,6 @@
       "b64",
       "developer"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -532,7 +503,6 @@
       "uri",
       "url"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -551,7 +521,6 @@
       "claims",
       "auth"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -570,7 +539,6 @@
       "unique",
       "id"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -588,7 +556,6 @@
       "regexp",
       "test"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -606,7 +573,6 @@
       "md5",
       "hash"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -624,7 +590,6 @@
       "unix",
       "timestamp"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -642,7 +607,6 @@
       "parser",
       "crontab"
     ],
-    "icon": "developer",
     "featured": false,
     "visible": true
   },
@@ -660,7 +624,6 @@
       "qrcode",
       "generator"
     ],
-    "icon": "general",
     "featured": false,
     "visible": true
   },
@@ -678,7 +641,6 @@
       "passphrase",
       "crypto"
     ],
-    "icon": "general",
     "featured": false,
     "visible": true
   },
@@ -696,7 +658,6 @@
       "metric",
       "imperial"
     ],
-    "icon": "general",
     "featured": false,
     "visible": true
   },
@@ -714,7 +675,6 @@
       "percent",
       "discount"
     ],
-    "icon": "general",
     "featured": false,
     "visible": true
   },
@@ -732,7 +692,6 @@
       "days",
       "dates"
     ],
-    "icon": "general",
     "featured": false,
     "visible": true
   },
@@ -750,7 +709,6 @@
       "color",
       "palette"
     ],
-    "icon": "general",
     "featured": false,
     "visible": true
   }

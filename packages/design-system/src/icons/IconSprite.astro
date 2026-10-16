@@ -1,0 +1,35 @@
+---
+import { categoryIcon } from './category';
+import { iconRegistry } from './registry';
+import IconNode from './IconNode.astro';
+
+const entries = Object.entries(categoryIcon);
+---
+
+<svg class="icon-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    {
+      entries.map(([category, name]) => (
+        <symbol id={`tool-icon-${category}`} viewBox="0 0 24 24">
+          <g fill="none" stroke="currentColor" stroke-width="var(--icon-stroke)" stroke-linecap="round" stroke-linejoin="round">
+            <IconNode nodes={iconRegistry[name]} />
+          </g>
+        </symbol>
+      ))
+    }
+    <symbol id="icon-chevron" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="var(--icon-stroke)" stroke-linecap="round" stroke-linejoin="round">
+        <IconNode nodes={iconRegistry['chevron-right']} />
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<style>
+  .icon-sprite {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>

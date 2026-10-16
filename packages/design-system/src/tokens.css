@@ -10,6 +10,8 @@
   --color-surface: #f8f9fb;
   --color-surface-card: #ffffff;
   --color-surface-hover: #f1f3f6;
+  --color-surface-sunken: #f1f3f6;
+  --color-surface-alt: #f1f3f6;
 
   /* Borders & Dividers */
   --color-border: #e2e8f0;
@@ -26,12 +28,28 @@
   --color-focus-ring: rgba(37, 99, 235, 0.28);
   --color-success: #15803d;
   --color-error: #b91c1c;
+  --color-danger: var(--color-error);
+  --color-on-primary: #ffffff;
+  --color-brand-support: #d97706;
+  --color-overlay: rgba(0, 0, 0, 0.55);
+  --color-danger-soft: rgba(185, 28, 28, 0.08);
+  --color-success-soft: rgba(21, 128, 61, 0.12);
+  --color-success-border: rgba(21, 128, 61, 0.28);
+  --color-warning: #b45309;
+  --color-warning-soft: rgba(180, 83, 9, 0.12);
+  --color-warning-border: rgba(180, 83, 9, 0.28);
+  --brand-mark-primary: var(--color-primary);
+  --brand-mark-lock: var(--color-success);
 
   /* Apple-inspired Layered Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
   --shadow-md: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
   --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
   --shadow-card-hover: 0 8px 24px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-popover: 0 16px 40px -8px rgba(0, 0, 0, 0.28);
+  --shadow-switch-thumb: 0 1px 2px rgba(15, 23, 42, 0.25);
+  --shadow-inset-subtle: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-key: 0 1px 1px rgba(0, 0, 0, 0.05);
 
   /* Rim Light / Specular Edge Highlight (Polimento Ótico Apple) */
   --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
@@ -60,6 +78,14 @@
   --radius-md: 8px;
   --radius-lg: 10px;
   --content-width: 1280px;
+  --layout-max-width: var(--content-width);
+  --layout-padding: 1rem;
+  --icon-stroke: 1.75;
+  --z-artwork: 0;
+  --z-header: 30;
+  --z-popover: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
 
   /* Shared spacing and sponsorship geometry */
   --space-1: 0.25rem;
@@ -88,6 +114,8 @@
   --color-surface: #111827;
   --color-surface-card: #161f30;
   --color-surface-hover: #1f2c42;
+  --color-surface-sunken: #101827;
+  --color-surface-alt: #1f2c42;
 
   --color-border: #28374d;
   --color-border-strong: #3b4c66;
@@ -101,6 +129,14 @@
   --color-focus-ring: rgba(96, 165, 250, 0.32);
   --color-success: #4ade80;
   --color-error: #f87171;
+  --color-danger: var(--color-error);
+  --color-brand-support: #fbbf24;
+  --color-danger-soft: rgba(248, 113, 113, 0.14);
+  --color-success-soft: rgba(74, 222, 128, 0.14);
+  --color-success-border: rgba(74, 222, 128, 0.3);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.14);
+  --color-warning-border: rgba(251, 191, 36, 0.3);
 
   --scrollbar-thumb: rgba(148, 163, 184, 0.3);
   --scrollbar-thumb-hover: rgba(148, 163, 184, 0.58);
@@ -127,6 +163,8 @@
     --color-surface: #111827;
     --color-surface-card: #161f30;
     --color-surface-hover: #1f2c42;
+    --color-surface-sunken: #101827;
+    --color-surface-alt: #1f2c42;
 
     --color-border: #28374d;
     --color-border-strong: #3b4c66;

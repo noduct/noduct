@@ -41,7 +41,6 @@
 }
 
 .isPlanned {
-  opacity: 0.75;
   background: var(--color-surface-card);
   border-style: dashed;
   box-shadow: var(--shadow-sm);

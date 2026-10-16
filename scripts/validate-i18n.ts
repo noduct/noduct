@@ -2,6 +2,7 @@ import rawCatalog from '../src/data/tools.json' with { type: 'json' };
 import ptBR from '../src/i18n/catalog/pt-BR.json' with { type: 'json' };
 import es from '../src/i18n/catalog/es.json' with { type: 'json' };
 import { messages } from '../src/i18n/messages.ts';
+import { shellMessages } from '../packages/design-system/src/shell/messages.ts';
 import { getLocalizedCategories } from '../src/data/categories.ts';
 
 type Translation = { name: string; description: string; keywords: string[] };
@@ -26,6 +27,7 @@ const inspect = (value: unknown, path: string): void => {
   else if (value && typeof value === 'object') for (const [key, item] of Object.entries(value)) inspect(item, `${path}.${key}`);
 };
 for (const [locale, content] of Object.entries(messages)) inspect(content, locale);
+for (const [locale, content] of Object.entries(shellMessages)) inspect(content, `shell.${locale}`);
 for (const locale of ['en', 'pt-BR', 'es'] as const) {
   for (const category of getLocalizedCategories(locale)) {
     if (!category.name.trim() || !category.shortName.trim() || !category.description.trim()) errors.push(`${locale}: categoria incompleta: ${category.id}`);
