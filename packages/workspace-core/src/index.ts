@@ -26,6 +26,7 @@ import type {
 } from './types';
 
 export * from './types';
+export * from './resource-budget';
 export { WORKSPACE_CHANNEL_NAME } from './broadcast';
 export {
   CURRENT_SCHEMA_VERSION,
