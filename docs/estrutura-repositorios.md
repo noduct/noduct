@@ -13,3 +13,6 @@ Este repositório é um workspace transitório com hub, design system e template
 5. Execute typecheck e build nos três repositórios.
 
 Cada ferramenta usa um slug único e project site `https://noduct.github.io/<slug>/`. O hub nunca gera uma página substituta para ela. Workflows e configurações remotas devem ser ativados apenas no repositório correto e após revisão.
+
+A consolidação do template de categoria é conduzida na issue #35 (M7.3), enquanto o versionamento e a extração operacional pacote por pacote são executados na issue complementar #38 (M7.4), conforme o [ADR 0003](file:///docs/adr/0003-package-and-repository-strategy.md).
+

@@ -1,0 +1,23 @@
+{
+  "name": "@noduct/merge-pdf",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "typecheck": "astro check",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.6.0",
+    "@noduct/design-system": "*",
+    "@noduct/pdf-core": "*",
+    "astro": "^5.14.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

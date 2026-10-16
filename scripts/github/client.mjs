@@ -57,8 +57,22 @@ export async function ghApi(endpoint, options = {}) {
   return data;
 }
 
+/** Makes an authenticated GraphQL request and unwraps data, throwing on GraphQL errors. */
+export async function ghGraphql(query, variables = {}) {
+  const data = await ghApi('/graphql', {
+    method: 'POST',
+    body: JSON.stringify({ query, variables })
+  });
+  if (data?.errors?.length) {
+    const message = data.errors.map((e) => e.message).join('; ');
+    throw new Error(`GitHub GraphQL error: ${message}`);
+  }
+  return data?.data;
+}
+
 export function validateRepo(repo) {
   if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo))
     throw new Error(`Invalid repository "${repo}". Use OWNER/REPOSITORY.`);
   return repo;
 }
+

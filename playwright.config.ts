@@ -19,6 +19,13 @@ export default defineConfig({
       port: 4323,
       timeout: 180_000,
       reuseExistingServer: !process.env.CI
+    },
+    {
+      command:
+        'npm run preview -- --root packages/merge-pdf --host 127.0.0.1 --port 4324',
+      port: 4324,
+      timeout: 180_000,
+      reuseExistingServer: !process.env.CI
     }
   ],
   projects: [
