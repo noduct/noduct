@@ -2,14 +2,16 @@ import {
   type NewWorkspaceDocument,
   type WorkspaceDocument,
   type WorkspaceStateRecord,
+  type WorkspaceTransferRecord,
   WorkspaceError,
   WorkspaceUnavailableError
 } from './types';
 
 export const WORKSPACE_DB_NAME = 'noduct_workspace_db';
-export const CURRENT_SCHEMA_VERSION = 1;
+export const CURRENT_SCHEMA_VERSION = 2;
 export const DOCUMENTS_STORE = 'documents';
 export const STATE_STORE = 'workspace_state';
+export const TRANSFERS_STORE = 'transfers';
 
 function getFactory(customFactory?: IDBFactory): IDBFactory {
   if (customFactory) return customFactory;
@@ -48,6 +50,13 @@ export function openDatabase(
       if (!db.objectStoreNames.contains(STATE_STORE)) {
         const stateStore = db.createObjectStore(STATE_STORE, { keyPath: 'key' });
         stateStore.createIndex('updatedAt', 'updatedAt', { unique: false });
+      }
+
+      if (!db.objectStoreNames.contains(TRANSFERS_STORE)) {
+        const transferStore = db.createObjectStore(TRANSFERS_STORE, { keyPath: 'transferId' });
+        transferStore.createIndex('documentId', 'documentId', { unique: false });
+        transferStore.createIndex('expiresAt', 'expiresAt', { unique: false });
+        transferStore.createIndex('consumedAt', 'consumedAt', { unique: false });
       }
     };
 
@@ -151,5 +160,65 @@ export async function dbSetState(
     updatedAt: Date.now()
   };
   await requestToPromise(store.put(record));
+}
+
+export async function dbPutTransfer(
+  db: IDBDatabase,
+  record: WorkspaceTransferRecord
+): Promise<void> {
+  const tx = db.transaction(TRANSFERS_STORE, 'readwrite');
+  const store = tx.objectStore(TRANSFERS_STORE);
+  await requestToPromise(store.put(record));
+}
+
+export async function dbGetTransfer(
+  db: IDBDatabase,
+  transferId: string
+): Promise<WorkspaceTransferRecord | undefined> {
+  const tx = db.transaction(TRANSFERS_STORE, 'readonly');
+  const store = tx.objectStore(TRANSFERS_STORE);
+  const result = await requestToPromise(store.get(transferId));
+  return (result as WorkspaceTransferRecord) || undefined;
+}
+
+export async function dbConsumeTransfer(
+  db: IDBDatabase,
+  transferId: string
+): Promise<WorkspaceTransferRecord> {
+  const tx = db.transaction(TRANSFERS_STORE, 'readwrite');
+  const store = tx.objectStore(TRANSFERS_STORE);
+  const record = (await requestToPromise(store.get(transferId))) as WorkspaceTransferRecord | undefined;
+  if (!record) {
+    throw new Error('TRANSFER_NOT_FOUND');
+  }
+  const updated: WorkspaceTransferRecord = {
+    ...record,
+    consumedAt: Date.now()
+  };
+  await requestToPromise(store.put(updated));
+  return updated;
+}
+
+export async function dbCleanupExpiredTransfers(
+  db: IDBDatabase,
+  now = Date.now()
+): Promise<number> {
+  const tx = db.transaction(TRANSFERS_STORE, 'readwrite');
+  const store = tx.objectStore(TRANSFERS_STORE);
+  const all = ((await requestToPromise(store.getAll())) as WorkspaceTransferRecord[]) || [];
+  let deletedCount = 0;
+  for (const item of all) {
+    if (item.expiresAt <= now || item.consumedAt) {
+      await requestToPromise(store.delete(item.transferId));
+      deletedCount++;
+    }
+  }
+  return deletedCount;
+}
+
+export async function dbClearTransfers(db: IDBDatabase): Promise<void> {
+  const tx = db.transaction(TRANSFERS_STORE, 'readwrite');
+  const store = tx.objectStore(TRANSFERS_STORE);
+  await requestToPromise(store.clear());
 }
 

@@ -1,6 +1,8 @@
 import { WorkspaceNotifier } from './broadcast';
 import {
+  dbCleanupExpiredTransfers,
   dbClearDocuments,
+  dbClearTransfers,
   dbDeleteDocument,
   dbGetDocument,
   dbGetState,
@@ -9,6 +11,14 @@ import {
   dbSetState,
   openDatabase
 } from './db';
+import {
+  consumeTransferFromUrl,
+  createTransferTicket,
+  DEFAULT_TRANSFER_TTL_MS,
+  resolveTransferTicket,
+  type CreateTransferOptions,
+  type CreateTransferResult
+} from './transfer';
 import type {
   NewWorkspaceDocument,
   WorkspaceChangeListener,
@@ -21,8 +31,17 @@ export {
   CURRENT_SCHEMA_VERSION,
   DOCUMENTS_STORE,
   STATE_STORE,
+  TRANSFERS_STORE,
   WORKSPACE_DB_NAME
 } from './db';
+export {
+  consumeTransferFromUrl,
+  createTransferTicket,
+  DEFAULT_TRANSFER_TTL_MS,
+  resolveTransferTicket,
+  type CreateTransferOptions,
+  type CreateTransferResult
+};
 
 export class WorkspaceClient {
   private notifier = new WorkspaceNotifier();
@@ -82,6 +101,35 @@ export class WorkspaceClient {
 
   async setState(key: string, value: unknown): Promise<void> {
     return dbSetState(this.db, key, value);
+  }
+
+  async createTransfer(
+    documentId: string,
+    targetTool: string,
+    options?: CreateTransferOptions
+  ): Promise<CreateTransferResult> {
+    return createTransferTicket(this.db, documentId, targetTool, options);
+  }
+
+  async resolveTransfer(
+    transferId: string,
+    currentTool?: string
+  ): Promise<WorkspaceDocument> {
+    return resolveTransferTicket(this.db, transferId, currentTool);
+  }
+
+  async consumeFromUrl(
+    currentTool?: string
+  ): Promise<WorkspaceDocument | undefined> {
+    return consumeTransferFromUrl(this.db, currentTool);
+  }
+
+  async cleanupExpiredTransfers(now = Date.now()): Promise<number> {
+    return dbCleanupExpiredTransfers(this.db, now);
+  }
+
+  async clearTransfers(): Promise<void> {
+    return dbClearTransfers(this.db);
   }
 
   subscribe(listener: WorkspaceChangeListener): () => void {
