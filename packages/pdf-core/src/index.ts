@@ -1,4 +1,5 @@
 export type PdfInput = File | ArrayBuffer;
+export { assessResources, inspectDocument, mergeDocuments } from './core';
 export type ResourceDecision = 'allowed' | 'warning' | 'blocked';
 
 export interface PdfDocumentInfo {
