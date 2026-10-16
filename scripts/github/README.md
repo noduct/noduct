@@ -20,14 +20,14 @@ O modo de simulação é o padrão para criar, atualizar, comentar, fechar, mesc
 ## Recursos
 
 ```text
-issue     get | list | create | update | close | comment
+issue     get | list | create | update | close | comment | link-branch | unlink-branch | linked-branches
 milestone get | list | create | update | close
-branch    get | list | create | delete
+branch    get | list | create | delete | link | unlink | linked
 pull      get | list | create | update | merge
 push      <branch> [--remote <name>]
 ```
 
-No GitHub, um epic é normalmente uma issue que recebe labels, milestone e referências às issues relacionadas. Portanto, use `issue get`, `issue create` e `issue update` para epics; não existe um recurso de epic específico nesta CLI.
+No GitHub, um epic é normalmente uma issue que recebe labels, milestone e referências às issues relacionadas. Portanto, use `issue get`, `issue create`, `issue update` e `issue link-branch` para epics; não existe um recurso de epic específico nesta CLI.
 
 Payloads de criação e atualização são JSON embutido ou arquivo JSON UTF-8. Exemplos:
 
@@ -36,6 +36,9 @@ node scripts/github/manage.mjs issue update 42 '{"title":"Clarify PDF strategy",
 node scripts/github/manage.mjs issue update 42 .\issue-patch.json --repo owner/repository --execute
 node scripts/github/manage.mjs branch create fix/pdf-parser --from main --repo owner/repository
 node scripts/github/manage.mjs branch create fix/pdf-parser --from main --repo owner/repository --execute
+node scripts/github/manage.mjs issue link-branch 36 epic/pdf-ecosystem --repo owner/repository
+node scripts/github/manage.mjs issue link-branch 36 epic/pdf-ecosystem --repo owner/repository --execute
+node scripts/github/manage.mjs issue linked-branches 36 --repo owner/repository
 ```
 
 Use `node scripts/github/manage.mjs --help` como referência compacta de argumentos e opções.

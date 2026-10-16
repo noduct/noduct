@@ -1,0 +1,13 @@
+{
+  "extends": "astro/tsconfigs/strictest",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@noduct/design-system": ["../design-system/src/index.ts"],
+      "@noduct/design-system/*": ["../design-system/*"],
+      "@noduct/pdf-core": ["../pdf-core/src/index.ts"]
+    }
+  },
+  "include": [".astro/types.d.ts", "**/*"],
+  "exclude": ["dist"]
+}

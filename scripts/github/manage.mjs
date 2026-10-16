@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { getGitHubToken, ghApi, validateRepo } from './client.mjs';
+import { getGitHubToken, ghApi, ghGraphql, validateRepo } from './client.mjs';
 
 const HELP = `GitHub automation CLI for AI agents
 
 Usage: node scripts/github/manage.mjs <resource> <action> [...arguments] [options]
 
 Resources:
-  issue     get <number> | list | create <payload> | update <number> <payload> | close <number> [--comment <text>] | comment <number> <text>
+  issue     get <number> | list | create <payload> | update <number> <payload> | close <number> [--comment <text>] | comment <number> <text> | link-branch <number> <branch> [--from <sha-or-branch>] | unlink-branch <number> <branch> | linked-branches <number>
   milestone get <number> | list | create <payload> | update <number> <payload> | close <number>
-  branch    get <name> | list | create <name> [--from <sha-or-branch>] | delete <name>
+  branch    get <name> | list | create <name> [--from <sha-or-branch>] | delete <name> | link <name> <issue-number> [--from <sha-or-branch>] | unlink <name> <issue-number> | linked <issue-number>
   pull      get <number> | list | create <payload> | update <number> <payload> | merge <number> [--method merge|squash|rebase]
   push      <branch> [--remote <name>]
 
@@ -119,6 +119,225 @@ function listQuery(options) {
   if (options.labels.length) query.set('labels', options.labels.join(','));
   return query;
 }
+async function getIssueDetailsWithLinkedBranches(repo, issueNumber) {
+  const [owner, name] = repo.split('/');
+  const query = `
+    query IssueWithLinkedBranches($owner: String!, $name: String!, $number: Int!) {
+      repository(owner: $owner, name: $name) {
+        id
+        defaultBranchRef {
+          name
+          target {
+            oid
+          }
+        }
+        issue(number: $number) {
+          id
+          number
+          title
+          linkedBranches(first: 50) {
+            nodes {
+              id
+              ref {
+                name
+                prefix
+                target {
+                  oid
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  `;
+  const data = await ghGraphql(query, { owner, name, number: issueNumber });
+  const repository = data?.repository;
+  if (!repository?.issue) {
+    fail(`Issue #${issueNumber} not found in ${repo}.`);
+  }
+  return { repository, issue: repository.issue };
+}
+
+async function listLinkedBranches(repo, issueNumber) {
+  const { issue } = await getIssueDetailsWithLinkedBranches(repo, issueNumber);
+  const nodes = issue.linkedBranches?.nodes ?? [];
+  return nodes.map((node) => ({
+    id: node.id,
+    name: node.ref?.name,
+    prefix: node.ref?.prefix,
+    target: node.ref?.target?.oid
+  }));
+}
+
+async function linkBranchToIssue(repo, issueNumber, branchName, options) {
+  if (!branchName) fail('Branch name is required to link to an issue.');
+  const { repository, issue } = await getIssueDetailsWithLinkedBranches(repo, issueNumber);
+
+  const existingLink = issue.linkedBranches?.nodes?.find(
+    (node) => node.ref?.name === branchName
+  );
+  if (existingLink) {
+    return {
+      alreadyLinked: true,
+      issue: issueNumber,
+      branch: branchName,
+      linkedBranchId: existingLink.id
+    };
+  }
+
+  let remoteRef = null;
+  try {
+    remoteRef = await ghApi(`/repos/${repo}/git/ref/heads/${encodeURIComponent(branchName)}`);
+  } catch (error) {
+    if (!error.message.includes('404')) throw error;
+  }
+
+  let commitOid = null;
+  if (remoteRef?.object?.sha) {
+    commitOid = remoteRef.object.sha;
+  } else {
+    const source = options.from ?? repository.defaultBranchRef?.name;
+    if (!source) fail('Could not determine source branch/commit for new branch.');
+    if (/^[0-9a-f]{40}$/i.test(source)) {
+      commitOid = source;
+    } else {
+      const sourceRef = await ghApi(`/repos/${repo}/git/ref/heads/${encodeURIComponent(source)}`);
+      commitOid = sourceRef.object.sha;
+    }
+  }
+
+  const dryRunRequest = {
+    action: 'link-branch',
+    issue: issueNumber,
+    branch: branchName,
+    existsOnRemote: Boolean(remoteRef),
+    oid: commitOid
+  };
+
+  if (!options.execute) {
+    output({
+      dryRun: true,
+      message: 'No remote change was made. Re-run with --execute to apply.',
+      request: dryRunRequest
+    });
+    return null;
+  }
+
+  const mutation = `
+    mutation LinkBranch($input: CreateLinkedBranchInput!) {
+      createLinkedBranch(input: $input) {
+        linkedBranch {
+          id
+          ref {
+            name
+          }
+        }
+        issue {
+          number
+          title
+        }
+      }
+    }
+  `;
+
+  if (remoteRef) {
+    await ghApi(`/repos/${repo}/git/refs/heads/${encodeURIComponent(branchName)}`, {
+      method: 'DELETE'
+    });
+    try {
+      const result = await ghGraphql(mutation, {
+        input: {
+          issueId: issue.id,
+          repositoryId: repository.id,
+          name: branchName,
+          oid: commitOid
+        }
+      });
+      return {
+        linked: true,
+        issue: issueNumber,
+        branch: branchName,
+        linkedBranchId: result?.createLinkedBranch?.linkedBranch?.id,
+        oid: commitOid
+      };
+    } catch (mutationError) {
+      await ghApi(`/repos/${repo}/git/refs`, {
+        method: 'POST',
+        body: JSON.stringify({ ref: `refs/heads/${branchName}`, sha: commitOid })
+      }).catch(() => {});
+      throw mutationError;
+    }
+  }
+
+  const result = await ghGraphql(mutation, {
+    input: {
+      issueId: issue.id,
+      repositoryId: repository.id,
+      name: branchName,
+      oid: commitOid
+    }
+  });
+
+  return {
+    linked: true,
+    issue: issueNumber,
+    branch: branchName,
+    linkedBranchId: result?.createLinkedBranch?.linkedBranch?.id,
+    oid: commitOid
+  };
+}
+
+async function unlinkBranchFromIssue(repo, issueNumber, branchName, options) {
+  if (!branchName) fail('Branch name is required to unlink from an issue.');
+  const { issue } = await getIssueDetailsWithLinkedBranches(repo, issueNumber);
+
+  const existingLink = issue.linkedBranches?.nodes?.find(
+    (node) => node.ref?.name === branchName
+  );
+  if (!existingLink) {
+    fail(`Branch "${branchName}" is not linked to issue #${issueNumber}.`);
+  }
+
+  const dryRunRequest = {
+    action: 'unlink-branch',
+    issue: issueNumber,
+    branch: branchName,
+    linkedBranchId: existingLink.id
+  };
+
+  if (!options.execute) {
+    output({
+      dryRun: true,
+      message: 'No remote change was made. Re-run with --execute to apply.',
+      request: dryRunRequest
+    });
+    return null;
+  }
+
+  const mutation = `
+    mutation UnlinkBranch($input: DeleteLinkedBranchInput!) {
+      deleteLinkedBranch(input: $input) {
+        issue {
+          number
+        }
+      }
+    }
+  `;
+
+  await ghGraphql(mutation, {
+    input: {
+      linkedBranchId: existingLink.id
+    }
+  });
+
+  return {
+    unlinked: true,
+    issue: issueNumber,
+    branch: branchName
+  };
+}
+
 async function issues(repo, action, args, options) {
   const base = `/repos/${repo}/issues`;
   if (action === 'get') return ghApi(`${base}/${number(args[0], 'Issue number')}`);
@@ -137,6 +356,12 @@ async function issues(repo, action, args, options) {
       endpoint: `${base}/${number(args[0], 'Issue number')}/comments`,
       body: { body: plainText(args[1]) }
     });
+  if (action === 'linked-branches')
+    return listLinkedBranches(repo, number(args[0], 'Issue number'));
+  if (action === 'link-branch')
+    return linkBranchToIssue(repo, number(args[0], 'Issue number'), args[1], options);
+  if (action === 'unlink-branch')
+    return unlinkBranchFromIssue(repo, number(args[0], 'Issue number'), args[1], options);
   if (action === 'close') {
     const issue = number(args[0], 'Issue number');
     const closeRequest = {
@@ -227,6 +452,12 @@ async function branches(repo, action, args, options) {
       method: 'DELETE',
       endpoint: `${refBase}/heads/${encodeURIComponent(args[0] ?? fail('Branch name is required.'))}`
     });
+  if (action === 'link')
+    return linkBranchToIssue(repo, number(args[1], 'Issue number'), args[0], options);
+  if (action === 'unlink')
+    return unlinkBranchFromIssue(repo, number(args[1], 'Issue number'), args[0], options);
+  if (action === 'linked')
+    return listLinkedBranches(repo, number(args[0], 'Issue number'));
   fail(`Unknown branch action "${action}".`);
 }
 async function pulls(repo, action, args, options) {
