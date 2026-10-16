@@ -19,6 +19,10 @@
     "./components/SponsoredPlacement.astro": "./src/components/SponsoredPlacement.astro",
     "./components/SponsorCard.astro": "./src/components/SponsorCard.astro",
     "./components/SponsorshipSlot.astro": "./src/components/SponsorshipSlot.astro",
-    "./components/ToolFrame.astro": "./src/components/ToolFrame.astro"
+    "./components/ToolFrame.astro": "./src/components/ToolFrame.astro",
+    "./components/DropZone.astro": "./src/components/DropZone.astro",
+    "./components/ReorderableList.astro": "./src/components/ReorderableList.astro",
+    "./components/ProcessingFeedback.astro": "./src/components/ProcessingFeedback.astro",
+    "./components/DownloadCard.astro": "./src/components/DownloadCard.astro"
   }
 }

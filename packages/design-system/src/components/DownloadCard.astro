@@ -1,0 +1,25 @@
+---
+export interface Props {
+  fileName: string;
+  fileSize: string;
+  downloadUrl: string;
+  restartLabel?: string;
+}
+const { fileName, fileSize, downloadUrl, restartLabel = 'Start over' } = Astro.props;
+---
+
+<section>
+  <h2>Ready to download</h2><p><strong>{fileName}</strong> · {fileSize}</p><a
+    href={downloadUrl}
+    download={fileName}>Download</a
+  ><button type="button" data-restart>{restartLabel}</button>
+</section>
+<script>
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-restart]')
+    .forEach((button) =>
+      button.addEventListener('click', () =>
+        button.dispatchEvent(new CustomEvent('noduct:restart', { bubbles: true }))
+      )
+    );
+</script>

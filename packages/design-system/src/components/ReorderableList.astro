@@ -1,0 +1,71 @@
+---
+export interface Item {
+  id: string;
+  name: string;
+  detail?: string;
+}
+export interface Props {
+  items: readonly Item[];
+  label: string;
+}
+const { items, label } = Astro.props;
+---
+
+<ol aria-label={label} data-reorder-list>
+  {
+    items.map((item, index) => (
+      <li data-item-id={item.id}>
+        <>
+          <span>
+            <strong>{item.name}</strong>
+            {item.detail && <small>{item.detail}</small>}
+          </span>
+          <button type="button" data-move="up" disabled={index === 0}>
+            Move up
+          </button>
+          <button type="button" data-move="down" disabled={index === items.length - 1}>
+            Move down
+          </button>
+          <button type="button" data-remove>
+            Remove
+          </button>
+        </>
+      </li>
+    ))
+  }
+</ol>
+<p aria-live="polite" class="sr-only" data-reorder-status></p>
+<script>
+  document.querySelectorAll<HTMLOListElement>('[data-reorder-list]').forEach((list) => {
+    const status = list.parentElement?.querySelector<HTMLElement>('[data-reorder-status]');
+    list.addEventListener('click', (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>('button');
+      const item = button?.closest<HTMLLIElement>('li');
+      if (!button || !item) return;
+      if (button.dataset.move === 'up' && item.previousElementSibling) {
+        list.insertBefore(item, item.previousElementSibling);
+        status && (status.textContent = `${item.textContent?.trim()} moved up.`);
+        button.focus();
+      }
+      if (button.dataset.move === 'down' && item.nextElementSibling) {
+        list.insertBefore(item.nextElementSibling, item);
+        status && (status.textContent = `${item.textContent?.trim()} moved down.`);
+        button.focus();
+      }
+      if (button.hasAttribute('data-remove')) {
+        const next =
+          item.nextElementSibling?.querySelector<HTMLButtonElement>('button') ??
+          item.previousElementSibling?.querySelector<HTMLButtonElement>('button');
+        item.remove();
+        status && (status.textContent = 'Item removed.');
+        next?.focus();
+      }
+      list.dispatchEvent(
+        new CustomEvent('noduct:reorder', {
+          bubbles: true,
+          detail: [...list.querySelectorAll('li')].map((entry) => entry.dataset.itemId)
+        })
+      );
+    });
+  });
+</script>

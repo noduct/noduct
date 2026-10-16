@@ -1,0 +1,55 @@
+---
+export interface Props {
+  id: string;
+  accept?: string;
+  multiple?: boolean;
+  disabled?: boolean;
+  label: string;
+  helpText?: string;
+}
+const {
+  id,
+  accept = 'application/pdf',
+  multiple = true,
+  disabled = false,
+  label,
+  helpText
+} = Astro.props;
+---
+
+<div class="drop-zone" data-drop-zone data-disabled={disabled ? 'true' : 'false'}>
+  <input
+    id={id}
+    type="file"
+    accept={accept}
+    multiple={multiple}
+    disabled={disabled}
+    hidden
+    data-drop-input
+  />
+  <button type="button" disabled={disabled} data-drop-trigger>{label}</button>
+  {helpText && <p id={`${id}-help`}>{helpText}</p>}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-drop-zone]').forEach((zone) => {
+    const input = zone.querySelector<HTMLInputElement>('[data-drop-input]');
+    const trigger = zone.querySelector<HTMLButtonElement>('[data-drop-trigger]');
+    if (!input || !trigger || zone.dataset.disabled === 'true') return;
+    trigger.addEventListener('click', () => input.click());
+    zone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      zone.dataset.dragging = 'true';
+    });
+    zone.addEventListener('dragleave', () => {
+      delete zone.dataset.dragging;
+    });
+    zone.addEventListener('drop', (event) => {
+      event.preventDefault();
+      delete zone.dataset.dragging;
+      if (!event.dataTransfer?.files.length) return;
+      input.dispatchEvent(
+        new CustomEvent('noduct:files', { bubbles: true, detail: event.dataTransfer.files })
+      );
+    });
+  });
+</script>

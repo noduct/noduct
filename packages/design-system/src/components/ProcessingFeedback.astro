@@ -1,0 +1,30 @@
+---
+export interface Props {
+  label: string;
+  value?: number;
+  cancellable?: boolean;
+}
+const { label, value, cancellable = true } = Astro.props;
+const determinate = value !== undefined;
+---
+
+<section aria-live="polite" data-processing-feedback>
+  <p>{label}</p><progress value={determinate ? value : undefined} max="100"
+    >{determinate ? `${value}%` : ''}</progress
+  >{determinate && <span>{value}%</span>}{
+    cancellable && (
+      <button type="button" data-cancel>
+        Cancel
+      </button>
+    )
+  }
+</section>
+<script>
+  document
+    .querySelectorAll<HTMLButtonElement>('[data-cancel]')
+    .forEach((button) =>
+      button.addEventListener('click', () =>
+        button.dispatchEvent(new CustomEvent('noduct:cancel', { bubbles: true }))
+      )
+    );
+</script>
