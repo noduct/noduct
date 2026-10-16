@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { ghApi, validateRepo } from './client.mjs';
+import { getGitHubToken, ghApi, validateRepo } from './client.mjs';
 
 const HELP = `GitHub automation CLI for AI agents
 
@@ -12,6 +12,7 @@ Resources:
   milestone get <number> | list | create <payload> | update <number> <payload> | close <number>
   branch    get <name> | list | create <name> [--from <sha-or-branch>] | delete <name>
   pull      get <number> | list | create <payload> | update <number> <payload> | merge <number> [--method merge|squash|rebase]
+  push      <branch> [--remote <name>]
 
 Options:
   --repo OWNER/REPOSITORY  Target repository (then GITHUB_REPOSITORY, then git origin).
@@ -23,6 +24,7 @@ Options:
   --comment <text>         Closing comment for an issue.
   --from <sha-or-branch>   Source for branch creation.
   --method <name>          Merge method (default: squash).
+  --remote <name>          Git remote for push (default: origin).
 
 Payloads are inline JSON or paths to UTF-8 JSON files. Run with --execute only after checking the dry-run plan.
 `;
@@ -44,7 +46,9 @@ function parseArguments(argv) {
     else if (key === 'execute') options.execute = true;
     else if (key === 'label')
       options.labels.push(argv[++index] ?? fail('--label requires a value'));
-    else if (['repo', 'state', 'milestone', 'limit', 'comment', 'from', 'method'].includes(key))
+    else if (
+      ['repo', 'state', 'milestone', 'limit', 'comment', 'from', 'method', 'remote'].includes(key)
+    )
       options[key] = argv[++index] ?? fail(`--${key} requires a value`);
     else fail(`Unknown option --${key}`);
   }
@@ -245,6 +249,39 @@ async function pulls(repo, action, args, options) {
     });
   fail(`Unknown pull action "${action}".`);
 }
+function push(branch, options) {
+  if (!branch || branch.startsWith('-')) fail('A branch name is required for push.');
+  const remote = options.remote ?? 'origin';
+  if (!options.execute) {
+    output({
+      dryRun: true,
+      message: 'No remote change was made. Re-run with --execute to apply.',
+      request: { command: 'git push', remote, branch }
+    });
+    return;
+  }
+
+  const remoteUrl = execFileSync('git', ['remote', 'get-url', remote], { encoding: 'utf8' }).trim();
+  if (!/^https:\/\/github\.com\//i.test(remoteUrl)) {
+    fail(
+      `Remote "${remote}" is not an HTTPS GitHub remote; refusing to send the GitHub token to it.`
+    );
+  }
+
+  const credentials = Buffer.from(`x-access-token:${getGitHubToken()}`, 'utf8').toString('base64');
+  execFileSync(
+    'git',
+    [
+      '-c',
+      `http.https://github.com/.extraheader=AUTHORIZATION: basic ${credentials}`,
+      'push',
+      remote,
+      branch
+    ],
+    { stdio: 'pipe' }
+  );
+  output({ pushed: true, remote, branch });
+}
 async function main() {
   const { positionals, options } = parseArguments(process.argv.slice(2));
   if (!positionals.length || positionals[0] === '--help' || positionals[0] === 'help') {
@@ -252,6 +289,10 @@ async function main() {
     return;
   }
   const [resource, action, ...args] = positionals;
+  if (resource === 'push') {
+    if (args.length) fail('Usage: push <branch> [--remote <name>]');
+    return push(action, options);
+  }
   const repo = resolveRepo(options.repo);
   const result =
     resource === 'issue'

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 const API_ROOT = 'https://api.github.com';
 const API_VERSION = '2022-11-28';
 
-function getToken() {
+export function getGitHubToken() {
   const token =
     process.env.GITHUB_TOKEN ||
     process.env.GH_TOKEN ||
@@ -38,7 +38,7 @@ export async function ghApi(endpoint, options = {}) {
     ...options,
     headers: {
       Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${getToken()}`,
+      Authorization: `Bearer ${getGitHubToken()}`,
       'X-GitHub-Api-Version': API_VERSION,
       'User-Agent': 'github-ai-automation',
       ...(options.body ? { 'Content-Type': 'application/json' } : {}),

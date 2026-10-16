@@ -45,6 +45,7 @@ Estas regras se aplicam a todo o repositório.
 ## Automação do GitHub
 
 - Para consultar ou alterar GitHub, use `node scripts/github/manage.mjs` em vez de montar chamadas HTTP, comandos `gh` ou scripts pontuais.
+- Para enviar commits ao GitHub, use `npm run github -- push <branch>` e repita com `--execute` somente depois de revisar o plano; não monte cabeçalhos de autenticação do Git manualmente.
 - Informe `--repo OWNER/REPOSITORY` sempre que o repositório não estiver inequivocamente definido pelo remoto `origin`.
 - Antes de qualquer mutação, consulte o recurso (`get` ou `list`) e execute o comando sem `--execute` para revisar o plano. Use `--execute` apenas quando o alvo e o payload estiverem confirmados.
 - Trate epics como issues do GitHub, organizadas por labels, milestone e referências; não crie automações acopladas a números de issues ou epics.

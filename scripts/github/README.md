@@ -24,6 +24,7 @@ issue     get | list | create | update | close | comment
 milestone get | list | create | update | close
 branch    get | list | create | delete
 pull      get | list | create | update | merge
+push      <branch> [--remote <name>]
 ```
 
 No GitHub, um epic é normalmente uma issue que recebe labels, milestone e referências às issues relacionadas. Portanto, use `issue get`, `issue create` e `issue update` para epics; não existe um recurso de epic específico nesta CLI.
@@ -38,3 +39,14 @@ node scripts/github/manage.mjs branch create fix/pdf-parser --from main --repo o
 ```
 
 Use `node scripts/github/manage.mjs --help` como referência compacta de argumentos e opções.
+
+## Push autenticado
+
+Use a própria CLI também para enviar commits. Ela aplica o token apenas à execução atual do Git e recusa remotos que não sejam HTTPS em `github.com`; nenhuma credencial é salva na configuração do Git ou impressa.
+
+```powershell
+npm run github -- push main
+npm run github -- push main --execute
+```
+
+O primeiro comando apenas mostra o plano. O segundo realiza o push para `origin`; passe `--remote upstream` quando necessário.
