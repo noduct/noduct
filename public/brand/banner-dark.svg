@@ -1,1 +1,131 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description"><title id="title">Noduct</title><desc id="description">Noduct — 100% client-side web utilities. Zero servers, absolute privacy.</desc><defs><mask id="banner-dark-cutout"><rect width="512" height="512" fill="white"/><path d="M278 190Q348 176 418 190A16 16 0 0 1 432 206V254C432 308 386 346 348 366C310 346 264 308 264 254V206A16 16 0 0 1 278 190Z" fill="black" stroke="black" stroke-width="28" stroke-linejoin="round"/><rect x="250" y="0" width="200" height="220" fill="black"/></mask></defs><rect width="1200" height="360" rx="24" fill="#0b0f17" stroke="#28374d" stroke-width="2"/><g transform="translate(140 68) scale(.44)"><rect width="512" height="512" rx="112" fill="#111827"/><path d="M116 116H200L306 276V116H390V396H306L200 236V396H116Z" fill="#3b82f6" mask="url(#banner-dark-cutout)"/><g fill="#4ade80"><path d="M314 196V156A34 34 0 0 1 382 156V196" fill="none" stroke="#4ade80" stroke-width="24" stroke-linecap="round"/><path d="M278 190Q348 176 418 190A16 16 0 0 1 432 206V254C432 308 386 346 348 366C310 346 264 308 264 254V206A16 16 0 0 1 278 190Z"/></g></g><text x="420" y="167" fill="#f8fafc" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="92" font-weight="800" letter-spacing="-2.5">NO<tspan fill="#4ade80">DUCT</tspan></text><text x="424" y="218" fill="#94a3b8" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="22" font-weight="500">100% client-side web utilities. Zero servers, absolute privacy.</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="450" viewBox="0 0 1200 450" role="img" aria-labelledby="title description">
+  <title id="title">Noduct</title>
+  <desc id="description">Noduct — 100% client-side web utilities. Zero servers, absolute privacy.</desc>
+
+  <defs>
+    <!-- Background Grid Pattern -->
+    <pattern id="grid-dark" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#3b82f6" opacity="0.12"/>
+    </pattern>
+
+    <!-- Blur Filters for Ambient Light -->
+    <filter id="glow-blur" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="60"/>
+    </filter>
+
+    <!-- Ambient Gradients -->
+    <radialGradient id="ambient-blue" cx="35%" cy="40%" r="45%">
+      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="ambient-green" cx="65%" cy="35%" r="40%">
+      <stop offset="0%" stop-color="#15803d" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#052e16" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Border Linear Gradient -->
+    <linearGradient id="card-border-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.5"/>
+      <stop offset="40%" stop-color="#28374d" stop-opacity="0.7"/>
+      <stop offset="80%" stop-color="#4ade80" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#28374d" stop-opacity="0.5"/>
+    </linearGradient>
+
+    <!-- Official Monogram Mask -->
+    <mask id="noduct-logo-cutout" maskUnits="userSpaceOnUse" x="0" y="0" width="512" height="512">
+      <rect x="0" y="0" width="512" height="512" fill="white"/>
+      <path d="M278 190Q348 176 418 190A16 16 0 0 1 432 206V254C432 308 386 346 348 366C310 346 264 308 264 254V206A16 16 0 0 1 278 190Z" fill="black" stroke="black" stroke-width="28" stroke-linejoin="round"/>
+      <rect x="250" y="0" width="200" height="220" fill="black"/>
+    </mask>
+
+    <!-- Text Gradient for Noduct Brand -->
+    <linearGradient id="text-brand-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Base Canvas Surface -->
+  <rect width="1200" height="450" rx="24" fill="#080c14"/>
+
+  <!-- Ambient Glows -->
+  <rect x="180" y="40" width="480" height="300" fill="url(#ambient-blue)" filter="url(#glow-blur)"/>
+  <rect x="560" y="40" width="440" height="280" fill="url(#ambient-green)" filter="url(#glow-blur)"/>
+
+  <!-- Tech Grid Overlay -->
+  <rect width="1200" height="450" rx="24" fill="url(#grid-dark)"/>
+
+  <!-- Frame Border with Specular Highlight -->
+  <rect x="1" y="1" width="1198" height="448" rx="23" fill="none" stroke="url(#card-border-dark)" stroke-width="1.5"/>
+  <rect x="2" y="2" width="1196" height="446" rx="22" fill="none" stroke="#ffffff" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- Top Pill / Status Eyebrow -->
+  <g transform="translate(370, 46)">
+    <rect width="460" height="34" rx="17" fill="#111827" fill-opacity="0.8" stroke="#3b82f6" stroke-opacity="0.32" stroke-width="1"/>
+    <!-- Glowing green dot -->
+    <circle cx="22" cy="17" r="8" fill="#4ade80" fill-opacity="0.2"/>
+    <circle cx="22" cy="17" r="4" fill="#4ade80"/>
+    <text x="246" y="22" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif" font-size="11.5" font-weight="700" letter-spacing="1.8" fill="#93c5fd">ZERO SERVERS  •  100% CLIENT-SIDE  •  NO TELEMETRY</text>
+  </g>
+
+  <!-- Center Brand Lockup (Official Monogram + Typography) -->
+  <!-- Official Monogram Mark -->
+  <g transform="translate(414, 126) scale(0.28) translate(-116, -110)">
+    <path d="M116 116H200L306 276V116H390V396H306L200 236V396H116Z" fill="#3b82f6" mask="url(#noduct-logo-cutout)"/>
+    <g fill="#4ade80">
+      <path d="M314 196V156A34 34 0 0 1 382 156V196" fill="none" stroke="#4ade80" stroke-width="24" stroke-linecap="round"/>
+      <path d="M278 190Q348 176 418 190A16 16 0 0 1 432 206V254C432 308 386 346 348 366C310 346 264 308 264 254V206A16 16 0 0 1 278 190Z"/>
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="524" y="194" font-family="-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,'Helvetica Neue',sans-serif" font-size="78" font-weight="800" letter-spacing="-2" fill="url(#text-brand-dark)">Noduct</text>
+
+  <!-- Headline & Subtitle -->
+  <text x="600" y="254" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="24" font-weight="600" letter-spacing="-0.4" fill="#f8fafc">Privacy-First Web Tools for Everyday Operations</text>
+  <text x="600" y="288" text-anchor="middle" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="15.5" font-weight="400" fill="#94a3b8">Fast document utilities, image conversion, and data formatting — executed entirely in your browser.</text>
+
+  <!-- Bottom Capability Badges -->
+  <g transform="translate(188, 344)">
+    <!-- Pill 1: Document & PDF -->
+    <g>
+      <rect width="190" height="42" rx="12" fill="#111827" fill-opacity="0.8" stroke="#28374d" stroke-width="1"/>
+      <g transform="translate(14, 12)" stroke="#60a5fa" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 2v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7l-5-5H5a2 2 0 0 0-2 2z"/>
+        <path d="M10 2v5h5"/>
+      </g>
+      <text x="42" y="26" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">Document &amp; PDF</text>
+    </g>
+
+    <!-- Pill 2: Image Studio -->
+    <g transform="translate(206, 0)">
+      <rect width="175" height="42" rx="12" fill="#111827" fill-opacity="0.8" stroke="#28374d" stroke-width="1"/>
+      <g transform="translate(14, 12)" stroke="#a78bfa" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="2" width="16" height="14" rx="2"/>
+        <circle cx="6" cy="6.5" r="1.5" fill="#a78bfa"/>
+        <path d="m17 12-4.5-4.5L3 16"/>
+      </g>
+      <text x="42" y="26" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">Image Studio</text>
+    </g>
+
+    <!-- Pill 3: Zero Data Storage -->
+    <g transform="translate(397, 0)">
+      <rect width="195" height="42" rx="12" fill="#111827" fill-opacity="0.8" stroke="#28374d" stroke-width="1"/>
+      <g transform="translate(14, 12)" stroke="#4ade80" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 1.5 2 4.5v5c0 5 3.5 8.5 7 9.5 3.5-1 7-4.5 7-9.5v-5z"/>
+        <path d="m6 9.5 2 2 4-4"/>
+      </g>
+      <text x="42" y="26" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">Zero Data Storage</text>
+    </g>
+
+    <!-- Pill 4: Client-Side Sandbox -->
+    <g transform="translate(608, 0)">
+      <rect width="215" height="42" rx="12" fill="#111827" fill-opacity="0.8" stroke="#28374d" stroke-width="1"/>
+      <g transform="translate(14, 12)" stroke="#fbbf24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="12" height="12" rx="2"/>
+        <path d="M6 1v2M12 1v2M6 15v2M12 15v2M1 6h2M1 12h2M15 6h2M15 12h2"/>
+      </g>
+      <text x="42" y="26" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,sans-serif" font-size="13" font-weight="500" fill="#cbd5e1">Client-Side Sandbox</text>
+    </g>
+  </g>
+</svg>
