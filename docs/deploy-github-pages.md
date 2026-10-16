@@ -2,7 +2,7 @@
 
 ## Preparação
 
-Confirme que o repositório é o user site `noduct.github.io`, configure Pages para GitHub Actions e execute `npm run validate`. O workflow `deploy-pages.yml` empacota `dist/`; nenhum segredo de aplicação é necessário.
+Confirme que o repositório do hub é `noduct` e que o GitHub Pages está configurado como project site em `https://noduct.github.io/noduct/`. Configure Pages para GitHub Actions e execute `npm run validate`. O workflow `deploy-pages.yml` empacota `dist/`; nenhum segredo de aplicação é necessário.
 
 ## Conformidade
 

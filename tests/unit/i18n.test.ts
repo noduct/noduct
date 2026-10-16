@@ -21,8 +21,8 @@ describe('internationalization', () => {
   });
 
   it('preserves file paths under the GitHub Pages base', () => {
-    expect(assetPath('/favicon.svg')).toBe('/noduct/favicon.svg');
-    expect(assetPath('/brand/social-card.png')).toBe('/noduct/brand/social-card.png');
+    expect(assetPath('/brand/favicon.svg')).toBe('/noduct/brand/favicon.svg');
+    expect(assetPath('/brand/og-image.png')).toBe('/noduct/brand/og-image.png');
   });
 
   it('has a complete localized catalog', () => {

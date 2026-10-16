@@ -12,11 +12,11 @@ describe('localized canonical metadata', () => {
       pathname,
       'Privacy',
       'Privacy information.',
-      '/brand/social-card.png',
+      '/brand/og-image.png',
       false,
       locale
     );
     expect(metadata.canonical.href).toBe(`https://noduct.github.io${pathname}`);
-    expect(metadata.image.href).toBe('https://noduct.github.io/noduct/brand/social-card.png');
+    expect(metadata.image.href).toBe('https://noduct.github.io/noduct/brand/og-image.png');
   });
 });
