@@ -1,7 +1,7 @@
 # Auditoria técnica dinâmica
 
 **Data:** 13 de outubro de 2026  
-**Escopo:** hub Tolvira local, build estático e template de ferramentas.
+**Escopo:** hub Noduct local, build estático e template de ferramentas.
 
 ## Método e limitações
 
@@ -56,7 +56,7 @@ Outras verificações concluídas:
 
 ## GitHub Pages
 
-O hub usa caminhos raiz apropriados ao user site `tolvira.github.io`. O template define `base: /example-tool` e canonical no project site; seus links de retorno ao hub são absolutos. O build do template foi validado anteriormente. Cada ferramenta precisa substituir `example-tool`, publicar em repositório próprio e registrar URL real no catálogo antes do status `published`.
+O hub usa caminhos raiz apropriados ao user site `noduct.github.io`. O template define `base: /example-tool` e canonical no project site; seus links de retorno ao hub são absolutos. O build do template foi validado anteriormente. Cada ferramenta precisa substituir `example-tool`, publicar em repositório próprio e registrar URL real no catálogo antes do status `published`.
 
 Não foi encontrado link quebrado interno no hub. A validação externa de Pages, headers HTTP, domínio e project sites permanece pendente até existir deploy autorizado.
 

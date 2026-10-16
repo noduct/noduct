@@ -1,6 +1,6 @@
 ---
 import { designMessages, designPath, type DesignLocale } from '../i18n';
-const { hubUrl = 'https://tolvira.github.io/', locale = 'en' } = Astro.props as { hubUrl?: string; locale?: DesignLocale };
+const { hubUrl = 'https://noduct.github.io/', locale = 'en' } = Astro.props as { hubUrl?: string; locale?: DesignLocale };
 const m = designMessages[locale];
 ---
 <footer class="tv-footer"><div class="tv-wrap"><span>{m.contributors(new Date().getFullYear())}</span><nav aria-label={m.legal}><a href={`${hubUrl}${designPath('privacy/', locale)}`}>{m.privacy}</a><a href={`${hubUrl}${designPath('terms/', locale)}`}>{m.terms}</a></nav></div></footer>

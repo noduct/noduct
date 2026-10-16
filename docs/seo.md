@@ -8,9 +8,9 @@
 
 URLs inglesas, minúsculas e estáveis, com prefixos de idioma para as traduções existentes. Cada página tem um H1, descrição específica e canonical autorreferente no idioma renderizado; versões PT-BR e ES não devem apontar seu canonical para a versão inglesa. `BaseLayout.astro` informa o locale a `createSeoMetadata` e publica os alternates `en`, `pt-BR`, `es` e `x-default`. Planned tools não ganham páginas públicas. SoftwareApplication só deve ser adicionado na ferramenta real e com dados verificáveis.
 
-O sitemap e sua referência em `public/robots.txt` incluem o base path `/tolvira` do GitHub Pages. Os testes de navegador usam o mesmo prefixo para validar as rotas realmente publicadas.
+O sitemap e sua referência em `public/robots.txt` incluem o base path `/noduct` do GitHub Pages. Os testes de navegador usam o mesmo prefixo para validar as rotas realmente publicadas.
 
-A auditoria Lighthouse usa o preview Astro na porta 4322 com URLs sob `/tolvira/`. O servidor genérico de `staticDistDir` não reproduz esse base path e pode retornar 404 para CSS e JavaScript; por isso não é usado. A porta separada evita conflito com o preview do Playwright na porta 4321. Os limites de qualidade permanecem definidos em `lighthouserc.cjs`.
+A auditoria Lighthouse usa o preview Astro na porta 4322 com URLs sob `/noduct/`. O servidor genérico de `staticDistDir` não reproduz esse base path e pode retornar 404 para CSS e JavaScript; por isso não é usado. A porta separada evita conflito com o preview do Playwright na porta 4321. Os limites de qualidade permanecem definidos em `lighthouserc.cjs`.
 
 ## Validação e Search Console
 

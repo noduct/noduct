@@ -1,5 +1,5 @@
 {
-  "name": "@tolvira/pdf-engines-benchmark",
+  "name": "@noduct/pdf-engines-benchmark",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,6 +9,6 @@
   },
   "dependencies": {
     "pdf-lib": "1.17.1",
-    "tolvira-workspace": "file:../.."
+    "noduct-workspace": "file:../.."
   }
 }

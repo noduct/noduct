@@ -1,6 +1,12 @@
-# Diretrizes de engenharia — Tolvira
+# Diretrizes de engenharia — Noduct
 
 Estas regras se aplicam a todo o repositório.
+
+## Identidade do projeto
+
+- O nome oficial é **Noduct**. O nome anterior é depreciado e não pode ser reintroduzido em código, conteúdo, identificadores, URLs ou documentação.
+- Noduct é uma suíte de ferramentas online para PDF, imagens e tarefas rotineiras que opera 100% no cliente, com Web APIs e armazenamento local de sessão. Arquivos não são enviados a um backend: “No duct” significa não haver duto de saída de dados.
+- O ícone oficial contém somente um monograma geométrico `N`: a haste direita é truncada em um chanfro que acolhe um cadeado em escudo no quadrante superior direito. Seus usos devem respeitar os tokens nativos de cor do design system.
 
 ## Idiomas
 

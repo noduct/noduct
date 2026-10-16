@@ -12,7 +12,7 @@ async function createFixture(name, pageCount) {
 
   for (let index = 0; index < pageCount; index += 1) {
     const page = document.addPage(index % 2 === 0 ? [595, 842] : [842, 595]);
-    page.drawText(`Tolvira benchmark fixture — page ${index + 1}`, {
+    page.drawText(`Noduct benchmark fixture — page ${index + 1}`, {
       x: 48,
       y: page.getHeight() - 72,
       font,

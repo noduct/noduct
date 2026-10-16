@@ -30,7 +30,7 @@
   }
 
   /* Só existe quando cada lateral tem espaço útil (~100px) fora do container. */
-  @media (min-width: 1536px) {
+  @media (min-width: 1280px) {
     .ambient {
       display: block;
     }
@@ -73,7 +73,7 @@
     interface Flank { side: Side; canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D; width: number; height: number; }
 
     const html = document.documentElement;
-    const wide = window.matchMedia('(min-width: 1536px)');
+    const wide = window.matchMedia('(min-width: 1280px)');
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     // Geometria do halftone (px CSS).

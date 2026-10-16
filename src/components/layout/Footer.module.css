@@ -6,23 +6,23 @@
 }
 
 .footerGrid {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto minmax(250px, 1fr);
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 4rem);
 }
 
 .brandCol {
   display: flex;
   flex-direction: column;
-  gap: .4rem;
-  max-width: 380px;
+  gap: 0.4rem;
+  max-width: 340px;
 }
 
 .brandRow {
   display: flex;
   align-items: center;
-  gap: .5rem;
+  gap: 0.5rem;
 }
 
 .brandMark {
@@ -30,10 +30,6 @@
   place-items: center;
   width: 24px;
   height: 24px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
-  border-radius: var(--radius-xs);
 }
 
 .brandMark svg {
@@ -41,45 +37,53 @@
   height: 14px;
 }
 
+.brandMark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .brandTitle {
   font-size: 1rem;
   font-weight: 650;
   color: var(--color-text);
-  letter-spacing: -.02em;
+  letter-spacing: -0.02em;
 }
 
 .tagline {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: .84rem;
+  font-size: 0.84rem;
   line-height: 1.45;
 }
 
 .support {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: .45rem;
-  margin-top: .4rem;
+  align-items: flex-end;
+  gap: 0.45rem;
+  max-width: 270px;
+  justify-self: end;
 }
 
 .supportPrompt {
   margin: 0;
   color: var(--color-text-secondary);
-  font-size: .84rem;
+  font-size: 0.84rem;
   line-height: 1.45;
+  text-align: right;
 }
 
 .supportLink {
   display: inline-flex;
   align-items: center;
-  gap: .45rem;
-  padding: .35rem .7rem;
+  gap: 0.45rem;
+  padding: 0.35rem 0.7rem;
   background: var(--color-surface-card);
   color: var(--color-text);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: .82rem;
+  font-size: 0.82rem;
   font-weight: 500;
   text-decoration: none;
   box-shadow: var(--shadow-sm);
@@ -103,7 +107,9 @@
 
 .supportLink:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 1.5px var(--color-surface), 0 0 0 3.5px var(--color-focus-ring);
+  box-shadow:
+    0 0 0 1.5px var(--color-surface),
+    0 0 0 3.5px var(--color-focus-ring);
 }
 
 .supportIcon {
@@ -123,19 +129,19 @@
 }
 
 .nav {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
   align-items: center;
-  justify-content: flex-end;
-  gap: .5rem 1.25rem;
+  justify-content: center;
+  gap: 0.4rem 1.5rem;
 }
 
 .nav a {
   color: var(--color-text-secondary);
-  font-size: .86rem;
+  font-size: 0.86rem;
   font-weight: 500;
   text-decoration: none;
-  transition: color .15s ease;
+  transition: color 0.15s ease;
   min-height: 32px;
   display: inline-flex;
   align-items: center;
@@ -154,17 +160,43 @@
 .legal p {
   margin: 0;
   color: var(--color-text-muted);
-  font-size: .8rem;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .footerGrid {
+    grid-template-columns: minmax(240px, 1fr) minmax(220px, 1fr);
+  }
+
+  .support {
+    grid-column: 1 / -1;
+    justify-self: start;
+    align-items: flex-start;
+  }
+
+  .supportPrompt {
+    text-align: left;
+  }
 }
 
 @media (max-width: 680px) {
   .footerGrid {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
   .nav {
     justify-content: flex-start;
-    gap: .75rem 1rem;
+    grid-template-columns: repeat(2, max-content);
+    gap: 0.5rem 1.25rem;
+  }
+
+  .support {
+    align-items: flex-start;
+    justify-self: start;
+  }
+
+  .supportPrompt {
+    text-align: left;
   }
 }

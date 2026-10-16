@@ -65,3 +65,4 @@ for (const [name, browserType] of Object.entries({ chromium, firefox, webkit }))
 }
 
 console.log(JSON.stringify({ engine: 'pdf-lib@1.17.1', bundle, outcomes }, null, 2));
+/* global PDFLib */

@@ -36,7 +36,7 @@ test('all public routes have valid semantic and SEO essentials', async ({ page }
     const escapedRoute = `${siteBasePath}${route}`.replaceAll('/', '\\/');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
-      new RegExp(`^https://tolvira\\.github\\.io${escapedRoute}`)
+      new RegExp(`^https://noduct\\.github\\.io${escapedRoute}`)
     );
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('main')).toHaveCount(1);
@@ -84,7 +84,7 @@ test('internal links, structured data, robots and sitemap are valid', async ({ p
   const robots = await request.get(`${siteBasePath}/robots.txt`);
   expect(robots.ok()).toBeTruthy();
   expect(await robots.text()).toContain(
-    `Sitemap: https://tolvira.github.io${siteBasePath}/sitemap-index.xml`
+    `Sitemap: https://noduct.github.io${siteBasePath}/sitemap-index.xml`
   );
   const sitemap = await request.get(`${siteBasePath}/sitemap-index.xml`);
   expect(sitemap.ok()).toBeTruthy();

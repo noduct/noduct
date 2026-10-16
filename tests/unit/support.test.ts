@@ -6,25 +6,25 @@ describe('support configuration and URL validation', () => {
     const valid = getValidatedSupportUrl({
       enabled: true,
       provider: 'buy-me-a-coffee',
-      url: 'https://buymeacoffee.com/tolvira'
+      url: 'https://buymeacoffee.com/noduct'
     });
-    expect(valid).toBe('https://buymeacoffee.com/tolvira');
+    expect(valid).toBe('https://buymeacoffee.com/noduct');
   });
 
   it('normalizes trailing slash on valid profile URL', () => {
     const valid = getValidatedSupportUrl({
       enabled: true,
       provider: 'buy-me-a-coffee',
-      url: 'https://buymeacoffee.com/tolvira/'
+      url: 'https://buymeacoffee.com/noduct/'
     });
-    expect(valid).toBe('https://buymeacoffee.com/tolvira/');
+    expect(valid).toBe('https://buymeacoffee.com/noduct/');
   });
 
   it('returns null when support is disabled', () => {
     const result = getValidatedSupportUrl({
       enabled: false,
       provider: 'buy-me-a-coffee',
-      url: 'https://buymeacoffee.com/tolvira'
+      url: 'https://buymeacoffee.com/noduct'
     });
     expect(result).toBeNull();
   });
@@ -33,7 +33,7 @@ describe('support configuration and URL validation', () => {
     const result = getValidatedSupportUrl({
       enabled: true,
       provider: 'patreon',
-      url: 'https://buymeacoffee.com/tolvira'
+      url: 'https://buymeacoffee.com/noduct'
     });
     expect(result).toBeNull();
   });
@@ -42,7 +42,7 @@ describe('support configuration and URL validation', () => {
     const result = getValidatedSupportUrl({
       enabled: true,
       provider: 'buy-me-a-coffee',
-      url: 'http://buymeacoffee.com/tolvira'
+      url: 'http://buymeacoffee.com/noduct'
     });
     expect(result).toBeNull();
   });
@@ -52,7 +52,7 @@ describe('support configuration and URL validation', () => {
       getValidatedSupportUrl({
         enabled: true,
         provider: 'buy-me-a-coffee',
-        url: 'https://notbuymeacoffee.com/tolvira'
+        url: 'https://notbuymeacoffee.com/noduct'
       })
     ).toBeNull();
 
@@ -60,7 +60,7 @@ describe('support configuration and URL validation', () => {
       getValidatedSupportUrl({
         enabled: true,
         provider: 'buy-me-a-coffee',
-        url: 'https://buymeacoffee.com.attacker.com/tolvira'
+        url: 'https://buymeacoffee.com.attacker.com/noduct'
       })
     ).toBeNull();
   });
@@ -96,7 +96,7 @@ describe('support configuration and URL validation', () => {
       getValidatedSupportUrl({
         enabled: true,
         provider: 'buy-me-a-coffee',
-        url: 'https://buymeacoffee.com/tolvira?checkout=true'
+        url: 'https://buymeacoffee.com/noduct?checkout=true'
       })
     ).toBeNull();
 
@@ -104,7 +104,7 @@ describe('support configuration and URL validation', () => {
       getValidatedSupportUrl({
         enabled: true,
         provider: 'buy-me-a-coffee',
-        url: 'https://user:pass@buymeacoffee.com/tolvira'
+        url: 'https://user:pass@buymeacoffee.com/noduct'
       })
     ).toBeNull();
 
@@ -112,7 +112,7 @@ describe('support configuration and URL validation', () => {
       getValidatedSupportUrl({
         enabled: true,
         provider: 'buy-me-a-coffee',
-        url: 'https://buymeacoffee.com/tolvira#support'
+        url: 'https://buymeacoffee.com/noduct#support'
       })
     ).toBeNull();
   });

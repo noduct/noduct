@@ -1,8 +1,8 @@
 ---
-import SeoHead from '@tolvira/design-system/components/SeoHead.astro';
-import ToolFrame from '@tolvira/design-system/components/ToolFrame.astro';
-import SponsorshipSlot from '@tolvira/design-system/components/SponsorshipSlot.astro';
-import type { DesignLocale } from '@tolvira/design-system';
+import SeoHead from '@noduct/design-system/components/SeoHead.astro';
+import ToolFrame from '@noduct/design-system/components/ToolFrame.astro';
+import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
+import type { DesignLocale } from '@noduct/design-system';
 import { toolConfig } from '../config';
 import { toolMessages } from '../i18n';
 const { locale } = Astro.props as { locale: DesignLocale }; const m = toolMessages[locale];
@@ -10,7 +10,7 @@ const prefix = locale === 'en' ? '' : locale === 'pt-BR' ? 'pt-br/' : 'es/';
 ---
 <!doctype html><html lang={locale}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><SeoHead title={`${m.name} | ${m.template}`} description={m.description as string} canonical={`${toolConfig.canonicalUrl}${prefix}`} noindex={!toolConfig.published}/></head><body>
   <ToolFrame locale={locale}>
-    <nav class="crumbs" aria-label={m.breadcrumb as string}><a href={`https://tolvira.github.io/${prefix}`}>Tolvira</a> / <a href={`https://tolvira.github.io/${prefix}text-tools/`}>{m.category}</a> / <span aria-current="page">{m.name}</span></nav>
+    <nav class="crumbs" aria-label={m.breadcrumb as string}><a href={`https://noduct.github.io/${prefix}`}>Noduct</a> / <a href={`https://noduct.github.io/${prefix}text-tools/`}>{m.category}</a> / <span aria-current="page">{m.name}</span></nav>
     <h1>{m.name}</h1><p>{m.description}</p>
     <section class="tool" aria-labelledby="tool-title"><h2 id="tool-title">{m.toolTitle}</h2><label for="source">{m.label}</label><textarea id="source" placeholder={m.placeholder as string}></textarea><div class="actions"><button id="process" type="button">{m.process}</button><button id="clear" class="secondary" type="button">{m.clear}</button></div><p class="notice">{m.privacy}</p><div class="result" id="result" role="status" aria-live="polite" data-empty-message={m.empty} hidden></div></section>
     <SponsorshipSlot placementId={toolConfig.sponsorPlacementId} registryUrl={toolConfig.sponsorshipRegistryUrl} enabled={toolConfig.sponsorshipEnabled} locale={locale}/><section><h2>{m.howTitle}</h2><ol>{(m.how as string[]).map((item) => <li>{item}</li>)}</ol></section><section><h2>{m.limitsTitle}</h2><p>{m.limits}</p></section><section><h2>{m.relatedTitle}</h2><p>{m.related}</p></section>

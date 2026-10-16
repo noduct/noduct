@@ -14,7 +14,7 @@ for (const file of htmlFiles) {
   const h1Count = (html.match(/<h1(?:\s|>)/g) ?? []).length;
   if (!title) errors.push(`${name}: missing title`); else if (titles.has(title)) errors.push(`${name}: duplicate title with ${titles.get(title)}`); else titles.set(title, name);
   if (!description) errors.push(`${name}: missing meta description`);
-  if (!canonical?.startsWith('https://tolvira.github.io/')) errors.push(`${name}: invalid canonical`);
+  if (!canonical?.startsWith('https://noduct.github.io/')) errors.push(`${name}: invalid canonical`);
   if (h1Count !== 1) errors.push(`${name}: expected one H1, found ${h1Count}`);
 }
 for (const asset of ['robots.txt', 'sitemap-index.xml']) { try { await readFile(join(root, asset)); } catch { errors.push(`Missing ${asset}`); } }

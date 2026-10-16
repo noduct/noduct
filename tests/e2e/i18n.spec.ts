@@ -48,15 +48,15 @@ test('localized SEO metadata is self-consistent', async ({ page }) => {
   await expect(page).toHaveTitle(/Política de Privacidade/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
-    `https://tolvira.github.io${siteBasePath}/pt-br/privacy/`
+    `https://noduct.github.io${siteBasePath}/pt-br/privacy/`
   );
   await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
     'href',
-    `https://tolvira.github.io${siteBasePath}/privacy/`
+    `https://noduct.github.io${siteBasePath}/privacy/`
   );
   await expect(page.locator('link[rel="alternate"][hreflang="es"]')).toHaveAttribute(
     'href',
-    `https://tolvira.github.io${siteBasePath}/es/privacy/`
+    `https://noduct.github.io${siteBasePath}/es/privacy/`
   );
 });
 

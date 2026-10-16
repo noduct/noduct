@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://tolvira.github.io/tolvira/sitemap-index.xml
+Sitemap: https://noduct.github.io/noduct/sitemap-index.xml
