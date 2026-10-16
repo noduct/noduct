@@ -11,3 +11,6 @@ tests/fixtures/sponsorship-app/.astro/
 .DS_Store
 packages/tool-template/node_modules/
 packages/tool-template/dist/
+experiments/pdf-engines-benchmark/node_modules/
+experiments/pdf-engines-benchmark/fixtures/
+experiments/pdf-engines-benchmark/package-lock.json
