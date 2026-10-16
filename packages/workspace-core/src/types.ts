@@ -61,3 +61,41 @@ export class DocumentNotFoundError extends WorkspaceError {
   }
 }
 
+export interface WorkspaceTransferRecord {
+  readonly transferId: string;
+  readonly documentId: string;
+  readonly sourceTool: string;
+  readonly targetTool: string;
+  readonly createdAt: number;
+  readonly expiresAt: number;
+  readonly consumedAt?: number | undefined;
+}
+
+export class TransferNotFoundError extends WorkspaceError {
+  constructor(transferId: string) {
+    super(`Transfer ticket "${transferId}" was not found or does not exist.`, 'TRANSFER_NOT_FOUND');
+    this.name = 'TransferNotFoundError';
+  }
+}
+
+export class TransferExpiredError extends WorkspaceError {
+  constructor(transferId: string) {
+    super(`Transfer ticket "${transferId}" has expired.`, 'TRANSFER_EXPIRED');
+    this.name = 'TransferExpiredError';
+  }
+}
+
+export class TransferAlreadyConsumedError extends WorkspaceError {
+  constructor(transferId: string) {
+    super(`Transfer ticket "${transferId}" has already been consumed.`, 'TRANSFER_ALREADY_CONSUMED');
+    this.name = 'TransferAlreadyConsumedError';
+  }
+}
+
+export class InvalidToolTargetError extends WorkspaceError {
+  constructor(message: string) {
+    super(message, 'INVALID_TOOL_TARGET');
+    this.name = 'InvalidToolTargetError';
+  }
+}
+
