@@ -1,0 +1,56 @@
+---
+import { fileWorkflowMessages } from '../file-workflow/messages';
+import type { DesignLocale } from '../i18n';
+import styles from './ProcessingFeedback.module.css';
+
+export interface Props {
+  label: string;
+  status: string;
+  value?: number;
+  cancellable?: boolean;
+  hidden?: boolean;
+  locale?: DesignLocale;
+}
+
+const { label, status, value, cancellable = true, hidden = false, locale = 'en' } = Astro.props;
+const progress = value === undefined ? undefined : Math.round(Math.min(100, Math.max(0, value)));
+---
+
+<section
+  class={styles.root}
+  aria-label={label}
+  hidden={hidden}
+  data-processing-feedback
+  data-locale={locale}
+  data-state={progress === undefined ? 'indeterminate' : 'determinate'}
+>
+  <div class={styles.header}>
+    <p class={styles.status} aria-live="polite" data-processing-status>{status}</p>
+    <span class={styles.percent} aria-hidden="true" data-processing-percent
+      >{progress === undefined ? '' : `${progress}%`}</span
+    >
+  </div>
+  <div
+    class={styles.track}
+    role="progressbar"
+    aria-label={label}
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow={progress}
+    data-processing-bar
+  >
+    <span class={styles.fill} style={{ '--progress': (progress ?? 0) / 100 }}></span>
+  </div>
+  {
+    cancellable && (
+      <button type="button" class={styles.cancel} data-processing-cancel>
+        {fileWorkflowMessages[locale].cancel}
+      </button>
+    )
+  }
+</section>
+
+<script>
+  import { initializeProcessingFeedback } from '../file-workflow/processing-feedback-runtime';
+  initializeProcessingFeedback(document);
+</script>

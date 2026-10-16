@@ -1,0 +1,39 @@
+---
+import ReorderableItemMarkup from './ReorderableItemMarkup.astro';
+import type { FileListItem } from '../file-workflow/contracts';
+import { fileWorkflowMessages } from '../file-workflow/messages';
+import type { DesignLocale } from '../i18n';
+import styles from './ReorderableList.module.css';
+
+export interface Props {
+  id: string;
+  label: string;
+  items?: readonly FileListItem[];
+  locale?: DesignLocale;
+}
+
+const { id, label, items = [], locale = 'en' } = Astro.props;
+const instructionsId = `${id}-instructions`;
+---
+
+<div class={styles.root} data-reorderable-list data-locale={locale}>
+  <p id={instructionsId} class={styles.srOnly}>
+    {fileWorkflowMessages[locale].reorderInstructions}
+  </p>
+  <ol id={id} class={styles.list} aria-label={label} tabindex="-1" data-reorder-items>
+    {
+      items.map((item) => (
+        <ReorderableItemMarkup item={item} instructionsId={instructionsId} locale={locale} />
+      ))
+    }
+  </ol>
+  <template data-reorder-template>
+    <ReorderableItemMarkup instructionsId={instructionsId} locale={locale} />
+  </template>
+  <p class={styles.srOnly} aria-live="polite" data-reorder-status></p>
+</div>
+
+<script>
+  import { initializeReorderableLists } from '../file-workflow/reorderable-list-runtime';
+  initializeReorderableLists(document);
+</script>

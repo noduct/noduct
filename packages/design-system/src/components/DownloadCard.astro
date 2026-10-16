@@ -1,0 +1,52 @@
+---
+import { formatFileSize } from '../file-workflow/contracts';
+import { fileWorkflowMessages } from '../file-workflow/messages';
+import type { DesignLocale } from '../i18n';
+import styles from './DownloadCard.module.css';
+
+export interface Props {
+  id: string;
+  title?: string;
+  fileName?: string;
+  fileSize?: number;
+  downloadUrl?: string;
+  hidden?: boolean;
+  locale?: DesignLocale;
+}
+
+const { id, fileName = '', fileSize, downloadUrl, hidden = false, locale = 'en' } = Astro.props;
+const m = fileWorkflowMessages[locale];
+const title = Astro.props.title ?? m.downloadTitle;
+const titleId = `${id}-title`;
+---
+
+<section
+  id={id}
+  class={styles.card}
+  aria-labelledby={titleId}
+  hidden={hidden}
+  data-download-card
+  data-locale={locale}
+>
+  <span class={styles.icon} aria-hidden="true">✓</span>
+  <div class={styles.body}>
+    <h2 id={titleId} class={styles.title} tabindex="-1" data-download-title>{title}</h2>
+    <p class={styles.meta}>
+      <span class={styles.name} data-download-name>{fileName}</span>
+      <span data-download-size
+        >{fileSize === undefined ? '' : formatFileSize(fileSize, locale)}</span
+      >
+    </p>
+  </div>
+  <div class={styles.actions}>
+    <a class={styles.primary} href={downloadUrl} download={fileName} data-download-link>
+      {m.download}
+    </a>
+    <button type="button" class={styles.secondary} data-download-restart>{m.startOver}</button>
+  </div>
+</section>
+
+<script>
+  import { initializeDownloadCards } from '../file-workflow/download-card-runtime';
+  initializeDownloadCards(document);
+</script>

@@ -1,7 +1,11 @@
-export const designSystemVersion = '0.3.0';
+export const designSystemVersion = '0.4.0';
 export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disabled';
 export { designMessages, designPath } from './i18n';
 export type { DesignLocale } from './i18n';
 export { default as ScrollArea } from './components/ScrollArea.astro';
 export { default as SponsorCard } from './components/SponsorCard.astro';
 export { default as SponsorshipSlot } from './components/SponsorshipSlot.astro';
+export { default as DropZone } from './components/DropZone.astro';
+export { default as ReorderableList } from './components/ReorderableList.astro';
+export { default as ProcessingFeedback } from './components/ProcessingFeedback.astro';
+export { default as DownloadCard } from './components/DownloadCard.astro';

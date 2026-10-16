@@ -1,0 +1,63 @@
+---
+import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
+import type { DesignLocale } from '../i18n';
+import styles from './DropZone.module.css';
+
+export interface Props {
+  id: string;
+  label: string;
+  description?: string;
+  accept?: string;
+  multiple?: boolean;
+  disabled?: boolean;
+  locale?: DesignLocale;
+}
+
+const {
+  id,
+  label,
+  description,
+  accept = DEFAULT_PDF_ACCEPT,
+  multiple = true,
+  disabled = false,
+  locale = 'en'
+} = Astro.props;
+const descriptionId = `${id}-description`;
+const statusId = `${id}-status`;
+---
+
+<div
+  class={styles.zone}
+  data-drop-zone
+  data-locale={locale}
+  data-accept={accept}
+  data-multiple={multiple ? 'true' : 'false'}
+  data-disabled={disabled ? 'true' : 'false'}
+  data-state="idle"
+>
+  <span class={styles.icon} aria-hidden="true">↥</span>
+  {
+    description && (
+      <p id={descriptionId} class={styles.description}>
+        {description}
+      </p>
+    )
+  }
+  <input
+    id={id}
+    class={styles.input}
+    type="file"
+    accept={accept}
+    multiple={multiple}
+    disabled={disabled}
+    aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
+    data-drop-input
+  />
+  <label for={id} class={styles.trigger}>{label}</label>
+  <p id={statusId} class={styles.status} role="status" data-drop-status></p>
+</div>
+
+<script>
+  import { initializeDropZones } from '../file-workflow/drop-zone-runtime';
+  initializeDropZones(document);
+</script>

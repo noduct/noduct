@@ -1,0 +1,48 @@
+---
+import { describeFileItem, type FileListItem } from '../file-workflow/contracts';
+import { fileWorkflowMessages } from '../file-workflow/messages';
+import type { DesignLocale } from '../i18n';
+import styles from './ReorderableList.module.css';
+
+interface Props {
+  item?: FileListItem;
+  instructionsId: string;
+  locale?: DesignLocale;
+}
+
+const { item, instructionsId, locale = 'en' } = Astro.props;
+const m = fileWorkflowMessages[locale];
+const name = item?.name ?? '';
+---
+
+<li class={styles.item} data-reorder-item data-item-id={item?.id}>
+  <button
+    type="button"
+    class:list={[styles.control, styles.handle]}
+    aria-label={m.reorder(name)}
+    aria-describedby={instructionsId}
+    data-reorder-handle
+  >
+    <span aria-hidden="true">⠿</span>
+  </button>
+  <span class={styles.body}>
+    <span class={styles.name} data-item-name>{name}</span>
+    <span class={styles.meta} data-item-meta>{item && describeFileItem(item, locale)}</span>
+  </span>
+  <span class={styles.actions}>
+    <button type="button" class={styles.control} aria-label={m.moveUp(name)} data-move="up">
+      <span aria-hidden="true">↑</span>
+    </button>
+    <button type="button" class={styles.control} aria-label={m.moveDown(name)} data-move="down">
+      <span aria-hidden="true">↓</span>
+    </button>
+    <button
+      type="button"
+      class:list={[styles.control, styles.remove]}
+      aria-label={m.remove(name)}
+      data-remove
+    >
+      <span aria-hidden="true">×</span>
+    </button>
+  </span>
+</li>
