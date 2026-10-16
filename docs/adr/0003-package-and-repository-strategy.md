@@ -17,14 +17,18 @@ Manter, inicialmente, um monorepo npm workspace com pacotes privados:
 packages/
   pdf-core/        domínio PDF puro
   workspace-core/  persistência local e transferências entre ferramentas
-  design-system/   componentes, tokens e acessibilidade
+  design-system/   shell, componentes, tokens e acessibilidade
+  tool-runtime/    topologia de URLs, locales, SEO e taxonomia (TS puro)
   tool-template/   esqueleto de ferramenta Astro
 ```
 
 Uma ferramenta standalone ou o PDF Studio pode depender de `pdf-core`,
-`workspace-core` e `design-system`. `pdf-core` não pode depender de Astro, DOM,
+`workspace-core`, `design-system` e `tool-runtime`. `pdf-core` não pode depender de Astro, DOM,
 `workspace-core` ou `design-system`; `workspace-core` não pode depender de UI.
-Não são permitidos ciclos entre pacotes.
+`tool-runtime` não depende de nenhum pacote interno, de DOM ou de Astro;
+`design-system` pode depender de `tool-runtime`, nunca o inverso. O hub não
+importa `pdf-core` nem `workspace-core`. Não são permitidos ciclos entre pacotes.
+Detalhes do shell e da topologia: [ADR 0005](0005-unified-shell-topology-guardrails.md).
 
 Todos os pacotes compilam para ESM moderno e usam TypeScript strict. Dependências
 externas compartilhadas ficam pinadas no manifesto central. Engines pesados são
