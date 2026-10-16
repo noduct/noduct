@@ -1,6 +1,6 @@
 {
   "name": "@noduct/design-system",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "peerDependencies": {
@@ -12,6 +12,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./sponsorship": "./src/sponsorship/index.ts",
+    "./file-workflow": "./src/file-workflow/index.ts",
     "./tokens.css": "./src/tokens.css",
     "./components/BrandHeader.astro": "./src/components/BrandHeader.astro",
     "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",

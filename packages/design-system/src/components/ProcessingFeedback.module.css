@@ -1,0 +1,147 @@
+.root {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.root[hidden] {
+  display: none;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.status {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.percent {
+  color: var(--color-text-secondary);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  grid-column: 1;
+  position: relative;
+  height: var(--space-2);
+  overflow: hidden;
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-hover);
+}
+
+.fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-primary);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform var(--duration-normal) var(--ease-apple);
+}
+
+.root[data-state='indeterminate'] .fill {
+  width: 40%;
+  transform: none;
+  animation: indeterminate calc(var(--duration-slow) * 3.5) var(--ease-in-out) infinite;
+}
+
+.root[data-state='cancelled'] .fill {
+  background: var(--color-border-strong);
+  animation: none;
+}
+
+.cancel {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    transform var(--duration-instant) var(--ease-out-quad);
+}
+
+.cancel:hover {
+  background: var(--color-surface-hover);
+}
+
+.cancel:active {
+  transform: scale(var(--scale-active-button));
+}
+
+.cancel:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.cancel[aria-disabled='true'] {
+  color: var(--color-text-muted);
+  cursor: default;
+}
+
+@keyframes indeterminate {
+  from {
+    left: -40%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root[data-state='indeterminate'] .fill {
+    left: 0;
+    width: 100%;
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+:global(:root[data-motion='reduce']) .root[data-state='indeterminate'] .fill {
+  left: 0;
+  width: 100%;
+  animation: none;
+  opacity: 0.5;
+}
+
+@media (max-width: 599px) {
+  .root {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cancel {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+  }
+}

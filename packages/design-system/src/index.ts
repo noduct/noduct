@@ -1,4 +1,4 @@
-export const designSystemVersion = '0.3.0';
+export const designSystemVersion = '0.4.0';
 export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disabled';
 export { designMessages, designPath } from './i18n';
 export type { DesignLocale } from './i18n';

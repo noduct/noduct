@@ -1,55 +1,63 @@
 ---
+import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
+import type { DesignLocale } from '../i18n';
+import styles from './DropZone.module.css';
+
 export interface Props {
   id: string;
+  label: string;
+  description?: string;
   accept?: string;
   multiple?: boolean;
   disabled?: boolean;
-  label: string;
-  helpText?: string;
+  locale?: DesignLocale;
 }
+
 const {
   id,
-  accept = 'application/pdf',
+  label,
+  description,
+  accept = DEFAULT_PDF_ACCEPT,
   multiple = true,
   disabled = false,
-  label,
-  helpText
+  locale = 'en'
 } = Astro.props;
+const descriptionId = `${id}-description`;
+const statusId = `${id}-status`;
 ---
 
-<div class="drop-zone" data-drop-zone data-disabled={disabled ? 'true' : 'false'}>
+<div
+  class={styles.zone}
+  data-drop-zone
+  data-locale={locale}
+  data-accept={accept}
+  data-multiple={multiple ? 'true' : 'false'}
+  data-disabled={disabled ? 'true' : 'false'}
+  data-state="idle"
+>
+  <span class={styles.icon} aria-hidden="true">↥</span>
+  {
+    description && (
+      <p id={descriptionId} class={styles.description}>
+        {description}
+      </p>
+    )
+  }
   <input
     id={id}
+    class={styles.input}
     type="file"
     accept={accept}
     multiple={multiple}
     disabled={disabled}
-    hidden
+    aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
     data-drop-input
   />
-  <button type="button" disabled={disabled} data-drop-trigger>{label}</button>
-  {helpText && <p id={`${id}-help`}>{helpText}</p>}
+  <label for={id} class={styles.trigger}>{label}</label>
+  <p id={statusId} class={styles.status} role="status" data-drop-status></p>
 </div>
+
 <script>
-  document.querySelectorAll<HTMLElement>('[data-drop-zone]').forEach((zone) => {
-    const input = zone.querySelector<HTMLInputElement>('[data-drop-input]');
-    const trigger = zone.querySelector<HTMLButtonElement>('[data-drop-trigger]');
-    if (!input || !trigger || zone.dataset.disabled === 'true') return;
-    trigger.addEventListener('click', () => input.click());
-    zone.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      zone.dataset.dragging = 'true';
-    });
-    zone.addEventListener('dragleave', () => {
-      delete zone.dataset.dragging;
-    });
-    zone.addEventListener('drop', (event) => {
-      event.preventDefault();
-      delete zone.dataset.dragging;
-      if (!event.dataTransfer?.files.length) return;
-      input.dispatchEvent(
-        new CustomEvent('noduct:files', { bubbles: true, detail: event.dataTransfer.files })
-      );
-    });
-  });
+  import { initializeDropZones } from '../file-workflow/drop-zone-runtime';
+  initializeDropZones(document);
 </script>

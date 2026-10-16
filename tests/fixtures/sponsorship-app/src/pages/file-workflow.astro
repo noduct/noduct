@@ -1,0 +1,124 @@
+---
+import DropZone from '../../../../../packages/design-system/src/components/DropZone.astro';
+import ReorderableList from '../../../../../packages/design-system/src/components/ReorderableList.astro';
+import ProcessingFeedback from '../../../../../packages/design-system/src/components/ProcessingFeedback.astro';
+import DownloadCard from '../../../../../packages/design-system/src/components/DownloadCard.astro';
+import '../../../../../packages/design-system/src/tokens.css';
+---
+
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>File workflow component fixture</title>
+  </head>
+  <body>
+    <main>
+      <h1>File workflow fixture</h1>
+      <DropZone id="pdf-files" label="Choose PDF files" description="Drop PDF files here" />
+      <ReorderableList id="selected-files" label="Selected files" />
+      <button id="process" type="button">Process files</button>
+      <ProcessingFeedback label="Merging files" status="Preparing files" hidden />
+      <DownloadCard id="result" hidden />
+    </main>
+    <script>
+      import {
+        CANCEL_EVENT,
+        FILES_SELECTED_EVENT,
+        LIST_CHANGE_EVENT,
+        RESTART_EVENT,
+        getDownloadCard,
+        getProcessingFeedback,
+        getReorderableList,
+        type FileListItem,
+        type FilesSelectedDetail,
+        type ListChangeDetail
+      } from '../../../../../packages/design-system/src/file-workflow';
+
+      const listRoot = document.querySelector<HTMLElement>('[data-reorderable-list]')!;
+      const feedbackRoot = document.querySelector<HTMLElement>('[data-processing-feedback]')!;
+      const cardRoot = document.querySelector<HTMLElement>('[data-download-card]')!;
+      const list = getReorderableList(listRoot)!;
+      const feedback = getProcessingFeedback(feedbackRoot)!;
+      const card = getDownloadCard(cardRoot)!;
+      const files = new Map<string, FileListItem>();
+      let order: string[] = [];
+      let timer: ReturnType<typeof setInterval> | undefined;
+      let sequence = 0;
+
+      document.addEventListener(FILES_SELECTED_EVENT, (event) => {
+        const { accepted } = (event as CustomEvent<FilesSelectedDetail>).detail;
+        for (const file of accepted) {
+          const id = `file-${++sequence}`;
+          files.set(id, { id, name: file.name, size: file.size, pageCount: sequence });
+          order.push(id);
+        }
+        list.setItems(order.flatMap((id) => files.get(id) ?? []));
+      });
+      document.addEventListener(LIST_CHANGE_EVENT, (event) => {
+        order = (event as CustomEvent<ListChangeDetail>).detail.ids;
+        document.body.dataset.order = order.join(',');
+      });
+      document.querySelector('#process')?.addEventListener('click', () => {
+        let value = 0;
+        feedbackRoot.hidden = false;
+        feedback.update({ status: 'Merging files', value });
+        timer = setInterval(() => {
+          value += 25;
+          feedback.update({ status: 'Merging files', value });
+          if (value < 100) return;
+          clearInterval(timer);
+          feedbackRoot.hidden = true;
+          card.show({ file: new Blob(['%PDF-1.7']), fileName: 'merged.pdf' });
+        }, 200);
+      });
+      document.addEventListener(CANCEL_EVENT, () => {
+        clearInterval(timer);
+        document.body.dataset.cancelled = 'true';
+      });
+      document.addEventListener(RESTART_EVENT, () => {
+        files.clear();
+        order = [];
+        list.setItems([]);
+        document.querySelector<HTMLInputElement>('#pdf-files')?.focus();
+      });
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  body {
+    margin: 0;
+    background: var(--color-background);
+    color: var(--color-text);
+    font:
+      16px/1.5 system-ui,
+      sans-serif;
+  }
+  main {
+    display: grid;
+    gap: 16px;
+    width: min(calc(100% - 32px), 720px);
+    margin: 24px auto;
+  }
+  h1 {
+    margin: 0;
+    font-size: 26px;
+  }
+  #process {
+    justify-self: start;
+    min-height: 44px;
+    padding: 8px 16px;
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    font: inherit;
+  }
+  #process:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+</style>

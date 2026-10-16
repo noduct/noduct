@@ -1,71 +1,39 @@
 ---
-export interface Item {
-  id: string;
-  name: string;
-  detail?: string;
-}
+import ReorderableItemMarkup from './ReorderableItemMarkup.astro';
+import type { FileListItem } from '../file-workflow/contracts';
+import { fileWorkflowMessages } from '../file-workflow/messages';
+import type { DesignLocale } from '../i18n';
+import styles from './ReorderableList.module.css';
+
 export interface Props {
-  items: readonly Item[];
+  id: string;
   label: string;
+  items?: readonly FileListItem[];
+  locale?: DesignLocale;
 }
-const { items, label } = Astro.props;
+
+const { id, label, items = [], locale = 'en' } = Astro.props;
+const instructionsId = `${id}-instructions`;
 ---
 
-<ol aria-label={label} data-reorder-list>
-  {
-    items.map((item, index) => (
-      <li data-item-id={item.id}>
-        <>
-          <span>
-            <strong>{item.name}</strong>
-            {item.detail && <small>{item.detail}</small>}
-          </span>
-          <button type="button" data-move="up" disabled={index === 0}>
-            Move up
-          </button>
-          <button type="button" data-move="down" disabled={index === items.length - 1}>
-            Move down
-          </button>
-          <button type="button" data-remove>
-            Remove
-          </button>
-        </>
-      </li>
-    ))
-  }
-</ol>
-<p aria-live="polite" class="sr-only" data-reorder-status></p>
+<div class={styles.root} data-reorderable-list data-locale={locale}>
+  <p id={instructionsId} class={styles.srOnly}>
+    {fileWorkflowMessages[locale].reorderInstructions}
+  </p>
+  <ol id={id} class={styles.list} aria-label={label} tabindex="-1" data-reorder-items>
+    {
+      items.map((item) => (
+        <ReorderableItemMarkup item={item} instructionsId={instructionsId} locale={locale} />
+      ))
+    }
+  </ol>
+  <template data-reorder-template>
+    <ReorderableItemMarkup instructionsId={instructionsId} locale={locale} />
+  </template>
+  <p class={styles.srOnly} aria-live="polite" data-reorder-status></p>
+</div>
+
 <script>
-  document.querySelectorAll<HTMLOListElement>('[data-reorder-list]').forEach((list) => {
-    const status = list.parentElement?.querySelector<HTMLElement>('[data-reorder-status]');
-    list.addEventListener('click', (event) => {
-      const button = (event.target as Element).closest<HTMLButtonElement>('button');
-      const item = button?.closest<HTMLLIElement>('li');
-      if (!button || !item) return;
-      if (button.dataset.move === 'up' && item.previousElementSibling) {
-        list.insertBefore(item, item.previousElementSibling);
-        status && (status.textContent = `${item.textContent?.trim()} moved up.`);
-        button.focus();
-      }
-      if (button.dataset.move === 'down' && item.nextElementSibling) {
-        list.insertBefore(item.nextElementSibling, item);
-        status && (status.textContent = `${item.textContent?.trim()} moved down.`);
-        button.focus();
-      }
-      if (button.hasAttribute('data-remove')) {
-        const next =
-          item.nextElementSibling?.querySelector<HTMLButtonElement>('button') ??
-          item.previousElementSibling?.querySelector<HTMLButtonElement>('button');
-        item.remove();
-        status && (status.textContent = 'Item removed.');
-        next?.focus();
-      }
-      list.dispatchEvent(
-        new CustomEvent('noduct:reorder', {
-          bubbles: true,
-          detail: [...list.querySelectorAll('li')].map((entry) => entry.dataset.itemId)
-        })
-      );
-    });
-  });
+  import { initializeReorderableLists } from '../file-workflow/reorderable-list-runtime';
+  initializeReorderableLists(document);
 </script>
