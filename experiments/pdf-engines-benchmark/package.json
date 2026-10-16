@@ -1,0 +1,14 @@
+{
+  "name": "@tolvira/pdf-engines-benchmark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:fixtures": "node scripts/generate-fixtures.mjs",
+    "benchmark": "node scripts/benchmark.mjs",
+    "benchmark:browsers": "node scripts/browser-benchmark.mjs"
+  },
+  "dependencies": {
+    "pdf-lib": "1.17.1",
+    "tolvira-workspace": "file:../.."
+  }
+}
