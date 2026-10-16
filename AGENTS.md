@@ -57,3 +57,10 @@ Estas regras se aplicam a todo o repositório.
 - Trate epics como issues do GitHub, organizadas por labels, milestone e referências; não crie automações acopladas a números de issues ou epics.
 - Nunca exponha, registre ou versione tokens. Use `GITHUB_TOKEN` (preferido), `GH_TOKEN` ou `GITHUB_ACCESS_TOKEN` no ambiente de execução ou no `.env` local e ignorado pelo Git.
 - Leia `scripts/github/README.md` para a referência de recursos, payloads e protocolo para agentes.
+
+## Fluxo de branches por épico
+
+- Todo épico deve ter uma branch de integração `epic/<slug>` criada a partir de `main`.
+- Cada issue do épico deve usar uma branch própria criada a partir da branch do épico e ser integrada de volta nela após validação.
+- Não integre branches de issues diretamente em `main`. A integração em `main` ocorre somente ao final do épico, depois da validação conjunta na branch `epic/<slug>`.
+- Épicos simultâneos usam branches de integração distintas para permitir testes granulares e isolamento de mudanças.
