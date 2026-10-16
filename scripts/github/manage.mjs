@@ -1,191 +1,271 @@
-import { ghApi, DEFAULT_REPO } from './client.mjs';
-import fs from 'fs';
-import path from 'path';
+#!/usr/bin/env node
+import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { ghApi, validateRepo } from './client.mjs';
 
-const [,, command, ...args] = process.argv;
+const HELP = `GitHub automation CLI for AI agents
 
-function printUsage() {
-  console.log(`
-Uso do Gerenciador de Issues Tolvira:
+Usage: node scripts/github/manage.mjs <resource> <action> [...arguments] [options]
 
-  node scripts/github/manage.mjs publish <caminho-issues.json> [milestoneNumber]
-    -> Publica uma lista de issues a partir de um JSON e gera registro com IDs criados.
+Resources:
+  issue     get <number> | list | create <payload> | update <number> <payload> | close <number> [--comment <text>] | comment <number> <text>
+  milestone get <number> | list | create <payload> | update <number> <payload> | close <number>
+  branch    get <name> | list | create <name> [--from <sha-or-branch>] | delete <name>
+  pull      get <number> | list | create <payload> | update <number> <payload> | merge <number> [--method merge|squash|rebase]
 
-  node scripts/github/manage.mjs update <issueNumber> <patchJsonOuArquivoMd>
-    -> Atualiza o título, corpo ou labels de uma issue específica. Se o segundo argumento for um .md, atualiza o body.
+Options:
+  --repo OWNER/REPOSITORY  Target repository (then GITHUB_REPOSITORY, then git origin).
+  --execute                Required for remote mutations; otherwise prints a dry-run plan.
+  --state open|closed|all  Filter list commands (default: open).
+  --label <name>           Filter issue list; can be repeated.
+  --milestone <number>     Filter issue list.
+  --limit <1-100>          List page size (default: 100).
+  --comment <text>         Closing comment for an issue.
+  --from <sha-or-branch>   Source for branch creation.
+  --method <name>          Merge method (default: squash).
 
-  node scripts/github/manage.mjs close <issueNumber> [comentario]
-    -> Fecha uma issue com estado 'completed', opcionalmente adicionando um comentário explicativo.
+Payloads are inline JSON or paths to UTF-8 JSON files. Run with --execute only after checking the dry-run plan.
+`;
 
-  node scripts/github/manage.mjs get <issueNumber>
-    -> Retorna os detalhes em JSON da issue (título, labels, milestone, status, corpo).
-
-  node scripts/github/manage.mjs list [milestoneNumber]
-    -> Lista as issues abertas, opcionalmente filtrando por milestone.
-`);
+function fail(message) {
+  throw new Error(message);
 }
-
-async function handlePublish(jsonFile, milestoneStr) {
-  if (!jsonFile || !fs.existsSync(jsonFile)) {
-    console.error(`Erro: Arquivo JSON não encontrado: ${jsonFile}`);
-    process.exit(1);
+function parseArguments(argv) {
+  const positionals = [];
+  const options = { labels: [] };
+  for (let index = 0; index < argv.length; index += 1) {
+    const value = argv[index];
+    if (!value.startsWith('--')) {
+      positionals.push(value);
+      continue;
+    }
+    const key = value.slice(2);
+    if (key === 'help') positionals.push('help');
+    else if (key === 'execute') options.execute = true;
+    else if (key === 'label')
+      options.labels.push(argv[++index] ?? fail('--label requires a value'));
+    else if (['repo', 'state', 'milestone', 'limit', 'comment', 'from', 'method'].includes(key))
+      options[key] = argv[++index] ?? fail(`--${key} requires a value`);
+    else fail(`Unknown option --${key}`);
   }
-
-  const milestoneNumber = milestoneStr ? parseInt(milestoneStr, 10) : undefined;
-  const issues = JSON.parse(fs.readFileSync(jsonFile, 'utf8'));
-
-  console.log(`Iniciando publicação de ${issues.length} issues em ${DEFAULT_REPO}...`);
-  const results = [];
-
-  for (let i = 0; i < issues.length; i++) {
-    const item = issues[i];
-    console.log(`[${i + 1}/${issues.length}] Criando: ${item.title}`);
-
-    const payload = {
-      title: item.title,
-      body: item.body,
-      labels: item.labels || ['task', 'pdf'],
-      ...(milestoneNumber ? { milestone: milestoneNumber } : (item.milestone ? { milestone: item.milestone } : {}))
+  return { positionals, options };
+}
+function repoFromGitRemote() {
+  try {
+    const remote = execFileSync('git', ['remote', 'get-url', 'origin'], {
+      encoding: 'utf8'
+    }).trim();
+    return remote.match(/(?:github\.com[:/])([^/]+\/[^/.]+)(?:\.git)?$/)?.[1];
+  } catch {
+    return undefined;
+  }
+}
+function resolveRepo(value) {
+  return validateRepo(
+    value ||
+      process.env.GITHUB_REPOSITORY ||
+      repoFromGitRemote() ||
+      fail('Repository missing. Pass --repo OWNER/REPOSITORY.')
+  );
+}
+function number(value, label) {
+  if (!/^\d+$/.test(value ?? '')) fail(`${label} must be a positive integer.`);
+  return Number(value);
+}
+function payload(value) {
+  if (!value) fail('A JSON payload or path to a JSON file is required.');
+  const source = fs.existsSync(value) ? fs.readFileSync(value, 'utf8') : value;
+  try {
+    const parsed = JSON.parse(source);
+    if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object')
+      fail('Payload must be a JSON object.');
+    return parsed;
+  } catch (error) {
+    if (error.message === 'Payload must be a JSON object.') throw error;
+    fail(`Invalid JSON payload: ${error.message}`);
+  }
+}
+function plainText(value) {
+  if (!value) fail('Text or a path to a text file is required.');
+  return fs.existsSync(value) ? fs.readFileSync(value, 'utf8') : value;
+}
+function output(value) {
+  process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+}
+async function mutate(options, request) {
+  if (!options.execute) {
+    output({
+      dryRun: true,
+      message: 'No remote change was made. Re-run with --execute to apply.',
+      request
+    });
+    return null;
+  }
+  return ghApi(request.endpoint, {
+    method: request.method,
+    ...(request.body ? { body: JSON.stringify(request.body) } : {})
+  });
+}
+function listQuery(options) {
+  const query = new URLSearchParams({
+    state: options.state ?? 'open',
+    per_page: String(number(options.limit ?? '100', 'limit'))
+  });
+  if (options.milestone) query.set('milestone', String(number(options.milestone, 'milestone')));
+  if (options.labels.length) query.set('labels', options.labels.join(','));
+  return query;
+}
+async function issues(repo, action, args, options) {
+  const base = `/repos/${repo}/issues`;
+  if (action === 'get') return ghApi(`${base}/${number(args[0], 'Issue number')}`);
+  if (action === 'list') return ghApi(`${base}?${listQuery(options)}`);
+  if (action === 'create')
+    return mutate(options, { method: 'POST', endpoint: base, body: payload(args[0]) });
+  if (action === 'update')
+    return mutate(options, {
+      method: 'PATCH',
+      endpoint: `${base}/${number(args[0], 'Issue number')}`,
+      body: payload(args[1])
+    });
+  if (action === 'comment')
+    return mutate(options, {
+      method: 'POST',
+      endpoint: `${base}/${number(args[0], 'Issue number')}/comments`,
+      body: { body: plainText(args[1]) }
+    });
+  if (action === 'close') {
+    const issue = number(args[0], 'Issue number');
+    const closeRequest = {
+      method: 'PATCH',
+      endpoint: `${base}/${issue}`,
+      body: { state: 'closed', state_reason: 'completed' }
     };
-
-    const res = await ghApi(`/repos/${DEFAULT_REPO}/issues`, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-
-    console.log(`   -> Criada com sucesso: #${res.number} (${res.html_url})`);
-    results.push({
-      key: item.key || `issue-${i + 1}`,
-      number: res.number,
-      title: item.title,
-      url: res.html_url,
-      milestone: payload.milestone
-    });
-
-    // Pausa preventiva para respeitar limites secundários da API
-    await new Promise(r => setTimeout(r, 1200));
-  }
-
-  const logDir = path.resolve(process.cwd(), '.agents', 'logs');
-  fs.mkdirSync(logDir, { recursive: true });
-  const logFile = path.join(logDir, `published-${Date.now()}.json`);
-  fs.writeFileSync(logFile, JSON.stringify(results, null, 2));
-  console.log(`\nPublicação concluída! Registro salvo em: ${logFile}`);
-}
-
-async function handleUpdate(issueNumberStr, updateInput) {
-  if (!issueNumberStr || !updateInput) {
-    printUsage();
-    process.exit(1);
-  }
-
-  const issueNumber = parseInt(issueNumberStr, 10);
-  let payload = {};
-
-  if (fs.existsSync(updateInput)) {
-    const content = fs.readFileSync(updateInput, 'utf8');
-    if (updateInput.endsWith('.json')) {
-      payload = JSON.parse(content);
-    } else {
-      payload = { body: content };
+    if (!options.execute) {
+      const requests = options.comment
+        ? [
+            {
+              method: 'POST',
+              endpoint: `${base}/${issue}/comments`,
+              body: { body: options.comment }
+            },
+            closeRequest
+          ]
+        : [closeRequest];
+      output({
+        dryRun: true,
+        message: 'No remote change was made. Re-run with --execute to apply.',
+        requests
+      });
+      return null;
     }
-  } else {
-    try {
-      payload = JSON.parse(updateInput);
-    } catch {
-      payload = { body: updateInput };
+    if (options.comment) {
+      await ghApi(`${base}/${issue}/comments`, {
+        method: 'POST',
+        body: JSON.stringify({ body: options.comment })
+      });
     }
+    return mutate(options, closeRequest);
   }
-
-  console.log(`Atualizando issue #${issueNumber} em ${DEFAULT_REPO}...`);
-  const res = await ghApi(`/repos/${DEFAULT_REPO}/issues/${issueNumber}`, {
-    method: 'PATCH',
-    body: JSON.stringify(payload)
-  });
-
-  console.log(`Issue #${issueNumber} atualizada com sucesso! (${res.html_url})`);
+  fail(`Unknown issue action "${action}".`);
 }
-
-async function handleClose(issueNumberStr, comment) {
-  if (!issueNumberStr) {
-    printUsage();
-    process.exit(1);
-  }
-
-  const issueNumber = parseInt(issueNumberStr, 10);
-
-  if (comment) {
-    console.log(`Adicionando comentário de encerramento em #${issueNumber}...`);
-    await ghApi(`/repos/${DEFAULT_REPO}/issues/${issueNumber}/comments`, {
+async function milestones(repo, action, args, options) {
+  const base = `/repos/${repo}/milestones`;
+  if (action === 'list') return ghApi(`${base}?${listQuery(options)}`);
+  if (action === 'get') return ghApi(`${base}/${number(args[0], 'Milestone number')}`);
+  if (action === 'create')
+    return mutate(options, { method: 'POST', endpoint: base, body: payload(args[0]) });
+  if (action === 'update')
+    return mutate(options, {
+      method: 'PATCH',
+      endpoint: `${base}/${number(args[0], 'Milestone number')}`,
+      body: payload(args[1])
+    });
+  if (action === 'close')
+    return mutate(options, {
+      method: 'PATCH',
+      endpoint: `${base}/${number(args[0], 'Milestone number')}`,
+      body: { state: 'closed' }
+    });
+  fail(`Unknown milestone action "${action}".`);
+}
+async function branches(repo, action, args, options) {
+  const refBase = `/repos/${repo}/git/ref`;
+  if (action === 'list')
+    return ghApi(`/repos/${repo}/branches?per_page=${number(options.limit ?? '100', 'limit')}`);
+  if (action === 'get')
+    return ghApi(
+      `/repos/${repo}/branches/${encodeURIComponent(args[0] ?? fail('Branch name is required.'))}`
+    );
+  if (action === 'create') {
+    const name = args[0] ?? fail('Branch name is required.');
+    if (!options.execute) {
+      output({
+        dryRun: true,
+        message: 'No remote change was made. Re-run with --execute to apply.',
+        request: {
+          method: 'POST',
+          endpoint: refBase.replace('/ref', '/refs'),
+          body: { ref: `refs/heads/${name}`, from: options.from ?? '<repository default branch>' }
+        }
+      });
+      return null;
+    }
+    const source = options.from ?? (await ghApi(`/repos/${repo}`)).default_branch;
+    const reference = await ghApi(`${refBase}/heads/${encodeURIComponent(source)}`);
+    return mutate(options, {
       method: 'POST',
-      body: JSON.stringify({ body: comment })
+      endpoint: refBase.replace('/ref', '/refs'),
+      body: { ref: `refs/heads/${name}`, sha: reference.object.sha }
     });
   }
-
-  console.log(`Fechando issue #${issueNumber}...`);
-  const res = await ghApi(`/repos/${DEFAULT_REPO}/issues/${issueNumber}`, {
-    method: 'PATCH',
-    body: JSON.stringify({ state: 'closed', state_reason: 'completed' })
-  });
-
-  console.log(`Issue #${issueNumber} fechada com sucesso! (${res.html_url})`);
+  if (action === 'delete')
+    return mutate(options, {
+      method: 'DELETE',
+      endpoint: `${refBase}/heads/${encodeURIComponent(args[0] ?? fail('Branch name is required.'))}`
+    });
+  fail(`Unknown branch action "${action}".`);
 }
-
-async function handleGet(issueNumberStr) {
-  if (!issueNumberStr) {
-    printUsage();
-    process.exit(1);
-  }
-
-  const issueNumber = parseInt(issueNumberStr, 10);
-  const issue = await ghApi(`/repos/${DEFAULT_REPO}/issues/${issueNumber}`);
-
-  console.log(JSON.stringify({
-    number: issue.number,
-    title: issue.title,
-    state: issue.state,
-    milestone: issue.milestone ? { number: issue.milestone.number, title: issue.milestone.title } : null,
-    labels: issue.labels.map(l => l.name),
-    url: issue.html_url,
-    body: issue.body
-  }, null, 2));
+async function pulls(repo, action, args, options) {
+  const base = `/repos/${repo}/pulls`;
+  if (action === 'list') return ghApi(`${base}?${listQuery(options)}`);
+  if (action === 'get') return ghApi(`${base}/${number(args[0], 'Pull request number')}`);
+  if (action === 'create')
+    return mutate(options, { method: 'POST', endpoint: base, body: payload(args[0]) });
+  if (action === 'update')
+    return mutate(options, {
+      method: 'PATCH',
+      endpoint: `${base}/${number(args[0], 'Pull request number')}`,
+      body: payload(args[1])
+    });
+  if (action === 'merge')
+    return mutate(options, {
+      method: 'PUT',
+      endpoint: `${base}/${number(args[0], 'Pull request number')}/merge`,
+      body: { merge_method: options.method ?? 'squash' }
+    });
+  fail(`Unknown pull action "${action}".`);
 }
-
-async function handleList(milestoneStr) {
-  const milestoneParam = milestoneStr ? `&milestone=${milestoneStr}` : '';
-  const issues = await ghApi(`/repos/${DEFAULT_REPO}/issues?state=open&per_page=100${milestoneParam}`);
-
-  console.log(`Issues encontradas (${issues.length}):`);
-  for (const item of issues) {
-    const ms = item.milestone ? `[${item.milestone.title}]` : '[Sem marco]';
-    console.log(`- #${item.number} ${ms} ${item.title}`);
-  }
-}
-
 async function main() {
-  switch (command) {
-    case 'publish':
-      await handlePublish(args[0], args[1]);
-      break;
-    case 'update':
-      await handleUpdate(args[0], args[1]);
-      break;
-    case 'close':
-      await handleClose(args[0], args[1]);
-      break;
-    case 'get':
-      await handleGet(args[0]);
-      break;
-    case 'list':
-      await handleList(args[0]);
-      break;
-    default:
-      printUsage();
-      break;
+  const { positionals, options } = parseArguments(process.argv.slice(2));
+  if (!positionals.length || positionals[0] === '--help' || positionals[0] === 'help') {
+    process.stdout.write(HELP);
+    return;
   }
+  const [resource, action, ...args] = positionals;
+  const repo = resolveRepo(options.repo);
+  const result =
+    resource === 'issue'
+      ? await issues(repo, action, args, options)
+      : resource === 'milestone'
+        ? await milestones(repo, action, args, options)
+        : resource === 'branch'
+          ? await branches(repo, action, args, options)
+          : resource === 'pull'
+            ? await pulls(repo, action, args, options)
+            : fail(`Unknown resource "${resource}".`);
+  if (result !== null) output(result);
 }
-
-main().catch(err => {
-  console.error('Erro na execução do comando:', err.message);
-  process.exit(1);
+main().catch((error) => {
+  process.stderr.write(`Error: ${error.message}\n`);
+  process.exitCode = 1;
 });

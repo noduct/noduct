@@ -41,3 +41,12 @@ Estas regras se aplicam a todo o repositório.
 - Atualize a documentação quando contratos, estrutura ou operação mudarem.
 - Não versionar secrets, dados financeiros, contatos privados ou conteúdo de arquivos de usuários.
 - Não criar repositórios remotos ou publicar sem autorização explícita.
+
+## Automação do GitHub
+
+- Para consultar ou alterar GitHub, use `node scripts/github/manage.mjs` em vez de montar chamadas HTTP, comandos `gh` ou scripts pontuais.
+- Informe `--repo OWNER/REPOSITORY` sempre que o repositório não estiver inequivocamente definido pelo remoto `origin`.
+- Antes de qualquer mutação, consulte o recurso (`get` ou `list`) e execute o comando sem `--execute` para revisar o plano. Use `--execute` apenas quando o alvo e o payload estiverem confirmados.
+- Trate epics como issues do GitHub, organizadas por labels, milestone e referências; não crie automações acopladas a números de issues ou epics.
+- Nunca exponha, registre ou versione tokens. Use `GITHUB_TOKEN` (preferido), `GH_TOKEN` ou `GITHUB_ACCESS_TOKEN` no ambiente de execução ou no `.env` local e ignorado pelo Git.
+- Leia `scripts/github/README.md` para a referência de recursos, payloads e protocolo para agentes.

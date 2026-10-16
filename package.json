@@ -24,7 +24,8 @@
     "validate:seo": "tsx scripts/validate-seo.ts",
     "validate:i18n": "tsx scripts/validate-i18n.ts",
     "check:sponsors": "tsx scripts/validate-sponsors.ts",
-    "validate:sponsorship-registry": "tsx scripts/validate-sponsorship-registry.ts"
+    "validate:sponsorship-registry": "tsx scripts/validate-sponsorship-registry.ts",
+    "github": "node scripts/github/manage.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
