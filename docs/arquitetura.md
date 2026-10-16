@@ -2,18 +2,24 @@
 
 ## Objetivo
 
-Separar descoberta, identidade e governança no hub de cada motor de ferramenta. O hub é um site Astro totalmente estático; cada ferramenta futura é outro site Astro em seu próprio project site.
+Noduct é uma suíte estática de ferramentas client-side. O hub cuida de descoberta e catálogo; ferramentas independentes cuidam do processamento local. Todos os sites usam a mesma origem para compartilhar com segurança controlada o Local Workspace e os tickets de transferência.
 
-## Decisões
+## Pacotes e dependências
 
-`src/data/tools.ts` é a fonte de verdade. Páginas, busca e categorias derivam dela. Itens `planned` aparecem apenas como roadmap sem link; `beta` e `published` exigem URL real. O HTML essencial é gerado no build e o JavaScript do navegador se restringe a busca, menu e tema.
+- `@noduct/tool-runtime`: TypeScript puro e fonte única de topologia, locales, SEO, taxonomia e `defineTool()`;
+- `@noduct/design-system`: tokens, shell e componentes acessíveis; depende apenas do runtime entre os pacotes estruturais;
+- `@noduct/workspace-core`: persistência IndexedDB, coordenação entre abas e transferências;
+- `@noduct/pdf-core`: domínio de processamento PDF, sem DOM;
+- ferramentas Astro: compõem shell, componentes e pacotes de domínio.
 
-O workspace contém pacotes extraíveis. `packages/design-system` concentra tokens; `packages/tool-template` comprova o contrato de uma aplicação independente. Consulte `estrutura-repositorios.md` para separar os pacotes.
+O runtime não depende de pacote interno. O design system não importa hub nem pacotes de domínio. O hub não importa `pdf-core` ou `workspace-core`. Consumidores usam somente exports públicos.
 
-Componentes do hub adotam CSS Modules como convenção principal. `styles/tokens.css`, `styles/themes.css` e `styles/global.css` permanecem globais por tratarem de fundações transversais. `features/` expõe fronteiras funcionais de busca e catálogo; páginas devem se limitar à composição. As regras permanentes para agentes estão em `AGENTS.md`.
+## Topologia e publicação
 
-## Validação e limitações
+O hub ocupa `/`, `/pt-br/` e `/es/`. Cada ferramenta ocupa `/<slug>/`, `/<slug>/pt-br/` e `/<slug>/es/`. `RESERVED_HUB_SEGMENTS` protege o namespace do hub. No monorepo, `scripts/assemble-pages.ts` descobre ferramentas por `noduct.slug`, monta `dist-pages/` e cria stubs transitórios do base antigo.
 
-Os [contratos de patrocínio v1](contratos-patrocinio.md) são compartilhados por `packages/design-system/src/sponsorship/` e reexportados por `src/features/sponsorship/`. A configuração administrativa pública fica em `sponsorship/`; os adaptadores anteriores do hub delegam a essa fonte. Campanhas exigem datas UTC e posicionamentos derivados do catálogo. O [registry estático](registry-patrocinio.md) é projetado por allowlist no build e consumido pelo cliente compartilhado sem rebuild das ferramentas.
+O catálogo tipado continua sendo a fonte de verdade para disponibilidade. Itens `planned` aparecem como roadmap sem link. HTML essencial é gerado estaticamente; JavaScript é seletivo e processamento de arquivos ocorre localmente.
 
-Execute `npm run validate`. O hub não executa processamento de arquivos e não possui backend. Disponibilidade de uma ferramenta depende do respectivo repositório e deploy.
+## Validação
+
+`validate:pages` verifica a correspondência entre topologia e artefato. ADRs 0003 e 0005 registram estratégia de extração, shell e guardrails. A definição completa de pronto é `npm run verify`.

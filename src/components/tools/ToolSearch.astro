@@ -4,7 +4,7 @@ import ToolCard from './ToolCard.astro';
 import { getCategory } from '@/data/categories';
 import type { ToolDefinition } from '@/types/tool';
 import { getMessages } from '@/i18n/messages';
-import { localizePath, type Locale } from '@/i18n/config';
+import type { Locale } from '@/i18n/config';
 import popover from '@/components/ui/Popover.module.css';
 
 interface Props {
@@ -57,8 +57,8 @@ const m = getMessages(locale);
     <template data-dropdown-items>
       {tools.map((tool) => {
         const cat = getCategory(tool.category, locale);
-        const url = tool.url || localizePath(tool.directoryUrl || `/tools/${tool.id}/`, locale);
-        const isClickable = tool.status === 'published' || tool.status === 'beta' || tool.status === 'ready';
+        const url = tool.url ?? '';
+        const isClickable = Boolean(tool.url);
 
         return (
           <li

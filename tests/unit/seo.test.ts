@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { createSeoMetadata } from '@/lib/seo';
 import type { Locale } from '@/i18n/config';
+import { topology } from '@noduct/tool-runtime';
 
 describe('localized canonical metadata', () => {
   it.each<[Locale, string]>([
-    ['en', '/noduct/privacy/'],
-    ['pt-BR', '/noduct/pt-br/privacy/'],
-    ['es', '/noduct/es/privacy/']
+    ['en', '/privacy/'],
+    ['pt-BR', '/pt-br/privacy/'],
+    ['es', '/es/privacy/']
   ])('keeps the %s version self-canonical', (locale, pathname) => {
     const metadata = createSeoMetadata(
       pathname,
@@ -16,7 +17,7 @@ describe('localized canonical metadata', () => {
       false,
       locale
     );
-    expect(metadata.canonical.href).toBe(`https://noduct.github.io${pathname}`);
-    expect(metadata.image.href).toBe('https://noduct.github.io/noduct/brand/og-image.png');
+    expect(metadata.canonical.href).toBe(`${topology.origin}${pathname}`);
+    expect(metadata.image.href).toBe(topology.hubAssetUrl('brand/og-image.png'));
   });
 });

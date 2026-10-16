@@ -1,10 +1,14 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { topology } from '@noduct/tool-runtime';
+import { tool } from './src/config.ts';
+
+// site e base vêm da topologia (ADR 0005): a ferramenta vive em /<slug>/ na mesma origem do hub.
+const { site, base } = topology.astro(tool.scope);
 
 export default defineConfig({
-  site: 'https://noduct.github.io/merge-pdf',
-  base: '/merge-pdf',
+  site,
+  base,
   output: 'static',
   integrations: [sitemap()]
 });
-

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { siteBasePath } from '../../src/i18n/config';
+import { topology } from '@noduct/tool-runtime';
 
 const routes = [
   '/',
@@ -27,16 +27,15 @@ test('all public routes have valid semantic and SEO essentials', async ({ page }
       if (message.type() === 'error') consoleErrors.push(message.text());
     };
     page.on('console', listener);
-    const response = await page.goto(`${siteBasePath}${route}`);
+    const response = await page.goto(topology.hubPath(route));
     expect(response?.ok(), `${route} should return success`).toBeTruthy();
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     expect(await page.title(), `${route} title`).not.toBe('');
     const description = await page.locator('meta[name="description"]').getAttribute('content');
     expect(description?.trim().length, `${route} description length`).toBeGreaterThanOrEqual(50);
-    const escapedRoute = `${siteBasePath}${route}`.replaceAll('/', '\\/');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
       'href',
-      new RegExp(`^https://noduct\\.github\\.io${escapedRoute}`)
+      topology.hubUrl(route)
     );
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('main')).toHaveCount(1);
@@ -61,7 +60,7 @@ test('all public routes have valid semantic and SEO essentials', async ({ page }
 });
 
 test('internal links, structured data, robots and sitemap are valid', async ({ page, request }) => {
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   const links = await page
     .locator('a[href^="/"]')
     .evaluateAll(
@@ -81,12 +80,10 @@ test('internal links, structured data, robots and sitemap are valid', async ({ p
   const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
   expect(jsonLd.length).toBeGreaterThan(0);
   for (const value of jsonLd) expect(() => JSON.parse(value)).not.toThrow();
-  const robots = await request.get(`${siteBasePath}/robots.txt`);
+  const robots = await request.get(topology.hubAssetPath('robots.txt'));
   expect(robots.ok()).toBeTruthy();
-  expect(await robots.text()).toContain(
-    `Sitemap: https://noduct.github.io${siteBasePath}/sitemap-index.xml`
-  );
-  const sitemap = await request.get(`${siteBasePath}/sitemap-index.xml`);
+  expect(await robots.text()).toContain(`Sitemap: ${topology.hubAssetUrl('sitemap-index.xml')}`);
+  const sitemap = await request.get(topology.hubAssetPath('sitemap-index.xml'));
   expect(sitemap.ok()).toBeTruthy();
   expect(await sitemap.text()).toContain('<sitemapindex');
 });
@@ -94,7 +91,7 @@ test('internal links, structured data, robots and sitemap are valid', async ({ p
 test('navigation, search, mobile menu and planned tool states behave correctly', async ({
   page
 }) => {
-  await page.goto(`${siteBasePath}/tools/`);
+  await page.goto(topology.hubPath('tools/'));
   await page.keyboard.press('Control+k');
   const search = page.getByRole('combobox');
   await expect(search).toBeFocused();
@@ -109,21 +106,19 @@ test('navigation, search, mobile menu and planned tool states behave correctly',
     await expect(menu).toHaveAttribute('aria-expanded', 'true');
     await expect(page.getByRole('link', { name: 'About', exact: true }).first()).toBeVisible();
   }
-  await page.goto(`${siteBasePath}/pdf-tools/`);
+  await page.goto(topology.hubPath('pdf-tools/'));
   const planned = page.locator('article').filter({ hasText: 'Planned' });
   expect(await planned.count()).toBeGreaterThan(0);
   await expect(planned.first().locator('a')).toHaveCount(0);
 });
 
 test('runtime payload stays lightweight', async ({ page }) => {
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   const resources = await page.evaluate(() =>
-    performance
-      .getEntriesByType('resource')
-      .map((entry) => ({
-        size: (entry as PerformanceResourceTiming).transferSize,
-        type: (entry as PerformanceResourceTiming).initiatorType
-      }))
+    performance.getEntriesByType('resource').map((entry) => ({
+      size: (entry as PerformanceResourceTiming).transferSize,
+      type: (entry as PerformanceResourceTiming).initiatorType
+    }))
   );
   const scripts = resources.filter((resource) => resource.type === 'script');
   expect(scripts.length).toBeLessThanOrEqual(3);

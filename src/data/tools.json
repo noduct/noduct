@@ -5,9 +5,14 @@
     "slug": "merge-pdf",
     "description": "Combine multiple PDF files into one document.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/merge-pdf/",
     "status": "planned",
-    "keywords": ["join", "combine", "pdf", "documents", "merge"],
+    "keywords": [
+      "join",
+      "combine",
+      "pdf",
+      "documents",
+      "merge"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -18,9 +23,13 @@
     "slug": "split-pdf",
     "description": "Separate a PDF into individual files.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/split-pdf/",
     "status": "planned",
-    "keywords": ["extract", "pages", "pdf", "separate"],
+    "keywords": [
+      "extract",
+      "pages",
+      "pdf",
+      "separate"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -31,9 +40,13 @@
     "slug": "compress-pdf",
     "description": "Reduce PDF file size while preserving readability.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/compress-pdf/",
     "status": "planned",
-    "keywords": ["optimize", "size", "shrink", "pdf"],
+    "keywords": [
+      "optimize",
+      "size",
+      "shrink",
+      "pdf"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -44,9 +57,14 @@
     "slug": "pdf-to-jpg",
     "description": "Convert PDF pages into JPG images.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/pdf-to-jpg/",
     "status": "planned",
-    "keywords": ["convert", "image", "jpg", "jpeg", "pdf"],
+    "keywords": [
+      "convert",
+      "image",
+      "jpg",
+      "jpeg",
+      "pdf"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -57,9 +75,14 @@
     "slug": "jpg-to-pdf",
     "description": "Combine JPG images into a PDF document.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/jpg-to-pdf/",
     "status": "planned",
-    "keywords": ["convert", "image", "jpg", "jpeg", "pdf"],
+    "keywords": [
+      "convert",
+      "image",
+      "jpg",
+      "jpeg",
+      "pdf"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -70,9 +93,14 @@
     "slug": "rotate-pdf",
     "description": "Rotate selected pages in a PDF document.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/rotate-pdf/",
     "status": "planned",
-    "keywords": ["pages", "orientation", "rotate", "turn", "pdf"],
+    "keywords": [
+      "pages",
+      "orientation",
+      "rotate",
+      "turn",
+      "pdf"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -83,9 +111,13 @@
     "slug": "extract-pdf-pages",
     "description": "Save selected pages as a new PDF.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/extract-pdf-pages/",
     "status": "planned",
-    "keywords": ["extract", "pages", "select", "pdf"],
+    "keywords": [
+      "extract",
+      "pages",
+      "select",
+      "pdf"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -96,9 +128,14 @@
     "slug": "reorder-pdf-pages",
     "description": "Arrange PDF pages into a new order.",
     "categoryId": "pdf-tools",
-    "directoryUrl": "/tools/reorder-pdf-pages/",
     "status": "planned",
-    "keywords": ["organize", "pages", "reorder", "sort", "pdf"],
+    "keywords": [
+      "organize",
+      "pages",
+      "reorder",
+      "sort",
+      "pdf"
+    ],
     "icon": "pdf",
     "featured": false,
     "visible": true
@@ -109,9 +146,14 @@
     "slug": "compress-image",
     "description": "Reduce image file size for faster sharing.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/compress-image/",
     "status": "planned",
-    "keywords": ["optimize", "photo", "compress", "size", "image"],
+    "keywords": [
+      "optimize",
+      "photo",
+      "compress",
+      "size",
+      "image"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -122,9 +164,14 @@
     "slug": "resize-image",
     "description": "Change image dimensions precisely.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/resize-image/",
     "status": "planned",
-    "keywords": ["dimensions", "scale", "width", "height", "image"],
+    "keywords": [
+      "dimensions",
+      "scale",
+      "width",
+      "height",
+      "image"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -135,9 +182,14 @@
     "slug": "crop-image",
     "description": "Trim an image to the area you need.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/crop-image/",
     "status": "planned",
-    "keywords": ["trim", "photo", "cut", "crop", "aspect"],
+    "keywords": [
+      "trim",
+      "photo",
+      "cut",
+      "crop",
+      "aspect"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -148,9 +200,14 @@
     "slug": "png-to-jpg",
     "description": "Convert PNG images into JPG format.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/png-to-jpg/",
     "status": "planned",
-    "keywords": ["convert", "image", "png", "jpg", "format"],
+    "keywords": [
+      "convert",
+      "image",
+      "png",
+      "jpg",
+      "format"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -161,9 +218,14 @@
     "slug": "jpg-to-png",
     "description": "Convert JPG images into PNG format.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/jpg-to-png/",
     "status": "planned",
-    "keywords": ["convert", "image", "jpg", "png", "format"],
+    "keywords": [
+      "convert",
+      "image",
+      "jpg",
+      "png",
+      "format"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -174,9 +236,14 @@
     "slug": "image-to-webp",
     "description": "Convert common image formats into WebP.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/image-to-webp/",
     "status": "planned",
-    "keywords": ["convert", "webp", "modern", "image", "format"],
+    "keywords": [
+      "convert",
+      "webp",
+      "modern",
+      "image",
+      "format"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -187,9 +254,14 @@
     "slug": "webp-to-png",
     "description": "Convert WebP images into PNG format.",
     "categoryId": "image-tools",
-    "directoryUrl": "/tools/webp-to-png/",
     "status": "planned",
-    "keywords": ["convert", "png", "webp", "image", "extract"],
+    "keywords": [
+      "convert",
+      "png",
+      "webp",
+      "image",
+      "extract"
+    ],
     "icon": "image",
     "featured": false,
     "visible": true
@@ -200,9 +272,14 @@
     "slug": "word-counter",
     "description": "Count words, characters and lines in text.",
     "categoryId": "text-tools",
-    "directoryUrl": "/tools/word-counter/",
     "status": "planned",
-    "keywords": ["count", "writing", "words", "lines", "stats"],
+    "keywords": [
+      "count",
+      "writing",
+      "words",
+      "lines",
+      "stats"
+    ],
     "icon": "text",
     "featured": false,
     "visible": true
@@ -213,9 +290,14 @@
     "slug": "character-counter",
     "description": "Count characters with or without spaces.",
     "categoryId": "text-tools",
-    "directoryUrl": "/tools/character-counter/",
     "status": "planned",
-    "keywords": ["count", "text", "characters", "letters", "spaces"],
+    "keywords": [
+      "count",
+      "text",
+      "characters",
+      "letters",
+      "spaces"
+    ],
     "icon": "text",
     "featured": false,
     "visible": true
@@ -226,9 +308,14 @@
     "slug": "case-converter",
     "description": "Transform text between common letter cases.",
     "categoryId": "text-tools",
-    "directoryUrl": "/tools/case-converter/",
     "status": "planned",
-    "keywords": ["uppercase", "lowercase", "titlecase", "camelcase", "slug"],
+    "keywords": [
+      "uppercase",
+      "lowercase",
+      "titlecase",
+      "camelcase",
+      "slug"
+    ],
     "icon": "text",
     "featured": false,
     "visible": true
@@ -239,9 +326,14 @@
     "slug": "text-diff-checker",
     "description": "Compare two texts and highlight differences.",
     "categoryId": "text-tools",
-    "directoryUrl": "/tools/text-diff-checker/",
     "status": "planned",
-    "keywords": ["compare", "difference", "diff", "changes", "text"],
+    "keywords": [
+      "compare",
+      "difference",
+      "diff",
+      "changes",
+      "text"
+    ],
     "icon": "text",
     "featured": false,
     "visible": true
@@ -252,9 +344,14 @@
     "slug": "remove-duplicate-lines",
     "description": "Remove repeated lines from text.",
     "categoryId": "text-tools",
-    "directoryUrl": "/tools/remove-duplicate-lines/",
     "status": "planned",
-    "keywords": ["deduplicate", "clean", "unique", "lines", "filter"],
+    "keywords": [
+      "deduplicate",
+      "clean",
+      "unique",
+      "lines",
+      "filter"
+    ],
     "icon": "text",
     "featured": false,
     "visible": true
@@ -265,9 +362,14 @@
     "slug": "remove-extra-spaces",
     "description": "Normalize repeated spaces and blank lines.",
     "categoryId": "text-tools",
-    "directoryUrl": "/tools/remove-extra-spaces/",
     "status": "planned",
-    "keywords": ["clean", "whitespace", "spaces", "trim", "normalize"],
+    "keywords": [
+      "clean",
+      "whitespace",
+      "spaces",
+      "trim",
+      "normalize"
+    ],
     "icon": "text",
     "featured": false,
     "visible": true
@@ -278,9 +380,14 @@
     "slug": "csv-viewer",
     "description": "Inspect CSV data in a readable table.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/csv-viewer/",
     "status": "planned",
-    "keywords": ["spreadsheet", "table", "csv", "data", "preview"],
+    "keywords": [
+      "spreadsheet",
+      "table",
+      "csv",
+      "data",
+      "preview"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -291,9 +398,14 @@
     "slug": "csv-to-json",
     "description": "Convert CSV records into JSON.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/csv-to-json/",
     "status": "planned",
-    "keywords": ["convert", "data", "csv", "json", "transform"],
+    "keywords": [
+      "convert",
+      "data",
+      "csv",
+      "json",
+      "transform"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -304,9 +416,14 @@
     "slug": "json-to-csv",
     "description": "Convert JSON arrays into CSV.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/json-to-csv/",
     "status": "planned",
-    "keywords": ["convert", "data", "json", "csv", "export"],
+    "keywords": [
+      "convert",
+      "data",
+      "json",
+      "csv",
+      "export"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -317,9 +434,14 @@
     "slug": "json-formatter",
     "description": "Format and inspect JSON data.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/json-formatter/",
     "status": "planned",
-    "keywords": ["pretty print", "indent", "format", "json", "beautify"],
+    "keywords": [
+      "pretty print",
+      "indent",
+      "format",
+      "json",
+      "beautify"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -330,9 +452,14 @@
     "slug": "json-validator",
     "description": "Check JSON syntax and identify errors.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/json-validator/",
     "status": "planned",
-    "keywords": ["validate", "syntax", "lint", "json", "errors"],
+    "keywords": [
+      "validate",
+      "syntax",
+      "lint",
+      "json",
+      "errors"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -343,9 +470,14 @@
     "slug": "xml-to-json",
     "description": "Convert XML documents into JSON.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/xml-to-json/",
     "status": "planned",
-    "keywords": ["convert", "data", "xml", "json", "parse"],
+    "keywords": [
+      "convert",
+      "data",
+      "xml",
+      "json",
+      "parse"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -356,9 +488,14 @@
     "slug": "yaml-to-json",
     "description": "Convert YAML documents into JSON.",
     "categoryId": "data-tools",
-    "directoryUrl": "/tools/yaml-to-json/",
     "status": "planned",
-    "keywords": ["convert", "data", "yaml", "yml", "json"],
+    "keywords": [
+      "convert",
+      "data",
+      "yaml",
+      "yml",
+      "json"
+    ],
     "icon": "data",
     "featured": false,
     "visible": true
@@ -369,9 +506,14 @@
     "slug": "base64-encoder",
     "description": "Encode and decode Base64 text.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/base64-encoder/",
     "status": "planned",
-    "keywords": ["decode", "encode", "base64", "b64", "developer"],
+    "keywords": [
+      "decode",
+      "encode",
+      "base64",
+      "b64",
+      "developer"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -382,9 +524,14 @@
     "slug": "url-encoder",
     "description": "Encode and decode URL components.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/url-encoder/",
     "status": "planned",
-    "keywords": ["percent", "decode", "encode", "uri", "url"],
+    "keywords": [
+      "percent",
+      "decode",
+      "encode",
+      "uri",
+      "url"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -395,9 +542,15 @@
     "slug": "jwt-decoder",
     "description": "Inspect JWT header and payload data.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/jwt-decoder/",
     "status": "planned",
-    "keywords": ["token", "decode", "jwt", "payload", "claims", "auth"],
+    "keywords": [
+      "token",
+      "decode",
+      "jwt",
+      "payload",
+      "claims",
+      "auth"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -408,9 +561,15 @@
     "slug": "uuid-generator",
     "description": "Generate random UUID values.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/uuid-generator/",
     "status": "planned",
-    "keywords": ["guid", "random", "uuid", "v4", "unique", "id"],
+    "keywords": [
+      "guid",
+      "random",
+      "uuid",
+      "v4",
+      "unique",
+      "id"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -421,9 +580,14 @@
     "slug": "regex-tester",
     "description": "Test regular expressions against text.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/regex-tester/",
     "status": "planned",
-    "keywords": ["pattern", "match", "regex", "regexp", "test"],
+    "keywords": [
+      "pattern",
+      "match",
+      "regex",
+      "regexp",
+      "test"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -434,9 +598,14 @@
     "slug": "hash-generator",
     "description": "Generate cryptographic hashes locally.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/hash-generator/",
     "status": "planned",
-    "keywords": ["checksum", "digest", "sha256", "md5", "hash"],
+    "keywords": [
+      "checksum",
+      "digest",
+      "sha256",
+      "md5",
+      "hash"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -447,9 +616,14 @@
     "slug": "unix-timestamp-converter",
     "description": "Convert Unix timestamps and dates.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/unix-timestamp-converter/",
     "status": "planned",
-    "keywords": ["epoch", "date", "time", "unix", "timestamp"],
+    "keywords": [
+      "epoch",
+      "date",
+      "time",
+      "unix",
+      "timestamp"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -460,9 +634,14 @@
     "slug": "cron-expression-parser",
     "description": "Explain and preview cron schedules.",
     "categoryId": "developer-tools",
-    "directoryUrl": "/tools/cron-expression-parser/",
     "status": "planned",
-    "keywords": ["schedule", "time", "cron", "parser", "crontab"],
+    "keywords": [
+      "schedule",
+      "time",
+      "cron",
+      "parser",
+      "crontab"
+    ],
     "icon": "developer",
     "featured": false,
     "visible": true
@@ -473,9 +652,14 @@
     "slug": "qr-code-generator",
     "description": "Create a QR code from text or a URL.",
     "categoryId": "general-utilities",
-    "directoryUrl": "/tools/qr-code-generator/",
     "status": "planned",
-    "keywords": ["barcode", "link", "qr", "qrcode", "generator"],
+    "keywords": [
+      "barcode",
+      "link",
+      "qr",
+      "qrcode",
+      "generator"
+    ],
     "icon": "general",
     "featured": false,
     "visible": true
@@ -486,9 +670,14 @@
     "slug": "password-generator",
     "description": "Generate strong passwords locally.",
     "categoryId": "general-utilities",
-    "directoryUrl": "/tools/password-generator/",
     "status": "planned",
-    "keywords": ["security", "random", "password", "passphrase", "crypto"],
+    "keywords": [
+      "security",
+      "random",
+      "password",
+      "passphrase",
+      "crypto"
+    ],
     "icon": "general",
     "featured": false,
     "visible": true
@@ -499,9 +688,14 @@
     "slug": "unit-converter",
     "description": "Convert common measurement units.",
     "categoryId": "general-utilities",
-    "directoryUrl": "/tools/unit-converter/",
     "status": "planned",
-    "keywords": ["measurement", "calculate", "units", "metric", "imperial"],
+    "keywords": [
+      "measurement",
+      "calculate",
+      "units",
+      "metric",
+      "imperial"
+    ],
     "icon": "general",
     "featured": false,
     "visible": true
@@ -512,9 +706,14 @@
     "slug": "percentage-calculator",
     "description": "Calculate percentages and changes.",
     "categoryId": "general-utilities",
-    "directoryUrl": "/tools/percentage-calculator/",
     "status": "planned",
-    "keywords": ["math", "calculate", "percentage", "percent", "discount"],
+    "keywords": [
+      "math",
+      "calculate",
+      "percentage",
+      "percent",
+      "discount"
+    ],
     "icon": "general",
     "featured": false,
     "visible": true
@@ -525,9 +724,14 @@
     "slug": "date-calculator",
     "description": "Calculate durations and date differences.",
     "categoryId": "general-utilities",
-    "directoryUrl": "/tools/date-calculator/",
     "status": "planned",
-    "keywords": ["time", "duration", "calendar", "days", "dates"],
+    "keywords": [
+      "time",
+      "duration",
+      "calendar",
+      "days",
+      "dates"
+    ],
     "icon": "general",
     "featured": false,
     "visible": true
@@ -538,9 +742,14 @@
     "slug": "color-converter",
     "description": "Convert color values between formats.",
     "categoryId": "general-utilities",
-    "directoryUrl": "/tools/color-converter/",
     "status": "planned",
-    "keywords": ["hex", "rgb", "hsl", "color", "palette"],
+    "keywords": [
+      "hex",
+      "rgb",
+      "hsl",
+      "color",
+      "palette"
+    ],
     "icon": "general",
     "featured": false,
     "visible": true

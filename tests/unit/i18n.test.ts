@@ -11,18 +11,19 @@ describe('internationalization', () => {
     expect(resolveBrowserLocale(['ja-JP', 'es'])).toBe('es');
   });
 
-  it('creates stable localized paths', () => {
-    expect(localizePath('/', 'en')).toBe('/noduct/');
-    expect(localizePath('/noduct/', 'pt-BR')).toBe('/noduct/pt-br/');
-    expect(localizePath('/noduct/pt-br/', 'es')).toBe('/noduct/es/');
-    expect(localizePath('/tools/', 'en')).toBe('/noduct/tools/');
-    expect(localizePath('/tools/', 'pt-BR')).toBe('/noduct/pt-br/tools/');
-    expect(localizePath('/es/tools/', 'pt-BR')).toBe('/noduct/pt-br/tools/');
+  it('creates stable localized paths at the hub root', () => {
+    expect(localizePath('/', 'en')).toBe('/');
+    expect(localizePath('/', 'pt-BR')).toBe('/pt-br/');
+    expect(localizePath('/pt-br/', 'es')).toBe('/es/');
+    expect(localizePath('/tools/', 'en')).toBe('/tools/');
+    expect(localizePath('/tools/', 'pt-BR')).toBe('/pt-br/tools/');
+    expect(localizePath('/es/tools/', 'pt-BR')).toBe('/pt-br/tools/');
+    expect(localizePath('/es/pdf-tools', 'en')).toBe('/pdf-tools/');
   });
 
-  it('preserves file paths under the GitHub Pages base', () => {
-    expect(assetPath('/brand/favicon.svg')).toBe('/noduct/brand/favicon.svg');
-    expect(assetPath('/brand/og-image.png')).toBe('/noduct/brand/og-image.png');
+  it('never prefixes public files with a locale', () => {
+    expect(assetPath('/brand/favicon.svg')).toBe('/brand/favicon.svg');
+    expect(assetPath('brand/og-image.png')).toBe('/brand/og-image.png');
   });
 
   it('has a complete localized catalog', () => {

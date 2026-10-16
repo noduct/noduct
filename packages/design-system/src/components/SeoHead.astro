@@ -1,28 +1,45 @@
 ---
+import { topology, type Alternate } from '@noduct/tool-runtime';
+
 interface Props {
   title: string;
   description: string;
   canonical: string;
   image?: string;
+  imageAlt?: string;
+  alternates?: readonly Alternate[];
   noindex?: boolean;
 }
 const {
   title,
   description,
   canonical,
-  image = 'https://noduct.github.io/noduct/brand/og-image.png',
+  image = topology.hubAssetUrl('brand/og-image.png'),
+  imageAlt = title,
+  alternates,
   noindex = false
 } = Astro.props;
+const parsed = topology.parse(canonical);
+const languageAlternates =
+  alternates ?? (parsed ? topology.alternates(parsed.scope, parsed.path) : []);
 ---
 
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex,nofollow" />}
+{
+  languageAlternates.map((alternate) => (
+    <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
+  ))
+}
+{noindex && <meta name="robots" content="noindex,follow" />}
+<meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: dark)" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Noduct" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={image} />
+<meta property="og:image:alt" content={imageAlt} />
 <meta name="twitter:card" content="summary_large_image" />

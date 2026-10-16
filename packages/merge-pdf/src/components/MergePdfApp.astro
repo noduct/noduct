@@ -8,7 +8,8 @@ import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
 import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
 import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
 import type { DesignLocale } from '@noduct/design-system';
-import { toolConfig } from '../config';
+import { topology } from '@noduct/tool-runtime';
+import { tool } from '../config';
 import { mergeMessages } from '../i18n';
 import styles from './MergePdfApp.module.css';
 
@@ -18,9 +19,11 @@ interface Props {
 
 const { locale = 'en' } = Astro.props;
 const m = mergeMessages[locale];
-const prefix = locale === 'en' ? '' : locale === 'pt-BR' ? 'pt-br/' : 'es/';
-const canonicalUrl = `${toolConfig.canonicalUrl}${prefix}`;
-const hubUrl = `https://noduct.github.io/${prefix}`;
+const canonicalUrl = topology.canonical(tool.scope, '', locale);
+// O ToolFrame aplica o prefixo de locale; ele recebe só a raiz do hub (evita o prefixo duplicado).
+const hubRoot = topology.hubUrl();
+const hubHome = topology.hubUrl('', locale);
+const categoryUrl = topology.hubUrl(`${tool.category}/`, locale);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -44,13 +47,13 @@ const jsonLd = {
           '@type': 'ListItem',
           position: 1,
           name: 'Noduct',
-          item: hubUrl
+          item: hubHome
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: m.category,
-          item: `${hubUrl}pdf-tools/`
+          item: categoryUrl
         },
         {
           '@type': 'ListItem',
@@ -73,15 +76,15 @@ const jsonLd = {
       title={`${m.name} | Noduct`}
       description={m.description}
       canonical={canonicalUrl}
-      noindex={!toolConfig.published}
+      noindex={!tool.published}
     />
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body>
-    <ToolFrame hubUrl={hubUrl} locale={locale}>
+    <ToolFrame hubUrl={hubRoot} locale={locale}>
       <nav class={styles.crumbs} aria-label={m.breadcrumb}>
-        <a href={hubUrl}>Noduct</a> /
-        <a href={`${hubUrl}pdf-tools/`}>{m.category}</a> /
+        <a href={hubHome}>Noduct</a> /
+        <a href={categoryUrl}>{m.category}</a> /
         <span aria-current="page">{m.name}</span>
       </nav>
 
@@ -153,9 +156,9 @@ const jsonLd = {
       </section>
 
       <SponsorshipSlot
-        placementId={toolConfig.sponsorPlacementId}
-        registryUrl={toolConfig.sponsorshipRegistryUrl}
-        enabled={toolConfig.sponsorshipEnabled}
+        placementId={tool.sponsorPlacementId}
+        registryUrl={topology.registryUrl}
+        enabled={tool.sponsorshipEnabled}
         locale={locale}
       />
 

@@ -2,37 +2,30 @@
 
 ## 1. Iniciar
 
-Crie um repositório a partir de `packages/tool-template` e use um slug inglês curto, por exemplo `word-counter`.
+Copie `packages/tool-template` para um novo workspace e escolha um slug inglês em kebab-case. O slug não pode pertencer a `RESERVED_HUB_SEGMENTS`.
 
-```bash
-cp -R packages/tool-template ../word-counter
-cd ../word-counter
-npm install
-npm run dev
+## 2. Declarar
+
+Declare a ferramenta uma única vez com `defineTool()` em `src/config.ts`. Origem, base, canonical, hreflang, links do hub e registry devem vir de `topology`; nunca monte URLs do produto manualmente.
+
+Enquanto a ferramenta não estiver lançada, mantenha `published: false`. Para incluí-la no artefato monorepo, adicione ao `package.json`:
+
+```json
+{
+  "noduct": { "slug": "word-counter" }
+}
 ```
 
-## 2. Configurar
-
-Troque nome do pacote, `site`, `base`, nome, slug, categoria, descrição, canonical e aviso de privacidade. O `base` deve ser `/<slug>`. Preserve `noindex` enquanto for demonstração.
+O slug precisa ser idêntico ao de `defineTool()`. O template não contém esse campo porque não é implantado.
 
 ## 3. Implementar
 
-Coloque a função antes de textos longos. Implemente estados idle/loading/success/error, entradas adequadas, preview/download quando necessário e limites explícitos. Se usar arquivos, teste drag and drop, múltiplos arquivos e memória. Reuse tokens do design system.
+Use o shell e o template compartilhados, traduza interface, erros e anúncios para en, pt-BR e es, e mantenha processamento de arquivos no cliente. Componentes visuais reutilizáveis pertencem ao design system; lógica de domínio não pertence às páginas Astro.
 
-## 4. Conteúdo e SEO
+## 4. SEO e catálogo
 
-Escreva title e description próprios, um H1, instruções reais, limitações, privacidade e FAQ somente quando útil. Adicione BreadcrumbList e SoftwareApplication apenas com propriedades verdadeiras. Remova `noindex` no lançamento.
+Forneça title, description, um H1, canonical autorreferente, hreflang recíproco e JSON-LD verdadeiro. O catálogo tipado decide o status público; ferramentas `planned` não recebem URL operacional.
 
-## 5. Patrocínio
+## 5. Validar
 
-Use o placement `<slug>-primary` depois da área funcional. Sem registro ativo, não reserve vazio. Nunca misture dados financeiros à configuração pública.
-
-## 6. Testar e publicar
-
-```bash
-npm run typecheck
-npm run build
-npx playwright test
-```
-
-Configure Pages no repositório, valide `https://noduct.github.io/<slug>/`, sitemap e canonical. Então adicione URL e repositoryUrl ao catálogo do hub, mude status para `published`, escolha `featured` manualmente e rode `npm run validate`. Confira links e envie o sitemap próprio ao Search Console.
+Execute `npm run verify` na raiz. Antes da extração para repositório próprio, `npm run build:pages` precisa montar a ferramenta em `/<slug>/` e `validate:pages` precisa confirmar assets, links, canonical e sitemap.

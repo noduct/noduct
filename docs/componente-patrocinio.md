@@ -41,12 +41,13 @@ Consumidores devem importar os componentes do pacote compartilhado e carregar se
 ```astro
 ---
 import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
+import { topology } from '@noduct/tool-runtime';
 ---
 
 <section><!-- Workspace and primary actions --></section>
 <SponsorshipSlot
   placementId="merge-pdf.primary"
-  registryUrl="https://noduct.github.io/noduct/data/sponsorships.json"
+  registryUrl={topology.registryUrl}
   enabled={false}
 />
 <section><!-- Complementary information --></section>

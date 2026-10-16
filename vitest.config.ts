@@ -17,6 +17,9 @@ export default defineConfig({
       '@noduct/pdf-core': fileURLToPath(
         new URL('./packages/pdf-core/src/index.ts', import.meta.url)
       ),
+      '@noduct/tool-runtime': fileURLToPath(
+        new URL('./packages/tool-runtime/src/index.ts', import.meta.url)
+      ),
       '@noduct/workspace-core': fileURLToPath(
         new URL('./packages/workspace-core/src/index.ts', import.meta.url)
       )

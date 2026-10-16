@@ -93,8 +93,8 @@ export class TransferAlreadyConsumedError extends WorkspaceError {
 }
 
 export class InvalidToolTargetError extends WorkspaceError {
-  constructor(message: string) {
-    super(message, 'INVALID_TOOL_TARGET');
+  constructor(message: string, cause?: unknown) {
+    super(message, 'INVALID_TOOL_TARGET', cause);
     this.name = 'InvalidToolTargetError';
   }
 }

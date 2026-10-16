@@ -1,3 +1,4 @@
+import { topology } from '@noduct/tool-runtime';
 import type { ToolDefinition, ToolCategory } from '@/types/tool';
 import type { Locale } from '@/i18n/config';
 import rawCatalog from './tools.json';
@@ -11,8 +12,6 @@ interface RawToolItem {
   description: string;
   categoryId: string;
   category?: string;
-  directoryUrl?: string;
-  url?: string;
   status: ToolDefinition['status'];
   keywords?: string[];
   tags?: string[];
@@ -28,13 +27,15 @@ const localizedCatalogs: Partial<Record<Locale, Record<string, ToolTranslation>>
 const buildTools = (locale: Locale): ToolDefinition[] => (rawCatalog as RawToolItem[]).map((item) => {
   const cat = (item.categoryId || item.category) as ToolCategory;
   const isAvailable = item.status === 'published' || item.status === 'beta' || item.status === 'ready';
-  const resolvedUrl = isAvailable ? (item.url || item.directoryUrl) : item.url;
+  const slug = item.slug || item.id;
+  // URL pública derivada da topologia (ADR 0005); ferramentas planned não recebem link operacional.
+  const resolvedUrl = isAvailable ? topology.toolUrl(slug, '', locale) : undefined;
   const translation = localizedCatalogs[locale]?.[item.id];
 
   return {
     id: item.id,
     name: translation?.name ?? item.name,
-    slug: item.slug || item.id,
+    slug,
     description: translation?.description ?? item.description,
     category: cat,
     categoryId: cat,
@@ -42,7 +43,6 @@ const buildTools = (locale: Locale): ToolDefinition[] => (rawCatalog as RawToolI
     tags: item.tags || item.keywords || [],
     icon: item.icon || 'Wand2',
     url: resolvedUrl,
-    directoryUrl: item.directoryUrl || `/tools/${item.id}/`,
     status: item.status || 'planned',
     featured: Boolean(item.featured),
     visible: item.visible !== false,

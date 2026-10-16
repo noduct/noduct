@@ -16,24 +16,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Pages
+        id: configure-pages
         uses: actions/configure-pages@v5
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      - name: Verify configured Pages origin
+        shell: bash
+        env:
+          CONFIGURED_URL: ${{ steps.configure-pages.outputs.base_url }}
+        run: |
+          expected_url="$(npx tsx scripts/expected-pages-url.ts)"
+          configured_url="${CONFIGURED_URL%/}"
+          if [ "$configured_url" != "$expected_url" ]; then
+            echo "GitHub Pages base_url mismatch: configured=$configured_url expected=$expected_url" >&2
+            exit 1
+          fi
       - run: npm run validate
       - run: npm run build:pages
       - name: Verify GitHub Pages entry routes
         shell: bash
         run: |
-          test -f dist/index.html
-          test -f dist/pt-br/index.html
-          test -f dist/es/index.html
-          test -f dist/data/sponsorships.json
-          test -f dist/merge-pdf/index.html
-          test -f dist/merge-pdf/pt-br/index.html
-          test -f dist/merge-pdf/es/index.html
+          test -f dist-pages/index.html
+          test -f dist-pages/pt-br/index.html
+          test -f dist-pages/es/index.html
+          test -f dist-pages/data/sponsorships.json
+          test -f dist-pages/merge-pdf/index.html
+          test -f dist-pages/merge-pdf/pt-br/index.html
+          test -f dist-pages/merge-pdf/es/index.html
+          test -f dist-pages/noduct/index.html
       - uses: actions/upload-pages-artifact@v3
-        with: { path: dist }
+        with: { path: dist-pages }
   deploy:
     environment:
       name: github-pages
@@ -56,3 +69,10 @@ jobs:
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --output /dev/null "${PAGES_URL%/}/data/sponsorships.json"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --output /dev/null "${PAGES_URL%/}/merge-pdf/"
           curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --output /dev/null "${PAGES_URL%/}/merge-pdf/pt-br/"
+          merge_html="$(mktemp)"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --output "$merge_html" "${PAGES_URL%/}/merge-pdf/"
+          css_path="$(grep -oE '/merge-pdf/_astro/[^\" ]+\.css' "$merge_html" | head -n 1)"
+          test -n "$css_path"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --output /dev/null "${PAGES_URL%/}${css_path}"
+          curl --fail --silent --show-error --location --retry 8 --retry-delay 5 --retry-all-errors --output /dev/null "${PAGES_URL%/}/robots.txt"
+          curl --fail --silent --show-error --retry 8 --retry-delay 5 --retry-all-errors --output /dev/null "${PAGES_URL%/}/noduct/"

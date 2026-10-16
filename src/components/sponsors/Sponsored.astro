@@ -2,6 +2,7 @@
 import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
 import { sponsorshipRegistry } from '../../../sponsorship';
 import { siteConfig } from '@/config/site';
+import { topology } from '@noduct/tool-runtime';
 import type { Locale } from '@/i18n/config';
 const {
   placementId,
@@ -15,6 +16,6 @@ const displayEnabled = enabled && siteConfig.sponsor.commercialMode !== 'prelaun
   placementId={placementId}
   locale={locale}
   registry={sponsorshipRegistry}
-  registryUrl={`${siteConfig.url}/data/sponsorships.json`}
+  registryUrl={topology.registryUrl}
   enabled={displayEnabled}
 />

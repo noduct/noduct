@@ -1,8 +1,13 @@
-export const toolConfig = {
+import { defineTool } from '@noduct/tool-runtime';
+
+/*
+ * Declaração da ferramenta (ADR 0005). URLs, canonical e site/base do Astro derivam do slug via
+ * @noduct/tool-runtime. `published` acompanha o status do catálogo do hub: enquanto o merge-pdf
+ * estiver `planned`, a página fica `noindex` (AGENTS.md).
+ */
+export const tool = defineTool({
   slug: 'merge-pdf',
-  canonicalUrl: 'https://noduct.github.io/merge-pdf/',
-  sponsorPlacementId: 'merge-pdf.primary',
-  sponsorshipEnabled: false,
-  sponsorshipRegistryUrl: 'https://noduct.github.io/noduct/data/sponsorships.json',
-  published: true
-};
+  category: 'pdf-tools',
+  published: false,
+  sponsorshipEnabled: false
+});

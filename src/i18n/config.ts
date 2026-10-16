@@ -1,35 +1,42 @@
-export const locales = ['en', 'pt-BR', 'es'] as const;
-export type Locale = (typeof locales)[number];
+/*
+ * Adaptador do hub sobre @noduct/tool-runtime. Locales, prefixos e base vêm do runtime (ADR 0005);
+ * este módulo só preserva a API usada pelas páginas e testes do hub.
+ */
+import {
+  DEFAULT_LOCALE,
+  HUB_SCOPE,
+  LOCALES,
+  LOCALE_SEGMENT,
+  isLocale as runtimeIsLocale,
+  resolveBrowserLocale as runtimeResolveBrowserLocale,
+  topology,
+  type Locale as RuntimeLocale
+} from '@noduct/tool-runtime';
 
-export const defaultLocale: Locale = 'en';
-export const siteBasePath = '/noduct';
-export const localePrefixes: Record<Locale, string> = { en: '', 'pt-BR': '/pt-br', es: '/es' };
+export const locales = LOCALES;
+export type Locale = RuntimeLocale;
 
-export function isLocale(value: string): value is Locale {
-  return locales.includes(value as Locale);
-}
+export const defaultLocale: Locale = DEFAULT_LOCALE;
+/** Base do hub sem a barra final (`''` com o hub na raiz). */
+export const siteBasePath = topology.hubBase.replace(/\/$/, '');
+export const localePrefixes: Record<Locale, string> = {
+  en: '',
+  'pt-BR': `/${LOCALE_SEGMENT['pt-BR']}`,
+  es: `/${LOCALE_SEGMENT.es}`
+};
 
-export function resolveBrowserLocale(languages: readonly string[]): Locale {
-  for (const language of languages) {
-    const normalized = language.toLowerCase();
-    if (normalized === 'pt' || normalized.startsWith('pt-')) return 'pt-BR';
-    if (normalized === 'es' || normalized.startsWith('es-')) return 'es';
-    if (normalized === 'en' || normalized.startsWith('en-')) return 'en';
-  }
-  return defaultLocale;
-}
+export const isLocale = (value: string): value is Locale => runtimeIsLocale(value);
+export const resolveBrowserLocale = (languages: readonly string[]): Locale => runtimeResolveBrowserLocale(languages);
 
+/** Caminho da mesma página do hub em outro locale. Aceita caminhos com ou sem base e locale. */
 export function localizePath(pathname: string, locale: Locale): string {
-  const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
-  const withoutBase = path.replace(new RegExp(`^${siteBasePath}(?=/|$)`), '') || '/';
-  const normalized = withoutBase === '/' ? '/' : `${withoutBase.replace(/^\/(?:pt-br|es)(?=\/|$)/, '').replace(/\/$/, '')}/`;
-  const localized = locale === 'en' ? normalized : `${localePrefixes[locale]}${normalized === '/' ? '/' : normalized}`;
-  return localized === '/' ? `${siteBasePath}/` : `${siteBasePath}${localized}`;
+  const parsed = topology.parse(pathname.startsWith('/') ? pathname : `/${pathname}`);
+  const path = parsed && parsed.scope.kind === 'hub' ? parsed.path : '';
+  return topology.scopePath(HUB_SCOPE, path, locale);
 }
 
-/** Adiciona o base path do GitHub Pages sem transformar arquivos em rotas de diretório. */
+/** Caminho de um arquivo público do hub (sem prefixo de locale). */
 export function assetPath(pathname: string): string {
-  const path = pathname.startsWith('/') ? pathname : `/${pathname}`;
-  const withoutBase = path.replace(new RegExp(`^${siteBasePath}(?=/|$)`), '') || '/';
-  return `${siteBasePath}${withoutBase}`;
+  const withoutBase = pathname.startsWith(topology.hubBase) ? pathname.slice(topology.hubBase.length) : pathname;
+  return topology.hubAssetPath(withoutBase);
 }

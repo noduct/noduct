@@ -7,6 +7,7 @@
     "astro": "^5.0.0"
   },
   "dependencies": {
+    "@noduct/tool-runtime": "*",
     "zod": "^3.25.0"
   },
   "exports": {

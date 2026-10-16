@@ -11,7 +11,14 @@
   "scripts": {
     "test": "vitest run"
   },
-  "keywords": ["noduct", "workspace", "indexeddb", "privacy-first"],
-  "license": "MIT"
+  "keywords": [
+    "noduct",
+    "workspace",
+    "indexeddb",
+    "privacy-first"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@noduct/tool-runtime": "*"
+  }
 }
-

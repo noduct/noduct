@@ -1,5 +1,6 @@
 import { indexedDB } from 'fake-indexeddb';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { topology } from '@noduct/tool-runtime';
 import {
   DocumentNotFoundError,
   InvalidToolTargetError,
@@ -25,13 +26,19 @@ describe('Cross-Tool Transfer Protocol', () => {
       blob: new Blob(['report-data'], { type: 'application/pdf' })
     });
 
-    const transfer = await client.createTransfer(doc.id, 'merge-pdf', {
-      baseUrl: 'https://noduct.github.io'
-    });
+    const transfer = await client.createTransfer(doc.id, 'merge-pdf');
 
     expect(transfer.transferId).toBeDefined();
-    expect(transfer.transferUrl).toBe(`https://noduct.github.io/merge-pdf/?transferId=${transfer.transferId}`);
+    expect(transfer.transferUrl).toBe(`${topology.toolUrl('merge-pdf')}?transferId=${transfer.transferId}`);
     expect(transfer.expiresAt).toBeGreaterThan(Date.now());
+  });
+
+  it('preserves the user locale and rejects invalid targets', async () => {
+    const doc = await client.saveDocument({ name: 'a.pdf', blob: new Blob(['a'], { type: 'application/pdf' }) });
+    const transfer = await client.createTransfer(doc.id, 'merge-pdf', { locale: 'pt-BR' });
+    expect(transfer.transferUrl).toBe(`${topology.toolUrl('merge-pdf', '', 'pt-BR')}?transferId=${transfer.transferId}`);
+    await expect(client.createTransfer(doc.id, 'about')).rejects.toThrow(InvalidToolTargetError);
+    await expect(client.createTransfer(doc.id, '../x')).rejects.toThrow(InvalidToolTargetError);
   });
 
   it('fails to create transfer if document does not exist', async () => {

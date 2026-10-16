@@ -1,3 +1,4 @@
+import { topology as defaultTopology, type Locale, type Topology } from '@noduct/tool-runtime';
 import {
   dbConsumeTransfer,
   dbGetDocument,
@@ -18,8 +19,11 @@ export const DEFAULT_TRANSFER_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 export interface CreateTransferOptions {
   readonly ttlMs?: number | undefined;
-  readonly baseUrl?: string | undefined;
   readonly sourceTool?: string | undefined;
+  /** Locale da ferramenta de destino; preserva o idioma do usuário na navegação. */
+  readonly locale?: Locale | undefined;
+  /** Topologia injetável (testes); o padrão é a de produção (ADR 0005). */
+  readonly topology?: Topology | undefined;
 }
 
 export interface CreateTransferResult {
@@ -43,6 +47,14 @@ export async function createTransferTicket(
     throw new InvalidToolTargetError('Target tool identifier must be a non-empty string.');
   }
 
+  const topology = options?.topology ?? defaultTopology;
+  let targetUrl: string;
+  try {
+    targetUrl = topology.toolUrl(targetTool, '', options?.locale);
+  } catch (cause) {
+    throw new InvalidToolTargetError(`Target tool "${targetTool}" is not a valid tool slug.`, cause);
+  }
+
   const transferId = crypto.randomUUID();
   const now = Date.now();
   const ttl = options?.ttlMs ?? DEFAULT_TRANSFER_TTL_MS;
@@ -59,11 +71,8 @@ export async function createTransferTicket(
 
   await dbPutTransfer(db, record);
 
-  // Generate URL
-  const baseUrl = options?.baseUrl ?? (typeof window !== 'undefined' ? window.location.origin : 'https://noduct.github.io');
-  // Format tool path (e.g. /merge-pdf/)
-  const normalizedPath = targetTool.startsWith('/') ? targetTool : `/${targetTool}/`;
-  const url = new URL(normalizedPath, baseUrl);
+  // URL da ferramenta de destino vem da topologia: /<slug>/ ou /<slug>/<locale>/, só com o ticket opaco.
+  const url = new URL(targetUrl);
   url.searchParams.set('transferId', transferId);
 
   return {
