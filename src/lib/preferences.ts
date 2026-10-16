@@ -4,13 +4,13 @@
  * mantenha os dois em sincronia ao alterar nomes ou valores.
  */
 export const preferenceKeys = {
-  theme: 'tolvira-theme',
-  art: 'tolvira-art',
-  motion: 'tolvira-motion',
-  locale: 'tolvira-locale',
+  theme: 'noduct-theme',
+  art: 'noduct-art',
+  motion: 'noduct-motion',
+  locale: 'noduct-locale',
 } as const;
 
-export const preferencesChangeEvent = 'tolvira:preferences';
+export const preferencesChangeEvent = 'noduct:preferences';
 
 export function readPreference(key: string): string | null {
   try {

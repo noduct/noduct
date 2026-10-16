@@ -20,7 +20,7 @@ export function createSeoMetadata(
 ): SeoMetadata {
   return {
     title,
-    fullTitle: title.includes('Tolvira') ? title : `${title} | Tolvira`,
+    fullTitle: title.includes('Noduct') ? title : `${title} | Noduct`,
     description,
     canonical: new URL(localizePath(pathname, locale), siteConfig.url),
     image: new URL(assetPath(image), siteConfig.url),

@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible problem in the Tolvira hub
+description: Report a reproducible problem in the Noduct hub
 body:
   - type: textarea
     id: problem

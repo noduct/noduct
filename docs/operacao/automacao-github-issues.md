@@ -1,19 +1,19 @@
 # Automação de Gestão de Issues no GitHub para Agentes de IA
 
-Este documento registra o aprendizado operacional, os problemas técnicos enfrentados e as soluções padronizadas para publicação, atualização e encerramento automatizado de issues e épicos no ecossistema Tolvira por agentes autônomos.
+Este documento registra o aprendizado operacional, os problemas técnicos enfrentados e as soluções padronizadas para publicação, atualização e encerramento automatizado de issues e épicos no ecossistema Noduct por agentes autônomos.
 
 ---
 
 ## 1. Dificuldades Encontradas no Ambiente e Diagnóstico
 
 ### 1.1 Localização e Resolução do Token de Autenticação (`.env`)
-- **Problema:** O workspace inicial do agente (`orca/workspaces/tolvira/sablefish` ou `kelpfish`) não continha o arquivo `.env`. O token de acesso estava presente no diretório global do usuário (`~/Documents/labs/tolvira/.env`).
+- **Problema:** O workspace inicial do agente (`orca/workspaces/noduct/sablefish` ou `kelpfish`) não continha o arquivo `.env`. O token de acesso estava presente no diretório global do usuário (`~/Documents/labs/noduct/.env`).
 - **Risco:** Falha de autenticação imediata ou risco de vazamento se o token fosse exibido em stdout/logs.
 - **Solução:** Implementação de busca hierárquica e silenciosa em `scripts/github/client.mjs`:
   1. `process.env.GITHUB_ACCESS_TOKEN`
   2. `./.env` (raiz do workspace)
   3. `../.env` e `../../.env`
-  4. `~/Documents/labs/tolvira/.env`
+  4. `~/Documents/labs/noduct/.env`
   5. `~/.env`
   O token é lido apenas na memória do processo Node.js e nunca impresso ou exposto em arquivos de versionamento (o `.env` permanece estritamente listado no `.gitignore`).
 
@@ -77,4 +77,4 @@ node scripts/github/manage.mjs list 2
 
 1. **Nunca tente adivinhar ou expor o token:** Importe sempre `ghApi` de `scripts/github/client.mjs`, que resolve a credencial de forma segura e transparente.
 2. **Separe dados de lógica:** Crie um arquivo temporário `.json` com as issues planejadas e use `manage.mjs publish` para criar o lote. Isso economiza milhares de tokens de contexto na conversa.
-3. **Mantenha a rastreabilidade:** Após criar issues filhas, vincule-as imediatamente à Master Epic Issue (atualmente [#36](https://github.com/tolvira/tolvira/issues/36)) incluindo a linha final `**Épico:** #36`.
+3. **Mantenha a rastreabilidade:** Após criar issues filhas, vincule-as imediatamente à Master Epic Issue (atualmente [#36](https://github.com/noduct/noduct/issues/36)) incluindo a linha final `**Épico:** #36`.

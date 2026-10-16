@@ -2,7 +2,11 @@
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": { "@/*": ["src/*"], "@tolvira/design-system": ["packages/design-system/src/index.ts"] },
+    "paths": {
+      "@/*": ["src/*"],
+      "@noduct/design-system": ["packages/design-system/src/index.ts"],
+      "@noduct/design-system/*": ["packages/design-system/*"]
+    },
     "noUncheckedIndexedAccess": true
   },
   "include": [".astro/types.d.ts", "**/*"],

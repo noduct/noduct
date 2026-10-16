@@ -12,17 +12,17 @@ describe('internationalization', () => {
   });
 
   it('creates stable localized paths', () => {
-    expect(localizePath('/', 'en')).toBe('/tolvira/');
-    expect(localizePath('/tolvira/', 'pt-BR')).toBe('/tolvira/pt-br/');
-    expect(localizePath('/tolvira/pt-br/', 'es')).toBe('/tolvira/es/');
-    expect(localizePath('/tools/', 'en')).toBe('/tolvira/tools/');
-    expect(localizePath('/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
-    expect(localizePath('/es/tools/', 'pt-BR')).toBe('/tolvira/pt-br/tools/');
+    expect(localizePath('/', 'en')).toBe('/noduct/');
+    expect(localizePath('/noduct/', 'pt-BR')).toBe('/noduct/pt-br/');
+    expect(localizePath('/noduct/pt-br/', 'es')).toBe('/noduct/es/');
+    expect(localizePath('/tools/', 'en')).toBe('/noduct/tools/');
+    expect(localizePath('/tools/', 'pt-BR')).toBe('/noduct/pt-br/tools/');
+    expect(localizePath('/es/tools/', 'pt-BR')).toBe('/noduct/pt-br/tools/');
   });
 
   it('preserves file paths under the GitHub Pages base', () => {
-    expect(assetPath('/favicon.svg')).toBe('/tolvira/favicon.svg');
-    expect(assetPath('/brand/social-card.png')).toBe('/tolvira/brand/social-card.png');
+    expect(assetPath('/favicon.svg')).toBe('/noduct/favicon.svg');
+    expect(assetPath('/brand/social-card.png')).toBe('/noduct/brand/social-card.png');
   });
 
   it('has a complete localized catalog', () => {

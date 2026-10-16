@@ -38,7 +38,7 @@ const m = getMessages(locale);
   const renderRecent = () => {
     let recent: string[] = [];
     try {
-      recent = JSON.parse(localStorage.getItem('tolvira-recent-tools') ?? '[]');
+      recent = JSON.parse(localStorage.getItem('noduct-recent-tools') ?? '[]');
     } catch {
       recent = [];
     }
@@ -61,7 +61,7 @@ const m = getMessages(locale);
   };
 
   document.querySelector('[data-clear-recent]')?.addEventListener('click', () => {
-    localStorage.removeItem('tolvira-recent-tools');
+    localStorage.removeItem('noduct-recent-tools');
     renderRecent();
   });
 

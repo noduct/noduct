@@ -4,7 +4,7 @@
 
 Planejamento registrado em 15/10/2026 e implementado posteriormente no PR #8, integrado à branch principal. O convite de apoio está habilitado no rodapé do Hub com a URL pública `https://buymeacoffee.com/plajiw`. Este documento preserva as decisões de apresentação, convivência com patrocinadores e evolução futura.
 
-Oferecer uma forma discreta de contribuir com o desenvolvimento da Tolvira, mantendo o acesso gratuito às ferramentas e preservando a visibilidade dos patrocínios. A contribuição é opcional e não compra publicidade, recursos, prioridade de processamento ou retirada de anúncios.
+Oferecer uma forma discreta de contribuir com o desenvolvimento da Noduct, mantendo o acesso gratuito às ferramentas e preservando a visibilidade dos patrocínios. A contribuição é opcional e não compra publicidade, recursos, prioridade de processamento ou retirada de anúncios.
 
 ## Recomendação inicial
 
@@ -29,15 +29,15 @@ O rodapé tem menor exposição, especialmente na página inicial longa. Essa é
 
 Interface pública em inglês, conforme as diretrizes do repositório:
 
-> Finding Tolvira useful? Support its development.
+> Finding Noduct useful? Support its development.
 
 Texto do link:
 
 > Buy a coffee
 
-Nome acessível do link: `Support Tolvira on Buy Me a Coffee (opens in a new tab)`.
+Nome acessível do link: `Support Noduct on Buy Me a Coffee (opens in a new tab)`.
 
-A redação deve ser cordial, factual e sem cobrança emocional. Evitar urgência, metas financeiras, valores sugeridos no Hub e promessas de benefícios. A identificação pública no destino deve deixar claro quem recebe o apoio e sua relação com a Tolvira. Se a conta for pessoal, não apresentá-la como uma entidade ou equipe que não existe.
+A redação deve ser cordial, factual e sem cobrança emocional. Evitar urgência, metas financeiras, valores sugeridos no Hub e promessas de benefícios. A identificação pública no destino deve deixar claro quem recebe o apoio e sua relação com a Noduct. Se a conta for pessoal, não apresentá-la como uma entidade ou equipe que não existe.
 
 ## Convivência com patrocinadores
 
@@ -58,7 +58,7 @@ O link abre a página pública do Buy Me a Coffee em nova aba para preservar a n
 
 Não carregar imagens, fontes, scripts, iframe, preconnect ou widget do Buy Me a Coffee durante a visita. Com HTML e recursos locais, a integração não inicia uma conexão com o provedor antes de o usuário escolher o link. O processamento e as condições de pagamento pertencem à plataforma externa. Não enviar arquivos, resultados ou parâmetros com informações do usuário ao destino.
 
-O Buy Me a Coffee documenta links públicos, botões, widgets e QR codes como formas de acesso à página do criador. O uso de link HTML próprio é uma escolha de design da Tolvira. [Formas de apoiar criadores](https://help.buymeacoffee.com/en/articles/7983531-ways-to-support-creators) e [guia de divulgação](https://help.buymeacoffee.com/en/articles/10206530-creative-ways-to-share-your-buy-me-a-coffee-page).
+O Buy Me a Coffee documenta links públicos, botões, widgets e QR codes como formas de acesso à página do criador. O uso de link HTML próprio é uma escolha de design da Noduct. [Formas de apoiar criadores](https://help.buymeacoffee.com/en/articles/7983531-ways-to-support-creators) e [guia de divulgação](https://help.buymeacoffee.com/en/articles/10206530-creative-ways-to-share-your-buy-me-a-coffee-page).
 
 Se surgir necessidade concreta de passar do computador para o celular, uma segunda versão pode oferecer `Show QR code` em um elemento `details`, inicialmente fechado, com imagem estática local. O QR deve codificar a mesma URL pública do link, permitir acesso pelo link textual e preservar o contexto acessível. Em telas pequenas, o link continua sendo a ação principal. A dimensão de exibição deve ser definida após verificar a leitura real em dispositivos; não reduzir ou decorar o código a ponto de comprometer a leitura.
 
@@ -102,7 +102,7 @@ Para retirar o convite, desabilitar a configuração e republicar os consumidore
 4. Comparar as situações com e sem patrocinador usando fixtures de teste, preservando a hierarquia e as ações principais. Não publicar campanha real para essa verificação.
 5. Se houver interesse em ferramentas independentes, definir a API do rodapé compartilhado e realizar uma atualização versionada. Avaliar QR code somente depois de identificar a necessidade.
 
-O aceite exige convite único e discreto, patrocínio preservado, ferramentas plenamente funcionais, destino externo correto e ausência de coleta de dados pela integração da Tolvira. Métricas de conversão não são requisito; o critério inicial é clareza, acessibilidade e baixa interferência.
+O aceite exige convite único e discreto, patrocínio preservado, ferramentas plenamente funcionais, destino externo correto e ausência de coleta de dados pela integração da Noduct. Métricas de conversão não são requisito; o critério inicial é clareza, acessibilidade e baixa interferência.
 
 ## Pendências
 

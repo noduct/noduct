@@ -2,7 +2,7 @@
 
 ## Preparação
 
-Confirme que o repositório é o user site `tolvira.github.io`, configure Pages para GitHub Actions e execute `npm run validate`. O workflow `deploy-pages.yml` empacota `dist/`; nenhum segredo de aplicação é necessário.
+Confirme que o repositório é o user site `noduct.github.io`, configure Pages para GitHub Actions e execute `npm run validate`. O workflow `deploy-pages.yml` empacota `dist/`; nenhum segredo de aplicação é necessário.
 
 ## Conformidade
 

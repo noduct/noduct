@@ -11,7 +11,7 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* Scrollbar Próprio Tolvira (Estilo Apple / Clear, Flutuante e Minimal) */
+/* Scrollbar Próprio Noduct (Estilo Apple / Clear, Flutuante e Minimal) */
 :root {
   --scrollbar-width: 8px;
   --scrollbar-thumb: rgba(100, 116, 139, 0.32);

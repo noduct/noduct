@@ -1,8 +1,8 @@
-# Padrões de Interface e Guardrails — Tolvira
+# Padrões de Interface e Guardrails — Noduct
 
 ## 1. Filosofia e Direção Visual
 
-A interface do ecossistema Tolvira segue a filosofia **Quiet Productivity**, inspirada nos princípios de precisão, ergonomia e sofisticação tátil dos produtos Apple (macOS / iOS Human Interface Guidelines), Raycast e Linear:
+A interface do ecossistema Noduct segue a filosofia **Quiet Productivity**, inspirada nos princípios de precisão, ergonomia e sofisticação tátil dos produtos Apple (macOS / iOS Human Interface Guidelines), Raycast e Linear:
 
 * **Foco e Clareza:** A função utilitária prevalece sobre elementos decorativos vazios ou marketing intrusivo.
 * **Superfícies em Ilhas Funcionais:** O conteúdo é organizado em cartões e blocos coesos com bordas precisas de 1px (`--color-border`), sombras em camadas discretas e iluminação de borda especular (*rim light*).
@@ -155,10 +155,10 @@ Nenhum app ou página deve exibir a barra de rolagem cinza e rígida padrão do 
 * **Suporte:** WebKit (Chrome/Safari/Edge) e CSS Scrollbars Standard (`scrollbar-width: thin; scrollbar-color: ...`).
 
 ### 8.2 Componente Reutilizável (`ScrollArea`)
-Disponível em `@tolvira/design-system` e `src/components/ui/ScrollArea.astro`:
+Disponível em `@noduct/design-system` e `src/components/ui/ScrollArea.astro`:
 ```astro
 ---
-import { ScrollArea } from '@tolvira/design-system';
+import { ScrollArea } from '@noduct/design-system';
 ---
 <ScrollArea maxHeight="320px" orientation="vertical" mask={true}>
   <!-- Conteúdo longo, tabela ou lista rolável -->
@@ -170,7 +170,7 @@ import { ScrollArea } from '@tolvira/design-system';
 
 ## 9. Guardrails Contratuais para Novos Apps (`tool-template`)
 
-Qualquer micro-aplicativo ou extensão do Tolvira **deve obedecer impreterivelmente** aos seguintes 7 guardrails:
+Qualquer micro-aplicativo ou extensão do Noduct **deve obedecer impreterivelmente** aos seguintes 7 guardrails:
 
 1. **Guardrail 1: Consumo Universal de Tokens**
    Proibido declarar transições manuais como `transition: all .2s ease` ou escalas arbitrárias. Use sempre as variáveis semânticas de `--ease-apple` e `--duration-*`.
@@ -179,7 +179,7 @@ Qualquer micro-aplicativo ou extensão do Tolvira **deve obedecer impreterivelme
 3. **Guardrail 3: Contraste WCAG AA Inegociável**
    Tanto em tema claro quanto escuro, todo texto legível deve atender ou exceder a razão de contraste de 4.5:1. Textos secundários usam `--color-text-secondary` e terciários `--color-text-muted`.
 4. **Guardrail 4: Herança do `ToolFrame`**
-   Toda ferramenta independente deve ser envolvida pelo componente `<ToolFrame>` do `@tolvira/design-system`, que já injeta o reset global de tipografia, foco e suporte a movimento reduzido.
+   Toda ferramenta independente deve ser envolvida pelo componente `<ToolFrame>` do `@noduct/design-system`, que já injeta o reset global de tipografia, foco e suporte a movimento reduzido.
 5. **Guardrail 5: Conformidade com `prefers-reduced-motion`**
    Quando o usuário solicitar movimento reduzido, todas as durações devem ser zeradas (`0.001ms`) e escalas anuladas (`transform: none !important`).
 6. **Guardrail 6: Scrollbar Limpa e Transparente**

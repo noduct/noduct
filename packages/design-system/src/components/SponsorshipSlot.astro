@@ -20,7 +20,7 @@ const validPlacement = placementSchema.safeParse({
 }).success;
 // Claim a placement once per rendered page, including the no-JavaScript HTML.
 const state = Astro.locals as { [key: symbol]: Set<string> | undefined };
-const claims = (state[Symbol.for('tolvira.sponsorship.placements')] ??= new Set<string>());
+const claims = (state[Symbol.for('noduct.sponsorship.placements')] ??= new Set<string>());
 const displayEnabled = enabled === true && validPlacement && !claims.has(placementId);
 if (displayEnabled) claims.add(placementId);
 const active = displayEnabled ? resolveCampaign(registry, placementId) : undefined;

@@ -46,7 +46,7 @@ test('background artwork draws and reacts to scroll on wide screens', async ({
 test('reduced motion keeps the artwork still', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'Executado apenas no perfil desktop.');
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await page.addInitScript(() => localStorage.setItem('tolvira-motion', 'reduce'));
+  await page.addInitScript(() => localStorage.setItem('noduct-motion', 'reduce'));
   await page.goto(`${siteBasePath}/`);
   await settle(page);
   const top = await snapshot(page);

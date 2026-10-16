@@ -35,4 +35,4 @@ npm run build
 npx playwright test
 ```
 
-Configure Pages no repositório, valide `https://tolvira.github.io/<slug>/`, sitemap e canonical. Então adicione URL e repositoryUrl ao catálogo do hub, mude status para `published`, escolha `featured` manualmente e rode `npm run validate`. Confira links e envie o sitemap próprio ao Search Console.
+Configure Pages no repositório, valide `https://noduct.github.io/<slug>/`, sitemap e canonical. Então adicione URL e repositoryUrl ao catálogo do hub, mude status para `published`, escolha `featured` manualmente e rode `npm run validate`. Confira links e envie o sitemap próprio ao Search Console.

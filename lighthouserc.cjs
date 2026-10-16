@@ -5,10 +5,10 @@ module.exports = {
       startServerReadyPattern: 'Local',
       startServerReadyTimeout: 120000,
       url: [
-        'http://127.0.0.1:4322/tolvira/',
-        'http://127.0.0.1:4322/tolvira/tools/',
-        'http://127.0.0.1:4322/tolvira/pdf-tools/',
-        'http://127.0.0.1:4322/tolvira/sponsor/'
+        'http://127.0.0.1:4322/noduct/',
+        'http://127.0.0.1:4322/noduct/tools/',
+        'http://127.0.0.1:4322/noduct/pdf-tools/',
+        'http://127.0.0.1:4322/noduct/sponsor/'
       ],
       numberOfRuns: 1,
       settings: {

@@ -1,7 +1,7 @@
 export const siteConfig = {
-  name: 'Tolvira',
+  name: 'Noduct',
   tagline: 'Free Online Tools',
-  url: 'https://tolvira.github.io/tolvira',
+  url: 'https://noduct.github.io/noduct',
   contactUrl: '',
   contactEmail: '',
   support: {

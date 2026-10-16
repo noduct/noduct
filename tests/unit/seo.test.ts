@@ -4,9 +4,9 @@ import type { Locale } from '@/i18n/config';
 
 describe('localized canonical metadata', () => {
   it.each<[Locale, string]>([
-    ['en', '/tolvira/privacy/'],
-    ['pt-BR', '/tolvira/pt-br/privacy/'],
-    ['es', '/tolvira/es/privacy/']
+    ['en', '/noduct/privacy/'],
+    ['pt-BR', '/noduct/pt-br/privacy/'],
+    ['es', '/noduct/es/privacy/']
   ])('keeps the %s version self-canonical', (locale, pathname) => {
     const metadata = createSeoMetadata(
       pathname,
@@ -16,7 +16,7 @@ describe('localized canonical metadata', () => {
       false,
       locale
     );
-    expect(metadata.canonical.href).toBe(`https://tolvira.github.io${pathname}`);
-    expect(metadata.image.href).toBe('https://tolvira.github.io/tolvira/brand/social-card.png');
+    expect(metadata.canonical.href).toBe(`https://noduct.github.io${pathname}`);
+    expect(metadata.image.href).toBe('https://noduct.github.io/noduct/brand/social-card.png');
   });
 });

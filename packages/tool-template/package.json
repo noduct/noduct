@@ -1,9 +1,9 @@
 {
-  "name": "@tolvira/tool-template",
+  "name": "@noduct/tool-template",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": { "dev": "astro dev", "build": "astro build", "typecheck": "astro check", "test": "vitest run" },
-  "dependencies": { "@astrojs/sitemap": "^3.6.0", "@tolvira/design-system": "*", "astro": "^5.14.0" },
+  "dependencies": { "@astrojs/sitemap": "^3.6.0", "@noduct/design-system": "*", "astro": "^5.14.0" },
   "devDependencies": { "@astrojs/check": "^0.9.0", "typescript": "^5.9.0", "vitest": "^3.2.0" }
 }

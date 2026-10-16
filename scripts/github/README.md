@@ -1,6 +1,6 @@
 # Automação do GitHub para agentes
 
-`manage.mjs` é a interface única para o GitHub. Ela aceita qualquer repositório acessível pelo token, não contém números de issues, epics ou nomes de branches do Tolvira e responde em JSON no `stdout`. Mensagens de erro vão para o `stderr`.
+`manage.mjs` é a interface única para o GitHub. Ela aceita qualquer repositório acessível pelo token, não contém números de issues, epics ou nomes de branches do Noduct e responde em JSON no `stdout`. Mensagens de erro vão para o `stderr`.
 
 ## Preparação
 

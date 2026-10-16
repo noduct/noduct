@@ -2,7 +2,7 @@ export const locales = ['en', 'pt-BR', 'es'] as const;
 export type Locale = (typeof locales)[number];
 
 export const defaultLocale: Locale = 'en';
-export const siteBasePath = '/tolvira';
+export const siteBasePath = '/noduct';
 export const localePrefixes: Record<Locale, string> = { en: '', 'pt-BR': '/pt-br', es: '/es' };
 
 export function isLocale(value: string): value is Locale {

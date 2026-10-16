@@ -10,6 +10,6 @@ Azul é reservado a ações e foco; superfícies neutras sustentam conteúdo. Ra
 
 ## Modificação e validação
 
-A versão `0.3.0` oferece os componentes `SponsorCard` e `SponsorshipSlot`, documentados em [Componente de patrocínio](componente-patrocinio.md). O subpath `@tolvira/design-system/sponsorship` continua expondo contratos v1, resolver, cliente de atualização e fallback de logo sem importar componentes Astro ou módulos do Hub. Consulte [Registry de patrocínios](registry-patrocinio.md). Mudanças de dados centrais dispensam rebuild do consumidor; atualizar o código ou os estilos do pacote exige atualização versionada e deploy das ferramentas.
+A versão `0.3.0` oferece os componentes `SponsorCard` e `SponsorshipSlot`, documentados em [Componente de patrocínio](componente-patrocinio.md). O subpath `@noduct/design-system/sponsorship` continua expondo contratos v1, resolver, cliente de atualização e fallback de logo sem importar componentes Astro ou módulos do Hub. Consulte [Registry de patrocínios](registry-patrocinio.md). Mudanças de dados centrais dispensam rebuild do consumidor; atualizar o código ou os estilos do pacote exige atualização versionada e deploy das ferramentas.
 
 Altere o token mais semântico possível e teste ambos os temas em mobile e desktop. Rode Playwright com axe. A marca atual é textual com símbolo provisório; substitua por asset oficial sem redesenhá-lo por aproximação.
