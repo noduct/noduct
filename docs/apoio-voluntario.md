@@ -82,7 +82,7 @@ A configuração contém apenas informação pública. `enabled` é independente
 
 Renderizar somente quando a configuração estiver habilitada e a URL validada. Ausência ou erro de configuração resulta em ausência do convite, sem link vazio ou espaço reservado. O link é gerado no build; sua atualização exige novo deploy do consumidor. Ele não herda a atualização remota de campanhas prevista no M2.
 
-Em uma segunda etapa, se aprovado para ferramentas independentes, extrair uma API pequena para `packages/design-system`, integrar ao `BrandFooter.astro` e lançar uma nova versão do pacote. Não alterar os contratos de campanhas nem criar um placement de apoio.
+Em uma segunda etapa, se aprovado para ferramentas independentes, manter uma API pequena em `packages/design-system`, integrar ao `SiteFooter.astro` e lançar uma nova versão do pacote. Não alterar os contratos de campanhas nem criar um placement de apoio.
 
 ## Hospedagem e operação
 

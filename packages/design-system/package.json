@@ -1,6 +1,6 @@
 {
   "name": "@noduct/design-system",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "peerDependencies": {
@@ -26,13 +26,10 @@
     "./shell/AppShell.astro": "./src/shell/AppShell.astro",
     "./shell/preferences": "./src/shell/preferences.ts",
     "./shell/Popover.module.css": "./src/shell/Popover.module.css",
-    "./components/BrandHeader.astro": "./src/components/BrandHeader.astro",
-    "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",
     "./components/SeoHead.astro": "./src/components/SeoHead.astro",
-    "./components/SponsoredPlacement.astro": "./src/components/SponsoredPlacement.astro",
     "./components/SponsorCard.astro": "./src/components/SponsorCard.astro",
     "./components/SponsorshipSlot.astro": "./src/components/SponsorshipSlot.astro",
-    "./components/ToolFrame.astro": "./src/components/ToolFrame.astro",
+    "./components/ToolPage.astro": "./src/components/ToolPage.astro",
     "./components/DropZone.astro": "./src/components/DropZone.astro",
     "./components/ReorderableList.astro": "./src/components/ReorderableList.astro",
     "./components/ProcessingFeedback.astro": "./src/components/ProcessingFeedback.astro",

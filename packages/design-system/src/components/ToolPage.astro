@@ -1,0 +1,48 @@
+---
+import { getCategory, topology, type CategoryId, type JsonLdNode, type Locale, type Scope } from '@noduct/tool-runtime';
+import AppShell from '../shell/AppShell.astro';
+import Icon from '../icons/Icon.astro';
+import SponsorshipSlot from './SponsorshipSlot.astro';
+import styles from './ToolPage.module.css';
+
+interface Props {
+  scope: Scope;
+  locale: Locale;
+  title: string;
+  description: string;
+  category: CategoryId;
+  breadcrumbLabel: string;
+  sponsorPlacementId?: string;
+  sponsorshipEnabled?: boolean;
+  noindex?: boolean;
+  jsonLd?: JsonLdNode;
+}
+
+const {
+  scope, locale, title, description, category, breadcrumbLabel, noindex = false, jsonLd,
+  sponsorPlacementId, sponsorshipEnabled = false
+} = Astro.props;
+const categoryLabel = getCategory(category, locale).name;
+const homeLabel: Record<Locale, string> = { en: 'Home', 'pt-BR': 'Início', es: 'Inicio' };
+const hubHome = topology.hubPath('', locale);
+const categoryPath = topology.hubPath(`${category}/`, locale);
+---
+
+<AppShell {scope} {locale} {title} {description} {noindex} {jsonLd}>
+  <slot name="actions" slot="actions" />
+  <div class={styles.page}>
+    <nav class="breadcrumb" aria-label={breadcrumbLabel}>
+      <a class="breadcrumb-link" href={hubHome}><Icon class="breadcrumb-icon" name="house" /> <span>{homeLabel[locale]}</span></a>
+      <Icon class="breadcrumb-sep" name="chevron-right" />
+      <a class="breadcrumb-link" href={categoryPath}>{categoryLabel}</a>
+      <Icon class="breadcrumb-sep" name="chevron-right" />
+      <span class="breadcrumb-current" aria-current="page">{title}</span>
+    </nav>
+    <p class={styles.eyebrow}>{categoryLabel}</p>
+    <h1 class={styles.title}>{title}</h1>
+    <p class={styles.description}>{description}</p>
+    <div class={styles.surface}><slot name="workspace" /></div>
+    {sponsorPlacementId && <SponsorshipSlot placementId={sponsorPlacementId} registryUrl={topology.registryUrl} enabled={sponsorshipEnabled} locale={locale} />}
+    <slot />
+  </div>
+</AppShell>

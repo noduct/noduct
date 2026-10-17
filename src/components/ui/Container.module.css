@@ -1,8 +1,0 @@
-.container {
-  width: min(calc(100% - 2 * var(--layout-padding)), var(--layout-max-width));
-  margin-inline: auto;
-}
-
-.narrow {
-  max-width: 760px;
-}

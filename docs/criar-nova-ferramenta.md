@@ -20,7 +20,7 @@ O slug precisa ser idêntico ao de `defineTool()`. O template não contém esse 
 
 ## 3. Implementar
 
-Use o shell e o template compartilhados, traduza interface, erros e anúncios para en, pt-BR e es, e mantenha processamento de arquivos no cliente. Componentes visuais reutilizáveis pertencem ao design system; lógica de domínio não pertence às páginas Astro.
+Use `ToolPage` do design system; ele monta `AppShell` e recebe os slots `actions` (controles do header), `workspace` (área funcional) e o conteúdo padrão. Passe `scope` de `defineTool()`, `category`, `locale`, título e descrição; deixe breadcrumb e patrocínio com o template. Traduza interface, erros e anúncios para en, pt-BR e es, e mantenha processamento de arquivos no cliente. Componentes visuais reutilizáveis pertencem ao design system; lógica de domínio não pertence às páginas Astro.
 
 ## 4. SEO e catálogo
 

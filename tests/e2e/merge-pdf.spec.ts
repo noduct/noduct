@@ -25,8 +25,11 @@ test('Merge PDF: loads with clean quiet-productivity layout, SEO tags and JSON-L
   await page.goto(toolUrl);
   await expect(page).toHaveTitle(/Merge PDF \| Noduct/);
   await expect(page.locator('h1')).toHaveText('Merge PDF');
+  await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.locator('header [data-workspace-trigger]')).toBeVisible();
 
   // Verify JSON-LD
+  await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(jsonLd).toBeTruthy();
   const parsed = JSON.parse(jsonLd!);
@@ -37,6 +40,14 @@ test('Merge PDF: loads with clean quiet-productivity layout, SEO tags and JSON-L
   // Merge button initially disabled
   const mergeBtn = page.locator('#start-merge-btn');
   await expect(mergeBtn).toBeDisabled();
+});
+
+test('Merge PDF: applies the shared hub theme preference before rendering', async ({ page }) => {
+  await page.goto(toolUrl);
+  await page.evaluate(() => localStorage.setItem('noduct-theme', 'dark'));
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  await expect(page.locator('header [data-workspace-trigger]')).toBeVisible();
 });
 
 test('Merge PDF: end-to-end selection, reordering, merging and download with zero network leaks', async ({
@@ -145,6 +156,7 @@ test('Merge PDF: handles encrypted files with actionable alert without breaking 
   await expect(alerts).toBeVisible();
   await expect(alerts).toContainText('locked.pdf');
   await expect(alerts).toContainText('password-protected');
+  await expect(alerts.locator('[data-alert-item]')).toHaveCSS('display', 'flex');
 
   // Only the good file is in the reorderable merge list
   const items = page.locator('#merge-file-list [data-reorder-item]');
@@ -223,6 +235,10 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
   await page.goto('http://127.0.0.1:4324/merge-pdf/es/');
   await expect(page.locator('h1')).toHaveText('Combinar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Combinar archivos PDF');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'uno.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Uno')
+  });
+  await expect(page.locator('[data-merge-count]')).toContainText('1 PDF válido seleccionado');
 });
 
 test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages files, and clears data', async ({
@@ -233,11 +249,18 @@ test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages fil
   const trigger = page.locator('[data-workspace-trigger]');
   await expect(trigger).toBeVisible();
   await expect(trigger).toHaveText(/Local Workspace/);
+  await expect(trigger).toHaveCSS('height', '44px');
+  if (test.info().project.name === 'mobile') {
+    await expect(trigger).toHaveCSS('width', '44px');
+  }
 
   // Open drawer
   await trigger.click();
   const dialog = page.locator('[data-workspace-dialog]');
   await expect(dialog).toBeVisible();
+  await expect(page.locator('[data-workspace-usage]')).toContainText(
+    test.info().project.name === 'mobile' ? '75 MB' : '250 MB'
+  );
 
   // Verify privacy notice is rendered
   const privacyNotice = page.locator('[data-workspace-dialog] p');

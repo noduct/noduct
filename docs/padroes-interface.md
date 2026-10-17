@@ -155,7 +155,7 @@ Nenhum app ou página deve exibir a barra de rolagem cinza e rígida padrão do 
 * **Suporte:** WebKit (Chrome/Safari/Edge) e CSS Scrollbars Standard (`scrollbar-width: thin; scrollbar-color: ...`).
 
 ### 8.2 Componente Reutilizável (`ScrollArea`)
-Disponível em `@noduct/design-system` e `src/components/ui/ScrollArea.astro`:
+Disponível em `@noduct/design-system`:
 ```astro
 ---
 import { ScrollArea } from '@noduct/design-system';
@@ -178,8 +178,8 @@ Qualquer micro-aplicativo ou extensão do Noduct **deve obedecer impreterivelmen
    Nunca anime `width`, `height`, `top`, `left`, `margin` ou `padding` em interações de hover/clique. Use exclusivamente `transform` e `opacity`.
 3. **Guardrail 3: Contraste WCAG AA Inegociável**
    Tanto em tema claro quanto escuro, todo texto legível deve atender ou exceder a razão de contraste de 4.5:1. Textos secundários usam `--color-text-secondary` e terciários `--color-text-muted`.
-4. **Guardrail 4: Herança do `ToolFrame`**
-   Toda ferramenta independente deve ser envolvida pelo componente `<ToolFrame>` do `@noduct/design-system`, que já injeta o reset global de tipografia, foco e suporte a movimento reduzido.
+4. **Guardrail 4: Shell e template compartilhados**
+   Toda ferramenta independente deve usar `<ToolPage>` do `@noduct/design-system`, que compõe `AppShell`, breadcrumb, título, área funcional e patrocínio com os tokens globais.
 5. **Guardrail 5: Conformidade com `prefers-reduced-motion`**
    Quando o usuário solicitar movimento reduzido, todas as durações devem ser zeradas (`0.001ms`) e escalas anuladas (`transform: none !important`).
 6. **Guardrail 6: Scrollbar Limpa e Transparente**

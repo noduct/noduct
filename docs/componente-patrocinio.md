@@ -55,6 +55,6 @@ import { topology } from '@noduct/tool-runtime';
 
 Esse exemplo mantém a exibição desabilitada. O template de ferramenta já compõe o slot nessa posição, com `sponsorshipEnabled: false`. A ativação depende de posicionamento conhecido e habilitado, campanha aprovada e decisão comercial separada. A integração real publicada continua no M6.
 
-O import antigo `SponsoredPlacement.astro` foi mantido como adaptador depreciado para `SponsorCard`, mas seu prop `sponsor` agora exige um `SponsorCampaign` v1 completo. O criativo antigo sem datas (`name`, `description`, `url`) não é aceito. Os consumidores existentes do workspace não forneciam esse criativo; para novos consumidores, usar os dois componentes novos.
+O adaptador antigo `SponsoredPlacement.astro` foi removido na versão 0.5.0. Use `SponsorCard` ou `SponsorshipSlot` com contratos v1 completos. O criativo antigo sem datas (`name`, `description`, `url`) não é aceito.
 
 A verificação do marco cobre estados válidos e vazios, atualização remota, expiração, falhas de rede e logo, teclado, temas, telas estreitas e deslocamento das ações principais. Fixtures sintéticas não representam ativação de uma campanha ou integração comercial com uma ferramenta publicada.

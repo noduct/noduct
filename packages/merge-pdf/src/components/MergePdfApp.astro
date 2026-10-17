@@ -1,12 +1,11 @@
 ---
-import SeoHead from '@noduct/design-system/components/SeoHead.astro';
-import ToolFrame from '@noduct/design-system/components/ToolFrame.astro';
+import ToolPage from '@noduct/design-system/components/ToolPage.astro';
 import DropZone from '@noduct/design-system/components/DropZone.astro';
 import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
 import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
-import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
 import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import type { DesignLocale } from '@noduct/design-system';
 import { topology } from '@noduct/tool-runtime';
 import { tool } from '../config';
@@ -20,8 +19,6 @@ interface Props {
 const { locale = 'en' } = Astro.props;
 const m = mergeMessages[locale];
 const canonicalUrl = topology.canonical(tool.scope, '', locale);
-// O ToolFrame aplica o prefixo de locale; ele recebe só a raiz do hub (evita o prefixo duplicado).
-const hubRoot = topology.hubUrl();
 const hubHome = topology.hubUrl('', locale);
 const categoryUrl = topology.hubUrl(`${tool.category}/`, locale);
 
@@ -67,34 +64,21 @@ const jsonLd = {
 };
 ---
 
-<!doctype html>
-<html lang={locale}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <SeoHead
-      title={`${m.name} | Noduct`}
-      description={m.description}
-      canonical={canonicalUrl}
-      noindex={!tool.published}
-    />
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-  </head>
-  <body>
-    <ToolFrame hubUrl={hubRoot} locale={locale}>
-      <nav class={styles.crumbs} aria-label={m.breadcrumb}>
-        <a href={hubHome}>Noduct</a> /
-        <a href={categoryUrl}>{m.category}</a> /
-        <span aria-current="page">{m.name}</span>
-      </nav>
+<ToolPage
+  scope={tool.scope}
+  {locale}
+  title={m.name}
+  description={m.description}
+  category={tool.category}
+  breadcrumbLabel={m.breadcrumb}
+  noindex={!tool.published}
+  {jsonLd}
+  sponsorPlacementId={tool.sponsorPlacementId}
+  sponsorshipEnabled={tool.sponsorshipEnabled}
+>
+      <WorkspaceDrawer id="merge-workspace-drawer" locale={locale} slot="actions" />
 
-      <div class={styles.headerRow}>
-        <h1 class={styles.title}>{m.name}</h1>
-        <WorkspaceDrawer id="merge-workspace-drawer" locale={locale} />
-      </div>
-      <p class={styles.lead}>{m.description}</p>
-
-      <section class={styles.workspace} aria-label={m.name}>
+      <section class={styles.workspace} aria-label={m.name} slot="workspace">
         <DropZone
           id="merge-drop-zone"
           label={m.dropLabel}
@@ -119,7 +103,7 @@ const jsonLd = {
               hidden
               data-action="clear"
             >
-              Clear
+              {m.clear}
             </button>
             <button
               id="start-merge-btn"
@@ -150,17 +134,10 @@ const jsonLd = {
         />
 
         <p class={styles.privacyNotice}>
-          <span aria-hidden="true">🔒</span>
+          <Icon name="lock" />
           {m.privacyNotice}
         </p>
       </section>
-
-      <SponsorshipSlot
-        placementId={tool.sponsorPlacementId}
-        registryUrl={topology.registryUrl}
-        enabled={tool.sponsorshipEnabled}
-        locale={locale}
-      />
 
       <section class={styles.infoSection}>
         <h2>{m.howTitle}</h2>
@@ -178,9 +155,10 @@ const jsonLd = {
         <h2>{m.securityTitle}</h2>
         <p>{m.security}</p>
       </section>
-    </ToolFrame>
-
     <script>
+      import { mergeMessages } from '../i18n';
+      import clientStyles from './MergePdfApp.module.css';
+      import type { DesignLocale } from '@noduct/design-system';
       import {
         CANCEL_EVENT,
         FILES_SELECTED_EVENT,
@@ -200,6 +178,10 @@ const jsonLd = {
         type WorkspaceActionDetail
       } from '@noduct/design-system/workspace-ui';
       import type { MergeWorkflow, WorkflowFileItem } from '../lib/merge-workflow';
+
+      const language = document.documentElement.lang;
+      const clientLocale: DesignLocale = language === 'pt-BR' || language === 'es' ? language : 'en';
+      const messages = mergeMessages[clientLocale];
 
       // Lazy load workflow module to optimize LCP < 1.5s
       let workflowPromise: Promise<MergeWorkflow> | undefined;
@@ -240,20 +222,19 @@ const jsonLd = {
         alertsEl.replaceChildren(
           ...invalid.map((item) => {
             const div = document.createElement('div');
-            div.className = '_alertItem_1k021_31'; // fallback class or dataset
+            div.className = clientStyles.alertItem!;
             div.setAttribute('data-alert-item', item.id);
 
             const msg = document.createElement('span');
-            msg.textContent =
-              item.status === 'encrypted'
-                ? `"${item.name}" is password-protected and cannot be processed.`
-                : `"${item.name}" is corrupted or not a valid PDF.`;
+            msg.textContent = item.status === 'encrypted'
+              ? messages.errorEncrypted(item.name)
+              : messages.errorCorrupted(item.name);
 
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.textContent = 'Remove';
-            btn.setAttribute('aria-label', `Remove ${item.name}`);
-            btn.className = '_alertDismiss_1k021_43';
+            btn.textContent = messages.remove;
+            btn.setAttribute('aria-label', messages.removeFile(item.name));
+            btn.className = clientStyles.alertDismiss!;
             btn.addEventListener('click', () => {
               workflow.removeItem(item.id);
             });
@@ -275,11 +256,11 @@ const jsonLd = {
         clearBtn.hidden = state.items.length === 0;
 
         if (validItems.length === 0) {
-          countEl.textContent = 'Select at least 2 PDF files to merge.';
+          countEl.textContent = messages.minFilesRequired;
         } else if (validItems.length === 1) {
-          countEl.textContent = '1 valid PDF selected (select at least 1 more to merge).';
+          countEl.textContent = messages.oneFileReady;
         } else {
-          countEl.textContent = `${validItems.length} PDFs ready to merge (${state.totalPages} total pages).`;
+          countEl.textContent = messages.filesReady(validItems.length, state.totalPages);
         }
       }
 
@@ -312,7 +293,7 @@ const jsonLd = {
         feedbackEl.hidden = false;
         downloadCard.reset();
 
-        feedback.update({ status: 'Starting PDF merge...', value: 0 });
+        feedback.update({ status: messages.statusValidating, value: 0 });
 
         try {
           const testDelay = (window as unknown as { __MERGE_STEP_DELAY_MS__?: number })
@@ -322,10 +303,10 @@ const jsonLd = {
             onProgress: ({ phase, percent }) => {
               const statusText =
                 phase === 'loading'
-                  ? 'Loading PDF files...'
+                  ? messages.statusValidating
                   : phase === 'processing'
-                    ? 'Combining pages into unified document...'
-                    : 'Saving final PDF document...';
+                    ? messages.statusMerging
+                    : messages.statusSaving;
               feedback.update({ status: statusText, value: percent });
             }
           });
@@ -389,7 +370,7 @@ const jsonLd = {
 
         async function syncWorkspace() {
           try {
-            const { openWorkspace } = await import('@noduct/workspace-core');
+            const { openWorkspace, detectDeviceProfile, DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } = await import('@noduct/workspace-core');
             const ws = await openWorkspace();
             const docs = await ws.listDocuments();
             const size = await ws.getWorkspaceSize();
@@ -401,7 +382,7 @@ const jsonLd = {
                 createdAt: d.createdAt
               })),
               size.totalBytes,
-              250 * 1024 * 1024
+              (detectDeviceProfile() === 'mobile' ? MOBILE_RESOURCE_BUDGET : DESKTOP_RESOURCE_BUDGET).maxWorkspaceStorageBytes
             );
           } catch {
             // Gracefully handle if storage unavailable
@@ -442,5 +423,4 @@ const jsonLd = {
         });
       }
     </script>
-  </body>
-</html>
+  </ToolPage>

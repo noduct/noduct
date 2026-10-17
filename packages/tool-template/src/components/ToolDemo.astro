@@ -1,22 +1,66 @@
 ---
-import SeoHead from '@noduct/design-system/components/SeoHead.astro';
-import ToolFrame from '@noduct/design-system/components/ToolFrame.astro';
-import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
+import ToolPage from '@noduct/design-system/components/ToolPage.astro';
 import type { DesignLocale } from '@noduct/design-system';
-import { topology } from '@noduct/tool-runtime';
 import { tool } from '../config';
 import { toolMessages } from '../i18n';
-const { locale } = Astro.props as { locale: DesignLocale }; const m = toolMessages[locale];
-const hubHome = topology.hubUrl('', locale);
-const categoryUrl = topology.hubUrl(`${tool.category}/`, locale);
+import styles from './ToolDemo.module.css';
+
+const { locale } = Astro.props as { locale: DesignLocale };
+const m = toolMessages[locale];
 ---
-<!doctype html><html lang={locale}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><SeoHead title={`${m.name} | ${m.template}`} description={m.description as string} canonical={topology.canonical(tool.scope, '', locale)} noindex={!tool.published}/></head><body>
-  <ToolFrame hubUrl={topology.hubUrl()} locale={locale}>
-    <nav class="crumbs" aria-label={m.breadcrumb as string}><a href={hubHome}>Noduct</a> / <a href={categoryUrl}>{m.category}</a> / <span aria-current="page">{m.name}</span></nav>
-    <h1>{m.name}</h1><p>{m.description}</p>
-    <section class="tool" aria-labelledby="tool-title"><h2 id="tool-title">{m.toolTitle}</h2><label for="source">{m.label}</label><textarea id="source" placeholder={m.placeholder as string}></textarea><div class="actions"><button id="process" type="button">{m.process}</button><button id="clear" class="secondary" type="button">{m.clear}</button></div><p class="notice">{m.privacy}</p><div class="result" id="result" role="status" aria-live="polite" data-empty-message={m.empty} hidden></div></section>
-    <SponsorshipSlot placementId={tool.sponsorPlacementId} registryUrl={topology.registryUrl} enabled={tool.sponsorshipEnabled} locale={locale}/><section><h2>{m.howTitle}</h2><ol>{(m.how as string[]).map((item) => <li>{item}</li>)}</ol></section><section><h2>{m.limitsTitle}</h2><p>{m.limits}</p></section><section><h2>{m.relatedTitle}</h2><p>{m.related}</p></section>
-  </ToolFrame>
-  <script>import { cleanText } from '../lib/clean-text'; const source=document.querySelector('#source');const result=document.querySelector('#result');document.querySelector('#process')?.addEventListener('click',()=>{if(!(source instanceof HTMLTextAreaElement)||!(result instanceof HTMLElement))return;result.textContent=cleanText(source.value)||result.dataset.emptyMessage||'';result.hidden=false});document.querySelector('#clear')?.addEventListener('click',()=>{if(source instanceof HTMLTextAreaElement)source.value='';if(result instanceof HTMLElement){result.textContent='';result.hidden=true}if(source instanceof HTMLElement)source.focus()});</script>
-</body></html>
-<style>.crumbs{margin:2rem 0 1rem;font-size:.9rem;color:var(--color-text-secondary)}.crumbs a{color:inherit}h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.1}.tool{margin:2rem 0;padding:1.25rem;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface)}textarea{width:100%;min-height:180px;padding:1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);color:inherit;background:var(--color-background)}.actions{display:flex;gap:.75rem;margin-top:.75rem}button{min-height:44px;padding:.6rem 1rem;border:0;border-radius:var(--radius-md);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer}button.secondary{border:1px solid var(--color-border);background:var(--color-background);color:var(--color-text)}.notice{color:var(--color-text-secondary);font-size:.9rem}.result{margin-top:1rem;padding:1rem;border-left:4px solid var(--color-primary);background:var(--color-background)}section{margin:2.5rem 0}</style>
+
+<ToolPage
+  scope={tool.scope}
+  {locale}
+  title={m.name}
+  description={m.description}
+  category={tool.category}
+  breadcrumbLabel={m.breadcrumb}
+  noindex={!tool.published}
+  sponsorPlacementId={tool.sponsorPlacementId}
+  sponsorshipEnabled={tool.sponsorshipEnabled}
+>
+  <section class={styles.workspace} aria-labelledby="tool-title" slot="workspace">
+    <h2 id="tool-title">{m.toolTitle}</h2>
+    <label for="source">{m.label}</label>
+    <textarea id="source" placeholder={m.placeholder}></textarea>
+    <div class={styles.actions}>
+      <button id="process" type="button">{m.process}</button>
+      <button id="clear" class={styles.secondary} type="button">{m.clear}</button>
+    </div>
+    <p class={styles.notice}>{m.privacy}</p>
+    <div class={styles.result} id="result" role="status" aria-live="polite" data-empty-message={m.empty} hidden></div>
+  </section>
+
+  <section class={styles.info}>
+    <h2>{m.howTitle}</h2>
+    <ol>{m.how.map((item) => <li>{item}</li>)}</ol>
+  </section>
+  <section class={styles.info}>
+    <h2>{m.limitsTitle}</h2>
+    <p>{m.limits}</p>
+  </section>
+  <section class={styles.info}>
+    <h2>{m.relatedTitle}</h2>
+    <p>{m.related}</p>
+  </section>
+
+  <script>
+    import { cleanText } from '../lib/clean-text';
+    const source = document.querySelector<HTMLTextAreaElement>('#source');
+    const result = document.querySelector<HTMLElement>('#result');
+    document.querySelector('#process')?.addEventListener('click', () => {
+      if (!source || !result) return;
+      result.textContent = cleanText(source.value) || result.dataset.emptyMessage || '';
+      result.hidden = false;
+    });
+    document.querySelector('#clear')?.addEventListener('click', () => {
+      if (source) source.value = '';
+      if (result) {
+        result.textContent = '';
+        result.hidden = true;
+      }
+      source?.focus();
+    });
+  </script>
+</ToolPage>

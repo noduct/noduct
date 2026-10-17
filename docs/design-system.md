@@ -6,10 +6,10 @@ Oferecer identidade consistente sem acoplar as ferramentas ao código do hub. Os
 
 ## Convenções
 
-Azul é reservado a ações e foco; superfícies neutras sustentam conteúdo. Raios variam de 6 a 16 px. O tema escuro troca tokens, não regras por componente. Contraste, foco visível, alvos mínimos de 44 px e `prefers-reduced-motion` são obrigatórios.
+Azul é reservado a ações e foco; superfícies neutras sustentam conteúdo. Raios variam de 4 a 10 px. O tema escuro troca tokens, não regras por componente. Contraste, foco visível, alvos mínimos de 44 px e `prefers-reduced-motion` são obrigatórios.
 
 ## Modificação e validação
 
-A versão `0.4.0` oferece os componentes `SponsorCard` e `SponsorshipSlot`, documentados em [Componente de patrocínio](componente-patrocinio.md), e as primitivas de fluxo de arquivos `DropZone`, `ReorderableList`, `ProcessingFeedback` e `DownloadCard`, documentadas em [Componentes de fluxo de arquivos](componentes-fluxo-arquivos.md) e acompanhadas do subpath `@noduct/design-system/file-workflow`. O subpath `@noduct/design-system/sponsorship` continua expondo contratos v1, resolver, cliente de atualização e fallback de logo sem importar componentes Astro ou módulos do Hub. Consulte [Registry de patrocínios](registry-patrocinio.md). Mudanças de dados centrais dispensam rebuild do consumidor; atualizar o código ou os estilos do pacote exige atualização versionada e deploy das ferramentas.
+A versão `0.5.0` reúne `AppShell` e `ToolPage` para todas as ferramentas, além de `SponsorCard`, `SponsorshipSlot`, `DropZone`, `ReorderableList`, `ProcessingFeedback`, `DownloadCard` e `WorkspaceDrawer`. `ToolPage` fornece breadcrumb, título, área funcional, patrocínio e conteúdo; o drawer entra no slot `actions` do header. O subpath `@noduct/design-system/sponsorship` expõe contratos v1, resolver, cliente de atualização e fallback de logo. Consulte [Componentes de fluxo de arquivos](componentes-fluxo-arquivos.md) e [Registry de patrocínios](registry-patrocinio.md). Mudanças de código ou estilos exigem versão e deploy dos consumidores. O histórico da API está no [changelog](../packages/design-system/CHANGELOG.md).
 
-Altere o token mais semântico possível e teste ambos os temas em mobile e desktop. Rode Playwright com axe. A marca atual é textual com símbolo provisório; substitua por asset oficial sem redesenhá-lo por aproximação.
+Altere o token mais semântico possível e teste ambos os temas em mobile e desktop. Rode Playwright com axe. O monograma `N` do shell é a referência de marca.

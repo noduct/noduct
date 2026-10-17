@@ -1,7 +1,0 @@
----
-import { designMessages, designPath, type DesignLocale } from '../i18n';
-const { hubUrl = 'https://noduct.github.io/', locale = 'en' } = Astro.props as { hubUrl?: string; locale?: DesignLocale };
-const m = designMessages[locale];
----
-<footer class="tv-footer"><div class="tv-wrap"><span>{m.contributors(new Date().getFullYear())}</span><nav aria-label={m.legal}><a href={`${hubUrl}${designPath('privacy/', locale)}`}>{m.privacy}</a><a href={`${hubUrl}${designPath('terms/', locale)}`}>{m.terms}</a></nav></div></footer>
-<style>.tv-footer{margin-top:4rem;border-top:1px solid var(--color-border);color:var(--color-text-secondary)}.tv-wrap{display:flex;width:min(calc(100% - 2rem),var(--content-width));margin:auto;padding:1.5rem 0;justify-content:space-between;gap:1rem}.tv-footer nav{display:flex;gap:1rem}.tv-footer a{color:inherit}@media(max-width:560px){.tv-wrap{flex-direction:column}}</style>

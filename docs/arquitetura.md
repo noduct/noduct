@@ -7,7 +7,7 @@ Noduct é uma suíte estática de ferramentas client-side. O hub cuida de descob
 ## Pacotes e dependências
 
 - `@noduct/tool-runtime`: TypeScript puro e fonte única de topologia, locales, SEO, taxonomia e `defineTool()`;
-- `@noduct/design-system`: tokens, shell e componentes acessíveis; depende apenas do runtime entre os pacotes estruturais;
+- `@noduct/design-system`: tokens, `AppShell`, `ToolPage` e componentes acessíveis; depende apenas do runtime entre os pacotes estruturais;
 - `@noduct/workspace-core`: persistência IndexedDB, coordenação entre abas e transferências;
 - `@noduct/pdf-core`: domínio de processamento PDF, sem DOM;
 - ferramentas Astro: compõem shell, componentes e pacotes de domínio.
@@ -18,7 +18,7 @@ O runtime não depende de pacote interno. O design system não importa hub nem p
 
 O hub ocupa `/`, `/pt-br/` e `/es/`. Cada ferramenta ocupa `/<slug>/`, `/<slug>/pt-br/` e `/<slug>/es/`. `RESERVED_HUB_SEGMENTS` protege o namespace do hub. No monorepo, `scripts/assemble-pages.ts` descobre ferramentas por `noduct.slug`, monta `dist-pages/` e cria stubs transitórios do base antigo.
 
-O catálogo tipado continua sendo a fonte de verdade para disponibilidade. Itens `planned` aparecem como roadmap sem link. HTML essencial é gerado estaticamente; JavaScript é seletivo e processamento de arquivos ocorre localmente.
+O catálogo tipado continua sendo a fonte de verdade para disponibilidade. Itens `planned` aparecem como roadmap sem link. Toda ferramenta usa `ToolPage` para breadcrumb, título, área funcional e patrocínio; controles do workspace ocupam o slot `actions` do header. HTML essencial é gerado estaticamente; JavaScript é seletivo e processamento de arquivos ocorre localmente.
 
 ## Validação
 

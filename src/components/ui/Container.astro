@@ -1,6 +1,0 @@
----
-import styles from './Container.module.css';
-interface Props { as?: 'div' | 'section' | 'article'; narrow?: boolean; class?: string; }
-const { as: Element = 'div', narrow = false, class: className = '' } = Astro.props;
----
-<Element class:list={[styles.container, narrow && styles.narrow, className]}><slot /></Element>
