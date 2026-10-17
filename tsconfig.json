@@ -1,6 +1,7 @@
 {
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -13,5 +14,13 @@
     "noUncheckedIndexedAccess": true
   },
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist", "dist-pages", "**/dist/**", "node_modules", ".sponsorship-fixture", "tests/fixtures/sponsorship-app/.astro", "packages/merge-pdf/.astro"]
+  "exclude": [
+    "dist",
+    "dist-pages",
+    "**/dist/**",
+    "node_modules",
+    ".sponsorship-fixture",
+    "tests/fixtures/sponsorship-app/.astro",
+    "packages/merge-pdf/.astro"
+  ]
 }

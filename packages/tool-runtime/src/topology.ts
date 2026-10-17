@@ -1,5 +1,12 @@
-import { DEFAULT_LOCALE, LOCALES, LOCALE_SEGMENT, LOCALE_SEGMENTS, localeFromSegment, type Locale } from './locale';
-import { CATEGORY_IDS } from './taxonomy';
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  LOCALE_SEGMENT,
+  LOCALE_SEGMENTS,
+  localeFromSegment,
+  type Locale
+} from './locale.ts';
+import { CATEGORY_IDS } from './taxonomy.ts';
 
 /**
  * Topologia de URLs do Noduct (ADR 0005). ÚNICO lugar do repositório onde a origem e os bases
@@ -81,7 +88,8 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function assertToolSlug(slug: string): void {
   if (!SLUG.test(slug)) throw new Error(`Invalid tool slug "${slug}": use lowercase kebab-case.`);
-  if (RESERVED_HUB_SEGMENTS.has(slug)) throw new Error(`Tool slug "${slug}" is reserved by the hub.`);
+  if (RESERVED_HUB_SEGMENTS.has(slug))
+    throw new Error(`Tool slug "${slug}" is reserved by the hub.`);
 }
 
 /** Normaliza um caminho relativo: sem barra inicial; diretórios terminam em `/`, arquivos não. */
@@ -109,7 +117,8 @@ function normalizeBase(base: string): string {
 
 export function createTopology(config: TopologyConfig): Topology {
   const origin = config.origin.replace(/\/+$/, '');
-  if (!/^https?:\/\/[^/]+$/.test(origin)) throw new Error(`Origin "${config.origin}" must be scheme + host only.`);
+  if (!/^https?:\/\/[^/]+$/.test(origin))
+    throw new Error(`Origin "${config.origin}" must be scheme + host only.`);
   const hubBase = normalizeBase(config.hubBase);
 
   const localized = (prefix: string, path: string, locale: Locale): string => {
@@ -124,13 +133,16 @@ export function createTopology(config: TopologyConfig): Topology {
     return `${hubBase}${slug}/`;
   };
 
-  const scopePrefix = (scope: Scope): string => (scope.kind === 'hub' ? hubBase : toolBase(scope.slug));
+  const scopePrefix = (scope: Scope): string =>
+    scope.kind === 'hub' ? hubBase : toolBase(scope.slug);
   const scopePath = (scope: Scope, path = '', locale: Locale = DEFAULT_LOCALE): string => {
     if (scope.kind === 'hub') {
       // Páginas do hub vivem só sob segmentos reservados; o resto do namespace é das ferramentas.
       const first = normalizePath(path).split('/')[0] ?? '';
       if (first !== '' && !isFile(first) && !RESERVED_HUB_SEGMENTS.has(first)) {
-        throw new Error(`Hub path "${path}" must start with a reserved hub segment (see RESERVED_HUB_SEGMENTS).`);
+        throw new Error(
+          `Hub path "${path}" must start with a reserved hub segment (see RESERVED_HUB_SEGMENTS).`
+        );
       }
     }
     return localized(scopePrefix(scope), path, locale);
@@ -140,7 +152,8 @@ export function createTopology(config: TopologyConfig): Topology {
 
   const hubAssetPath = (file: string): string => {
     const normalized = normalizePath(file);
-    if (!isFile(normalized)) throw new Error(`Asset "${file}" must be a file path with an extension.`);
+    if (!isFile(normalized))
+      throw new Error(`Asset "${file}" must be a file path with an extension.`);
     return `${hubBase}${normalized}`;
   };
 
@@ -197,4 +210,7 @@ export function createTopology(config: TopologyConfig): Topology {
 }
 
 /** Topologia de produção (ADR 0005): hub na raiz, ferramentas em `/<slug>/`. */
-export const topology: Topology = createTopology({ origin: NODUCT_ORIGIN, hubBase: NODUCT_HUB_BASE });
+export const topology: Topology = createTopology({
+  origin: NODUCT_ORIGIN,
+  hubBase: NODUCT_HUB_BASE
+});

@@ -25,6 +25,7 @@ A causa recorrente foi a falta de um contrato concreto e verificável, não a di
 - **Gatilhos sem timer:** abertura do workspace/drawer e retorno da aba ao primeiro plano oferecem limpeza previsível sem trabalho contínuo em segundo plano.
 - **Códigos de erro:** frases montadas no `workspace-core` não podem ser traduzidas com segurança. `code` e `params` estruturados separam decisão de domínio de apresentação.
 - **Testes de limite temporal:** relógio falso, fixture de migração e Playwright devem provar o comportamento no instante de expiração, a proteção de `persistent`/locks e o anúncio acessível de remoção.
+- **Configuração em desenvolvimento:** o `astro.config.mjs` importa `@noduct/tool-runtime` pelo ESM nativo do Node. Imports internos TypeScript sem extensão quebravam `npm run dev:merge-pdf` embora o build estático passasse. Os imports explícitos `.ts` e um teste que executa o Node diretamente protegem esse caminho.
 
 ## Critério operacional para fechar uma fase
 

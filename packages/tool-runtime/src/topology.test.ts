@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { execFileSync } from 'node:child_process';
 import { LOCALES, localeStaticPaths, resolveBrowserLocale } from './locale';
 import { CATEGORY_IDS, categoryPath, getCategories } from './taxonomy';
 import {
@@ -11,6 +12,18 @@ import {
 } from './topology';
 import { breadcrumbList, fullTitle, jsonLdGraph, pageSeo } from './seo';
 import { defineTool } from './define-tool';
+
+it('loads the package through native Node ESM, as Astro config does in dev', () => {
+  const output = execFileSync(
+    process.execPath,
+    [
+      '-e',
+      "import('@noduct/tool-runtime').then(({ topology }) => console.log(topology.hubPath()))"
+    ],
+    { cwd: process.cwd(), encoding: 'utf8' }
+  );
+  expect(output.trim()).toBe('/');
+});
 
 describe('topology — production table', () => {
   const cases: Array<[string, string]> = [
@@ -36,7 +49,10 @@ describe('topology — production table', () => {
 
   it('maps Astro site/base from the scope', () => {
     expect(topology.astro(HUB_SCOPE)).toEqual({ site: 'https://noduct.github.io', base: '/' });
-    expect(topology.astro(toolScope('merge-pdf'))).toEqual({ site: 'https://noduct.github.io', base: '/merge-pdf' });
+    expect(topology.astro(toolScope('merge-pdf'))).toEqual({
+      site: 'https://noduct.github.io',
+      base: '/merge-pdf'
+    });
   });
 });
 
@@ -66,7 +82,15 @@ describe('topology — invariants', () => {
   });
 
   it('rejects unsafe paths', () => {
-    for (const path of ['../x', 'a/../b', 'a//b', 'x?y', 'x#y', 'https://evil.test/', '//evil.test'])
+    for (const path of [
+      '../x',
+      'a/../b',
+      'a//b',
+      'x?y',
+      'x#y',
+      'https://evil.test/',
+      '//evil.test'
+    ])
       expect(() => normalizePath(path)).toThrow();
   });
 
@@ -78,13 +102,26 @@ describe('topology — invariants', () => {
 
   it('parses legacy and foreign URLs safely', () => {
     expect(topology.parse('https://example.test/merge-pdf/')).toBeNull();
-    expect(topology.parse('/pt-br/pdf-tools/')).toEqual({ scope: HUB_SCOPE, locale: 'pt-BR', path: 'pdf-tools/' });
+    expect(topology.parse('/pt-br/pdf-tools/')).toEqual({
+      scope: HUB_SCOPE,
+      locale: 'pt-BR',
+      path: 'pdf-tools/'
+    });
   });
 });
 
 describe('topology — slugs', () => {
   it('rejects reserved and malformed slugs', () => {
-    for (const slug of ['tools', 'pt-br', 'noduct', 'pdf-tools', '_astro', 'Merge', 'merge_pdf', '-x'])
+    for (const slug of [
+      'tools',
+      'pt-br',
+      'noduct',
+      'pdf-tools',
+      '_astro',
+      'Merge',
+      'merge_pdf',
+      '-x'
+    ])
       expect(() => topology.toolBase(slug)).toThrow();
   });
 

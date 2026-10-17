@@ -1,5 +1,5 @@
-import type { CategoryId } from './taxonomy';
-import { assertToolSlug, toolScope, type Scope } from './topology';
+import type { CategoryId } from './taxonomy.ts';
+import { assertToolSlug, toolScope, type Scope } from './topology.ts';
 
 export const TOOL_STATUSES = ['planned', 'beta', 'published', 'ready', 'new'] as const;
 export type ToolStatus = (typeof TOOL_STATUSES)[number];

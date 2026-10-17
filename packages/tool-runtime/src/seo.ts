@@ -1,5 +1,10 @@
-import type { Locale } from './locale';
-import { topology as defaultTopology, type Alternate, type Scope, type Topology } from './topology';
+import type { Locale } from './locale.ts';
+import {
+  topology as defaultTopology,
+  type Alternate,
+  type Scope,
+  type Topology
+} from './topology.ts';
 
 /** Hreflang emitido para cada locale (`x-default` aponta para o inglês). */
 export interface PageSeo {
@@ -8,7 +13,12 @@ export interface PageSeo {
   readonly locale: Locale;
 }
 
-export function pageSeo(scope: Scope, path: string, locale: Locale, topology: Topology = defaultTopology): PageSeo {
+export function pageSeo(
+  scope: Scope,
+  path: string,
+  locale: Locale,
+  topology: Topology = defaultTopology
+): PageSeo {
   return {
     canonical: topology.canonical(scope, path, locale),
     alternates: topology.alternates(scope, path),
