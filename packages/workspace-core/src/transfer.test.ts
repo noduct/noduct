@@ -29,22 +29,30 @@ describe('Cross-Tool Transfer Protocol', () => {
     const transfer = await client.createTransfer(doc.id, 'merge-pdf');
 
     expect(transfer.transferId).toBeDefined();
-    expect(transfer.transferUrl).toBe(`${topology.toolUrl('merge-pdf')}?transferId=${transfer.transferId}`);
+    expect(transfer.transferUrl).toBe(
+      `${topology.toolUrl('merge-pdf')}?transferId=${transfer.transferId}`
+    );
     expect(transfer.expiresAt).toBeGreaterThan(Date.now());
   });
 
   it('preserves the user locale and rejects invalid targets', async () => {
-    const doc = await client.saveDocument({ name: 'a.pdf', blob: new Blob(['a'], { type: 'application/pdf' }) });
+    const doc = await client.saveDocument({
+      name: 'a.pdf',
+      blob: new Blob(['a'], { type: 'application/pdf' })
+    });
     const transfer = await client.createTransfer(doc.id, 'merge-pdf', { locale: 'pt-BR' });
-    expect(transfer.transferUrl).toBe(`${topology.toolUrl('merge-pdf', '', 'pt-BR')}?transferId=${transfer.transferId}`);
+    expect(transfer.transferUrl).toBe(
+      `${topology.toolUrl('merge-pdf', '', 'pt-BR')}?transferId=${transfer.transferId}`
+    );
     await expect(client.createTransfer(doc.id, 'about')).rejects.toThrow(InvalidToolTargetError);
     await expect(client.createTransfer(doc.id, '../x')).rejects.toThrow(InvalidToolTargetError);
   });
 
   it('fails to create transfer if document does not exist', async () => {
-    await expect(
-      client.createTransfer('non-existent-id', 'merge-pdf')
-    ).rejects.toThrow(DocumentNotFoundError);
+    await expect(client.createTransfer('non-existent-id', 'merge-pdf')).rejects.toMatchObject({
+      code: 'DOCUMENT_NOT_FOUND',
+      params: { id: 'non-existent-id' }
+    } satisfies Partial<DocumentNotFoundError>);
   });
 
   it('resolves a transfer ticket once and blocks reuse', async () => {
@@ -62,9 +70,9 @@ describe('Cross-Tool Transfer Protocol', () => {
     expect(await resolved.blob.text()).toBe('invoice-binary');
 
     // Second resolution fails with TransferAlreadyConsumedError
-    await expect(
-      client.resolveTransfer(transfer.transferId, 'split-pdf')
-    ).rejects.toThrow(TransferAlreadyConsumedError);
+    await expect(client.resolveTransfer(transfer.transferId, 'split-pdf')).rejects.toThrow(
+      TransferAlreadyConsumedError
+    );
   });
 
   it('rejects expired transfer tickets', async () => {
@@ -79,9 +87,9 @@ describe('Cross-Tool Transfer Protocol', () => {
     // Wait 10ms
     await new Promise((r) => setTimeout(r, 10));
 
-    await expect(
-      client.resolveTransfer(transfer.transferId, 'merge-pdf')
-    ).rejects.toThrow(TransferExpiredError);
+    await expect(client.resolveTransfer(transfer.transferId, 'merge-pdf')).rejects.toThrow(
+      TransferExpiredError
+    );
   });
 
   it('rejects transfers accessed from the wrong tool', async () => {
@@ -92,15 +100,16 @@ describe('Cross-Tool Transfer Protocol', () => {
 
     const transfer = await client.createTransfer(doc.id, 'pdf-studio');
 
-    await expect(
-      client.resolveTransfer(transfer.transferId, 'merge-pdf')
-    ).rejects.toThrow(InvalidToolTargetError);
+    await expect(client.resolveTransfer(transfer.transferId, 'merge-pdf')).rejects.toThrow(
+      InvalidToolTargetError
+    );
   });
 
   it('rejects unknown transferId', async () => {
-    await expect(
-      client.resolveTransfer('random-ticket-id')
-    ).rejects.toThrow(TransferNotFoundError);
+    await expect(client.resolveTransfer('random-ticket-id')).rejects.toMatchObject({
+      code: 'TRANSFER_NOT_FOUND',
+      params: { transferId: 'random-ticket-id' }
+    } satisfies Partial<TransferNotFoundError>);
   });
 
   it('cleans up expired and consumed transfers', async () => {

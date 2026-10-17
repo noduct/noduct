@@ -24,7 +24,12 @@ const m = workspaceUiMessages[currentLocale];
   <dialog class={styles.dialog} data-workspace-dialog aria-labelledby={`${id}-title`}>
     <div class={styles.header}>
       <h2 id={`${id}-title`} class={styles.title}>{m.drawerTitle}</h2>
-      <button type="button" class={styles.closeButton} data-workspace-close aria-label={m.closeLabel}>
+      <button
+        type="button"
+        class={styles.closeButton}
+        data-workspace-close
+        aria-label={m.closeLabel}
+      >
         <Icon name="x" />
       </button>
     </div>
@@ -40,9 +45,12 @@ const m = workspaceUiMessages[currentLocale];
 
     <p class={styles.emptyState} data-workspace-empty>{m.emptyMessage}</p>
     <ul class={styles.list} data-workspace-list aria-label={m.drawerTitle}></ul>
+    <p class="sr-only" role="status" aria-live="polite" data-workspace-announcement></p>
 
     <div class={styles.footer}>
-      <button type="button" class={styles.clearButton} data-workspace-clear-all hidden>{m.clearAll}</button>
+      <button type="button" class={styles.clearButton} data-workspace-clear-all hidden
+        >{m.clearAll}</button
+      >
     </div>
   </dialog>
 </div>

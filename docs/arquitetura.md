@@ -23,3 +23,5 @@ O catálogo tipado continua sendo a fonte de verdade para disponibilidade. Itens
 ## Validação
 
 `validate:pages` verifica a correspondência entre topologia e artefato. ADRs 0003 e 0005 registram estratégia de extração, shell e guardrails. A definição completa de pronto é `npm run verify`.
+
+A [memória arquitetural da issue #39](architecture/issue-39-rationale.md) registra as causas do recomeço do épico, os invariantes e o motivo das decisões de cada fase.

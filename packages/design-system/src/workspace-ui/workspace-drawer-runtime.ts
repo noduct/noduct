@@ -11,13 +11,22 @@ export interface WorkspaceDisplayItem {
   readonly name: string;
   readonly size: number;
   readonly createdAt: number;
+  readonly retention: 'ephemeral' | 'persistent';
+  readonly lastAccessedAt: number;
 }
 
 export interface WorkspaceDrawerController {
   open(): void;
   close(): void;
   isOpen(): boolean;
-  setItems(items: readonly WorkspaceDisplayItem[], totalBytes: number, limitBytes: number): void;
+  setItems(
+    items: readonly WorkspaceDisplayItem[],
+    totalBytes: number,
+    limitBytes: number,
+    maxIdleMs: number
+  ): void;
+  announceExpired(count: number): void;
+  announceError(message: string): void;
 }
 
 const controllers = new WeakMap<HTMLElement, WorkspaceDrawerController>();
@@ -34,6 +43,7 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
   const usageEl = root.querySelector<HTMLElement>('[data-workspace-usage]');
   const emptyEl = root.querySelector<HTMLElement>('[data-workspace-empty]');
   const clearAllBtn = root.querySelector<HTMLButtonElement>('[data-workspace-clear-all]');
+  const announcementEl = root.querySelector<HTMLElement>('[data-workspace-announcement]');
 
   if (!dialog) return undefined;
   const dialogEl: HTMLDialogElement = dialog;
@@ -100,7 +110,13 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
     open,
     close,
     isOpen: () => dialogEl.hasAttribute('open'),
-    setItems(items, totalBytes, limitBytes) {
+    announceExpired(count) {
+      if (count > 0 && announcementEl) announcementEl.textContent = messages.expiredRemoved(count);
+    },
+    announceError(message) {
+      if (announcementEl) announcementEl.textContent = message;
+    },
+    setItems(items, totalBytes, limitBytes, maxIdleMs) {
       const usedMb = (totalBytes / (1024 * 1024)).toFixed(1);
       const limitMb = Math.round(limitBytes / (1024 * 1024)).toString();
       if (usageEl) {
@@ -120,23 +136,58 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
       items.forEach((item) => {
         const li = document.createElement('li');
         li.setAttribute('data-workspace-item', item.id);
-        li.className = '_item_row';
+        li.setAttribute('data-workspace-retention', item.retention);
 
         const info = document.createElement('div');
-        info.className = '_item_info';
+        info.setAttribute('data-workspace-info', '');
 
         const name = document.createElement('span');
-        name.className = '_item_name';
+        name.setAttribute('data-workspace-name', '');
         name.textContent = item.name;
 
         const size = document.createElement('span');
-        size.className = '_item_size';
+        size.setAttribute('data-workspace-size', '');
         size.textContent = formatBytes(item.size);
 
-        info.append(name, size);
+        const retention = document.createElement('span');
+        retention.setAttribute('data-workspace-expiry', '');
+        if (item.retention === 'persistent') {
+          retention.textContent = messages.persistent;
+        } else {
+          const remainingMs = maxIdleMs - (Date.now() - item.lastAccessedAt);
+          retention.textContent =
+            remainingMs <= 0
+              ? messages.expiryPending
+              : remainingMs < 60 * 60 * 1000
+                ? messages.expiresSoon
+                : messages.expiresInHours(Math.ceil(remainingMs / (60 * 60 * 1000)));
+        }
+
+        info.append(name, size, retention);
 
         const actions = document.createElement('div');
-        actions.className = '_item_actions';
+        actions.setAttribute('data-workspace-actions', '');
+
+        const retentionBtn = document.createElement('button');
+        retentionBtn.type = 'button';
+        retentionBtn.setAttribute('data-workspace-retention-toggle', '');
+        const nextRetention = item.retention === 'ephemeral' ? 'persistent' : 'ephemeral';
+        retentionBtn.textContent =
+          nextRetention === 'persistent' ? messages.keep : messages.allowExpiry;
+        retentionBtn.setAttribute(
+          'aria-label',
+          nextRetention === 'persistent'
+            ? messages.keepFile(item.name)
+            : messages.allowExpiryFile(item.name)
+        );
+        retentionBtn.addEventListener('click', () => {
+          root.dispatchEvent(
+            new CustomEvent<WorkspaceActionDetail>(WORKSPACE_ACTION_EVENT, {
+              bubbles: true,
+              detail: { action: 'set-retention', documentId: item.id, retention: nextRetention }
+            })
+          );
+        });
 
         const dlBtn = document.createElement('button');
         dlBtn.type = 'button';
@@ -164,7 +215,7 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
           );
         });
 
-        actions.append(dlBtn, delBtn);
+        actions.append(retentionBtn, dlBtn, delBtn);
         li.append(info, actions);
         listEl.appendChild(li);
       });
@@ -180,4 +231,3 @@ export function initializeWorkspaceDrawers(root: ParentNode): void {
     if (!controllers.has(el)) armWorkspaceDrawer(el);
   });
 }
-

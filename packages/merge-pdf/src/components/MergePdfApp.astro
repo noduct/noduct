@@ -64,6 +64,7 @@ const clientMessages = {
       />
 
       <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
+      <p class={styles.alerts} role="alert" hidden data-budget-alert></p>
 
       <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} />
 
@@ -161,6 +162,9 @@ const clientMessages = {
         type WorkspaceActionDetail
       } from '@noduct/design-system/workspace-ui';
       import type { MergeWorkflow, WorkflowFileItem } from '../lib/merge-workflow';
+      import type { WorkspaceClient } from '@noduct/workspace-core';
+      import { formatBudgetIssue } from '../lib/workspace-budget-messages';
+      import { formatWorkspaceError } from '../lib/workspace-error-messages';
 
       const language = document.documentElement.lang;
       const clientLocale: Locale = language === 'pt-BR' || language === 'es' ? language : 'en';
@@ -170,6 +174,22 @@ const clientMessages = {
       const numberFormat = new Intl.NumberFormat(clientLocale);
       const formatMessage = (template: string, values: Record<string, string>) =>
         template.replace(/\{(name|files|pages)\}/g, (_, key: string) => values[key] ?? '');
+
+      let workspacePromise: Promise<WorkspaceClient> | undefined;
+      function getLocalWorkspace(): Promise<WorkspaceClient> {
+        if (!workspacePromise) {
+          workspacePromise = import('@noduct/workspace-core')
+            .then(({ openWorkspace }) => openWorkspace())
+            .catch((error: unknown) => {
+              workspacePromise = undefined;
+              throw error;
+            });
+        }
+        return workspacePromise;
+      }
+      window.addEventListener('pagehide', () => {
+        void workspacePromise?.then((workspace) => workspace.close());
+      });
 
       // Lazy load workflow module to optimize LCP < 1.5s
       let workflowPromise: Promise<MergeWorkflow> | undefined;
@@ -189,6 +209,7 @@ const clientMessages = {
       const feedbackEl = document.querySelector<HTMLElement>('[data-processing-feedback]')!;
       const downloadEl = document.querySelector<HTMLElement>('[data-download-card]')!;
       const alertsEl = document.querySelector<HTMLElement>('[data-merge-alerts]')!;
+      const budgetAlertEl = document.querySelector<HTMLElement>('[data-budget-alert]')!;
       const countEl = document.querySelector<HTMLElement>('[data-merge-count]')!;
       const mergeBtn = document.querySelector<HTMLButtonElement>('[data-action="merge"]')!;
       const clearBtn = document.querySelector<HTMLButtonElement>('[data-action="clear"]')!;
@@ -279,6 +300,27 @@ const clientMessages = {
         const workflow = await getWorkflow();
         if (!workflow.getState().canMerge) return;
 
+        const { evaluateResourceBudget } = await import('@noduct/workspace-core');
+        const validItems = workflow.getState().items.filter((item) => item.status === 'valid');
+        const assessment = await evaluateResourceBudget({
+          inputs: validItems.map((item) => ({
+            name: item.name,
+            size: item.size,
+            pageCount: item.pageCount
+          }))
+        });
+        budgetAlertEl.hidden = true;
+        if (assessment.decision === 'blocked') {
+          budgetAlertEl.textContent = formatBudgetIssue(assessment, clientLocale);
+          budgetAlertEl.hidden = false;
+          return;
+        }
+        if (
+          assessment.decision === 'warning' &&
+          !window.confirm(formatBudgetIssue(assessment, clientLocale))
+        )
+          return;
+
         dropZone.setDisabled(true);
         mergeBtn.disabled = true;
         clearBtn.hidden = true;
@@ -308,13 +350,13 @@ const clientMessages = {
           downloadCard.show({ file: result.blob, fileName: result.fileName });
 
           try {
-            const { openWorkspace } = await import('@noduct/workspace-core');
-            const ws = await openWorkspace();
+            const ws = await getLocalWorkspace();
             await ws.saveDocument({
               name: result.fileName,
               mimeType: 'application/pdf',
               blob: result.blob,
               size: result.blob.size,
+              sourceTool: 'merge-pdf',
               metadata: { toolSource: 'merge-pdf' }
             });
           } catch {
@@ -342,6 +384,7 @@ const clientMessages = {
         dropZone.setDisabled(false);
         alertsEl.replaceChildren();
         alertsEl.hidden = true;
+        budgetAlertEl.hidden = true;
         updateUI(workflow);
         document.querySelector<HTMLInputElement>('#merge-drop-zone')?.focus();
       }
@@ -359,16 +402,35 @@ const clientMessages = {
       const workspaceRoot = document.querySelector<HTMLElement>('[data-workspace-root]');
       if (workspaceRoot) {
         const drawer = getWorkspaceDrawer(workspaceRoot);
+        let initialCleanupAnnounced = false;
+        let subscribed = false;
 
         async function syncWorkspace() {
           try {
             const {
-              openWorkspace,
+              DEFAULT_DOCUMENT_MAX_IDLE_MS,
               detectDeviceProfile,
               DESKTOP_RESOURCE_BUDGET,
               MOBILE_RESOURCE_BUDGET
             } = await import('@noduct/workspace-core');
-            const ws = await openWorkspace();
+            const ws = await getLocalWorkspace();
+            const removedOnOpen = initialCleanupAnnounced ? 0 : ws.initialCleanupRemovedIds.length;
+            initialCleanupAnnounced = true;
+            const removedNow = await ws.cleanupExpiredDocuments();
+            drawer?.announceExpired(removedOnOpen + removedNow.length);
+            if (!subscribed) {
+              ws.subscribe((event) => {
+                if (
+                  event.type === 'document_deleted' &&
+                  event.reason === 'expired' &&
+                  drawer?.isOpen()
+                ) {
+                  drawer.announceExpired(1);
+                }
+                if (drawer?.isOpen()) void syncWorkspace();
+              });
+              subscribed = true;
+            }
             const docs = await ws.listDocuments();
             const size = await ws.getWorkspaceSize();
             drawer?.setItems(
@@ -376,16 +438,19 @@ const clientMessages = {
                 id: d.id,
                 name: d.name,
                 size: d.size,
-                createdAt: d.createdAt
+                createdAt: d.createdAt,
+                retention: d.retention,
+                lastAccessedAt: d.lastAccessedAt
               })),
               size.totalBytes,
               (detectDeviceProfile() === 'mobile'
                 ? MOBILE_RESOURCE_BUDGET
                 : DESKTOP_RESOURCE_BUDGET
-              ).maxWorkspaceStorageBytes
+              ).maxWorkspaceStorageBytes,
+              DEFAULT_DOCUMENT_MAX_IDLE_MS
             );
-          } catch {
-            // Gracefully handle if storage unavailable
+          } catch (error) {
+            drawer?.announceError(formatWorkspaceError(error, clientLocale));
           }
         }
 
@@ -396,15 +461,17 @@ const clientMessages = {
         document.addEventListener(WORKSPACE_ACTION_EVENT, async (event) => {
           const detail = (event as CustomEvent<WorkspaceActionDetail>).detail;
           try {
-            const { openWorkspace } = await import('@noduct/workspace-core');
-            const ws = await openWorkspace();
+            const ws = await getLocalWorkspace();
             if (detail.action === 'clear-all') {
               await ws.clearDocuments();
               await syncWorkspace();
-            } else if (detail.action === 'delete' && detail.documentId) {
+            } else if (detail.action === 'delete') {
               await ws.deleteDocument(detail.documentId);
               await syncWorkspace();
-            } else if (detail.action === 'download' && detail.documentId) {
+            } else if (detail.action === 'set-retention') {
+              await ws.setRetention(detail.documentId, detail.retention);
+              await syncWorkspace();
+            } else if (detail.action === 'download') {
               const doc = await ws.getDocument(detail.documentId);
               if (doc) {
                 const url = URL.createObjectURL(doc.blob);
@@ -415,10 +482,11 @@ const clientMessages = {
                 a.click();
                 a.remove();
                 URL.revokeObjectURL(url);
+                await syncWorkspace();
               }
             }
-          } catch {
-            // ignore
+          } catch (error) {
+            drawer?.announceError(formatWorkspaceError(error, clientLocale));
           }
         });
       }

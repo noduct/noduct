@@ -1,10 +1,5 @@
 import { topology as defaultTopology, type Locale, type Topology } from '@noduct/tool-runtime';
-import {
-  dbConsumeTransfer,
-  dbGetDocument,
-  dbGetTransfer,
-  dbPutTransfer
-} from './db';
+import { dbConsumeTransfer, dbGetTransfer, dbPutTransfer, dbTouchDocument } from './db';
 import {
   DocumentNotFoundError,
   InvalidToolTargetError,
@@ -38,13 +33,17 @@ export async function createTransferTicket(
   targetTool: string,
   options?: CreateTransferOptions
 ): Promise<CreateTransferResult> {
-  const doc = await dbGetDocument(db, documentId);
+  const doc = await dbTouchDocument(db, documentId);
   if (!doc) {
     throw new DocumentNotFoundError(documentId);
   }
 
   if (!targetTool || typeof targetTool !== 'string') {
-    throw new InvalidToolTargetError('Target tool identifier must be a non-empty string.');
+    throw new InvalidToolTargetError(
+      'Target tool identifier must be a non-empty string.',
+      undefined,
+      { targetTool: String(targetTool) }
+    );
   }
 
   const topology = options?.topology ?? defaultTopology;
@@ -52,7 +51,11 @@ export async function createTransferTicket(
   try {
     targetUrl = topology.toolUrl(targetTool, '', options?.locale);
   } catch (cause) {
-    throw new InvalidToolTargetError(`Target tool "${targetTool}" is not a valid tool slug.`, cause);
+    throw new InvalidToolTargetError(
+      `Target tool "${targetTool}" is not a valid tool slug.`,
+      cause,
+      { targetTool }
+    );
   }
 
   const transferId = crypto.randomUUID();
@@ -106,12 +109,14 @@ export async function resolveTransferTicket(
     const cleanTarget = transfer.targetTool.replace(/^\/|\/$/g, '');
     if (cleanCurrent !== cleanTarget) {
       throw new InvalidToolTargetError(
-        `Transfer was intended for "${transfer.targetTool}", but accessed from "${currentTool}".`
+        `Transfer was intended for "${transfer.targetTool}", but accessed from "${currentTool}".`,
+        undefined,
+        { targetTool: transfer.targetTool, currentTool }
       );
     }
   }
 
-  const doc = await dbGetDocument(db, transfer.documentId);
+  const doc = await dbTouchDocument(db, transfer.documentId);
   if (!doc) {
     throw new DocumentNotFoundError(transfer.documentId);
   }
@@ -144,4 +149,3 @@ export async function consumeTransferFromUrl(
 
   return doc;
 }
-

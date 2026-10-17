@@ -16,7 +16,9 @@
   font-weight: 500;
   cursor: pointer;
   box-shadow: var(--shadow-sm), var(--rim-light);
-  transition: background-color var(--duration-fast) var(--ease-apple), border-color var(--duration-fast) var(--ease-apple);
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple);
 }
 
 .trigger:hover {
@@ -26,7 +28,9 @@
 
 .trigger:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+  box-shadow:
+    0 0 0 1.5px var(--color-surface-card),
+    0 0 0 4px var(--color-focus-ring);
 }
 
 @media (max-width: 720px) {
@@ -177,9 +181,7 @@
 }
 
 .list li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
   gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
@@ -191,14 +193,14 @@
   background: var(--color-surface-hover);
 }
 
-.list li > div:first-child {
+.list li [data-workspace-info] {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
   overflow: hidden;
 }
 
-.list li span:first-child {
+.list li [data-workspace-name] {
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text);
@@ -207,19 +209,20 @@
   text-overflow: ellipsis;
 }
 
-.list li span:last-child {
+.list li [data-workspace-size],
+.list li [data-workspace-expiry] {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
-.list li > div:last-child {
+.list li [data-workspace-actions] {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
-  flex-shrink: 0;
 }
 
 .list li button {
-  min-height: 36px;
+  min-height: 44px;
   min-width: 44px;
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--color-border);
@@ -228,6 +231,10 @@
   color: var(--color-text);
   font-size: 0.75rem;
   cursor: pointer;
+}
+
+.list li [data-workspace-retention-toggle] {
+  flex-grow: 1;
 }
 
 .list li button:hover {

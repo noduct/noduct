@@ -380,6 +380,13 @@ test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages fil
   const item = page.locator('[data-workspace-item]');
   await expect(item).toBeVisible();
   await expect(item).toContainText('merged.pdf');
+  await expect(item).toHaveAttribute('data-workspace-retention', 'ephemeral');
+  await expect(item.locator('[data-workspace-expiry]')).toContainText('Expires in');
+  await item.locator('[data-workspace-retention-toggle]').click();
+  await expect(item).toHaveAttribute('data-workspace-retention', 'persistent');
+  await expect(item.locator('[data-workspace-expiry]')).toHaveText('Kept on this device');
+  await item.locator('[data-workspace-retention-toggle]').click();
+  await expect(item).toHaveAttribute('data-workspace-retention', 'ephemeral');
 
   // Clear all files
   page.on('dialog', (d) => d.accept());
@@ -394,4 +401,29 @@ test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages fil
   // Close via Escape
   await page.keyboard.press('Escape');
   await expect(dialog).not.toHaveAttribute('open');
+});
+
+test('Merge PDF: temporary workspace document expires after 24 hours without use and is announced', async ({
+  page
+}) => {
+  await page.clock.install({ time: new Date('2026-10-17T12:00:00Z') });
+  await page.goto(toolUrl);
+  await page.locator('#merge-drop-zone').setInputFiles([
+    { name: 'first.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'First') },
+    { name: 'second.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Second') }
+  ]);
+  await page.locator('#start-merge-btn').click();
+  await expect(page.locator('#merge-download-card')).toBeVisible();
+
+  const trigger = page.locator('[data-workspace-trigger]');
+  await trigger.click();
+  await expect(page.locator('[data-workspace-item]')).toHaveCount(1);
+  await page.locator('[data-workspace-close]').click();
+
+  await page.clock.fastForward(24 * 60 * 60 * 1000 + 1);
+  await trigger.click();
+  await expect(page.locator('[data-workspace-item]')).toHaveCount(0);
+  await expect(page.locator('[data-workspace-announcement]')).toContainText(
+    '1 temporary document was removed'
+  );
 });

@@ -32,9 +32,7 @@ export function detectDeviceProfile(customEnv?: {
     return customEnv.screenWidth < 768 ? 'mobile' : 'desktop';
   }
 
-  const ua =
-    customEnv?.userAgent ??
-    (typeof navigator !== 'undefined' ? navigator.userAgent : '');
+  const ua = customEnv?.userAgent ?? (typeof navigator !== 'undefined' ? navigator.userAgent : '');
 
   if (/Mobi|Android|iPhone|iPad|iPod/i.test(ua)) {
     return 'mobile';
@@ -57,22 +55,74 @@ export interface EvaluateBudgetOptions {
   readonly inputs: readonly EvaluateInputItem[];
   readonly deviceProfile?: DeviceProfile | undefined;
   readonly currentWorkspaceSizeBytes?: number | undefined;
-  readonly storageEstimateProvider?: (() => Promise<{ quota?: number | undefined; usage?: number | undefined }>) | undefined;
+  readonly storageEstimateProvider?:
+    (() => Promise<{ quota?: number | undefined; usage?: number | undefined }>) | undefined;
 }
 
 export type BudgetDecision = 'allowed' | 'warning' | 'blocked';
 
-export interface BudgetEvaluationResult {
-  readonly decision: BudgetDecision;
-  readonly reason?: string | undefined;
-  readonly details: {
-    readonly totalBytes: number;
+export interface BudgetIssueParams {
+  readonly FILE_COUNT_EXCEEDED: {
     readonly fileCount: number;
-    readonly totalPages: number;
+    readonly limit: number;
+    readonly profile: DeviceProfile;
+  };
+  readonly FILE_TOO_LARGE: {
+    readonly fileName: string;
+    readonly sizeBytes: number;
     readonly limitBytes: number;
     readonly profile: DeviceProfile;
   };
+  readonly TOTAL_SIZE_EXCEEDED: {
+    readonly sizeBytes: number;
+    readonly limitBytes: number;
+    readonly profile: DeviceProfile;
+  };
+  readonly PAGE_COUNT_EXCEEDED: {
+    readonly pageCount: number;
+    readonly limit: number;
+    readonly profile: DeviceProfile;
+  };
+  readonly WORKSPACE_STORAGE_EXCEEDED: {
+    readonly sizeBytes: number;
+    readonly limitBytes: number;
+    readonly profile: DeviceProfile;
+  };
+  readonly BROWSER_QUOTA_EXCEEDED: {
+    readonly sizeBytes: number;
+    readonly quotaBytes: number;
+    readonly profile: DeviceProfile;
+  };
+  readonly HIGH_RESOURCE_USAGE: { readonly sizeBytes: number; readonly profile: DeviceProfile };
 }
+
+export type BudgetIssueCode = keyof BudgetIssueParams;
+
+interface BudgetDetails {
+  readonly totalBytes: number;
+  readonly fileCount: number;
+  readonly totalPages: number;
+  readonly limitBytes: number;
+  readonly profile: DeviceProfile;
+}
+
+type BudgetIssue = {
+  [Code in BudgetIssueCode]: {
+    readonly decision: Code extends 'HIGH_RESOURCE_USAGE' ? 'warning' : 'blocked';
+    readonly code: Code;
+    readonly params: BudgetIssueParams[Code];
+    readonly details: BudgetDetails;
+  };
+}[BudgetIssueCode];
+
+export type BudgetEvaluationResult =
+  | {
+      readonly decision: 'allowed';
+      readonly details: BudgetDetails;
+      readonly code?: never;
+      readonly params?: never;
+    }
+  | BudgetIssue;
 
 export async function evaluateResourceBudget(
   options: EvaluateBudgetOptions
@@ -96,7 +146,8 @@ export async function evaluateResourceBudget(
   if (fileCount > limits.maxFiles) {
     return {
       decision: 'blocked',
-      reason: `Batch contains ${fileCount} files, exceeding the recommended limit of ${limits.maxFiles} files for ${profile} devices.`,
+      code: 'FILE_COUNT_EXCEEDED',
+      params: { fileCount, limit: limits.maxFiles, profile },
       details
     };
   }
@@ -104,11 +155,15 @@ export async function evaluateResourceBudget(
   // 2. Individual file size check
   for (const file of options.inputs) {
     if (file.size > limits.maxFileBytes) {
-      const mbSize = (file.size / (1024 * 1024)).toFixed(1);
-      const limitMb = limits.maxFileBytes / (1024 * 1024);
       return {
         decision: 'blocked',
-        reason: `File "${file.name ?? 'Unknown'}" (${mbSize} MB) exceeds the ${limitMb} MB limit per file for ${profile} devices.`,
+        code: 'FILE_TOO_LARGE',
+        params: {
+          fileName: file.name ?? '',
+          sizeBytes: file.size,
+          limitBytes: limits.maxFileBytes,
+          profile
+        },
         details
       };
     }
@@ -116,11 +171,10 @@ export async function evaluateResourceBudget(
 
   // 3. Total batch bytes check
   if (totalBytes > limits.maxTotalBytes) {
-    const totalMb = (totalBytes / (1024 * 1024)).toFixed(1);
-    const limitMb = limits.maxTotalBytes / (1024 * 1024);
     return {
       decision: 'blocked',
-      reason: `The total batch size (${totalMb} MB) exceeds the maximum safe limit of ${limitMb} MB for ${profile} devices to prevent browser memory crashes.`,
+      code: 'TOTAL_SIZE_EXCEEDED',
+      params: { sizeBytes: totalBytes, limitBytes: limits.maxTotalBytes, profile },
       details
     };
   }
@@ -129,7 +183,8 @@ export async function evaluateResourceBudget(
   if (totalPages > limits.maxPages) {
     return {
       decision: 'blocked',
-      reason: `Total page count (${totalPages}) exceeds the ${limits.maxPages} page capacity limit for ${profile} devices.`,
+      code: 'PAGE_COUNT_EXCEEDED',
+      params: { pageCount: totalPages, limit: limits.maxPages, profile },
       details
     };
   }
@@ -137,11 +192,14 @@ export async function evaluateResourceBudget(
   // 5. Workspace storage quota check
   const currentWorkspace = options.currentWorkspaceSizeBytes ?? 0;
   if (currentWorkspace + totalBytes > limits.maxWorkspaceStorageBytes) {
-    const totalMb = ((currentWorkspace + totalBytes) / (1024 * 1024)).toFixed(1);
-    const limitMb = limits.maxWorkspaceStorageBytes / (1024 * 1024);
     return {
       decision: 'blocked',
-      reason: `Adding these files would use ${totalMb} MB of local storage, exceeding the ${limitMb} MB workspace limit. Please clear older documents to proceed.`,
+      code: 'WORKSPACE_STORAGE_EXCEEDED',
+      params: {
+        sizeBytes: currentWorkspace + totalBytes,
+        limitBytes: limits.maxWorkspaceStorageBytes,
+        profile
+      },
       details
     };
   }
@@ -154,7 +212,8 @@ export async function evaluateResourceBudget(
         if (estimate.usage + totalBytes > estimate.quota) {
           return {
             decision: 'blocked',
-            reason: 'Your browser disk quota is nearly full. Please free device space before processing.',
+            code: 'BROWSER_QUOTA_EXCEEDED',
+            params: { sizeBytes: estimate.usage + totalBytes, quotaBytes: estimate.quota, profile },
             details
           };
         }
@@ -170,10 +229,10 @@ export async function evaluateResourceBudget(
     (totalPages > 0 && totalPages > limits.maxPages * 0.8) ||
     fileCount > limits.maxFiles * 0.8
   ) {
-    const totalMb = (totalBytes / (1024 * 1024)).toFixed(1);
     return {
       decision: 'warning',
-      reason: `High memory usage predicted (${totalMb} MB). The operation may temporarily slow down your browser.`,
+      code: 'HIGH_RESOURCE_USAGE',
+      params: { sizeBytes: totalBytes, profile },
       details
     };
   }
@@ -183,4 +242,3 @@ export async function evaluateResourceBudget(
     details
   };
 }
-
