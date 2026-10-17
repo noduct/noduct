@@ -27,6 +27,10 @@ A causa recorrente foi a falta de um contrato concreto e verificável, não a di
 - **Testes de limite temporal:** relógio falso, fixture de migração e Playwright devem provar o comportamento no instante de expiração, a proteção de `persistent`/locks e o anúncio acessível de remoção.
 - **Configuração em desenvolvimento:** o `astro.config.mjs` importa `@noduct/tool-runtime` pelo ESM nativo do Node. Imports internos TypeScript sem extensão quebravam `npm run dev:merge-pdf` embora o build estático passasse. Os imports explícitos `.ts` e um teste que executa o Node diretamente protegem esse caminho.
 
+## Feedback do dono e evolução visual
+
+Em 2026-10-17, o dono confirmou que a correção estrutural e o cuidado com a issue estão no caminho certo. Ele considera possíveis ajustes futuros no layout do Merge PDF. A nova composição com `AppShell`, `ToolPage`, componentes do design system e CSS local deve permitir iterar na área específica da ferramenta sem recriar o shell. Em cada ajuste, conferir os três idiomas, temas, tamanhos de tela, foco, contraste e paridade com o hub; mudanças em componentes compartilhados exigem validação dos demais consumidores.
+
 ## Critério operacional para fechar uma fase
 
 Leia o corpo da issue, o comentário de orientação e o ADR; transforme cada item em evidência observável; implemente sem afrouxar asserções; rode lint, typecheck, testes, build/SEO e Playwright proporcionais; confira o artefato montado e o diff; só então faça commit, push e atualize o checklist e o comentário da issue. Registre limites de validação de forma explícita.
