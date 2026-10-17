@@ -1,4 +1,4 @@
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 
 export const workspaceUiMessages = {
   en: {
@@ -8,6 +8,7 @@ export const workspaceUiMessages = {
     privacyNotice:
       'All files are stored solely in your local browser storage (IndexedDB) and never leave your device. Clearing browser data will also remove these files.',
     storageUsage: (usedMb: string, limitMb: string) => `${usedMb} MB used of ~${limitMb} MB limit`,
+    storageLoading: 'Storage usage is shown when the workspace opens.',
     emptyMessage: 'No documents stored in your local workspace.',
     download: 'Download',
     delete: 'Delete',
@@ -21,6 +22,7 @@ export const workspaceUiMessages = {
     privacyNotice:
       'Todos os arquivos ficam armazenados exclusivamente no armazenamento local do seu navegador (IndexedDB) e jamais saem do seu dispositivo. Limpar os dados do navegador também removerá estes arquivos.',
     storageUsage: (usedMb: string, limitMb: string) => `${usedMb} MB utilizados de ~${limitMb} MB disponíveis`,
+    storageLoading: 'O uso do armazenamento aparece ao abrir a área de trabalho.',
     emptyMessage: 'Nenhum documento armazenado na área de trabalho local.',
     download: 'Baixar',
     delete: 'Excluir',
@@ -34,6 +36,7 @@ export const workspaceUiMessages = {
     privacyNotice:
       'Todos los archivos se almacenan únicamente en el almacenamiento local de su navegador (IndexedDB) y nunca salen de su dispositivo. Limpiar los datos del navegador también eliminará estos archivos.',
     storageUsage: (usedMb: string, limitMb: string) => `${usedMb} MB utilizados de ~${limitMb} MB disponibles`,
+    storageLoading: 'El uso del almacenamiento aparece al abrir el área de trabajo.',
     emptyMessage: 'No hay documentos almacenados en su área de trabajo local.',
     download: 'Descargar',
     delete: 'Eliminar',
@@ -42,7 +45,7 @@ export const workspaceUiMessages = {
   }
 } as const;
 
-export function resolveWorkspaceUiLocale(locale?: string): DesignLocale {
+export function resolveWorkspaceUiLocale(locale?: string): Locale {
   if (locale === 'pt-BR' || locale === 'pt-br') return 'pt-BR';
   if (locale === 'es') return 'es';
   return 'en';

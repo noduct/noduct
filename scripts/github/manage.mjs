@@ -8,7 +8,7 @@ const HELP = `GitHub automation CLI for AI agents
 Usage: node scripts/github/manage.mjs <resource> <action> [...arguments] [options]
 
 Resources:
-  issue     get <number> | list | create <payload> | update <number> <payload> | close <number> [--comment <text>] | comment <number> <text> | link-branch <number> <branch> [--from <sha-or-branch>] | unlink-branch <number> <branch> | linked-branches <number>
+  issue     get <number> | list | comments <number> | create <payload> | update <number> <payload> | close <number> [--comment <text>] | comment <number> <text> | link-branch <number> <branch> [--from <sha-or-branch>] | unlink-branch <number> <branch> | linked-branches <number>
   milestone get <number> | list | create <payload> | update <number> <payload> | close <number>
   branch    get <name> | list | create <name> [--from <sha-or-branch>] | delete <name> | link <name> <issue-number> [--from <sha-or-branch>] | unlink <name> <issue-number> | linked <issue-number>
   pull      get <number> | list | create <payload> | update <number> <payload> | merge <number> [--method merge|squash|rebase]
@@ -342,6 +342,8 @@ async function issues(repo, action, args, options) {
   const base = `/repos/${repo}/issues`;
   if (action === 'get') return ghApi(`${base}/${number(args[0], 'Issue number')}`);
   if (action === 'list') return ghApi(`${base}?${listQuery(options)}`);
+  if (action === 'comments')
+    return ghApi(`${base}/${number(args[0], 'Issue number')}/comments?per_page=${number(options.limit ?? '100', 'limit')}`);
   if (action === 'create')
     return mutate(options, { method: 'POST', endpoint: base, body: payload(args[0]) });
   if (action === 'update')

@@ -1,11 +1,9 @@
-import type { DesignLocale } from '@noduct/design-system';
+import type { Locale } from '@noduct/tool-runtime';
 
 export interface MergeMessages {
   name: string;
-  category: string;
   description: string;
   privacyNotice: string;
-  breadcrumb: string;
   dropLabel: string;
   dropDescription: string;
   listLabel: string;
@@ -13,17 +11,17 @@ export interface MergeMessages {
   minFilesRequired: string;
   clear: string;
   remove: string;
-  removeFile: (name: string) => string;
+  removeFile: string;
   oneFileReady: string;
-  filesReady: (files: number, pages: number) => string;
+  filesReady: string;
   processingLabel: string;
   statusValidating: string;
   statusMerging: string;
   statusSaving: string;
   downloadTitle: string;
   downloadFileName: string;
-  errorEncrypted: (name: string) => string;
-  errorCorrupted: (name: string) => string;
+  errorEncrypted: string;
+  errorCorrupted: string;
   howTitle: string;
   how: string[];
   limitsTitle: string;
@@ -32,13 +30,24 @@ export interface MergeMessages {
   security: string;
 }
 
-export const mergeMessages: Record<DesignLocale, MergeMessages> = {
+export type MergeClientMessages = Pick<MergeMessages,
+  | 'minFilesRequired'
+  | 'oneFileReady'
+  | 'filesReady'
+  | 'remove'
+  | 'removeFile'
+  | 'errorEncrypted'
+  | 'errorCorrupted'
+  | 'statusValidating'
+  | 'statusMerging'
+  | 'statusSaving'
+>;
+
+export const mergeMessages: Record<Locale, MergeMessages> = {
   en: {
     name: 'Merge PDF',
-    category: 'PDF Tools',
     description: 'Combine multiple PDF files into one document directly in your browser.',
     privacyNotice: 'Your PDF files are processed locally in your browser and never leave your device.',
-    breadcrumb: 'Breadcrumb',
     dropLabel: 'Choose PDF files',
     dropDescription: 'Drop PDF files here or select them from your computer',
     listLabel: 'Files to merge in specified order',
@@ -46,19 +55,17 @@ export const mergeMessages: Record<DesignLocale, MergeMessages> = {
     minFilesRequired: 'Select at least 2 PDF files to merge.',
     clear: 'Clear',
     remove: 'Remove',
-    removeFile: (name) => `Remove ${name}`,
+    removeFile: 'Remove {name}',
     oneFileReady: '1 valid PDF selected (select at least 1 more to merge).',
-    filesReady: (files, pages) => `${files} PDFs ready to merge (${pages} total pages).`,
+    filesReady: '{files} PDFs ready to merge ({pages} total pages).',
     processingLabel: 'Merging PDF documents',
     statusValidating: 'Inspecting PDF files...',
     statusMerging: 'Combining pages into a unified document...',
     statusSaving: 'Finalizing PDF output...',
     downloadTitle: 'Your merged PDF is ready',
     downloadFileName: 'merged.pdf',
-    errorEncrypted: (name: string) =>
-      `"${name}" is password-protected. Please remove it or provide an unencrypted version.`,
-    errorCorrupted: (name: string) =>
-      `"${name}" is corrupted or could not be parsed as a valid PDF.`,
+    errorEncrypted: '"{name}" is password-protected. Please remove it or provide an unencrypted version.',
+    errorCorrupted: '"{name}" is corrupted or could not be parsed as a valid PDF.',
     howTitle: 'How to merge PDF files',
     how: [
       'Select or drag and drop 2 or more PDF documents into the file area.',
@@ -75,10 +82,8 @@ export const mergeMessages: Record<DesignLocale, MergeMessages> = {
   },
   'pt-BR': {
     name: 'Mesclar PDF',
-    category: 'Ferramentas de PDF',
     description: 'Junte vários arquivos PDF em um único documento diretamente no seu navegador.',
     privacyNotice: 'Seus arquivos PDF são processados localmente no navegador e nunca saem do seu dispositivo.',
-    breadcrumb: 'Caminho de navegação',
     dropLabel: 'Escolher arquivos PDF',
     dropDescription: 'Solte arquivos PDF aqui ou selecione no seu computador',
     listLabel: 'Arquivos a mesclar na ordem especificada',
@@ -86,19 +91,17 @@ export const mergeMessages: Record<DesignLocale, MergeMessages> = {
     minFilesRequired: 'Selecione pelo menos 2 arquivos PDF para mesclar.',
     clear: 'Limpar',
     remove: 'Remover',
-    removeFile: (name) => `Remover ${name}`,
+    removeFile: 'Remover {name}',
     oneFileReady: '1 PDF válido selecionado (selecione mais 1 para mesclar).',
-    filesReady: (files, pages) => `${files} PDFs prontos para mesclar (${pages} páginas no total).`,
+    filesReady: '{files} PDFs prontos para mesclar ({pages} páginas no total).',
     processingLabel: 'Mesclando documentos PDF',
     statusValidating: 'Inspecionando arquivos PDF...',
     statusMerging: 'Unindo páginas em um documento consolidado...',
     statusSaving: 'Finalizando arquivo PDF...',
     downloadTitle: 'Seu PDF mesclado está pronto',
     downloadFileName: 'documento-mesclado.pdf',
-    errorEncrypted: (name: string) =>
-      `"${name}" está protegido por senha. Remova-o ou utilize uma versão sem senha.`,
-    errorCorrupted: (name: string) =>
-      `"${name}" está corrompido ou não é um documento PDF válido.`,
+    errorEncrypted: '"{name}" está protegido por senha. Remova-o ou utilize uma versão sem senha.',
+    errorCorrupted: '"{name}" está corrompido ou não é um documento PDF válido.',
     howTitle: 'Como mesclar arquivos PDF',
     how: [
       'Selecione ou arraste 2 ou mais documentos PDF para a área de arquivos.',
@@ -115,10 +118,8 @@ export const mergeMessages: Record<DesignLocale, MergeMessages> = {
   },
   es: {
     name: 'Combinar PDF',
-    category: 'Herramientas de PDF',
     description: 'Une varios archivos PDF en un solo documento directamente en tu navegador.',
     privacyNotice: 'Tus archivos PDF se procesan localmente en el navegador y nunca salen de tu dispositivo.',
-    breadcrumb: 'Ruta de navegación',
     dropLabel: 'Elegir archivos PDF',
     dropDescription: 'Arrastra archivos PDF aquí o selecciónalos de tu equipo',
     listLabel: 'Archivos a combinar en el orden especificado',
@@ -126,19 +127,17 @@ export const mergeMessages: Record<DesignLocale, MergeMessages> = {
     minFilesRequired: 'Selecciona al menos 2 archivos PDF para combinar.',
     clear: 'Limpiar',
     remove: 'Quitar',
-    removeFile: (name) => `Quitar ${name}`,
+    removeFile: 'Quitar {name}',
     oneFileReady: '1 PDF válido seleccionado (selecciona 1 más para combinar).',
-    filesReady: (files, pages) => `${files} PDF listos para combinar (${pages} páginas en total).`,
+    filesReady: '{files} PDF listos para combinar ({pages} páginas en total).',
     processingLabel: 'Combinando documentos PDF',
     statusValidating: 'Inspeccionando archivos PDF...',
     statusMerging: 'Uniendo páginas en un documento consolidado...',
     statusSaving: 'Finalizando archivo PDF...',
     downloadTitle: 'Tu PDF combinado está listo',
     downloadFileName: 'documento-combinado.pdf',
-    errorEncrypted: (name: string) =>
-      `"${name}" está protegido por contraseña. Quítalo o usa una versión sin contraseña.`,
-    errorCorrupted: (name: string) =>
-      `"${name}" está dañado o no es un documento PDF válido.`,
+    errorEncrypted: '"{name}" está protegido por contraseña. Quítalo o usa una versión sin contraseña.',
+    errorCorrupted: '"{name}" está dañado o no es un documento PDF válido.',
     howTitle: 'Cómo combinar archivos PDF',
     how: [
       'Selecciona o arrastra 2 o más documentos PDF al área de archivos.',

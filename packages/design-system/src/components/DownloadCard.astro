@@ -2,7 +2,7 @@
 import { formatFileSize } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './DownloadCard.module.css';
 
 export interface Props {
@@ -12,7 +12,7 @@ export interface Props {
   fileSize?: number;
   downloadUrl?: string;
   hidden?: boolean;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { id, fileName = '', fileSize, downloadUrl, hidden = false, locale = 'en' } = Astro.props;

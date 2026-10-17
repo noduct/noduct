@@ -1,144 +1,121 @@
 ---
-import ToolPage from '@noduct/design-system/components/ToolPage.astro';
+import AppShell from '@noduct/design-system/shell/AppShell.astro';
+import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
+import { toolBreadcrumbItems } from '@noduct/design-system/shell/tool-page';
 import DropZone from '@noduct/design-system/components/DropZone.astro';
 import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
 import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
 import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
-import type { DesignLocale } from '@noduct/design-system';
-import { topology } from '@noduct/tool-runtime';
+import type { Locale } from '@noduct/tool-runtime';
+import { breadcrumbList, jsonLdGraph, softwareApplication, topology } from '@noduct/tool-runtime';
 import { tool } from '../config';
 import { mergeMessages } from '../i18n';
+import type { MergeClientMessages } from '../i18n';
 import styles from './MergePdfApp.module.css';
 
 interface Props {
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { locale = 'en' } = Astro.props;
 const m = mergeMessages[locale];
-const canonicalUrl = topology.canonical(tool.scope, '', locale);
-const hubHome = topology.hubUrl('', locale);
-const categoryUrl = topology.hubUrl(`${tool.category}/`, locale);
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'SoftwareApplication',
-      name: m.name,
-      description: m.description,
-      applicationCategory: 'UtilityApplication',
-      operatingSystem: 'Any',
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'USD'
-      }
-    },
-    {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Noduct',
-          item: hubHome
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: m.category,
-          item: categoryUrl
-        },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          name: m.name,
-          item: canonicalUrl
-        }
-      ]
-    }
-  ]
-};
+const jsonLd = jsonLdGraph([
+  softwareApplication({
+    name: m.name,
+    description: m.description,
+    url: topology.canonical(tool.scope, '', locale),
+    locale
+  }),
+  breadcrumbList(toolBreadcrumbItems(tool, locale, m.name))
+]);
+const clientMessages = {
+  minFilesRequired: m.minFilesRequired,
+  oneFileReady: m.oneFileReady,
+  filesReady: m.filesReady,
+  remove: m.remove,
+  removeFile: m.removeFile,
+  errorEncrypted: m.errorEncrypted,
+  errorCorrupted: m.errorCorrupted,
+  statusValidating: m.statusValidating,
+  statusMerging: m.statusMerging,
+  statusSaving: m.statusSaving
+} satisfies MergeClientMessages;
 ---
 
-<ToolPage
+<AppShell
   scope={tool.scope}
   {locale}
   title={m.name}
   description={m.description}
-  category={tool.category}
-  breadcrumbLabel={m.breadcrumb}
   noindex={!tool.published}
   {jsonLd}
-  sponsorPlacementId={tool.sponsorPlacementId}
-  sponsorshipEnabled={tool.sponsorshipEnabled}
 >
-      <WorkspaceDrawer id="merge-workspace-drawer" locale={locale} slot="actions" />
+  <WorkspaceDrawer id="merge-workspace-drawer" locale={locale} slot="actions" />
+  <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
+    <section class={styles.workspace} aria-label={m.name}>
+      <DropZone
+        id="merge-drop-zone"
+        label={m.dropLabel}
+        description={m.dropDescription}
+        multiple={true}
+        locale={locale}
+      />
 
-      <section class={styles.workspace} aria-label={m.name} slot="workspace">
-        <DropZone
-          id="merge-drop-zone"
-          label={m.dropLabel}
-          description={m.dropDescription}
-          multiple={true}
-          locale={locale}
-        />
+      <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
 
-        <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
+      <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} />
 
-        <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} />
-
-        <div class={styles.controlsBar}>
-          <p id="merge-file-count" class={styles.statusText} data-merge-count>
-            {m.minFilesRequired}
-          </p>
-          <div class={styles.actions}>
-            <button
-              id="clear-all-btn"
-              type="button"
-              class={styles.clearButton}
-              hidden
-              data-action="clear"
-            >
-              {m.clear}
-            </button>
-            <button
-              id="start-merge-btn"
-              type="button"
-              class={styles.mergeButton}
-              disabled
-              data-action="merge"
-            >
-              {m.actionMerge}
-            </button>
-          </div>
-        </div>
-
-        <ProcessingFeedback
-          label={m.processingLabel}
-          status={m.statusValidating}
-          cancellable={true}
-          hidden={true}
-          locale={locale}
-        />
-
-        <DownloadCard
-          id="merge-download-card"
-          title={m.downloadTitle}
-          fileName={m.downloadFileName}
-          hidden={true}
-          locale={locale}
-        />
-
-        <p class={styles.privacyNotice}>
-          <Icon name="lock" />
-          {m.privacyNotice}
+      <div class={styles.controlsBar}>
+        <p id="merge-file-count" class={styles.statusText} data-merge-count>
+          {m.minFilesRequired}
         </p>
-      </section>
+        <div class={styles.actions}>
+          <button
+            id="clear-all-btn"
+            type="button"
+            class={styles.clearButton}
+            hidden
+            data-action="clear"
+          >
+            {m.clear}
+          </button>
+          <button
+            id="start-merge-btn"
+            type="button"
+            class={styles.mergeButton}
+            disabled
+            data-action="merge"
+          >
+            {m.actionMerge}
+          </button>
+        </div>
+      </div>
 
+      <ProcessingFeedback
+        label={m.processingLabel}
+        status={m.statusValidating}
+        cancellable={true}
+        hidden={true}
+        locale={locale}
+      />
+
+      <DownloadCard
+        id="merge-download-card"
+        title={m.downloadTitle}
+        fileName={m.downloadFileName}
+        hidden={true}
+        locale={locale}
+      />
+
+      <p class={styles.privacyNotice}>
+        <Icon name="lock" aria-hidden="true" />
+        {m.privacyNotice}
+      </p>
+    </section>
+
+    <Fragment slot="content">
       <section class={styles.infoSection}>
         <h2>{m.howTitle}</h2>
         <ol>
@@ -155,10 +132,16 @@ const jsonLd = {
         <h2>{m.securityTitle}</h2>
         <p>{m.security}</p>
       </section>
+    </Fragment>
+    <script
+      type="application/json"
+      id="merge-messages"
+      set:html={JSON.stringify(clientMessages).replace(/</g, '\\u003c')}
+    />
     <script>
-      import { mergeMessages } from '../i18n';
+      import type { MergeClientMessages } from '../i18n';
       import clientStyles from './MergePdfApp.module.css';
-      import type { DesignLocale } from '@noduct/design-system';
+      import type { Locale } from '@noduct/tool-runtime';
       import {
         CANCEL_EVENT,
         FILES_SELECTED_EVENT,
@@ -180,8 +163,13 @@ const jsonLd = {
       import type { MergeWorkflow, WorkflowFileItem } from '../lib/merge-workflow';
 
       const language = document.documentElement.lang;
-      const clientLocale: DesignLocale = language === 'pt-BR' || language === 'es' ? language : 'en';
-      const messages = mergeMessages[clientLocale];
+      const clientLocale: Locale = language === 'pt-BR' || language === 'es' ? language : 'en';
+      const messageNode = document.querySelector<HTMLScriptElement>('#merge-messages');
+      if (!messageNode?.textContent) throw new Error('Missing localized merge messages');
+      const messages = JSON.parse(messageNode.textContent) as MergeClientMessages;
+      const numberFormat = new Intl.NumberFormat(clientLocale);
+      const formatMessage = (template: string, values: Record<string, string>) =>
+        template.replace(/\{(name|files|pages)\}/g, (_, key: string) => values[key] ?? '');
 
       // Lazy load workflow module to optimize LCP < 1.5s
       let workflowPromise: Promise<MergeWorkflow> | undefined;
@@ -226,14 +214,15 @@ const jsonLd = {
             div.setAttribute('data-alert-item', item.id);
 
             const msg = document.createElement('span');
-            msg.textContent = item.status === 'encrypted'
-              ? messages.errorEncrypted(item.name)
-              : messages.errorCorrupted(item.name);
+            msg.textContent =
+              item.status === 'encrypted'
+                ? formatMessage(messages.errorEncrypted, { name: item.name })
+                : formatMessage(messages.errorCorrupted, { name: item.name });
 
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.textContent = messages.remove;
-            btn.setAttribute('aria-label', messages.removeFile(item.name));
+            btn.setAttribute('aria-label', formatMessage(messages.removeFile, { name: item.name }));
             btn.className = clientStyles.alertDismiss!;
             btn.addEventListener('click', () => {
               workflow.removeItem(item.id);
@@ -260,7 +249,10 @@ const jsonLd = {
         } else if (validItems.length === 1) {
           countEl.textContent = messages.oneFileReady;
         } else {
-          countEl.textContent = messages.filesReady(validItems.length, state.totalPages);
+          countEl.textContent = formatMessage(messages.filesReady, {
+            files: numberFormat.format(validItems.length),
+            pages: numberFormat.format(state.totalPages)
+          });
         }
       }
 
@@ -370,7 +362,12 @@ const jsonLd = {
 
         async function syncWorkspace() {
           try {
-            const { openWorkspace, detectDeviceProfile, DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } = await import('@noduct/workspace-core');
+            const {
+              openWorkspace,
+              detectDeviceProfile,
+              DESKTOP_RESOURCE_BUDGET,
+              MOBILE_RESOURCE_BUDGET
+            } = await import('@noduct/workspace-core');
             const ws = await openWorkspace();
             const docs = await ws.listDocuments();
             const size = await ws.getWorkspaceSize();
@@ -382,7 +379,10 @@ const jsonLd = {
                 createdAt: d.createdAt
               })),
               size.totalBytes,
-              (detectDeviceProfile() === 'mobile' ? MOBILE_RESOURCE_BUDGET : DESKTOP_RESOURCE_BUDGET).maxWorkspaceStorageBytes
+              (detectDeviceProfile() === 'mobile'
+                ? MOBILE_RESOURCE_BUDGET
+                : DESKTOP_RESOURCE_BUDGET
+              ).maxWorkspaceStorageBytes
             );
           } catch {
             // Gracefully handle if storage unavailable
@@ -424,3 +424,4 @@ const jsonLd = {
       }
     </script>
   </ToolPage>
+</AppShell>

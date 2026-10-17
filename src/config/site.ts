@@ -1,4 +1,5 @@
 import { topology } from '@noduct/tool-runtime';
+import { publicSupport } from '@noduct/design-system/shell/support';
 
 export const siteConfig = {
   name: 'Noduct',
@@ -7,11 +8,7 @@ export const siteConfig = {
   url: topology.hubUrl(),
   contactUrl: '',
   contactEmail: '',
-  support: {
-    enabled: true,
-    provider: 'buy-me-a-coffee' as const,
-    url: 'https://buymeacoffee.com/plajiw'
-  },
+  support: publicSupport,
   sponsor: {
     commercialMode: 'prelaunch' as const,
     monthlyPriceUsd: 10,

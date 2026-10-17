@@ -1,0 +1,49 @@
+---
+import { getCategory, topology, type Locale, type ToolManifest } from '@noduct/tool-runtime';
+import Icon from '../icons/Icon.astro';
+import SponsorshipSlot from '../components/SponsorshipSlot.astro';
+import { toolBreadcrumbItems } from './tool-page';
+import { getShellMessages } from './messages';
+import styles from './ToolPage.module.css';
+
+interface Props {
+  tool: ToolManifest;
+  locale: Locale;
+  heading: string;
+  lede: string;
+}
+
+const { tool, locale, heading, lede } = Astro.props;
+const category = getCategory(tool.category, locale);
+const m = getShellMessages(locale);
+const breadcrumbs = toolBreadcrumbItems(tool, locale, heading);
+---
+
+<header class="page-head">
+  <div class="container">
+    <nav class="breadcrumb" aria-label={m.nav.breadcrumb}>
+      <a class="breadcrumb-link" href={new URL(breadcrumbs[0].url).pathname}>
+        <Icon class="breadcrumb-icon" name="house" aria-hidden="true" />
+        <span>{breadcrumbs[0].name}</span>
+      </a>
+      <Icon class="breadcrumb-sep" name="chevron-right" aria-hidden="true" />
+      <a class="breadcrumb-link" href={new URL(breadcrumbs[1].url).pathname}>{category.name}</a>
+      <Icon class="breadcrumb-sep" name="chevron-right" aria-hidden="true" />
+      <span class="breadcrumb-current" aria-current="page">{heading}</span>
+    </nav>
+    <p class="eyebrow">{category.name}</p>
+    <h1>{heading}</h1>
+    <p class="lede">{lede}</p>
+  </div>
+</header>
+
+<div class="container section">
+  <div class:list={['surface', styles.workspace]}><slot /></div>
+  <SponsorshipSlot
+    placementId={tool.sponsorPlacementId}
+    registryUrl={topology.registryUrl}
+    enabled={tool.sponsorshipEnabled}
+    locale={locale}
+  />
+  <div class={styles.content}><slot name="content" /></div>
+</div>

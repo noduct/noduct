@@ -1,4 +1,4 @@
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 
 const count = (value: number, one: string, other: string) => (value === 1 ? one : other);
 
@@ -67,6 +67,6 @@ export const fileWorkflowMessages = {
   }
 } as const;
 
-export function resolveFileWorkflowLocale(value: string | undefined): DesignLocale {
+export function resolveFileWorkflowLocale(value: string | undefined): Locale {
   return value === 'pt-BR' || value === 'es' ? value : 'en';
 }

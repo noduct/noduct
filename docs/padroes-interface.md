@@ -179,7 +179,7 @@ Qualquer micro-aplicativo ou extensão do Noduct **deve obedecer impreterivelmen
 3. **Guardrail 3: Contraste WCAG AA Inegociável**
    Tanto em tema claro quanto escuro, todo texto legível deve atender ou exceder a razão de contraste de 4.5:1. Textos secundários usam `--color-text-secondary` e terciários `--color-text-muted`.
 4. **Guardrail 4: Shell e template compartilhados**
-   Toda ferramenta independente deve usar `<ToolPage>` do `@noduct/design-system`, que compõe `AppShell`, breadcrumb, título, área funcional e patrocínio com os tokens globais.
+   Toda ferramenta independente deve usar `<AppShell>` envolvendo `<ToolPage>` do `@noduct/design-system`. O template fornece breadcrumb, título, área funcional e patrocínio com os tokens globais.
 5. **Guardrail 5: Conformidade com `prefers-reduced-motion`**
    Quando o usuário solicitar movimento reduzido, todas as durações devem ser zeradas (`0.001ms`) e escalas anuladas (`transform: none !important`).
 6. **Guardrail 6: Scrollbar Limpa e Transparente**

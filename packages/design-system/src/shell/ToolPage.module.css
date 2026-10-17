@@ -1,0 +1,15 @@
+.workspace {
+  padding: var(--space-6);
+}
+
+.content {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 599px) {
+  .workspace {
+    padding: var(--space-4);
+  }
+}

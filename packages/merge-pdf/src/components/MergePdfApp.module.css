@@ -140,13 +140,11 @@
 }
 
 .infoSection {
-  margin: var(--space-6) 0;
+  margin: 0;
 }
 
 .infoSection h2 {
   margin: 0 0 var(--space-3);
-  font-size: 1.25rem;
-  font-weight: 700;
 }
 
 .infoSection p {

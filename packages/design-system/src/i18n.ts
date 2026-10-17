@@ -1,7 +1,5 @@
 import type { Locale } from '@noduct/tool-runtime';
 
-export type DesignLocale = Locale;
-
 /** Mensagens compartilhadas pelos posicionamentos de patrocínio. */
 export const designMessages = {
   en: {

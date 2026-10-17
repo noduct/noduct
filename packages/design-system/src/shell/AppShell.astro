@@ -1,5 +1,12 @@
 ---
-import { fullTitle, getCategories, topology, type JsonLdNode, type Locale, type Scope } from '@noduct/tool-runtime';
+import {
+  fullTitle,
+  getCategories,
+  topology,
+  type JsonLdNode,
+  type Locale,
+  type Scope
+} from '@noduct/tool-runtime';
 import SeoHead from '../components/SeoHead.astro';
 import IconSprite from '../icons/IconSprite.astro';
 import { THEME_COLOR_TOKEN, themeColors } from '../theme';
@@ -7,6 +14,7 @@ import AmbientArtwork from './AmbientArtwork.astro';
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
 import { preferenceKeys } from './preferences';
+import { publicSupport } from './support';
 import '../base.css';
 
 interface Props {
@@ -26,9 +34,22 @@ interface Props {
 }
 
 const {
-  variant = 'page', scope, locale, path = '', title, description, image, imageAlt,
-  noindex = false, supportUrl, showArtworkControls = true, jsonLd, redirectLocale = false
+  variant = 'page',
+  scope,
+  locale,
+  path = '',
+  title,
+  description,
+  image,
+  imageAlt,
+  noindex = false,
+  supportUrl,
+  showArtworkControls = true,
+  jsonLd,
+  redirectLocale = false
 } = Astro.props;
+const resolvedSupportUrl =
+  supportUrl ?? (scope.kind === 'tool' && publicSupport.enabled ? publicSupport.url : undefined);
 const canonical = topology.canonical(scope, path, locale);
 const alternates = topology.alternates(scope, path);
 const categories = getCategories(locale);
@@ -37,7 +58,9 @@ const faviconPaths = {
   dark: topology.hubAssetPath('brand/favicon-dark.svg')
 };
 const redirectPaths = Object.fromEntries(
-  alternates.filter((item) => item.hreflang !== 'x-default').map((item) => [item.hreflang, new URL(item.href).pathname])
+  alternates
+    .filter((item) => item.hreflang !== 'x-default')
+    .map((item) => [item.hreflang, new URL(item.href).pathname])
 );
 ---
 
@@ -47,12 +70,30 @@ const redirectPaths = Object.fromEntries(
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <SeoHead title={fullTitle(title)} {description} {canonical} {alternates} {image} {imageAlt} {noindex} />
+    <SeoHead
+      title={fullTitle(title)}
+      {description}
+      {canonical}
+      {alternates}
+      {image}
+      {imageAlt}
+      {noindex}
+    />
     <link id="site-favicon" rel="icon" href={faviconPaths.light} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={topology.hubAssetPath('brand/apple-touch-icon.png')} />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <slot name="head" />
-    <script is:inline define:vars={{ faviconPaths, preferenceKeys, redirectLocale, redirectPaths, themeColors, themeColorToken: THEME_COLOR_TOKEN }}>
+    <script
+      is:inline
+      define:vars={{
+        faviconPaths,
+        preferenceKeys,
+        redirectLocale,
+        redirectPaths,
+        themeColors,
+        themeColorToken: THEME_COLOR_TOKEN
+      }}
+    >
       (() => {
         const root = document.documentElement;
         const themeColor = document.querySelector('meta[name="theme-color"]');
@@ -73,7 +114,8 @@ const redirectPaths = Object.fromEntries(
         try {
           if (localStorage.getItem(preferenceKeys.theme) === 'dark') root.dataset.theme = 'dark';
           if (localStorage.getItem(preferenceKeys.art) === 'off') root.dataset.art = 'off';
-          if (localStorage.getItem(preferenceKeys.motion) === 'reduce') root.dataset.motion = 'reduce';
+          if (localStorage.getItem(preferenceKeys.motion) === 'reduce')
+            root.dataset.motion = 'reduce';
           savedLocale = localStorage.getItem(preferenceKeys.locale);
         } catch {
           /* Storage may be unavailable in hardened browsing modes. */
@@ -81,14 +123,22 @@ const redirectPaths = Object.fromEntries(
         syncThemeAssets();
         window.addEventListener('noduct:preferences', syncThemeAssets);
         if (redirectLocale) {
-          const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+          const languages = navigator.languages?.length
+            ? navigator.languages
+            : [navigator.language];
           let selected = savedLocale;
           if (!['en', 'pt-BR', 'es'].includes(selected)) {
             selected = 'en';
             for (const value of languages) {
               const code = String(value).toLowerCase();
-              if (code === 'pt' || code.startsWith('pt-')) { selected = 'pt-BR'; break; }
-              if (code === 'es' || code.startsWith('es-')) { selected = 'es'; break; }
+              if (code === 'pt' || code.startsWith('pt-')) {
+                selected = 'pt-BR';
+                break;
+              }
+              if (code === 'es' || code.startsWith('es-')) {
+                selected = 'es';
+                break;
+              }
               if (code === 'en' || code.startsWith('en-')) break;
             }
           }
@@ -108,6 +158,6 @@ const redirectPaths = Object.fromEntries(
       <slot name="actions" slot="actions" />
     </SiteHeader>
     <main id="main-content"><slot /></main>
-    <SiteFooter {locale} {supportUrl} />
+    <SiteFooter {locale} supportUrl={resolvedSupportUrl} />
   </body>
 </html>

@@ -1,66 +1,87 @@
 ---
-import ToolPage from '@noduct/design-system/components/ToolPage.astro';
-import type { DesignLocale } from '@noduct/design-system';
+import AppShell from '@noduct/design-system/shell/AppShell.astro';
+import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
+import { toolBreadcrumbItems } from '@noduct/design-system/shell/tool-page';
+import type { Locale } from '@noduct/tool-runtime';
+import { breadcrumbList, jsonLdGraph, softwareApplication, topology } from '@noduct/tool-runtime';
 import { tool } from '../config';
 import { toolMessages } from '../i18n';
 import styles from './ToolDemo.module.css';
 
-const { locale } = Astro.props as { locale: DesignLocale };
+const { locale } = Astro.props as { locale: Locale };
 const m = toolMessages[locale];
+const jsonLd = jsonLdGraph([
+  softwareApplication({
+    name: m.name,
+    description: m.description,
+    url: topology.canonical(tool.scope, '', locale),
+    locale
+  }),
+  breadcrumbList(toolBreadcrumbItems(tool, locale, m.name))
+]);
 ---
 
-<ToolPage
+<AppShell
   scope={tool.scope}
   {locale}
   title={m.name}
   description={m.description}
-  category={tool.category}
-  breadcrumbLabel={m.breadcrumb}
   noindex={!tool.published}
-  sponsorPlacementId={tool.sponsorPlacementId}
-  sponsorshipEnabled={tool.sponsorshipEnabled}
+  {jsonLd}
 >
-  <section class={styles.workspace} aria-labelledby="tool-title" slot="workspace">
-    <h2 id="tool-title">{m.toolTitle}</h2>
-    <label for="source">{m.label}</label>
-    <textarea id="source" placeholder={m.placeholder}></textarea>
-    <div class={styles.actions}>
-      <button id="process" type="button">{m.process}</button>
-      <button id="clear" class={styles.secondary} type="button">{m.clear}</button>
-    </div>
-    <p class={styles.notice}>{m.privacy}</p>
-    <div class={styles.result} id="result" role="status" aria-live="polite" data-empty-message={m.empty} hidden></div>
-  </section>
+  <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
+    <section class={styles.workspace} aria-labelledby="tool-title">
+      <h2 id="tool-title">{m.toolTitle}</h2>
+      <label for="source">{m.label}</label>
+      <textarea id="source" placeholder={m.placeholder}></textarea>
+      <div class={styles.actions}>
+        <button id="process" type="button">{m.process}</button>
+        <button id="clear" class={styles.secondary} type="button">{m.clear}</button>
+      </div>
+      <p class={styles.notice}>{m.privacy}</p>
+      <div
+        class={styles.result}
+        id="result"
+        role="status"
+        aria-live="polite"
+        data-empty-message={m.empty}
+        hidden
+      >
+      </div>
+    </section>
 
-  <section class={styles.info}>
-    <h2>{m.howTitle}</h2>
-    <ol>{m.how.map((item) => <li>{item}</li>)}</ol>
-  </section>
-  <section class={styles.info}>
-    <h2>{m.limitsTitle}</h2>
-    <p>{m.limits}</p>
-  </section>
-  <section class={styles.info}>
-    <h2>{m.relatedTitle}</h2>
-    <p>{m.related}</p>
-  </section>
+    <Fragment slot="content">
+      <section class={styles.info}>
+        <h2>{m.howTitle}</h2>
+        <ol>{m.how.map((item) => <li>{item}</li>)}</ol>
+      </section>
+      <section class={styles.info}>
+        <h2>{m.limitsTitle}</h2>
+        <p>{m.limits}</p>
+      </section>
+      <section class={styles.info}>
+        <h2>{m.relatedTitle}</h2>
+        <p>{m.related}</p>
+      </section>
+    </Fragment>
 
-  <script>
-    import { cleanText } from '../lib/clean-text';
-    const source = document.querySelector<HTMLTextAreaElement>('#source');
-    const result = document.querySelector<HTMLElement>('#result');
-    document.querySelector('#process')?.addEventListener('click', () => {
-      if (!source || !result) return;
-      result.textContent = cleanText(source.value) || result.dataset.emptyMessage || '';
-      result.hidden = false;
-    });
-    document.querySelector('#clear')?.addEventListener('click', () => {
-      if (source) source.value = '';
-      if (result) {
-        result.textContent = '';
-        result.hidden = true;
-      }
-      source?.focus();
-    });
-  </script>
-</ToolPage>
+    <script>
+      import { cleanText } from '../lib/clean-text';
+      const source = document.querySelector<HTMLTextAreaElement>('#source');
+      const result = document.querySelector<HTMLElement>('#result');
+      document.querySelector('#process')?.addEventListener('click', () => {
+        if (!source || !result) return;
+        result.textContent = cleanText(source.value) || result.dataset.emptyMessage || '';
+        result.hidden = false;
+      });
+      document.querySelector('#clear')?.addEventListener('click', () => {
+        if (source) source.value = '';
+        if (result) {
+          result.textContent = '';
+          result.hidden = true;
+        }
+        source?.focus();
+      });
+    </script>
+  </ToolPage>
+</AppShell>

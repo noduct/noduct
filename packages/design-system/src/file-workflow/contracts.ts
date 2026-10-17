@@ -1,4 +1,4 @@
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import { fileWorkflowMessages } from './messages';
 
 export interface FileListItem {
@@ -46,7 +46,7 @@ export function acceptsFile(file: FileIdentity, accept: string): boolean {
 
 const sizeUnits = ['byte', 'kilobyte', 'megabyte', 'gigabyte'] as const;
 
-export function formatFileSize(bytes: number, locale: DesignLocale = 'en'): string {
+export function formatFileSize(bytes: number, locale: Locale = 'en'): string {
   let value = Math.max(0, bytes);
   let unit = 0;
   while (value >= 1024 && unit < sizeUnits.length - 1) {
@@ -61,7 +61,7 @@ export function formatFileSize(bytes: number, locale: DesignLocale = 'en'): stri
   }).format(value);
 }
 
-export function describeFileItem(item: FileListItem, locale: DesignLocale = 'en'): string {
+export function describeFileItem(item: FileListItem, locale: Locale = 'en'): string {
   const size = formatFileSize(item.size, locale);
   return item.pageCount === undefined
     ? size

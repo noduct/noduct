@@ -2,14 +2,14 @@
 import ReorderableItemMarkup from './ReorderableItemMarkup.astro';
 import type { FileListItem } from '../file-workflow/contracts';
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './ReorderableList.module.css';
 
 export interface Props {
   id: string;
   label: string;
   items?: readonly FileListItem[];
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { id, label, items = [], locale = 'en' } = Astro.props;

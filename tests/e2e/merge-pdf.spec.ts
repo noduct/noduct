@@ -26,7 +26,12 @@ test('Merge PDF: loads with clean quiet-productivity layout, SEO tags and JSON-L
   await expect(page).toHaveTitle(/Merge PDF \| Noduct/);
   await expect(page.locator('h1')).toHaveText('Merge PDF');
   await expect(page.locator('h1')).toHaveCount(1);
-  await expect(page.locator('header [data-workspace-trigger]')).toBeVisible();
+  await expect(page.getByRole('banner').locator('[data-workspace-trigger]')).toBeVisible();
+  const breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+  await expect(breadcrumb.locator('a, [aria-current="page"]')).toHaveCount(3);
+  await expect(breadcrumb.locator('a').first()).toHaveAttribute('href', '/');
+  await expect(breadcrumb.locator('a').nth(1)).toHaveAttribute('href', '/pdf-tools/');
+  await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText('Merge PDF');
 
   // Verify JSON-LD
   await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
@@ -36,6 +41,11 @@ test('Merge PDF: loads with clean quiet-productivity layout, SEO tags and JSON-L
   expect(parsed['@graph']).toHaveLength(2);
   expect(parsed['@graph'][0]['@type']).toBe('SoftwareApplication');
   expect(parsed['@graph'][1]['@type']).toBe('BreadcrumbList');
+  expect(parsed['@graph'][1].itemListElement.map((item: { name: string }) => item.name)).toEqual([
+    'Home',
+    'PDF Tools',
+    'Merge PDF'
+  ]);
 
   // Merge button initially disabled
   const mergeBtn = page.locator('#start-merge-btn');
@@ -43,11 +53,38 @@ test('Merge PDF: loads with clean quiet-productivity layout, SEO tags and JSON-L
 });
 
 test('Merge PDF: applies the shared hub theme preference before rendering', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('noduct-theme', 'dark');
+    const recordTheme = () => {
+      if (document.documentElement?.dataset.theme === 'dark') {
+        (window as Window & { __darkThemeAt?: number }).__darkThemeAt = performance.now();
+        observer.disconnect();
+      }
+    };
+    const observer = new MutationObserver(recordTheme);
+    observer.observe(document, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+    recordTheme();
+  });
   await page.goto(toolUrl);
-  await page.evaluate(() => localStorage.setItem('noduct-theme', 'dark'));
-  await page.reload();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  await expect(page.locator('header [data-workspace-trigger]')).toBeVisible();
+  const timing = await page.evaluate(async () => {
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    return {
+      darkAt: (window as Window & { __darkThemeAt?: number }).__darkThemeAt,
+      firstPaint: performance
+        .getEntriesByType('paint')
+        .find((entry) => entry.name === 'first-contentful-paint')?.startTime
+    };
+  });
+  expect(timing.darkAt).toBeDefined();
+  if (timing.firstPaint !== undefined)
+    expect(timing.darkAt!).toBeLessThanOrEqual(timing.firstPaint);
+  await expect(page.getByRole('banner').locator('[data-workspace-trigger]')).toBeVisible();
 });
 
 test('Merge PDF: end-to-end selection, reordering, merging and download with zero network leaks', async ({
@@ -157,6 +194,16 @@ test('Merge PDF: handles encrypted files with actionable alert without breaking 
   await expect(alerts).toContainText('locked.pdf');
   await expect(alerts).toContainText('password-protected');
   await expect(alerts.locator('[data-alert-item]')).toHaveCSS('display', 'flex');
+  const alertBorder = await alerts.locator('[data-alert-item]').evaluate((element) => {
+    const computed = getComputedStyle(element);
+    const probe = document.createElement('span');
+    probe.style.color = 'var(--color-error)';
+    document.body.append(probe);
+    const expected = getComputedStyle(probe).color;
+    probe.remove();
+    return { actual: computed.borderTopColor, expected };
+  });
+  expect(alertBorder.actual).toBe(alertBorder.expected);
 
   // Only the good file is in the reorderable merge list
   const items = page.locator('#merge-file-list [data-reorder-item]');
@@ -231,14 +278,50 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
   await page.goto('http://127.0.0.1:4324/merge-pdf/pt-br/');
   await expect(page.locator('h1')).toHaveText('Mesclar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Mesclar arquivos PDF');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'um.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Um')
+  });
+  await expect(page.locator('[data-merge-count]')).toContainText('1 PDF válido selecionado');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'dois.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(2, 'Dois')
+  });
+  await expect(page.locator('[data-merge-count]')).toContainText(
+    '2 PDFs prontos para mesclar (3 páginas no total)'
+  );
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'bloqueado.pdf',
+    mimeType: 'application/pdf',
+    buffer: makeEncryptedPdfBuffer()
+  });
+  await expect(page.locator('[data-merge-alerts]')).toContainText('protegido por senha');
 
   await page.goto('http://127.0.0.1:4324/merge-pdf/es/');
   await expect(page.locator('h1')).toHaveText('Combinar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Combinar archivos PDF');
   await page.locator('#merge-drop-zone').setInputFiles({
-    name: 'uno.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Uno')
+    name: 'uno.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Uno')
   });
   await expect(page.locator('[data-merge-count]')).toContainText('1 PDF válido seleccionado');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'dos.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(2, 'Dos')
+  });
+  await expect(page.locator('[data-merge-count]')).toContainText(
+    '2 PDF listos para combinar (3 páginas en total)'
+  );
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'bloqueado.pdf',
+    mimeType: 'application/pdf',
+    buffer: makeEncryptedPdfBuffer()
+  });
+  await expect(page.locator('[data-merge-alerts]')).toContainText('protegido por contraseña');
 });
 
 test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages files, and clears data', async ({
@@ -312,4 +395,3 @@ test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages fil
   await page.keyboard.press('Escape');
   await expect(dialog).not.toHaveAttribute('open');
 });
-

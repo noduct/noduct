@@ -1,11 +1,11 @@
 ---
 import CardMarkup from './CardMarkup.astro';
 import { sponsorCampaignSchema, type SponsorCampaign } from '../sponsorship/contracts';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 
 interface Props {
   campaign?: SponsorCampaign | undefined;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 const { campaign, locale = 'en' } = Astro.props;
 const result = sponsorCampaignSchema.safeParse(campaign);

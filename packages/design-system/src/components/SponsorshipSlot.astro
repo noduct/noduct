@@ -2,14 +2,14 @@
 import CardMarkup from './CardMarkup.astro';
 import { resolveCampaign } from '../sponsorship/resolver';
 import { placementSchema } from '../sponsorship/contracts';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 
 interface Props {
   placementId: string;
   registry?: unknown;
   registryUrl?: string | undefined;
   enabled?: boolean;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { placementId, registry, registryUrl, enabled = false, locale = 'en' } = Astro.props;

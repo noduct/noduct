@@ -1,12 +1,13 @@
 ---
 import type { SponsorCampaign } from '../sponsorship/contracts';
 import Icon from '../icons/Icon.astro';
-import { designMessages, type DesignLocale } from '../i18n';
+import { designMessages } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './SponsorCard.module.css';
 
 interface Props {
   campaign?: SponsorCampaign;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { campaign, locale = 'en' } = Astro.props;

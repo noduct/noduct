@@ -3,7 +3,6 @@ export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disable
 export { THEME_COLOR_TOKEN, themeColors } from './theme';
 export type { ThemeName } from './theme';
 export { designMessages } from './i18n';
-export type { DesignLocale } from './i18n';
 export { default as ScrollArea } from './components/ScrollArea.astro';
 export { default as SponsorCard } from './components/SponsorCard.astro';
 export { default as SponsorshipSlot } from './components/SponsorshipSlot.astro';
@@ -12,4 +11,4 @@ export { default as ReorderableList } from './components/ReorderableList.astro';
 export { default as ProcessingFeedback } from './components/ProcessingFeedback.astro';
 export { default as DownloadCard } from './components/DownloadCard.astro';
 export { default as WorkspaceDrawer } from './components/WorkspaceDrawer.astro';
-export { default as ToolPage } from './components/ToolPage.astro';
+export { default as ToolPage } from './shell/ToolPage.astro';

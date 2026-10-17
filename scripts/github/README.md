@@ -20,7 +20,7 @@ O modo de simulação é o padrão para criar, atualizar, comentar, fechar, mesc
 ## Recursos
 
 ```text
-issue     get | list | create | update | close | comment | link-branch | unlink-branch | linked-branches
+issue     get | list | comments | create | update | close | comment | link-branch | unlink-branch | linked-branches
 milestone get | list | create | update | close
 branch    get | list | create | delete | link | unlink | linked
 pull      get | list | create | update | merge

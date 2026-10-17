@@ -2,13 +2,13 @@
 import { describeFileItem, type FileListItem } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './ReorderableList.module.css';
 
 interface Props {
   item?: FileListItem;
   instructionsId: string;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { item, instructionsId, locale = 'en' } = Astro.props;

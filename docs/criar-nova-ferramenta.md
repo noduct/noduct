@@ -20,7 +20,7 @@ O slug precisa ser idêntico ao de `defineTool()`. O template não contém esse 
 
 ## 3. Implementar
 
-Use `ToolPage` do design system; ele monta `AppShell` e recebe os slots `actions` (controles do header), `workspace` (área funcional) e o conteúdo padrão. Passe `scope` de `defineTool()`, `category`, `locale`, título e descrição; deixe breadcrumb e patrocínio com o template. Traduza interface, erros e anúncios para en, pt-BR e es, e mantenha processamento de arquivos no cliente. Componentes visuais reutilizáveis pertencem ao design system; lógica de domínio não pertence às páginas Astro.
+Use `AppShell` como documento externo e `ToolPage` de `@noduct/design-system/shell/ToolPage.astro` dentro dele. Passe `scope` de `defineTool()` ao shell, o manifesto `tool` ao template, e `locale`, título e descrição a ambos. O `WorkspaceDrawer` entra no slot `actions` do shell; a área funcional entra no slot padrão do template, e seções informativas em `content`. O breadcrumb e o patrocínio ficam com o template. Gere o JSON-LD com `jsonLdGraph([softwareApplication(...), breadcrumbList(toolBreadcrumbItems(tool, locale, heading))])`, usando a mesma lista do breadcrumb visual. Traduza interface, erros e anúncios para en, pt-BR e es, e mantenha processamento de arquivos no cliente. Componentes visuais reutilizáveis pertencem ao design system; lógica de domínio não pertence às páginas Astro.
 
 ## 4. SEO e catálogo
 

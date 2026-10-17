@@ -1,6 +1,6 @@
 ---
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './ProcessingFeedback.module.css';
 
 export interface Props {
@@ -9,7 +9,7 @@ export interface Props {
   value?: number;
   cancellable?: boolean;
   hidden?: boolean;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { label, status, value, cancellable = true, hidden = false, locale = 'en' } = Astro.props;
