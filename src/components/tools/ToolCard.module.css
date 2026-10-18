@@ -61,7 +61,7 @@
   align-items: center;
   padding: 0.16rem 0.38rem;
   border-radius: var(--radius-xs);
-  background: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+  background: var(--color-text-muted-soft);
   color: var(--color-text-muted);
   font-size: 10px;
   font-weight: 600;
@@ -71,7 +71,7 @@
 
 .isBeta {
   background: var(--color-primary-soft);
-  border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  border-color: var(--color-primary-border-soft);
   color: var(--color-primary);
 }
 

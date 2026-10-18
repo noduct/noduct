@@ -19,7 +19,13 @@ const { tools, compact = false, showDirectory = false, locale = 'en' } = Astro.p
 const m = getMessages(locale);
 ---
 
-<div class="search" data-tool-search data-compact={compact ? 'true' : 'false'} data-one-result={m.search.oneResult} data-many-results={m.search.results}>
+<div
+  class="search"
+  data-tool-search
+  data-compact={compact ? 'true' : 'false'}
+  data-one-result={m.search.oneResult}
+  data-many-results={m.search.results}
+>
   <label for="tool-search" class="sr-only">{m.search.label}</label>
   <div class="input-wrap">
     <Icon class="search-icon" name="search" />
@@ -35,13 +41,18 @@ const m = getMessages(locale);
       aria-controls="search-dropdown-menu"
       aria-describedby="search-help search-status"
     />
-    <kbd aria-hidden="true">Ctrl K</kbd>
+    <kbd aria-hidden="true">{m.search.shortcut}</kbd>
   </div>
   <small id="search-help" class="sr-only">{m.search.help}</small>
   <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
 
   <!-- Menu Select Flutuante em Live Search (Apple Spotlight Style) -->
-  <div id="search-dropdown-menu" class:list={[popover.panel, 'search-dropdown']} data-dropdown hidden>
+  <div
+    id="search-dropdown-menu"
+    class:list={[popover.panel, 'search-dropdown']}
+    data-dropdown
+    hidden
+  >
     <div class={popover.header}>
       <span class={popover.title}>{m.search.suggested}</span>
       <span class="dropdown-count" data-count-badge>0 {m.search.results}</span>
@@ -54,51 +65,55 @@ const m = getMessages(locale);
       primeiro uso. Metade do DOM da página ficava aqui, escondida, em todo carregamento.
     -->
     <template data-dropdown-items>
-      {tools.map((tool) => {
-        const cat = getCategory(tool.category, locale);
-        const url = tool.url ?? '';
-        const isClickable = Boolean(tool.url);
+      {
+        tools.map((tool) => {
+          const cat = getCategory(tool.category, locale);
+          const url = tool.url ?? '';
+          const isClickable = Boolean(tool.url);
 
-        return (
-          <li
-            class="dropdown-item"
-            role="option"
-            data-search-item
-            data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
-            data-url={url}
-            data-clickable={isClickable ? 'true' : 'false'}
-            hidden
-          >
-            <a
-              href={isClickable ? url : undefined}
-              class="item-link"
-              tabindex="-1"
+          return (
+            <li
+              class="dropdown-item"
+              role="option"
+              data-search-item
+              data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
+              data-url={url}
+              data-clickable={isClickable ? 'true' : 'false'}
+              hidden
             >
-              <span class="item-icon-box" aria-hidden="true">
-                <ToolIcon category={tool.category} />
-              </span>
-              <div class="item-body">
-                <div class="item-head">
-                  <span class="item-title">{tool.name}</span>
-                  <span class="item-category">{cat?.name}</span>
-                </div>
-                <p class="item-desc">{tool.description}</p>
-              </div>
-              <div class="item-meta">
-                <span class:list={['status-tag', `status-${tool.status}`]}>
-                  <span class="status-dot"></span>
-                  <span>{tool.status === 'published' || tool.status === 'ready' ? m.common.open : tool.status === 'beta' ? m.common.beta : m.common.planned}</span>
+              <a href={isClickable ? url : undefined} class="item-link" tabindex="-1">
+                <span class="item-icon-box" aria-hidden="true">
+                  <ToolIcon category={tool.category} />
                 </span>
-                {isClickable ? (
-                  <Icon class="item-arrow" name="chevron-right" />
-                ) : (
-                  <span class="roadmap-badge">{m.search.roadmap}</span>
-                )}
-              </div>
-            </a>
-          </li>
-        );
-      })}
+                <div class="item-body">
+                  <div class="item-head">
+                    <span class="item-title">{tool.name}</span>
+                    <span class="item-category">{cat?.name}</span>
+                  </div>
+                  <p class="item-desc">{tool.description}</p>
+                </div>
+                <div class="item-meta">
+                  <span class:list={['status-tag', `status-${tool.status}`]}>
+                    <span class="status-dot" />
+                    <span>
+                      {tool.status === 'published' || tool.status === 'ready'
+                        ? m.common.open
+                        : tool.status === 'beta'
+                          ? m.common.beta
+                          : m.common.planned}
+                    </span>
+                  </span>
+                  {isClickable ? (
+                    <Icon class="item-arrow" name="chevron-right" />
+                  ) : (
+                    <span class="roadmap-badge">{m.search.roadmap}</span>
+                  )}
+                </div>
+              </a>
+            </li>
+          );
+        })
+      }
     </template>
 
     <!-- Estado Vazio Dentro do Dropdown -->
@@ -110,13 +125,15 @@ const m = getMessages(locale);
   </div>
 
   <!-- Diretório estático quando renderizado em páginas completas (ex: /tools/) -->
-  {showDirectory && (
-    <div class="grid grid-3 directory-grid">
-      {tools.map((tool) => (
-        <ToolCard tool={tool} locale={locale} />
-      ))}
-    </div>
-  )}
+  {
+    showDirectory && (
+      <div class="grid grid-3 directory-grid">
+        {tools.map((tool) => (
+          <ToolCard tool={tool} locale={locale} />
+        ))}
+      </div>
+    )
+  }
 </div>
 
 <script>
@@ -263,9 +280,9 @@ const m = getMessages(locale);
   .input-wrap {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: 0.75rem;
     height: 44px;
-    padding: 0 .75rem 0 1rem;
+    padding: 0 0.75rem 0 1rem;
     background: var(--color-surface-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -279,7 +296,7 @@ const m = getMessages(locale);
   /* Halo de foco ótico Apple na cápsula externa */
   .input-wrap:focus-within {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring), var(--shadow-md);
+    box-shadow: var(--shadow-focus-ring), var(--shadow-md);
   }
 
   .search-icon {
@@ -287,7 +304,9 @@ const m = getMessages(locale);
     height: 18px;
     color: var(--color-text-muted);
     flex-shrink: 0;
-    transition: color var(--duration-fast) var(--ease-apple), transform var(--duration-fast) var(--ease-apple);
+    transition:
+      color var(--duration-fast) var(--ease-apple),
+      transform var(--duration-fast) var(--ease-apple);
   }
 
   .input-wrap:focus-within .search-icon {
@@ -304,7 +323,7 @@ const m = getMessages(locale);
     padding: 0;
     background: transparent;
     color: var(--color-text);
-    font-size: .88rem;
+    font-size: 0.88rem;
     box-shadow: none !important;
     -webkit-appearance: none;
     appearance: none;
@@ -335,15 +354,15 @@ const m = getMessages(locale);
     display: inline-flex;
     align-items: center;
     height: 22px;
-    padding: 0 .45rem;
+    padding: 0 0.45rem;
     border: 1px solid var(--color-border);
     border-bottom-width: 2px;
     border-radius: var(--radius-xs);
     background: var(--color-surface);
     color: var(--color-text-secondary);
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: .02em;
+    letter-spacing: 0.02em;
     white-space: nowrap;
     user-select: none;
     box-shadow: var(--shadow-key);
@@ -355,7 +374,7 @@ const m = getMessages(locale);
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 999;
+    z-index: var(--z-search);
     max-height: 420px;
   }
 
@@ -364,17 +383,17 @@ const m = getMessages(locale);
   }
 
   .dropdown-count {
-    font-size: .7rem;
+    font-size: 0.7rem;
     font-weight: 500;
     color: var(--color-text-muted);
-    padding: .1rem .45rem;
-    border-radius: 999px;
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--radius-pill);
     background: var(--color-surface-sunken);
   }
 
   .dropdown-list {
     margin: 0;
-    padding: .35rem;
+    padding: 0.35rem;
     list-style: none;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -396,7 +415,7 @@ const m = getMessages(locale);
 
   .dropdown-list::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     border: 1px solid transparent;
     background-clip: padding-box;
   }
@@ -418,8 +437,8 @@ const m = getMessages(locale);
   .item-link {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    padding: .55rem .65rem;
+    gap: 0.75rem;
+    padding: 0.55rem 0.65rem;
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -440,13 +459,13 @@ const m = getMessages(locale);
   .item-head {
     display: flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
     line-height: 1.2;
   }
 
   .item-title {
     margin: 0;
-    font-size: .88rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--color-text);
     white-space: nowrap;
@@ -455,17 +474,17 @@ const m = getMessages(locale);
   }
 
   .item-category {
-    font-size: .7rem;
+    font-size: 0.7rem;
     color: var(--color-text-muted);
-    padding: .05rem .35rem;
+    padding: 0.05rem 0.35rem;
     background: var(--color-surface-sunken);
     border-radius: var(--radius-xs);
     white-space: nowrap;
   }
 
   .item-desc {
-    margin: .2rem 0 0;
-    font-size: .78rem;
+    margin: 0.2rem 0 0;
+    font-size: 0.78rem;
     color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -475,7 +494,7 @@ const m = getMessages(locale);
   .item-meta {
     display: flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
     flex-shrink: 0;
   }
 
@@ -483,19 +502,19 @@ const m = getMessages(locale);
   .status-tag {
     display: inline-flex;
     align-items: center;
-    gap: .3rem;
-    font-size: .68rem;
+    gap: 0.3rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: .15rem .5rem;
-    border-radius: 999px;
-    letter-spacing: .02em;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.02em;
     white-space: nowrap;
   }
 
   .status-dot {
     width: 5px;
     height: 5px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     background: currentColor;
   }
 
@@ -519,7 +538,7 @@ const m = getMessages(locale);
   }
 
   .roadmap-badge {
-    font-size: .68rem;
+    font-size: 0.68rem;
     color: var(--color-text-muted);
   }
 
@@ -527,7 +546,9 @@ const m = getMessages(locale);
     width: 14px;
     height: 14px;
     color: var(--color-text-muted);
-    transition: transform var(--duration-fast) var(--ease-apple), color var(--duration-fast) var(--ease-apple);
+    transition:
+      transform var(--duration-fast) var(--ease-apple),
+      color var(--duration-fast) var(--ease-apple);
   }
 
   .dropdown-item.is-active .item-arrow,
@@ -550,19 +571,19 @@ const m = getMessages(locale);
     width: 28px;
     height: 28px;
     color: var(--color-text-muted);
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
   }
 
   .empty-title {
     margin: 0;
-    font-size: .88rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--color-text);
   }
 
   .empty-desc {
-    margin: .25rem 0 0;
-    font-size: .78rem;
+    margin: 0.25rem 0 0;
+    font-size: 0.78rem;
     color: var(--color-text-secondary);
     max-width: 280px;
   }

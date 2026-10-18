@@ -19,9 +19,9 @@
   --color-border-subtle: #edf2f7;
 
   /* Typography (WCAG AA compliant) */
-  --color-text: #0f172a;           /* Ratio ~15:1 */
+  --color-text: #0f172a; /* Ratio ~15:1 */
   --color-text-secondary: #475569; /* Ratio ~7.5:1 */
-  --color-text-muted: #596780;     /* Ratio ~5.1:1 */
+  --color-text-muted: #596780; /* Ratio ~5.1:1 */
 
   /* Functional */
   --color-focus: #2563eb;
@@ -38,6 +38,11 @@
   --color-warning: #b45309;
   --color-warning-soft: rgba(180, 83, 9, 0.12);
   --color-warning-border: rgba(180, 83, 9, 0.28);
+  --color-text-muted-soft: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+  --color-primary-border-soft: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  --color-primary-border-active: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  --color-error-soft-hover: color-mix(in srgb, var(--color-error) 8%, transparent);
+  --color-mask-opaque: #000000;
   --brand-mark-primary: var(--color-primary);
   --brand-mark-lock: var(--color-success);
 
@@ -45,27 +50,31 @@
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
   --shadow-md: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
   --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
-  --shadow-card-hover: 0 8px 24px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-card-hover:
+    0 8px 24px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
   --shadow-popover: 0 16px 40px -8px rgba(0, 0, 0, 0.28);
   --shadow-switch-thumb: 0 1px 2px rgba(15, 23, 42, 0.25);
   --shadow-inset-subtle: inset 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow-key: 0 1px 1px rgba(0, 0, 0, 0.05);
+  --shadow-focus-ring: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+  --shadow-focus-footer: 0 0 0 1.5px var(--color-surface), 0 0 0 3.5px var(--color-focus-ring);
+  --shadow-border: 0 0 0 1px var(--color-border);
 
   /* Rim Light / Specular Edge Highlight (Polimento Ótico Apple) */
   --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
   --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
 
   /* Apple Motion Timing & Easing Curves */
-  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);       /* Deceleração quintic fluida Apple */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1); /* Deceleração quintic fluida Apple */
   --ease-apple-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15); /* Micro-ressalto mecânico */
   --ease-out-quad: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Motion Durations */
-  --duration-instant: 100ms;  /* Feedback de clique / :active */
-  --duration-fast: 180ms;     /* Hovers, ícones, cores */
-  --duration-normal: 260ms;   /* Modais, expansões, cards */
-  --duration-slow: 400ms;     /* Transições de página e gavetas */
+  --duration-instant: 100ms; /* Feedback de clique / :active */
+  --duration-fast: 180ms; /* Hovers, ícones, cores */
+  --duration-normal: 260ms; /* Modais, expansões, cards */
+  --duration-slow: 400ms; /* Transições de página e gavetas */
 
   /* Scale Press Ratios */
   --scale-active-button: 0.98;
@@ -77,6 +86,9 @@
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
+  --radius-pill: 9999px;
+  --radius-switch: 999px;
+  --radius-circle: 50%;
   --content-width: 1280px;
   --layout-max-width: var(--content-width);
   --layout-padding: 1rem;
@@ -86,6 +98,7 @@
   --z-popover: 40;
   --z-drawer: 50;
   --z-modal: 60;
+  --z-search: 999;
 
   /* Shared spacing and sponsorship geometry */
   --space-1: 0.25rem;
@@ -121,9 +134,9 @@
   --color-border-strong: #3b4c66;
   --color-border-subtle: #1e293b;
 
-  --color-text: #f8fafc;           /* Ratio ~16:1 */
+  --color-text: #f8fafc; /* Ratio ~16:1 */
   --color-text-secondary: #cbd5e1; /* Ratio ~10.9:1 */
-  --color-text-muted: #94a3b8;     /* Ratio ~6.4:1 */
+  --color-text-muted: #94a3b8; /* Ratio ~6.4:1 */
 
   --color-focus: #60a5fa;
   --color-focus-ring: rgba(96, 165, 250, 0.32);

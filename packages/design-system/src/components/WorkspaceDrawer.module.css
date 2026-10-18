@@ -28,9 +28,7 @@
 
 .trigger:focus-visible {
   outline: none;
-  box-shadow:
-    0 0 0 1.5px var(--color-surface-card),
-    0 0 0 4px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
 }
 
 @media (max-width: 720px) {

@@ -31,6 +31,8 @@ The terminal will output the local URL (defaults to `http://localhost:4321/`).
 
 O servidor único para hub e ferramentas na mesma origem é uma entrega da Fase 6 da issue #39. O build composto atual pode ser verificado com `npm run build:pages`.
 
+Para abrir hub e Merge PDF na mesma origem com o artefato montado, execute `npm run build:pages` e depois `node scripts/serve-pages.mjs`; acesse `/` e `/merge-pdf/` em `http://127.0.0.1:4321`. Esse servidor não oferece HMR.
+
 ---
 
 ## Quality & Verification
@@ -38,16 +40,22 @@ O servidor único para hub e ferramentas na mesma origem é uma entrega da Fase 
 Run the verification pipeline to ensure code quality, type-safety, tests, and SEO compliance:
 
 ```bash
+# Verificar regras de código, tokens, UI e limites entre pacotes
+npm run lint
+npm run lint:styles
+npm run validate:ui
+npm run validate:architecture
+
 # Run TypeScript diagnostics across the workspace
 npm run typecheck
 
 # Execute unit and contract tests (Vitest)
 npm test
 
-# Build the production static bundle and run SEO validation
-npm run build
+# Montar o hub e as ferramentas; validar páginas e SEO
+npm run build:pages
 
-# Run end-to-end integration tests (Playwright)
+# Compilar fixtures e o artefato composto; executar Playwright
 npm run test:e2e
 ```
 
@@ -60,7 +68,7 @@ npm run test:e2e
 The project is structured as a modular monorepo:
 
 - `src/`: The core Astro SSG hub, pages, layouts, and data catalog.
-- `packages/design-system/`: Centralized tokens, CSS variables, Apple-grade motion curves, and reusable components (`ScrollArea`, `ToolFrame`, headers, footers).
+- `packages/design-system/`: tokens, shell compartilhado (`AppShell`, `ToolPage`) e componentes reutilizáveis.
 - `packages/tool-template/`: Standalone demonstrator application and starter template for independent micro-apps.
 - `docs/`: Technical specifications, architecture decisions (ADRs), SEO strategy, and interface guardrails.
 - `scripts/`: Automated validation scripts for catalog schema, SEO integrity, and sponsorships.
@@ -70,7 +78,7 @@ The project is structured as a modular monorepo:
 
 ## Building & Publishing
 
-The static production artifact is generated into the `dist/` directory.
+`npm run build:pages` gera o artefato estático composto em `dist-pages/`. O build intermediário apenas do hub fica em `dist/`.
 
 Deployment is handled via GitHub Pages workflow upon push to `main`. For hosting conditions and deployment details, refer to:
 

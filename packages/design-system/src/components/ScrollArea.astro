@@ -17,12 +17,7 @@ const {
 ---
 
 <div
-  class:list={[
-    'scroll-area',
-    `scroll-${orientation}`,
-    { 'has-mask': mask },
-    className
-  ]}
+  class:list={['scroll-area', `scroll-${orientation}`, { 'has-mask': mask }, className]}
   style={{
     ...(maxHeight ? { '--scroll-max-height': maxHeight } : {}),
     ...(maxWidth ? { '--scroll-max-width': maxWidth } : {})
@@ -80,7 +75,7 @@ const {
 
   .scroll-viewport::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     border: 2px solid transparent;
     background-clip: padding-box;
     transition: background-color var(--duration-fast) var(--ease-apple);
@@ -100,15 +95,15 @@ const {
     mask-image: linear-gradient(
       to bottom,
       transparent 0,
-      black 16px,
-      black calc(100% - 16px),
+      var(--color-mask-opaque) 16px,
+      var(--color-mask-opaque) calc(100% - 16px),
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to bottom,
       transparent 0,
-      black 16px,
-      black calc(100% - 16px),
+      var(--color-mask-opaque) 16px,
+      var(--color-mask-opaque) calc(100% - 16px),
       transparent 100%
     );
   }
@@ -117,15 +112,15 @@ const {
     mask-image: linear-gradient(
       to right,
       transparent 0,
-      black 16px,
-      black calc(100% - 16px),
+      var(--color-mask-opaque) 16px,
+      var(--color-mask-opaque) calc(100% - 16px),
       transparent 100%
     );
     -webkit-mask-image: linear-gradient(
       to right,
       transparent 0,
-      black 16px,
-      black calc(100% - 16px),
+      var(--color-mask-opaque) 16px,
+      var(--color-mask-opaque) calc(100% - 16px),
       transparent 100%
     );
   }

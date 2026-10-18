@@ -1,9 +1,9 @@
 ---
-import DropZone from '../../../../../packages/design-system/src/components/DropZone.astro';
-import ReorderableList from '../../../../../packages/design-system/src/components/ReorderableList.astro';
-import ProcessingFeedback from '../../../../../packages/design-system/src/components/ProcessingFeedback.astro';
-import DownloadCard from '../../../../../packages/design-system/src/components/DownloadCard.astro';
-import '../../../../../packages/design-system/src/tokens.css';
+import DropZone from '@noduct/design-system/components/DropZone.astro';
+import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
+import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
+import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
+import '@noduct/design-system/tokens.css';
 ---
 
 <!doctype html>
@@ -35,7 +35,7 @@ import '../../../../../packages/design-system/src/tokens.css';
         type FileListItem,
         type FilesSelectedDetail,
         type ListChangeDetail
-      } from '../../../../../packages/design-system/src/file-workflow';
+      } from '@noduct/design-system/file-workflow';
 
       const listRoot = document.querySelector<HTMLElement>('[data-reorderable-list]')!;
       const feedbackRoot = document.querySelector<HTMLElement>('[data-processing-feedback]')!;

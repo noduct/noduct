@@ -10,10 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      - name: Guardrail ratchet against PR base
+        if: github.event_name == 'pull_request'
+        run: npx tsx scripts/check-guardrail-ratchet.ts --base "${{ github.event.pull_request.base.sha }}"
       - run: npm run lint
+      - run: npm run lint:styles
+      - run: npm run validate:ui
+      - run: npm run validate:architecture
       - run: npm run typecheck
       - run: npm test
       - run: npm run validate:catalog

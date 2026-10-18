@@ -28,6 +28,7 @@
     "./shell/tool-page": "./src/shell/tool-page.ts",
     "./shell/support": "./src/shell/support.ts",
     "./shell/preferences": "./src/shell/preferences.ts",
+    "./shell/messages": "./src/shell/messages.ts",
     "./shell/Popover.module.css": "./src/shell/Popover.module.css",
     "./components/SponsorCard.astro": "./src/components/SponsorCard.astro",
     "./components/SponsorshipSlot.astro": "./src/components/SponsorshipSlot.astro",

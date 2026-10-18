@@ -107,9 +107,7 @@
 
 .supportLink:focus-visible {
   outline: none;
-  box-shadow:
-    0 0 0 1.5px var(--color-surface),
-    0 0 0 3.5px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-footer);
 }
 
 .supportIcon {

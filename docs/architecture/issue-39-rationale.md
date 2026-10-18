@@ -31,6 +31,15 @@ A causa recorrente foi a falta de um contrato concreto e verificável, não a di
 
 Em 2026-10-17, o dono confirmou que a correção estrutural e o cuidado com a issue estão no caminho certo. Ele considera possíveis ajustes futuros no layout do Merge PDF. A nova composição com `AppShell`, `ToolPage`, componentes do design system e CSS local deve permitir iterar na área específica da ferramenta sem recriar o shell. Em cada ajuste, conferir os três idiomas, temas, tamanhos de tela, foco, contraste e paridade com o hub; mudanças em componentes compartilhados exigem validação dos demais consumidores.
 
+## Fase 5: motivo dos guardrails
+
+- **Uma configuração para exceções:** `guardrails.config.ts` concentra as permissões deliberadas. Uma exceção dispersa em ESLint, Stylelint ou scripts seria difícil de auditar e poderia crescer sem revisão.
+- **Lint próximo do código:** regras locais de ESLint impedem SVG duplicado, imports privados, shell ausente e texto não traduzido antes do build. Stylelint exige tokens para cores e valores visuais compartilhados; isso evita que um ajuste pontual reabra a divergência entre hub e ferramenta.
+- **Validadores do repositório:** `validate:ui` inspeciona arquivos versionados e detecta regressões que não cabem no AST do ESLint, como nomes antigos, emoji, URLs legadas e hashes de CSS Modules gerados. `validate:architecture` verifica a direção das dependências, ciclos e exports públicos para que consumidores não dependam da estrutura interna de outro pacote.
+- **Ratchet no PR:** `check-guardrail-ratchet.ts` compara exceções e supressões com a base do PR. O crescimento exige a label `guardrail-change`; a alteração da própria regra também exige essa revisão. A label é um sinal de revisão consciente, não uma dispensa dos demais testes.
+- **Paridade no artefato publicado:** Playwright visita `dist-pages/`, não um servidor de ferramenta isolado. Compara árvore acessível, geometria e estilos no contexto real; depois isola cada região compartilhada na página para que o compositor do Chromium não introduza diferenças de rasterização por causa do conteúdo fora do shell. Os bytes de pixels do header e footer devem ser iguais nos três idiomas, dois temas e três perfis de tela.
+- **Preparação para a Fase 7:** os comandos `npm run lint`, `npm run lint:styles`, `npm run validate:ui`, `npm run validate:architecture`, `npm test` e `npm run test:e2e` formam um contrato executável para pessoas e agentes. Exceções novas precisam ser explicadas e revisadas, não copiadas de uma ferramenta para outra.
+
 ## Critério operacional para fechar uma fase
 
 Leia o corpo da issue, o comentário de orientação e o ADR; transforme cada item em evidência observável; implemente sem afrouxar asserções; rode lint, typecheck, testes, build/SEO e Playwright proporcionais; confira o artefato montado e o diff; só então faça commit, push e atualize o checklist e o comentário da issue. Registre limites de validação de forma explícita.

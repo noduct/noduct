@@ -4,8 +4,8 @@ import {
   DEFAULT_PDF_ACCEPT,
   describeFileItem,
   formatFileSize
-} from '../../packages/design-system/src/file-workflow/contracts';
-import { fileWorkflowMessages } from '../../packages/design-system/src/file-workflow/messages';
+} from '@noduct/design-system/file-workflow';
+import { fileWorkflowMessages } from '@noduct/design-system/file-workflow';
 
 describe('file workflow contracts', () => {
   it('accepts PDF files by MIME type or extension and rejects other files', () => {

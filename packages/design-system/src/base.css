@@ -1,6 +1,8 @@
 @import './tokens.css';
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -11,7 +13,9 @@ html {
 }
 
 /* Scrollbar Próprio Noduct (Estilo Apple / Clear, Flutuante e Minimal) */
-html, body, * {
+html,
+body,
+* {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
@@ -28,7 +32,7 @@ html, body, * {
 
 ::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
-  border-radius: 9999px;
+  border-radius: var(--radius-pill);
   border: 2px solid transparent;
   background-clip: padding-box;
   transition: background-color var(--duration-fast) var(--ease-apple);
@@ -47,8 +51,10 @@ body {
   margin: 0;
   background: var(--color-surface);
   color: var(--color-text);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -58,13 +64,19 @@ body {
     color 300ms var(--ease-apple);
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
   touch-action: manipulation;
 }
 
-code, kbd, samp, pre {
-  font-family: ui-monospace, "SF Mono", "Geist Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+code,
+kbd,
+samp,
+pre {
+  font-family: ui-monospace, 'SF Mono', 'Geist Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
 }
 
 a {
@@ -83,7 +95,7 @@ a {
 /* Foco Ótico: anel suave de dupla camada sem quebra de raio */
 :focus-visible {
   outline: none;
-  box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+  box-shadow: var(--shadow-focus-ring);
   border-radius: inherit;
   transition: box-shadow var(--duration-fast) var(--ease-apple);
 }
@@ -111,23 +123,23 @@ a {
 }
 
 .page-head .eyebrow {
-  margin: 0 0 .75rem;
+  margin: 0 0 0.75rem;
   color: var(--color-primary);
   font-weight: 700;
-  font-size: .78rem;
-  letter-spacing: .08em;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .page-head h1 {
   font-size: clamp(2rem, 4vw, 2.75rem);
   font-weight: 700;
-  letter-spacing: -.03em;
+  letter-spacing: -0.03em;
   line-height: 1.15;
 }
 
 .page-head .lede {
-  margin-top: .85rem;
+  margin-top: 0.85rem;
   max-width: 680px;
   color: var(--color-text-secondary);
   font-size: clamp(1.02rem, 1.5vw, 1.15rem);
@@ -139,17 +151,17 @@ a {
   display: inline-flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: .35rem;
+  gap: 0.35rem;
   margin-bottom: 1.25rem;
-  font-size: .84rem;
+  font-size: 0.84rem;
   color: var(--color-text-muted);
 }
 
 .breadcrumb-link {
   display: inline-flex;
   align-items: center;
-  gap: .35rem;
-  padding: .25rem .55rem;
+  gap: 0.35rem;
+  padding: 0.25rem 0.55rem;
   border-radius: var(--radius-xs);
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -181,14 +193,14 @@ a {
   width: 13px;
   height: 13px;
   color: var(--color-text-muted);
-  opacity: .55;
+  opacity: 0.55;
   flex-shrink: 0;
 }
 
 .breadcrumb-current {
   display: inline-flex;
   align-items: center;
-  padding: .25rem .55rem;
+  padding: 0.25rem 0.55rem;
   border-radius: var(--radius-xs);
   color: var(--color-text);
   font-weight: 550;
@@ -198,25 +210,28 @@ a {
 }
 
 .eyebrow {
-  margin: 0 0 .5rem;
+  margin: 0 0 0.5rem;
   color: var(--color-primary);
   font-weight: 600;
-  font-size: .75rem;
-  letter-spacing: .06em;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
   margin: 0;
   color: var(--color-text);
   font-weight: 600;
-  letter-spacing: -.02em;
+  letter-spacing: -0.02em;
   line-height: 1.25;
 }
 
 h1 {
   font-size: clamp(1.75rem, 4vw, 2.25rem);
-  letter-spacing: -.03em;
+  letter-spacing: -0.03em;
 }
 
 h2 {
@@ -224,12 +239,12 @@ h2 {
 }
 
 h3 {
-  font-size: .95rem;
+  font-size: 0.95rem;
   font-weight: 600;
 }
 
 p {
-  margin-block: .6rem 0;
+  margin-block: 0.6rem 0;
 }
 
 .lede {
@@ -260,14 +275,14 @@ p {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: .5rem;
+  gap: 0.5rem;
   min-height: 44px;
   padding: 0 1rem;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   background: var(--color-primary);
   color: var(--color-on-primary);
-  font-size: .88rem;
+  font-size: 0.88rem;
   font-weight: 550;
   text-decoration: none;
   cursor: pointer;
@@ -312,8 +327,9 @@ p {
   transition-duration: var(--duration-instant);
 }
 
-.button[aria-disabled="true"], .button:disabled {
-  opacity: .5;
+.button[aria-disabled='true'],
+.button:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
 }
@@ -354,7 +370,7 @@ a.card:active {
 
 .card p {
   color: var(--color-text-secondary);
-  font-size: .88rem;
+  font-size: 0.88rem;
   line-height: 1.45;
 }
 
@@ -362,7 +378,7 @@ a.card:active {
   padding: 2.5rem 1.5rem;
   text-align: center;
   color: var(--color-text-secondary);
-  font-size: .9rem;
+  font-size: 0.9rem;
 }
 
 .prose {
@@ -416,7 +432,9 @@ a.card:active {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;

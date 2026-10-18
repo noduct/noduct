@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { PDFDocument } from 'pdf-lib';
 
-const toolUrl = 'http://127.0.0.1:4324/merge-pdf/';
+const toolUrl = '/merge-pdf/';
 
 async function makePdfBuffer(pages: number, label: string): Promise<Buffer> {
   const doc = await PDFDocument.create();
@@ -275,7 +275,7 @@ test('Merge PDF: passes WCAG AA axe accessibility tests in light and dark themes
 });
 
 test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page }) => {
-  await page.goto('http://127.0.0.1:4324/merge-pdf/pt-br/');
+  await page.goto('/merge-pdf/pt-br/');
   await expect(page.locator('h1')).toHaveText('Mesclar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Mesclar arquivos PDF');
   await page.locator('#merge-drop-zone').setInputFiles({
@@ -299,7 +299,7 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
   });
   await expect(page.locator('[data-merge-alerts]')).toContainText('protegido por senha');
 
-  await page.goto('http://127.0.0.1:4324/merge-pdf/es/');
+  await page.goto('/merge-pdf/es/');
   await expect(page.locator('h1')).toHaveText('Combinar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Combinar archivos PDF');
   await page.locator('#merge-drop-zone').setInputFiles({
