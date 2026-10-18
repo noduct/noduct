@@ -196,7 +196,11 @@ export function evaluateRatchet(
   }
   if (!hasGuardrailChangeLabel) {
     for (const path of new Set([...base.files.keys(), ...current.files.keys()])) {
-      if (CONTROL_FILES.test(path) && base.files.get(path) !== current.files.get(path)) {
+      if (
+        CONTROL_FILES.test(path) &&
+        base.files.get(path)?.replace(/\r\n/g, '\n') !==
+          current.files.get(path)?.replace(/\r\n/g, '\n')
+      ) {
         violations.push(`${path} changed; PR needs guardrail-change label`);
       }
     }

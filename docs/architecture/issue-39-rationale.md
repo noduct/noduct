@@ -49,6 +49,7 @@ Em 2026-10-17, o dono confirmou que a correção estrutural e o cuidado com a is
 - **Artefatos de pacotes novos:** o ESLint ignora `.astro/` e `dist/` por padrão genérico de pacote. A antiga lista de dois nomes fazia o primeiro `check` de uma ferramenta recém-gerada falhar em tipos produzidos pelo Astro, antes de chegar ao guardrail de tradução. A alteração do arquivo de controle exige `guardrail-change` quando houver PR, conforme o ratchet da Fase 5.
 - **CI e deploy iguais ao uso local:** CI executa `check`, `build`, páginas, SEO e E2E; deploy usa `verify` e publica o mesmo artefato. O job de template gera uma ferramenta descartável, completa as traduções de exemplo e executa a mesma verificação para provar que a descoberta continua automática.
 - **Lighthouse e ferramentas planejadas:** a lista de URLs vem do manifesto e o estado de indexação vem do catálogo. Páginas `planned` têm `noindex` deliberado, portanto a nota SEO de indexabilidade não se aplica a elas; desempenho, acessibilidade, boas práticas e links válidos continuam obrigatórios. Um controle de download ainda sem arquivo usa um botão, evitando um link sem destino no HTML inicial.
+- **Ratchet em checkout Windows:** o Git armazena LF, enquanto um checkout pode apresentar CRLF. O comparador normaliza apenas as quebras de linha antes de decidir se um arquivo de controle mudou; alterações efetivas continuam exigindo `guardrail-change`.
 
 ## Critério operacional para fechar uma fase
 

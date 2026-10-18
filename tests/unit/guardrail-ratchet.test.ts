@@ -55,6 +55,14 @@ describe('guardrail ratchet', () => {
     expect(evaluateRatchet(base, current, true).violations).toEqual([]);
   });
 
+  it('ignores checkout line endings while preserving control file changes', () => {
+    const base = snapshot({ 'eslint.config.js': 'export default [\n  rule\n];\n' });
+    const windowsCheckout = snapshot({
+      'eslint.config.js': 'export default [\r\n  rule\r\n];\r\n'
+    });
+    expect(evaluateRatchet(base, windowsCheckout, false).violations).toEqual([]);
+  });
+
   it('allows reductions and fails closed on a new allowlist member', () => {
     const base = snapshot({
       'guardrails.config.ts': `export const guardrails = { exemptFixtures: ['a', 'b'] } as const;`
