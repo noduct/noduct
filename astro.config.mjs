@@ -9,6 +9,7 @@ const isExcludedFromSitemap = (page) =>
   /\/(?:(?:pt-br|es)\/)?404\/?$/.test(new URL(page).pathname);
 
 export function devToolProxy(value = process.env.NODUCT_DEV_TOOLS ?? '') {
+  /** @type {Record<string, import('vite').ProxyOptions>} */
   const proxy = {};
   for (const item of value.split(',').filter(Boolean)) {
     const match = /^([a-z0-9]+(?:-[a-z0-9]+)*)=(\d+)$/.exec(item);
