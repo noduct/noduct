@@ -8,7 +8,7 @@ Configure Pages para GitHub Actions. O workflow compara o `base_url` devolvido p
 
 ## Artefato
 
-`npm run build:pages` gera o hub em `dist/`, gera cada ferramenta declarada pelo campo `noduct.slug` de seu `package.json` e monta tudo em `dist-pages/`:
+`npm run build` gera o hub em `dist/`, gera cada ferramenta declarada pelo campo `noduct.slug` de seu `package.json` e monta tudo em `dist-pages/`:
 
 - hub na raiz;
 - ferramentas em `/<slug>/`;
@@ -25,4 +25,4 @@ Pages suporta o build estático, mas suas condições restringem certos usos com
 
 ## Verificação
 
-Antes do deploy, execute `npm run build:pages`. Depois do rename e da publicação autorizada, verifique `/`, `/robots.txt`, `/sitemap-index.xml`, `/merge-pdf/`, um CSS real sob `/merge-pdf/_astro/` e os stubs `/noduct/` e `/noduct/pt-br/privacy/`. Cadastre a propriedade da origem no Search Console e envie o sitemap do hub e os sitemaps das ferramentas.
+Antes do deploy, execute `npm run build`. Depois do rename e da publicação autorizada, verifique `/`, `/robots.txt`, `/sitemap-index.xml`, `/merge-pdf/`, um CSS real sob `/merge-pdf/_astro/` e os stubs `/noduct/` e `/noduct/pt-br/privacy/`. Cadastre a propriedade da origem no Search Console e envie o sitemap do hub e os sitemaps das ferramentas.

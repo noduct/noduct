@@ -1,11 +1,7 @@
 # Template de ferramenta Noduct
 
-Aplicação Astro independente e funcional para iniciar uma ferramenta. O exemplo limpa texto localmente e está marcado como demonstração não indexável.
+Esta aplicação Astro demonstra a composição com `AppShell`, `ToolPage` e `defineTool()`. O exemplo limpa texto localmente e não é indexável.
 
-1. Copie este diretório para o novo repositório.
-2. Troque `example-tool` no `package.json`, `astro.config.mjs` e `src/config.ts`.
-3. Implemente o motor real na área principal.
-4. Atualize privacidade, instruções, limitações e testes para o comportamento real.
-5. Remova `noindex` apenas quando o produto estiver pronto e publicado.
+Na raiz do workspace, execute `npm run new:tool -- <slug> --category <id>`. O gerador copia este template, configura `src/config.ts`, `package.json`, catálogo e traduções. Depois, substitua os marcadores `TODO(i18n)`, implemente a funcionalidade real e execute `npm run verify`.
 
-Veja `docs/criar-nova-ferramenta.md` no hub para o fluxo completo.
+Para uso em um repositório próprio após a extração, siga `docs/criar-nova-ferramenta.md` e a topologia de `@noduct/tool-runtime`.

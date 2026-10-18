@@ -29,7 +29,7 @@ A suíte anterior cobria desktop e mobile, mas não tablet, todas as rotas, erro
 
 Não havia regressão automatizada para categorias Lighthouse e métricas de laboratório.
 
-**Correção:** adição de `@lhci/cli`, `lighthouserc.cjs`, comando `npm run test:lighthouse` e etapa no workflow de CI. Metas bloqueantes: Performance ≥ 90, Acessibilidade/Best Practices/SEO ≥ 95, LCP ≤ 2,5 s, CLS ≤ 0,1 e TBT ≤ 200 ms.
+**Correção:** adição de `@lhci/cli`, `lighthouserc.cjs`, comando `npx lhci autorun` e etapa no workflow de CI. Metas bloqueantes: Performance ≥ 90, Acessibilidade/Best Practices/SEO ≥ 95, LCP ≤ 2,5 s, CLS ≤ 0,1 e TBT ≤ 200 ms.
 
 ## Resultados
 
@@ -63,10 +63,10 @@ Não foi encontrado link quebrado interno no hub. A validação externa de Pages
 ## Comandos de regressão
 
 ```bash
-npm run lint
-npm run typecheck
+npm run check
+npm run check -- types
 npm test
 npm run build
 npm run test:e2e
-npm run test:lighthouse
+npx lhci autorun
 ```

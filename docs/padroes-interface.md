@@ -192,9 +192,9 @@ Qualquer micro-aplicativo ou extensão do Noduct **deve obedecer impreterivelmen
 ## 10. Checklist de Validação de Qualidade
 
 Antes de publicar qualquer alteração no Hub ou em um novo micro-app:
-- [ ] `npm run typecheck` (zero erros TypeScript).
+- [ ] `npm run check -- types` (zero erros TypeScript).
 - [ ] `npm test` (testes unitários de catálogo, busca e patrocínios válidos).
-- [ ] `npm run validate:seo` (todas as páginas HTML possuem exatamente 1 H1, canonical e meta description).
+- [ ] `npm run check -- seo` (todas as páginas HTML possuem exatamente 1 H1, canonical e meta description).
 - [ ] Navegação 100% por teclado com foco visível e halo ótico duplo.
 - [ ] Scrollbar flutuante limpa sem faixas cinzas nativas do browser.
 - [ ] Teste em janela anônima no Chrome DevTools com emulação Mobile e Dark Theme.

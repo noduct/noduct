@@ -23,7 +23,7 @@ const mimeTypes = {
 };
 
 if (!existsSync(join(root, 'index.html'))) {
-  throw new Error('dist-pages/index.html is missing. Run npm run build:pages first.');
+  throw new Error('dist-pages/index.html is missing. Run npm run build first.');
 }
 
 createServer((request, response) => {

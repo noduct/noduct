@@ -20,4 +20,4 @@ Cada página localizada possui `lang`, title, description e canonical próprios.
 
 ## Cobertura e validação
 
-`npm run validate:i18n` compara todos os IDs do catálogo com os catálogos traduzidos e rejeita nomes, descrições, palavras-chave ou mensagens vazias. O contrato TypeScript exige a mesma estrutura de mensagens nos três idiomas. Revisão humana continua obrigatória para clareza, tom e precisão.
+`npm run check -- i18n` compara todos os IDs do catálogo com os catálogos traduzidos e rejeita nomes, descrições, palavras-chave ou mensagens vazias. O contrato TypeScript exige a mesma estrutura de mensagens nos três idiomas. Revisão humana continua obrigatória para clareza, tom e precisão.

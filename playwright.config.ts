@@ -15,7 +15,7 @@ export default defineConfig({
     },
     {
       command:
-        'npm run preview -- --root tests/fixtures/sponsorship-app --host 127.0.0.1 --port 4323',
+        'npx astro preview --root tests/fixtures/sponsorship-app --host 127.0.0.1 --port 4323',
       url: 'http://127.0.0.1:4323/active/',
       timeout: 180_000,
       reuseExistingServer: !process.env.CI

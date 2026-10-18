@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { guardrails } from '../guardrails.config.ts';
 
@@ -49,6 +49,13 @@ export function validateUiContent(path: string, contents: string): string[] {
     contents.toLowerCase().includes(deprecatedName.toLowerCase())
   )
     errors.push('deprecated product name');
+  if (
+    path.endsWith('.md') &&
+    /npm run (?:dev:|build:|lint:styles|lint\b|typecheck\b|validate:|check:sponsors|test:lighthouse)/.test(
+      contents
+    )
+  )
+    errors.push('removed root script in documentation');
   if (!sourceFile.test(path) || !textFile.test(path)) return errors;
   if (emoji.test(contents)) errors.push('emoji in source');
   if (path.endsWith('.astro') && iconGlyph.test(contents.replace(/---[\s\S]*?---/g, '')))
@@ -59,6 +66,11 @@ export function validateUiContent(path: string, contents: string): string[] {
   )
     errors.push('hardcoded product URL');
   if (generatedClass.test(contents)) errors.push('generated CSS Module class hash');
+  if (
+    /^(?:packages\/[^/]+\/src\/|src\/data\/tools\.json$|src\/i18n\/catalog\/)/.test(path) &&
+    contents.includes('TODO(i18n)')
+  )
+    errors.push('unresolved i18n placeholder');
   if (path.endsWith('.astro') && /(?:^|\/)pages\//.test(path) && !hasShell(resolve(path)))
     errors.push('page does not render AppShell');
   if (
@@ -71,11 +83,16 @@ export function validateUiContent(path: string, contents: string): string[] {
 }
 
 export function validateUi(): string[] {
-  const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' })
+  const tracked = execFileSync(
+    'git',
+    ['ls-files', '--cached', '--others', '--exclude-standard', '-z'],
+    { encoding: 'utf8' }
+  )
     .split('\0')
     .filter(Boolean);
   return tracked.flatMap((file) => {
     const path = file.replaceAll('\\', '/');
+    if (!existsSync(file)) return [];
     if (!textFile.test(path) && !path.toLowerCase().includes(deprecatedName.toLowerCase()))
       return [];
     const contents = readFileSync(file, 'utf8');

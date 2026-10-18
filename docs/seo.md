@@ -12,6 +12,6 @@ O sitemap da raiz contém somente páginas do hub. Cada ferramenta gera sitemap 
 
 ## Validação e Search Console
 
-`npm run build:pages` monta `dist-pages/`, executa `validate:pages` e depois `validate:seo`. O validador de SEO ignora stubs e 404, compara canonical com o caminho real sob `topology.origin` e considera duplicidade de título apenas dentro do mesmo idioma. O Lighthouse usa as rotas finais na raiz.
+`npm run build` monta `dist-pages/`, executa `validate:pages` e depois `validate:seo`. O validador de SEO ignora stubs e 404, compara canonical com o caminho real sob `topology.origin` e considera duplicidade de título apenas dentro do mesmo idioma. O Lighthouse usa as rotas finais na raiz.
 
 Depois da publicação autorizada, cadastre `https://noduct.github.io/` no Search Console e envie o sitemap do hub e os sitemaps das ferramentas. Isso auxilia descoberta, mas não garante indexação ou posição.

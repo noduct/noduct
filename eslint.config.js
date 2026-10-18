@@ -12,10 +12,8 @@ export default tseslint.config(
       'dist/**',
       'dist-pages/**',
       'node_modules/**',
-      'packages/tool-template/.astro/**',
-      'packages/tool-template/dist/**',
-      'packages/merge-pdf/.astro/**',
-      'packages/merge-pdf/dist/**',
+      'packages/*/.astro/**',
+      'packages/*/dist/**',
       '.sponsorship-fixture/**',
       'tests/fixtures/sponsorship-app/.astro/**'
     ]

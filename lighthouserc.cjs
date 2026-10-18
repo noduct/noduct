@@ -1,15 +1,16 @@
+const { execFileSync } = module.require('node:child_process');
+const paths = JSON.parse(
+  execFileSync(process.execPath, ['--import', 'tsx', 'scripts/lighthouse-urls.ts'], {
+    encoding: 'utf8'
+  })
+);
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: 'npm run preview -- --host 127.0.0.1 --port 4322',
-      startServerReadyPattern: 'Local',
+      startServerCommand: 'npm run preview',
+      startServerReadyPattern: 'pages artifact ready',
       startServerReadyTimeout: 120000,
-      url: [
-        'http://127.0.0.1:4322/',
-        'http://127.0.0.1:4322/tools/',
-        'http://127.0.0.1:4322/pdf-tools/',
-        'http://127.0.0.1:4322/sponsor/'
-      ],
+      url: paths.map((path) => `http://127.0.0.1:4321${path}`),
       numberOfRuns: 1,
       settings: {
         chromeFlags: '--headless --no-sandbox --disable-gpu',

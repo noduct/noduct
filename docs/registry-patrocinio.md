@@ -38,7 +38,7 @@ Uma pausa ou revogação administrativa exige publicar o manifesto atualizado no
 
 ## Publicação e verificação
 
-Para atualizar campanhas, revise os dados públicos em `sponsorship/campaigns.ts`, os posicionamentos derivados do catálogo e o resultado de `npm run check:sponsors`. A pipeline deve validar o manifesto completo antes da publicação. O build gera o endpoint; as verificações de navegador com Playwright confirmam que a rota entrega JSON público válido.
+Para atualizar campanhas, revise os dados públicos em `sponsorship/campaigns.ts`, os posicionamentos derivados do catálogo e o resultado de `npm run check -- sponsors`. A pipeline deve validar o manifesto completo antes da publicação. O build gera o endpoint; as verificações de navegador com Playwright confirmam que a rota entrega JSON público válido.
 
 Uma alteração de dados exige novo build e deploy somente do Hub. As ferramentas independentes consultam o endereço configurado e recebem a atualização sem recompilar seu próprio código. Uma mudança no código do cliente ou na versão de sua dependência exige novo build e deploy de cada consumidor afetado. Mudanças incompatíveis no manifesto exigem a evolução explícita de `schemaVersion` e a migração dos consumidores.
 

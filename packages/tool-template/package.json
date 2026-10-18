@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "typecheck": "astro check",
+    "check": "astro check && vitest run",
     "test": "vitest run"
   },
   "dependencies": {

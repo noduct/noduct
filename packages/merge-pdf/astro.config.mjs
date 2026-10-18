@@ -10,5 +10,6 @@ export default defineConfig({
   site,
   base,
   output: 'static',
+  vite: { server: { strictPort: true, hmr: { path: `${base}__vite_hmr` } } },
   integrations: [sitemap()]
 });

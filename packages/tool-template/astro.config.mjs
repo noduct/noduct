@@ -6,4 +6,10 @@ import { tool } from './src/config.ts';
 // site e base vêm da topologia (ADR 0005) a partir do slug declarado em src/config.ts.
 const { site, base } = topology.astro(tool.scope);
 
-export default defineConfig({ site, base, output: 'static', integrations: [sitemap()] });
+export default defineConfig({
+  site,
+  base,
+  output: 'static',
+  integrations: [sitemap()],
+  vite: { server: { strictPort: true, hmr: { path: `${base}__vite_hmr` } } }
+});

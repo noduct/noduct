@@ -1,31 +1,25 @@
 # Criar uma nova ferramenta
 
-## 1. Iniciar
+## 1. Gerar
 
-Copie `packages/tool-template` para um novo workspace e escolha um slug inglês em kebab-case. O slug não pode pertencer a `RESERVED_HUB_SEGMENTS`.
-
-## 2. Declarar
-
-Declare a ferramenta uma única vez com `defineTool()` em `src/config.ts`. Origem, base, canonical, hreflang, links do hub e registry devem vir de `topology`; nunca monte URLs do produto manualmente.
-
-Enquanto a ferramenta não estiver lançada, mantenha `published: false`. Para incluí-la no artefato monorepo, adicione ao `package.json`:
-
-```json
-{
-  "noduct": { "slug": "word-counter" }
-}
+```bash
+npm run new:tool -- <slug> --category <id>
 ```
 
-O slug precisa ser idêntico ao de `defineTool()`. O template não contém esse campo porque não é implantado.
+Use um slug inglês em kebab-case e um ID de categoria de `CATEGORY_IDS`. O comando recusa slugs reservados, já usados no catálogo ou existentes em `packages/`, sem alterar arquivos. Ele copia `packages/tool-template`, declara `noduct.slug` no pacote, configura `defineTool()`, cria a entrada `planned` no catálogo e adiciona traduções iniciais.
 
-## 3. Implementar
+O gerador executa `npm install` e `npm run check`. A checagem acusa `TODO(i18n)` até que textos de en, pt-BR e es sejam traduzidos e revisados. Substitua também a lógica demonstrativa do template pela funcionalidade real.
 
-Use `AppShell` como documento externo e `ToolPage` de `@noduct/design-system/shell/ToolPage.astro` dentro dele. Passe `scope` de `defineTool()` ao shell, o manifesto `tool` ao template, e `locale`, título e descrição a ambos. O `WorkspaceDrawer` entra no slot `actions` do shell; a área funcional entra no slot padrão do template, e seções informativas em `content`. O breadcrumb e o patrocínio ficam com o template. Gere o JSON-LD com `jsonLdGraph([softwareApplication(...), breadcrumbList(toolBreadcrumbItems(tool, locale, heading))])`, usando a mesma lista do breadcrumb visual. Traduza interface, erros e anúncios para en, pt-BR e es, e mantenha processamento de arquivos no cliente. Componentes visuais reutilizáveis pertencem ao design system; lógica de domínio não pertence às páginas Astro.
+## 2. Implementar
 
-## 4. SEO e catálogo
+Mantenha o slug em `src/config.ts` e no manifesto do pacote. Origem, base, canonical, hreflang, links do hub e registry vêm de `topology`. Use `AppShell` e `ToolPage` do design system, processamento local e mensagens honestas sobre privacidade. O catálogo tipado decide o status público: enquanto `planned`, o hub não publica link operacional.
 
-Forneça title, description, um H1, canonical autorreferente, hreflang recíproco e JSON-LD verdadeiro. O catálogo tipado decide o status público; ferramentas `planned` não recebem URL operacional.
+Forneça title, description, um H1, canonical autorreferente, hreflang recíproco e JSON-LD verdadeiro. Traduza interface, erros e anúncios para os três idiomas. Componentes visuais reutilizáveis pertencem ao design system; páginas Astro apenas compõem a ferramenta.
 
-## 5. Validar
+## 3. Validar
 
-Execute `npm run verify` na raiz. Antes da extração para repositório próprio, `npm run build:pages` precisa montar a ferramenta em `/<slug>/` e `validate:pages` precisa confirmar assets, links, canonical e sitemap.
+```bash
+npm run verify
+```
+
+O `build` descobre o pacote automaticamente pelo campo `noduct.slug`, monta `/<slug>/` em `dist-pages/` e o teste de paridade o inclui automaticamente quando o slug também consta no catálogo. `verify` valida contratos, páginas, SEO e Playwright sem recompilar ferramentas no E2E.

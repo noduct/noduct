@@ -25,7 +25,7 @@ A causa recorrente foi a falta de um contrato concreto e verificável, não a di
 - **Gatilhos sem timer:** abertura do workspace/drawer e retorno da aba ao primeiro plano oferecem limpeza previsível sem trabalho contínuo em segundo plano.
 - **Códigos de erro:** frases montadas no `workspace-core` não podem ser traduzidas com segurança. `code` e `params` estruturados separam decisão de domínio de apresentação.
 - **Testes de limite temporal:** relógio falso, fixture de migração e Playwright devem provar o comportamento no instante de expiração, a proteção de `persistent`/locks e o anúncio acessível de remoção.
-- **Configuração em desenvolvimento:** o `astro.config.mjs` importa `@noduct/tool-runtime` pelo ESM nativo do Node. Imports internos TypeScript sem extensão quebravam `npm run dev:merge-pdf` embora o build estático passasse. Os imports explícitos `.ts` e um teste que executa o Node diretamente protegem esse caminho.
+- **Configuração em desenvolvimento:** o `astro.config.mjs` importa `@noduct/tool-runtime` pelo ESM nativo do Node. Imports internos TypeScript sem extensão quebravam `npm run dev -- merge-pdf` embora o build estático passasse. Os imports explícitos `.ts` e um teste que executa o Node diretamente protegem esse caminho.
 
 ## Feedback do dono e evolução visual
 
@@ -35,10 +35,19 @@ Em 2026-10-17, o dono confirmou que a correção estrutural e o cuidado com a is
 
 - **Uma configuração para exceções:** `guardrails.config.ts` concentra as permissões deliberadas. Uma exceção dispersa em ESLint, Stylelint ou scripts seria difícil de auditar e poderia crescer sem revisão.
 - **Lint próximo do código:** regras locais de ESLint impedem SVG duplicado, imports privados, shell ausente e texto não traduzido antes do build. Stylelint exige tokens para cores e valores visuais compartilhados; isso evita que um ajuste pontual reabra a divergência entre hub e ferramenta.
-- **Validadores do repositório:** `validate:ui` inspeciona arquivos versionados e detecta regressões que não cabem no AST do ESLint, como nomes antigos, emoji, URLs legadas e hashes de CSS Modules gerados. `validate:architecture` verifica a direção das dependências, ciclos e exports públicos para que consumidores não dependam da estrutura interna de outro pacote.
+- **Validadores do repositório:** `validate:ui` inspeciona arquivos versionados ou novos ainda não versionados e detecta regressões que não cabem no AST do ESLint, como nomes antigos, emoji, URLs legadas e hashes de CSS Modules gerados. `validate:architecture` verifica a direção das dependências, ciclos e exports públicos para que consumidores não dependam da estrutura interna de outro pacote.
 - **Ratchet no PR:** `check-guardrail-ratchet.ts` compara exceções e supressões com a base do PR. O crescimento exige a label `guardrail-change`; a alteração da própria regra também exige essa revisão. A label é um sinal de revisão consciente, não uma dispensa dos demais testes.
 - **Paridade no artefato publicado:** Playwright visita `dist-pages/`, não um servidor de ferramenta isolado. Compara árvore acessível, geometria e estilos no contexto real; depois isola cada região compartilhada na página para que o compositor do Chromium não introduza diferenças de rasterização por causa do conteúdo fora do shell. Os bytes de pixels do header e footer devem ser iguais nos três idiomas, dois temas e três perfis de tela.
-- **Preparação para a Fase 7:** os comandos `npm run lint`, `npm run lint:styles`, `npm run validate:ui`, `npm run validate:architecture`, `npm test` e `npm run test:e2e` formam um contrato executável para pessoas e agentes. Exceções novas precisam ser explicadas e revisadas, não copiadas de uma ferramenta para outra.
+- **Preparação para a Fase 7:** os comandos `npm run check`, `npm run check -- css`, `npm run check -- ui`, `npm run check -- architecture`, `npm test` e `npm run test:e2e` formam um contrato executável para pessoas e agentes. Exceções novas precisam ser explicadas e revisadas, não copiadas de uma ferramenta para outra.
+
+## Fase 6: motivo da interface única
+
+- **Descoberta pelo manifesto:** uma ferramenta declara `noduct.slug` no próprio pacote. A CLI, o build, o proxy, o Pages, a paridade e o Lighthouse leem a mesma lista. Isso evita que uma ferramenta funcione isolada, mas desapareça do artefato ou da validação.
+- **Uma origem em desenvolvimento:** o hub encaminha `/<slug>/` ao servidor Astro da ferramenta, inclusive módulos de desenvolvimento e WebSocket. A alteração ao vivo de um título da ferramenta foi observada pela porta 4321, não apenas pela porta interna. O encerramento da CLI encerra os processos filhos no Windows.
+- **Build único e artefato verificável:** `build` compila hub e ferramentas uma vez, monta `dist-pages/` e grava um hash de fontes e configuração. `test:e2e` e os checks de páginas/SEO rejeitam artefatos ausentes ou antigos; assim, testes não conseguem passar sobre HTML de uma versão anterior nem recompilar ferramentas inadvertidamente.
+- **Scripts públicos fechados:** `check-scripts.ts` recusa comandos antigos, scripts por slug e diferenças entre pacote, configuração e manifesto. `new:tool` valida colisões antes de escrever e deixa traduções pendentes explícitas; `validate-ui` encontra esses marcadores mesmo em arquivos ainda não versionados.
+- **Artefatos de pacotes novos:** o ESLint ignora `.astro/` e `dist/` por padrão genérico de pacote. A antiga lista de dois nomes fazia o primeiro `check` de uma ferramenta recém-gerada falhar em tipos produzidos pelo Astro, antes de chegar ao guardrail de tradução. A alteração do arquivo de controle exige `guardrail-change` quando houver PR, conforme o ratchet da Fase 5.
+- **CI e deploy iguais ao uso local:** CI executa `check`, `build`, páginas, SEO e E2E; deploy usa `verify` e publica o mesmo artefato. O job de template gera uma ferramenta descartável, completa as traduções de exemplo e executa a mesma verificação para provar que a descoberta continua automática.
 
 ## Critério operacional para fechar uma fase
 
