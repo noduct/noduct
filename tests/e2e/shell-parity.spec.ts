@@ -99,7 +99,7 @@ async function preparePage(
     });
   }, theme);
   const page = await context.newPage();
-  await page.goto(`http://127.0.0.1:4321${path}`);
+  await page.goto(path);
   await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
   await page.evaluate(async () => {
     await document.fonts.ready;

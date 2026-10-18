@@ -1,17 +1,20 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const pagesUrl = 'http://127.0.0.1:4324';
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',
-  use: { baseURL: 'http://127.0.0.1:4321', trace: 'on-first-retry' },
+  use: { baseURL: pagesUrl, trace: 'on-first-retry' },
   webServer: [
     {
       command: 'node scripts/serve-pages.mjs',
-      url: 'http://127.0.0.1:4321/',
+      url: `${pagesUrl}/`,
+      env: { PORT: '4324' },
       timeout: 180_000,
-      reuseExistingServer: !process.env.CI
+      reuseExistingServer: false
     },
     {
       command:

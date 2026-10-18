@@ -48,6 +48,7 @@ Em 2026-10-17, o dono confirmou que a correção estrutural e o cuidado com a is
 - **Scripts públicos fechados:** `check-scripts.ts` recusa comandos antigos, scripts por slug e diferenças entre pacote, configuração e manifesto. `new:tool` valida colisões antes de escrever e deixa traduções pendentes explícitas; `validate-ui` encontra esses marcadores mesmo em arquivos ainda não versionados.
 - **Artefatos de pacotes novos:** o ESLint ignora `.astro/` e `dist/` por padrão genérico de pacote. A antiga lista de dois nomes fazia o primeiro `check` de uma ferramenta recém-gerada falhar em tipos produzidos pelo Astro, antes de chegar ao guardrail de tradução. A alteração do arquivo de controle exige `guardrail-change` quando houver PR, conforme o ratchet da Fase 5.
 - **CI e deploy iguais ao uso local:** CI executa `check`, `build`, páginas, SEO e E2E; deploy usa `verify` e publica o mesmo artefato. O job de template gera uma ferramenta descartável, completa as traduções de exemplo e executa a mesma verificação para provar que a descoberta continua automática.
+- **Lighthouse e ferramentas planejadas:** a lista de URLs vem do manifesto e o estado de indexação vem do catálogo. Páginas `planned` têm `noindex` deliberado, portanto a nota SEO de indexabilidade não se aplica a elas; desempenho, acessibilidade, boas práticas e links válidos continuam obrigatórios. Um controle de download ainda sem arquivo usa um botão, evitando um link sem destino no HTML inicial.
 
 ## Critério operacional para fechar uma fase
 

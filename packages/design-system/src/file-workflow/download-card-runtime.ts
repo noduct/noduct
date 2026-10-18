@@ -23,7 +23,7 @@ export function armDownloadCard(card: HTMLElement): DownloadCardController | und
   const title = card.querySelector<HTMLElement>('[data-download-title]');
   const name = card.querySelector<HTMLElement>('[data-download-name]');
   const size = card.querySelector<HTMLElement>('[data-download-size]');
-  const link = card.querySelector<HTMLAnchorElement>('[data-download-link]');
+  const link = card.querySelector<HTMLButtonElement>('[data-download-link]');
   const restart = card.querySelector<HTMLButtonElement>('[data-download-restart]');
   if (!title || !name || !size || !link || !restart) return undefined;
   const locale = resolveFileWorkflowLocale(card.dataset.locale);
@@ -33,13 +33,21 @@ export function armDownloadCard(card: HTMLElement): DownloadCardController | und
     if (objectUrl) URL.revokeObjectURL(objectUrl);
     objectUrl = undefined;
   };
+  let downloadName = name.textContent ?? '';
+  link.addEventListener('click', () => {
+    const url = objectUrl ?? link.dataset.downloadUrl;
+    if (!url) return;
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = downloadName;
+    anchor.click();
+  });
 
   const controller: DownloadCardController = {
     show({ file, fileName }) {
       release();
       objectUrl = URL.createObjectURL(file);
-      link.href = objectUrl;
-      link.download = fileName;
+      downloadName = fileName;
       name.textContent = fileName;
       size.textContent = formatFileSize(file.size, locale);
       card.hidden = false;

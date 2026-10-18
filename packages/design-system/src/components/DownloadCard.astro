@@ -40,9 +40,9 @@ const titleId = `${id}-title`;
     </p>
   </div>
   <div class={styles.actions}>
-    <a class={styles.primary} href={downloadUrl} download={fileName} data-download-link>
+    <button type="button" class={styles.primary} data-download-link data-download-url={downloadUrl}>
       {m.download}
-    </a>
+    </button>
     <button type="button" class={styles.secondary} data-download-restart>{m.startOver}</button>
   </div>
 </section>
