@@ -144,9 +144,9 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
   await expect(downloadCard).toBeVisible({ timeout: 10_000 });
 
   // Click download
-  const downloadLink = downloadCard.getByRole('link', { name: 'Download' });
-  await expect(downloadLink).toBeVisible();
-  await downloadLink.click();
+  const downloadButton = downloadCard.getByRole('button', { name: 'Download' });
+  await expect(downloadButton).toBeVisible();
+  await downloadButton.click();
 
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('merged.pdf');
