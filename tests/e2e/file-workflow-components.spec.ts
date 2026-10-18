@@ -131,6 +131,7 @@ test('ProcessingFeedback shows the calculated percentage and reflects cancellati
 }) => {
   await page.clock.install();
   await page.goto(fixtureUrl);
+  await page.clock.pauseAt(new Date('2030-01-01T00:00:00Z'));
   await page.locator('#process').click();
   const feedback = page.locator('[data-processing-feedback]');
   const bar = page.getByRole('progressbar', { name: 'Merging files' });
