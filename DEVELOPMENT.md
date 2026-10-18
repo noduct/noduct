@@ -38,3 +38,5 @@ Execute `npm run new:tool -- <slug> --category <id>`. O gerador valida slug e ca
 ## Publicação
 
 O workflow de Pages valida a URL configurada, executa `npm run verify` e publica somente `dist-pages/`. O fluxo de branch por épico e as regras de engenharia estão em [AGENTS.md](AGENTS.md).
+
+Agentes e pessoas seguem a mesma fonte de regras. Leia [AGENTS.md](AGENTS.md), o arquivo aninhado da área editada e [docs/guardrails.md](docs/guardrails.md). `npm run check -- agents` valida ponteiros do Claude/Copilot, configuração do Gemini, limites de contexto, links e comandos; `npm run check` inclui essa verificação. As [receitas](docs/agentes/receitas/) e a [avaliação](docs/agentes/avaliacao.md) ajudam a repetir tarefas entre agentes.

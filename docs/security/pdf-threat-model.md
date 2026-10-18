@@ -42,6 +42,10 @@ documentos; ambos alteram apenas o impacto de disponibilidade/privacidade.
   IndexedDB e o `BroadcastChannel`. Somente repositórios confiáveis e revisados
   podem publicar Pages nessa conta.
 
+  A revisão de publicação precisa verificar a origem de todos os project sites da
+  conta, porque código de qualquer um deles pode acessar o mesmo armazenamento
+  local. O [Contrato #39](../guardrails.md) exige publicação autorizada e `npm run verify`.
+
 ### Data flows and trust boundaries
 
 - Usuário -> ferramenta: `File`/nome/metadados via File API; não há autenticação;

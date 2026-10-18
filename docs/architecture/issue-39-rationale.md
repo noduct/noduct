@@ -51,6 +51,14 @@ Em 2026-10-17, o dono confirmou que a correção estrutural e o cuidado com a is
 - **Lighthouse e ferramentas planejadas:** a lista de URLs vem do manifesto e o estado de indexação vem do catálogo. Páginas `planned` têm `noindex` deliberado, portanto a nota SEO de indexabilidade não se aplica a elas; desempenho, acessibilidade, boas práticas e links válidos continuam obrigatórios. Um controle de download ainda sem arquivo usa um botão, evitando um link sem destino no HTML inicial.
 - **Ratchet em checkout Windows:** o Git armazena LF, enquanto um checkout pode apresentar CRLF. O comparador normaliza apenas as quebras de linha antes de decidir se um arquivo de controle mudou; alterações efetivas continuam exigindo `guardrail-change`.
 
+## Fase 7: por que instruções para agentes precisam de verificação
+
+- **Fonte única:** regras duplicadas em arquivos específicos de cada agente se tornam divergentes com facilidade. A raiz define o Contrato; arquivos locais só acrescentam fronteiras de pacote; Claude e Copilot recebem ponteiros de compatibilidade, e Gemini lê AGENTS diretamente. Claude Code atual também consegue ler AGENTS nativamente, mas o import preserva versões e sessões anteriores.
+- **Contexto pequeno e próximo da tarefa:** limites de linha e de bytes reduzem truncamento e ruído. Receitas apontam exemplos executáveis para que modelos menos familiarizados com o repositório encontrem o mesmo caminho.
+- **Comandos e erros acionáveis:** uma regra vaga como “siga o design” não ensina reparo. Cada falha deve trazer id, local, motivo, correção e âncora; o CI garante o comportamento independentemente do agente.
+- **Paridade honesta:** o check confirma arquivos e ponteiros, mas não prova que um aplicativo externo os leu. O procedimento de memória e as cinco tarefas-padrão registram essa evidência por agente e versão quando disponíveis.
+- **Exceções pertencem ao dono:** a label `guardrail-change` e a publicação ficam para a Fase 8, sob autorização explícita. A Fase 7 não deve contornar o ratchet para mudar configurações protegidas.
+
 ## Critério operacional para fechar uma fase
 
 Leia o corpo da issue, o comentário de orientação e o ADR; transforme cada item em evidência observável; implemente sem afrouxar asserções; rode lint, typecheck, testes, build/SEO e Playwright proporcionais; confira o artefato montado e o diff; só então faça commit, push e atualize o checklist e o comentário da issue. Registre limites de validação de forma explícita.

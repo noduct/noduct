@@ -15,7 +15,7 @@ Configure Pages para GitHub Actions. O workflow compara o `base_url` devolvido p
 - stubs temporários das rotas antigas em `/noduct/<rota>/`;
 - cópia transitória do registry em `/noduct/data/sponsorships.json`.
 
-O workflow publica somente `dist-pages/`. `validate:pages` verifica links e assets locais, canonical, limites dos sitemaps, referências do `robots.txt` e ausência do base antigo fora dos stubs. `validate:seo` verifica o artefato composto.
+O workflow publica somente `dist-pages/`. `npm run check -- pages` verifica links e assets locais, canonical, limites dos sitemaps, referências do `robots.txt` e ausência do base antigo fora dos stubs. `npm run check -- seo` verifica o artefato composto. `npm run verify` inclui esses contratos antes de qualquer publicação autorizada.
 
 Os stubs devem permanecer por pelo menos 12 meses após o rename. Não há fallback JavaScript no `404.html`: as rotas conhecidas são materializadas como HTML estático, evitando ampliar a política de scripts antes da auditoria de CSP.
 

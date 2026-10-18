@@ -56,7 +56,7 @@ Outras verificações concluídas:
 
 ## GitHub Pages
 
-O hub usa caminhos raiz apropriados ao project site `noduct.github.io/noduct`. O template define `base: /example-tool` e canonical no project site; seus links de retorno ao hub são absolutos. O build do template foi validado anteriormente. Cada ferramenta precisa substituir `example-tool`, publicar em repositório próprio e registrar URL real no catálogo antes do status `published`.
+Esta seção registra a auditoria histórica de 13/10/2026. Desde a issue #39, a topologia prevista é hub na raiz de `noduct.github.io` e ferramenta em `/<slug>/`, derivada de `@noduct/tool-runtime`. O build composto monta o template e as ferramentas em `dist-pages/`; publicação depende do rename autorizado pelo dono. Para o estado atual e a validação, consulte [deploy](deploy-github-pages.md) e [guardrails](guardrails.md).
 
 Não foi encontrado link quebrado interno no hub. A validação externa de Pages, headers HTTP, domínio e project sites permanece pendente até existir deploy autorizado.
 

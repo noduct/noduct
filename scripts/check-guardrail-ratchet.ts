@@ -254,7 +254,14 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     try {
       const label = prHasLabel();
       const result = evaluateRatchet(snapshotAt(baseRef), workingSnapshot(), label);
-      for (const violation of result.violations) console.error(violation);
+      for (const violation of result.violations) {
+        const path = violation.startsWith('allowlist:')
+          ? CONFIG_PATH
+          : violation.split(' ')[0] || CONFIG_PATH;
+        console.error(
+          `[ratchet] ${path}:1 — ${violation}. Aumento silencioso de exceções oculta regressões. Corrija a causa ou obtenha label guardrail-change e justificativa aprovada pelo dono. Ver docs/guardrails.md#ratchet`
+        );
+      }
       if (result.violations.length > 0) process.exitCode = 1;
       else console.log(`Guardrail ratchet passed (guardrail-change label: ${label}).`);
     } catch (error) {

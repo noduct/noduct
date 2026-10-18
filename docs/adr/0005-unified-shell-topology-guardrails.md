@@ -93,7 +93,7 @@ Nunca são removidos:
 2. **Ratchet:** a quantidade de supressões (`eslint-disable`, `@ts-expect-error`, `.skip` etc.) e de entradas nas allowlists não pode crescer sem a label `guardrail-change`.
 3. **Regras escritas, agnósticas de agente:**
    - `AGENTS.md` é a única fonte de regras;
-   - arquivos de ferramentas específicas (`CLAUDE.md`, `.github/copilot-instructions.md`, `GEMINI.md`) apenas apontam para ele;
+   - arquivos de ferramentas específicas (`CLAUDE.md`, `.github/copilot-instructions.md`) apenas apontam para ele; o Gemini CLI lê `AGENTS.md` diretamente via `.gemini/settings.json`;
    - `docs/guardrails.md` liga cada regra à verificação que a garante.
 4. **Proteção de branch:** checks obrigatórios em `main` e `epic/*`, configurados pelo dono.
 

@@ -30,6 +30,8 @@ Uma ferramenta standalone ou o PDF Studio pode depender de `pdf-core`,
 importa `pdf-core` nem `workspace-core`. Não são permitidos ciclos entre pacotes.
 Detalhes do shell e da topologia: [ADR 0005](0005-unified-shell-topology-guardrails.md).
 
+Durante o monorepo, `AGENTS.md` da raiz define o contrato comum e os arquivos locais por pacote acrescentam apenas fronteiras específicas. `npm run check -- agents` verifica a hierarquia; `npm run check -- architecture` verifica as dependências. Ao extrair um pacote, carregue suas regras locais e os contratos públicos, sem copiar regras específicas de Claude, Gemini ou Copilot.
+
 Todos os pacotes compilam para ESM moderno e usam TypeScript strict. Dependências
 externas compartilhadas ficam pinadas no manifesto central. Engines pesados são
 importados dinamicamente pelos adaptadores, nunca pelo entrypoint do hub.

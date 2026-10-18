@@ -23,3 +23,5 @@ npm run verify
 ```
 
 O `build` descobre o pacote automaticamente pelo campo `noduct.slug`, monta `/<slug>/` em `dist-pages/` e o teste de paridade o inclui automaticamente quando o slug também consta no catálogo. `verify` valida contratos, páginas, SEO e Playwright sem recompilar ferramentas no E2E.
+
+Antes de declarar pronto, confira o [Contrato #39](guardrails.md) e a [receita de nova ferramenta](agentes/receitas/nova-ferramenta.md). A nova ferramenta deve herdar `AGENTS.md` local e `CLAUDE.md` somente como ponteiro, além de entrar na paridade por descoberta. Não acrescente scripts ou slugs ao manifesto raiz.

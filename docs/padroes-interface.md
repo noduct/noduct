@@ -21,8 +21,8 @@ A interface do ecossistema Noduct segue a filosofia **Quiet Productivity**, insp
   `ui-monospace, "SF Mono", "Geist Mono", "JetBrains Mono", Menlo, Consolas, monospace;`
 
 ### 2.2 Escala Tipográfica e Ritmo
-* **H1 (Título da Página / Hero):** `font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15;`
-* **H2 (Títulos de Seção / App library):** `font-size: clamp(1.2rem, 2.5vw, 1.45rem); font-weight: 650; letter-spacing: -0.02em;`
+* **H1 (Título da Página / Hero):** `font-size: clamp(1.75rem, 4vw, 2.25rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.25;`
+* **H2 (Títulos de Seção / App library):** `font-size: clamp(1.15rem, 2.5vw, 1.35rem); font-weight: 600; letter-spacing: -0.02em;`
 * **H3 (Títulos de Cards / Itens de Busca):** `font-size: 0.95rem; font-weight: 600; letter-spacing: -0.01em;`
 * **Eyebrow (Subtítulo Superior / Categoria):** `font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-primary);`
 * **Lede (Parágrafo Introdutório):** `font-size: clamp(1.02rem, 1.5vw, 1.15rem); line-height: 1.6; color: var(--color-text-secondary); max-width: 680px;`
@@ -39,7 +39,7 @@ O sistema possui duas paletas perfeitamente calibradas via variáveis CSS:
 * **Superfície Base (`--color-surface`):** `#f8f9fb`
 * **Cartões e Ilhas (`--color-surface-card`):** `#ffffff`
 * **Superfície Rebaixada (`--color-surface-sunken`):** `#f1f3f6`
-* **Hover de Superfície (`--color-surface-hover`):** `#edf1f7`
+* **Hover de Superfície (`--color-surface-hover`):** `#f1f3f6`
 * **Bordas (`--color-border`):** `#e2e8f0` (1px) | Forte: `#cbd5e1` | Sutil: `#edf2f7`
 * **Texto Principal (`--color-text`):** `#0f172a` (Contraste ~15:1)
 * **Texto Secundário (`--color-text-secondary`):** `#475569` (Contraste ~7.5:1)
@@ -50,7 +50,7 @@ O sistema possui duas paletas perfeitamente calibradas via variáveis CSS:
 * **Canvas de Fundo (`--color-background`):** `#0b0f17`
 * **Superfície Base (`--color-surface`):** `#111827`
 * **Cartões e Ilhas (`--color-surface-card`):** `#161f30`
-* **Superfície Rebaixada (`--color-surface-sunken`):** `#0f172a`
+* **Superfície Rebaixada (`--color-surface-sunken`):** `#101827`
 * **Hover de Superfície (`--color-surface-hover`):** `#1f2c42`
 * **Bordas (`--color-border`):** `#28374d` | Forte: `#3b4c66` | Sutil: `#1e293b`
 * **Texto Principal (`--color-text`):** `#f8fafc` (Contraste ~16:1)
@@ -67,7 +67,7 @@ O sistema possui duas paletas perfeitamente calibradas via variáveis CSS:
 * `--radius-sm: 6px;` — Botões compactos, inputs, ícones de categoria, breadcrumbs.
 * `--radius-md: 8px;` — Cards utilitários, campos de busca, dropdowns popover.
 * `--radius-lg: 10px;` — Ilhas mestras (`.libraryIsland`), gavetas móveis.
-* `--radius-xl: 14px;` — Modais e cartões de destaque amplo.
+* Para pílulas e círculos, use `--radius-pill`, `--radius-switch` ou `--radius-circle`; os raios de superfície vão de 4 a 10 px.
 
 ### 4.2 Iluminação Especular (*Rim Light*)
 Todos os cartões e superfícies elevadas combinam sombra difusa com linha interna especular superior de 1px:
@@ -85,7 +85,7 @@ box-shadow: var(--shadow-sm), var(--rim-light);
 * **Botão Primário (`.button`):** Fundo `--color-primary`, texto branco, borda sólida ou transparente, sombra suave e rim light.
 * **Botão Secundário (`.button.secondary`):** Fundo `--color-surface-card`, borda `--color-border`, texto `--color-text`.
 * **Botão Ghost (`.btn-ghost` / `.navLink`):** Fundo transparente, ganhando `--color-surface-hover` no hover.
-* **Botão de Ícone (`.themeToggle`, `.menuButton`):** Proporções quadradas (38x38px ou 40x40px), cantos `--radius-sm`, centralização `display: grid; place-items: center;`.
+* **Botão de Ícone (`.themeToggle`, `.menuButton`):** alvo de toque mínimo de 44 × 44 px, cantos `--radius-sm`, centralização `display: grid; place-items: center;`.
 
 ### 5.2 Feedback Físico
 * **Hover (Pointer fino):**
@@ -195,6 +195,6 @@ Antes de publicar qualquer alteração no Hub ou em um novo micro-app:
 - [ ] `npm run check -- types` (zero erros TypeScript).
 - [ ] `npm test` (testes unitários de catálogo, busca e patrocínios válidos).
 - [ ] `npm run check -- seo` (todas as páginas HTML possuem exatamente 1 H1, canonical e meta description).
-- [ ] Navegação 100% por teclado com foco visível e halo ótico duplo.
+- [ ] Navegação 100% por teclado com um único indicador de foco visível, sem contornos sobrepostos.
 - [ ] Scrollbar flutuante limpa sem faixas cinzas nativas do browser.
 - [ ] Teste em janela anônima no Chrome DevTools com emulação Mobile e Dark Theme.

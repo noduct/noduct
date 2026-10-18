@@ -207,7 +207,15 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     );
   const files = paths.map((path) => ({ path, content: readFileSync(resolve(ROOT, path), 'utf8') }));
   const violations = validateArchitecture(files);
-  for (const violation of violations) console.error(`${violation.path}: ${violation.message}`);
+  for (const violation of violations) {
+    const source = files.find((file) => file.path === violation.path)?.content ?? '';
+    const clue = /(?:Import |import )([^ ;]+)/.exec(violation.message)?.[1];
+    const line =
+      clue && source.includes(clue) ? source.slice(0, source.indexOf(clue)).split('\n').length : 1;
+    console.error(
+      `[architecture-boundary] ${violation.path}:${line} — ${violation.message}. Dependências invertidas impedem o isolamento e extração dos pacotes. Use exports públicos na direção do ADR 0003; veja docs/adr/0003-package-and-repository-strategy.md. Ver docs/guardrails.md#architecture-boundary`
+    );
+  }
   if (violations.length > 0) process.exitCode = 1;
   else console.log(`Architecture validation passed (${files.length} files).`);
 }

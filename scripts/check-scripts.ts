@@ -104,7 +104,12 @@ for (const file of walk('scripts').filter((path) => /\.(?:ts|mjs|js)$/.test(path
 }
 if (process.argv[1]?.replaceAll('\\', '/').endsWith('/check-scripts.ts')) {
   if (errors.length) {
-    console.error(errors.join('\n'));
+    for (const error of errors) {
+      const path = /^([^:]+\.(?:yml|ts|js|mjs)):/.exec(error)?.[1] ?? 'package.json';
+      console.error(
+        `[script-contract] ${path}:1 — ${error}. Scripts e slugs fixos quebram a descoberta automática. Use apenas os subcomandos de scripts/noduct.ts e os manifests de pacote. Ver docs/guardrails.md#script-contract`
+      );
+    }
     process.exitCode = 1;
   } else
     console.log(

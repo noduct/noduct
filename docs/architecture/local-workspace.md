@@ -2,6 +2,8 @@
 
 Este documento descreve o modelo arquitetural de persistência no cliente implementado pelo pacote `@noduct/workspace-core`.
 
+As regras locais do pacote complementam [AGENTS.md](../../AGENTS.md); o [Contrato #39](../guardrails.md) exige erros por código e parâmetros, UI traduzida e `WorkspaceDrawer` no slot `actions` do header. Mudanças de retenção exigem fixture de migração e teste com relógio controlado.
+
 ---
 
 ## 1. Princípios e Requisitos

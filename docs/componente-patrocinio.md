@@ -1,8 +1,8 @@
-# Componente de patrocínio — Design System 0.3.0
+# Componente de patrocínio — Design System 0.5.0
 
 ## API compartilhada
 
-O Design System oferece `SponsorCard` e `SponsorshipSlot` para consumidores Astro. A versão do pacote é `0.3.0`; o manifesto mantém `schemaVersion: 1`. Os contratos de campanha e elegibilidade continuam em [Contratos de patrocínio](contratos-patrocinio.md), e a distribuição estática em [Registry de patrocínios](registry-patrocinio.md).
+O Design System oferece `SponsorCard` e `SponsorshipSlot` para consumidores Astro. A versão do pacote é `0.5.0`; o manifesto mantém `schemaVersion: 1`. Os contratos de campanha e elegibilidade continuam em [Contratos de patrocínio](contratos-patrocinio.md), e a distribuição estática em [Registry de patrocínios](registry-patrocinio.md).
 
 `SponsorCard({ campaign, locale })` recebe uma campanha pública e renderiza o cartão em HTML. `locale` aceita `en`, `pt-BR` ou `es`, com padrão `en`. O consumidor deve fornecer uma campanha já validada e elegível; a seleção de campanha pertence ao slot e aos auxiliares compartilhados.
 

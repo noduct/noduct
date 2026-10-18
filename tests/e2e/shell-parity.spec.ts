@@ -114,13 +114,14 @@ async function preparePage(
 }
 
 async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'footer') {
+  const repair = `[shell-parity] tests/e2e/shell-parity.spec.ts:117 — ${selector} deve ser igual no hub e na ferramenta para preservar navegação e preferências. Use AppShell do design system; veja packages/merge-pdf/src/pages/index.astro. Ver docs/guardrails.md#shell-parity`;
   const hubRegion = hub.locator(`body > ${selector}`);
   const toolRegion = tool.locator(`body > ${selector}`);
   await expect(hubRegion).toBeVisible();
   await expect(toolRegion).toBeVisible();
-  expect(await toolRegion.ariaSnapshot()).toBe(await hubRegion.ariaSnapshot());
+  expect(await toolRegion.ariaSnapshot(), repair).toBe(await hubRegion.ariaSnapshot());
   const hubSignature: RegionSignature = await signature(hubRegion);
-  expect(await signature(toolRegion)).toEqual(hubSignature);
+  expect(await signature(toolRegion), repair).toEqual(hubSignature);
   // Isolate each shared region only after comparing its geometry in the actual pages.
   const isolation = await Promise.all(
     [hub, tool].map((page) =>
@@ -139,7 +140,7 @@ async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'f
       )
     )
   );
-  expect(await signature(toolRegion)).toEqual(await signature(hubRegion));
+  expect(await signature(toolRegion), repair).toEqual(await signature(hubRegion));
   await Promise.all([
     hubRegion.screenshot({ animations: 'disabled' }),
     toolRegion.screenshot({ animations: 'disabled' })
@@ -149,7 +150,7 @@ async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'f
   // PNG compression may differ across captures even when every rendered pixel is identical.
   const toolInfo = await sharp(toolImage).metadata();
   const hubInfo = await sharp(hubImage).metadata();
-  expect({ width: toolInfo.width, height: toolInfo.height }).toEqual({
+  expect({ width: toolInfo.width, height: toolInfo.height }, repair).toEqual({
     width: hubInfo.width,
     height: hubInfo.height
   });
@@ -158,7 +159,7 @@ async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'f
   await Promise.all(
     isolation.map((style) => style.evaluate((node) => node.parentNode?.removeChild(node)))
   );
-  expect(toolPixels.equals(hubPixels), `${selector} rendered pixels differ`).toBe(true);
+  expect(toolPixels.equals(hubPixels), repair).toBe(true);
 }
 
 test('every deployed tool has a catalog entry for parity', () => {

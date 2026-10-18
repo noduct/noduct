@@ -5,7 +5,12 @@ import { localBin, run } from './shared.ts';
 const tsx = localBin('tsx');
 const checks: Record<string, () => void> = {
   css: () =>
-    run(localBin('stylelint'), ['src/**/*.{css,astro}', 'packages/*/src/**/*.{css,astro}']),
+    run(localBin('stylelint'), [
+      'src/**/*.{css,astro}',
+      'packages/*/src/**/*.{css,astro}',
+      '--custom-formatter',
+      'scripts/stylelint-formatter.mjs'
+    ]),
   types: () => {
     run(localBin('astro'), ['check']);
     for (const tool of deployedTools())
@@ -27,6 +32,7 @@ const checks: Record<string, () => void> = {
       process.env.GITHUB_BASE_SHA ?? 'HEAD'
     ]),
   scripts: () => run(tsx, ['scripts/check-scripts.ts']),
+  agents: () => run(tsx, ['scripts/check-agents.ts']),
   pages: () => {
     assertFreshArtifact();
     run(tsx, ['scripts/validate-pages.ts']);
@@ -45,13 +51,14 @@ export function check(name?: string): void {
     task();
     return;
   }
-  run(localBin('eslint'), ['.']);
+  run(localBin('eslint'), ['.', '--format', './scripts/eslint-formatter.mjs']);
   for (const key of [
     'css',
     'ui',
     'architecture',
     'ratchet',
     'scripts',
+    'agents',
     'types',
     'catalog',
     'i18n',

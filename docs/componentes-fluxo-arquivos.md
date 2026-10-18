@@ -1,4 +1,4 @@
-# Componentes de fluxo de arquivos — Design System 0.4.0
+# Componentes de fluxo de arquivos — Design System 0.5.0
 
 ## Escopo
 
@@ -7,6 +7,8 @@ O Design System oferece quatro primitivas Astro para ferramentas que processam a
 Os componentes renderizam HTML estático e carregam um runtime nativo, sem framework de UI. O subpath `@noduct/design-system/file-workflow` expõe contratos, mensagens e controladores sem importar componentes Astro. Os estilos ficam em CSS Modules e usam apenas tokens de `tokens.css`; transições usam os tokens de duração, que zeram com `prefers-reduced-motion` ou `data-motion="reduce"`.
 
 Todos aceitam `locale` (`en`, `pt-BR` ou `es`, padrão `en`) para textos genéricos e anúncios. Rótulos específicos da ferramenta são props.
+
+O `WorkspaceDrawer` também pertence ao design system e aparece no slot `actions` do `SiteHeader`, não junto ao H1. Seus controles de retenção de 24 h e descarte usam mensagens localizadas, tokens do tema e `Icon` da allowlist; não use emoji, SVG solto ou valores de cor locais. Veja [Local Workspace](architecture/local-workspace.md) e [guardrails](guardrails.md).
 
 ## API
 
