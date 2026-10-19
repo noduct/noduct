@@ -1,4 +1,4 @@
-import { IDBFactory, indexedDB } from 'fake-indexeddb';
+import { IDBFactory, IDBObjectStore, indexedDB } from 'fake-indexeddb';
 import { openDatabase } from './db';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
@@ -415,7 +415,7 @@ describe('Workspace schema migration', () => {
     const client = await openWorkspace({ factory });
     try {
       const doc = (await client.listDocuments())[0];
-      expect(CURRENT_SCHEMA_VERSION).toBe(3);
+      expect(CURRENT_SCHEMA_VERSION).toBe(4);
       expect(doc?.retention).toBe('ephemeral');
       expect(doc?.lastAccessedAt).toBe(oldTimestamp);
       expect(await doc?.blob.text()).toBe('pdf');
@@ -424,5 +424,163 @@ describe('Workspace schema migration', () => {
       vi.useRealTimers();
       vi.unstubAllGlobals();
     }
+    const raw = await readRawStores(factory);
+    expect(raw.documents[0]).not.toHaveProperty('blob');
+    expect(raw.blobs.map((record) => record.id)).toEqual(['legacy-id']);
+  });
+
+  it('moves v3 blobs to their own store and keeps retention and idle time', async () => {
+    const factory = new IDBFactory();
+    const oldDb = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = factory.open('noduct_workspace_db', 3);
+      request.onupgradeneeded = () => {
+        const documents = request.result.createObjectStore('documents', { keyPath: 'id' });
+        documents.createIndex('createdAt', 'createdAt');
+        documents.createIndex('updatedAt', 'updatedAt');
+        documents.createIndex('name', 'name');
+        documents.createIndex('lastAccessedAt', 'lastAccessedAt');
+        const state = request.result.createObjectStore('workspace_state', { keyPath: 'key' });
+        state.createIndex('updatedAt', 'updatedAt');
+        const transfers = request.result.createObjectStore('transfers', { keyPath: 'transferId' });
+        transfers.createIndex('documentId', 'documentId');
+        transfers.createIndex('expiresAt', 'expiresAt');
+        transfers.createIndex('consumedAt', 'consumedAt');
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = oldDb.transaction('documents', 'readwrite');
+      const store = tx.objectStore('documents');
+      store.put({
+        id: 'kept',
+        name: 'kept.pdf',
+        size: 4,
+        mimeType: 'application/pdf',
+        createdAt: 1,
+        updatedAt: 2,
+        lastAccessedAt: 3,
+        retention: 'persistent',
+        sourceTool: 'merge-pdf',
+        blob: new Blob(['kept'])
+      });
+      store.put({
+        id: 'temp',
+        name: 'temp.pdf',
+        size: 4,
+        mimeType: 'application/pdf',
+        createdAt: 10,
+        updatedAt: 20,
+        lastAccessedAt: 30,
+        retention: 'ephemeral',
+        blob: new Blob(['temp'])
+      });
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    oldDb.close();
+    vi.stubGlobal('navigator', {});
+    const client = await openWorkspace({ factory });
+    try {
+      const summaries = await client.listDocumentSummaries();
+      expect(summaries.map(({ id, retention, lastAccessedAt, sourceTool }) => ({
+        id,
+        retention,
+        lastAccessedAt,
+        sourceTool
+      }))).toEqual([
+        { id: 'kept', retention: 'persistent', lastAccessedAt: 3, sourceTool: 'merge-pdf' },
+        { id: 'temp', retention: 'ephemeral', lastAccessedAt: 30, sourceTool: undefined }
+      ]);
+      expect(summaries[0]).not.toHaveProperty('blob');
+      const documents = await client.listDocuments();
+      expect(await Promise.all(documents.map((document) => document.blob.text()))).toEqual([
+        'kept',
+        'temp'
+      ]);
+    } finally {
+      client.close();
+      vi.unstubAllGlobals();
+    }
+    const raw = await readRawStores(factory);
+    expect(raw.documents.every((record) => !('blob' in record))).toBe(true);
+    expect(raw.blobs.map((record) => record.id)).toEqual(['kept', 'temp']);
   });
 });
+
+describe('Workspace schema v4 payload separation', () => {
+  it('touches and changes retention without rewriting the payload record', async () => {
+    const factory = new IDBFactory();
+    vi.stubGlobal('navigator', {});
+    const client = await openWorkspace({ factory });
+    try {
+      const doc = await client.saveDocument({ name: 'large.pdf', blob: new Blob(['payload']) });
+      const before = (await readRawStores(factory)).blobs[0];
+      const writes = vi.spyOn(IDBObjectStore.prototype, 'put');
+      await client.touchDocument(doc.id);
+      await client.setRetention(doc.id, 'persistent');
+      const touchedStores = writes.mock.contexts.map((store) => (store as IDBObjectStore).name);
+      writes.mockRestore();
+      expect(touchedStores).toEqual(['documents', 'documents']);
+      const after = await readRawStores(factory);
+      expect(after.documents[0]).not.toHaveProperty('blob');
+      expect(after.documents[0]?.retention).toBe('persistent');
+      expect(after.blobs[0]).toEqual(before);
+      expect(await (await client.getDocument(doc.id))?.blob.text()).toBe('payload');
+    } finally {
+      client.close();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('lists summaries without payloads and removes payloads with their documents', async () => {
+    const factory = new IDBFactory();
+    stubLocks();
+    const client = await openWorkspace({ factory });
+    try {
+      const kept = await client.saveDocument({ name: 'kept.pdf', blob: new Blob(['12345']) });
+      const removed = await client.saveDocument({ name: 'gone.pdf', blob: new Blob(['1']) });
+      const summaries = await client.listDocumentSummaries();
+      expect(summaries).toHaveLength(2);
+      expect(summaries.some((summary) => 'blob' in summary)).toBe(false);
+      expect(await client.getWorkspaceSize()).toEqual({ documentCount: 2, totalBytes: 6 });
+      await client.deleteDocument(removed.id);
+      expect((await readRawStores(factory)).blobs.map((record) => record.id)).toEqual([kept.id]);
+      await client.cleanupExpiredDocuments(Date.now() + 2 * DEFAULT_DOCUMENT_MAX_IDLE_MS);
+      expect(await readRawStores(factory)).toEqual({ documents: [], blobs: [] });
+      await client.saveDocument({ name: 'again.pdf', blob: new Blob(['x']) });
+      await client.clearDocuments();
+      expect(await readRawStores(factory)).toEqual({ documents: [], blobs: [] });
+    } finally {
+      client.close();
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
+async function readRawStores(factory: IDBFactory): Promise<{
+  documents: Record<string, unknown>[];
+  blobs: { id: string; blob: Blob }[];
+}> {
+  const db = await new Promise<IDBDatabase>((resolve, reject) => {
+    const request = factory.open('noduct_workspace_db');
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+  try {
+    const tx = db.transaction(['documents', 'document_blobs'], 'readonly');
+    const read = <T>(name: string) =>
+      new Promise<T[]>((resolve, reject) => {
+        const request = tx.objectStore(name).getAll();
+        request.onsuccess = () => resolve(request.result as T[]);
+        request.onerror = () => reject(request.error);
+      });
+    const [documents, blobs] = await Promise.all([
+      read<Record<string, unknown>>('documents'),
+      read<{ id: string; blob: Blob }>('document_blobs')
+    ]);
+    return { documents, blobs };
+  } finally {
+    db.close();
+  }
+}

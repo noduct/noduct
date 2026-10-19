@@ -20,6 +20,7 @@ A causa recorrente foi a falta de um contrato concreto e verificável, não a di
 ## Fase 4: motivo das decisões
 
 - **Schema v3 e migração:** documentos v2 já existem em navegadores reais. A migração preserva os blobs e define um início de prazo determinístico (`lastAccessedAt = updatedAt`), sem depender de campos ausentes.
+- **Schema v4 (follow-up #41):** com o Blob dentro do registro, cada toque de prazo regravava o payload. No Chromium isso custava cerca de 16 ms por toque em arquivos de 10 a 100 MB, contra cerca de 1 ms com a store `document_blobs`. A migração reusa o mesmo cursor da v3 para que nenhum navegador passe por um estado intermediário.
 - **Retenção por inatividade:** 24 horas contam desde o último acesso, não apenas desde a criação. `persistent` representa escolha explícita do usuário e não expira.
 - **Locks e BroadcastChannel:** abas da mesma origem podem usar o mesmo documento. A limpeza não pode apagar um arquivo enquanto outra aba o processa; notificações mantêm as listas sincronizadas.
 - **Gatilhos sem timer:** abertura do workspace/drawer e retorno da aba ao primeiro plano oferecem limpeza previsível sem trabalho contínuo em segundo plano.

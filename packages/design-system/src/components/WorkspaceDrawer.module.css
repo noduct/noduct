@@ -2,62 +2,23 @@
   display: inline-flex;
 }
 
+/* Acabamento de HeaderControl.module.css; aqui só o que o rótulo de texto exige. */
 .trigger {
-  display: inline-flex;
-  align-items: center;
   gap: var(--space-2);
-  height: 44px;
   padding: 0 var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-card);
-  color: var(--color-text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm), var(--rim-light);
-  touch-action: manipulation;
-  transform: scale(1);
-  transition:
-    transform var(--duration-fast) var(--ease-apple),
-    background-color var(--duration-fast) var(--ease-apple),
-    border-color var(--duration-fast) var(--ease-apple);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .trigger:hover {
-    background: var(--color-surface-hover);
-    border-color: var(--color-border-strong);
-  }
-}
-
-.trigger:active {
-  transform: scale(var(--scale-active-icon));
-  transition-duration: var(--duration-instant);
-}
-
-.trigger:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus-ring);
 }
 
 @media (max-width: 720px) {
   .trigger {
     width: 44px;
-    justify-content: center;
     padding: 0;
   }
 
-  .trigger span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+  /* O nome acessível vem do .sr-only global; o rótulo visível é só decorativo. */
+  .label {
+    display: none;
   }
 }
 

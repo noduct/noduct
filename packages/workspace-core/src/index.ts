@@ -8,6 +8,7 @@ import {
   dbGetState,
   dbGetTransfer,
   dbListDocuments,
+  dbListDocumentSummaries,
   dbListExpiredDocumentIds,
   dbPutDocument,
   dbSetRetention,
@@ -28,6 +29,7 @@ import {
   type NewWorkspaceDocument,
   type WorkspaceChangeListener,
   type WorkspaceDocument,
+  type WorkspaceDocumentSummary,
   type WorkspaceRetention
 } from './types';
 
@@ -38,6 +40,7 @@ export * from './resource-budget';
 export { WORKSPACE_CHANNEL_NAME } from './broadcast';
 export {
   CURRENT_SCHEMA_VERSION,
+  DOCUMENT_BLOBS_STORE,
   DOCUMENTS_STORE,
   STATE_STORE,
   TRANSFERS_STORE,
@@ -165,6 +168,11 @@ export class WorkspaceClient {
     return dbListDocuments(this.db);
   }
 
+  /** Listagem sem payload, para interfaces que mostram nome, tamanho e prazo. */
+  async listDocumentSummaries(): Promise<readonly WorkspaceDocumentSummary[]> {
+    return dbListDocumentSummaries(this.db);
+  }
+
   async deleteDocument(id: string): Promise<boolean> {
     const deleted = await dbDeleteDocument(this.db, id);
     if (deleted) {
@@ -186,7 +194,7 @@ export class WorkspaceClient {
   }
 
   async getWorkspaceSize(): Promise<{ documentCount: number; totalBytes: number }> {
-    const docs = await this.listDocuments();
+    const docs = await this.listDocumentSummaries();
     const totalBytes = docs.reduce((acc, d) => acc + (d.size || 0), 0);
     return {
       documentCount: docs.length,

@@ -13,6 +13,9 @@ export interface WorkspaceDocument {
   readonly metadata?: Record<string, unknown> | undefined;
 }
 
+/** Metadados sem o payload; listar e renovar prazo não tocam no Blob (schema v4). */
+export type WorkspaceDocumentSummary = Omit<WorkspaceDocument, 'blob'>;
+
 export interface NewWorkspaceDocument {
   readonly id?: string | undefined;
   readonly name: string;

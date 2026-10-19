@@ -3,6 +3,8 @@
 ## 0.6.0 — 2026-10-19
 
 - `connectWorkspaceDrawer()` compartilha a integração do drawer com o cliente injetado por cada ferramenta.
+- O conector agrega eventos externos com debounce de `WORKSPACE_SYNC_DEBOUNCE_MS` e lista via `listDocumentSummaries()`, sem ler payloads. `bindWorkspaceDrawer()` recebe um controller já armado.
+- Gatilhos de Settings e Workspace compartilham `shell/HeaderControl.module.css`; o rótulo do Workspace usa a `.sr-only` global.
 - Rótulos, tamanhos e anúncios do drawer respeitam o idioma da página.
 - `toolJsonLd()` usa a mesma lista de breadcrumb da página visível.
 - Removido o export público sem consumidores de `ScrollArea`.

@@ -2,6 +2,7 @@
 import type { Locale } from '@noduct/tool-runtime';
 import Icon from '../icons/Icon.astro';
 import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import headerControl from '../shell/HeaderControl.module.css';
 import styles from './WorkspaceDrawer.module.css';
 
 export interface Props {
@@ -15,9 +16,10 @@ const m = workspaceUiMessages[currentLocale];
 ---
 
 <div class={styles.root} id={id} data-workspace-root data-locale={currentLocale}>
-  <button type="button" class={styles.trigger} data-workspace-trigger>
+  <button type="button" class:list={[headerControl.control, styles.trigger]} data-workspace-trigger>
     <Icon name="folder" />
-    <span>{m.triggerLabel}</span>
+    <span class={styles.label} aria-hidden="true">{m.triggerLabel}</span>
+    <span class="sr-only">{m.triggerLabel}</span>
   </button>
 
   <dialog class={styles.dialog} data-workspace-dialog aria-labelledby={`${id}-title`}>
