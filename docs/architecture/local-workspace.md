@@ -2,7 +2,7 @@
 
 Este documento descreve o modelo arquitetural de persistência no cliente implementado pelo pacote `@noduct/workspace-core`.
 
-As regras locais do pacote complementam [AGENTS.md](../../AGENTS.md); o [Contrato #39](../guardrails.md) exige erros por código e parâmetros, UI traduzida e `WorkspaceDrawer` no slot `actions` do header. Mudanças de retenção exigem fixture de migração e teste com relógio controlado.
+As regras locais do pacote complementam [AGENTS.md](../../AGENTS.md); o [Contrato #39](../guardrails.md) exige erros por código e parâmetros e UI traduzida; o [ADR 0006](../adr/0006-hybrid-local-workspace.md) define as superfícies híbridas (home, seletor na `DropZone`, salvar no `DownloadCard` e página `/workspace/`), sem entrada no header. Mudanças de retenção exigem fixture de migração e teste com relógio controlado.
 
 ---
 
@@ -59,6 +59,10 @@ A separação veio de medição (`experiments/workspace-blob-benchmark`). No Chr
 
 O histórico é: v1 criou `documents` e `workspace_state`; v2 acrescentou `transfers` para tickets entre ferramentas; v3 acrescentou retenção, último acesso e o índice correspondente; v4 moveu os payloads para `document_blobs`. Uma versão maior que a suportada gera `SCHEMA_VERSION_UNSUPPORTED`; um upgrade impedido por outra aba gera `DB_UPGRADE_BLOCKED`. A UI orienta fechar as outras abas antes de tentar novamente.
 
+### 2.1.3 Store `document_thumbnails` (ADR 0006)
+
+`document_thumbnails` (KeyPath: `id`) guarda `{ id, blob, width, height }`: a primeira página em JPEG, gerada por `@noduct/pdf-core/render`. `saveThumbnail()` só grava se o documento existir e emite `thumbnail_updated`; `listThumbnails()` alimenta as superfícies. Excluir, expirar, limpar ou regravar o conteúdo de um documento apaga a miniatura na mesma transação. A store nasceu no schema v4, que ainda não havia sido publicado, para evitar uma segunda migração.
+
 ### 2.2 Store `workspace_state` (KeyPath: `key`)
 
 Armazena preferências e estados transitórios da sessão local:
@@ -82,15 +86,17 @@ O canal `noduct-workspace` notifica mutações entre abas abertas simultaneament
 
 ## 4. Retenção e proteção de documentos em uso
 
+Salvar é opt-in (ADR 0006 D3/D4): “Salvar na Área Local” e “Adicionar arquivos” gravam `persistent`, porque o usuário escolheu guardar; `ephemeral` fica para cópias implícitas (tickets de transferência) e para quem escolhe “Permitir expiração”. O padrão da API continua `ephemeral`; quem chama declara a escolha.
+
 Um documento efêmero expira **depois** de 24 horas sem acesso (`now - lastAccessedAt > 24 h`). Leitura, abertura e transferência renovam `lastAccessedAt`; listagens e varreduras não renovam. `setRetention(id, 'persistent')` impede expiração automática; voltar a `ephemeral` reativa o prazo. A limpeza devolve os IDs removidos, emite `document_deleted` para cada um e limpa também tickets de transferência vencidos.
 
-A limpeza é acionada na abertura do workspace, na abertura do drawer e quando a aba volta a ficar visível. Não há timer de fundo. Leitores e operações de transferência usam o Web Lock `noduct-doc-<id>` em modo `shared`. Um consumidor que mantém o blob aberto chama `acquireDocument(id)` e segura esse lock até `release()` ou `WorkspaceClient.close()`; o download do drawer faz isso durante a criação do arquivo local e libera em `finally`, e a página fecha o cliente em `pagehide`. A limpeza tenta obter o mesmo lock em modo `exclusive` com `ifAvailable: true`; se estiver ocupado, pula o documento. Se a API de Web Locks não existir, a limpeza automática não exclui documentos, pois não pode garantir que outra aba não esteja usando o blob. O `BroadcastChannel` distribui as exclusões e mudanças de retenção às outras abas para atualização da interface.
+A limpeza é acionada na abertura do workspace, na sincronização de uma superfície (seletor, página, home) e quando a aba volta a ficar visível. Não há timer de fundo. Leitores e operações de transferência usam o Web Lock `noduct-doc-<id>` em modo `shared`. Um consumidor que mantém o blob aberto chama `acquireDocument(id)` e segura esse lock até `release()` ou `WorkspaceClient.close()`; o download da página `/workspace/`, o seletor e a geração de miniaturas fazem isso durante a criação do arquivo local e libera em `finally`, e a página fecha o cliente em `pagehide`. A limpeza tenta obter o mesmo lock em modo `exclusive` com `ifAvailable: true`; se estiver ocupado, pula o documento. Se a API de Web Locks não existir, a limpeza automática não exclui documentos, pois não pode garantir que outra aba não esteja usando o blob. O `BroadcastChannel` distribui as exclusões e mudanças de retenção às outras abas para atualização da interface.
 
 `setRetention` preserva `updatedAt`, pois o conteúdo não muda, e renova `lastAccessedAt`. Mudar a retenção é uma ação explícita do usuário sobre o documento. Sem a renovação, voltar para `ephemeral` um documento parado há mais de 24 horas o faria expirar na limpeza seguinte, segundos depois da escolha. Desde o v4, nenhuma das duas operações regrava o Blob.
 
-Com o drawer aberto, o conector `connectWorkspaceDrawer` agrega as notificações. Abrir o drawer ou concluir uma ação sincroniza na hora. Eventos de outras abas reiniciam uma janela de 100 ms (`WORKSPACE_SYNC_DEBOUNCE_MS`). Uma rajada vira uma única sincronização: uma limpeza, uma varredura `listDocumentSummaries()` que também calcula o tamanho total e um anúncio com a contagem acumulada de expirações. Mudanças que chegam durante uma sincronização provocam no máximo uma sincronização seguinte. Expirações acumuladas com o drawer fechado são anunciadas na próxima abertura.
+As superfícies usam `createWorkspaceSync()` do `@noduct/design-system/workspace-ui`, ligado por `connectLocalWorkspace()`. Abrir o seletor, abrir a página ou concluir uma ação sincroniza na hora. Eventos de outras abas reiniciam uma janela de 100 ms (`WORKSPACE_SYNC_DEBOUNCE_MS`). Uma rajada vira uma única sincronização: uma limpeza, uma varredura `listDocumentSummaries()` que também calcula o tamanho total e um anúncio com a contagem acumulada de expirações. Mudanças que chegam durante uma sincronização provocam no máximo uma sincronização seguinte. Expirações acumuladas com a superfície inativa são anunciadas pela página `/workspace/` na próxima sincronização.
 
-O drawer apresenta o prazo restante calculado no momento da abertura, permite “Manter neste dispositivo” e “Permitir expiração” e anuncia a remoção de temporários via `aria-live`. Limpar dados do navegador remove inclusive os documentos persistentes.
+A página `/workspace/` apresenta o prazo restante no momento da sincronização, permite “Manter neste dispositivo” e “Permitir expiração” e anuncia a remoção de temporários via `aria-live`. Limpar dados do navegador remove inclusive os documentos persistentes.
 
 ## 5. Erros e orçamento de recursos
 

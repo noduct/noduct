@@ -107,6 +107,12 @@ box-shadow: var(--shadow-sm), var(--rim-light);
 
 ---
 
+## 5.3 Confirmações e seleções
+
+* **Nunca** use `alert`, `confirm` ou `prompt` nativos: eles ignoram tema, idioma e foco. Use `confirmAction({ title, message, confirmLabel, tone })` de `@noduct/design-system/shell/confirm`; em ações destrutivas (`tone: 'danger'`) o foco começa em Cancelar. O guardrail `native browser dialog` bloqueia o uso nativo.
+* Escolhas entre opções usam o `Select` do design system (combobox “select-only” do WAI-ARIA), não o `<select>` do navegador. Ele emite `noduct:select-change` com `detail.value`.
+* Ações repetidas em listas usam botões de ícone de 44 px com `aria-label` que inclui o item e `title` como dica; estados alternáveis usam `aria-pressed` e um selo de texto repete o estado.
+
 ## 6. Breadcrumbs (Migalhas de Pão)
 
 Nas páginas de navegação secundária (categorias, ferramentas), o breadcrumb deve seguir o padrão:

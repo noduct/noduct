@@ -26,9 +26,12 @@ const name = item?.name ?? '';
   >
     <Icon name="grip-vertical" />
   </button>
-  <span class={styles.body}>
-    <span class={styles.name} data-item-name>{name}</span>
-    <span class={styles.meta} data-item-meta>{item && describeFileItem(item, locale)}</span>
+  <span class={styles.summary}>
+    <span class={styles.thumb} data-item-thumb aria-hidden="true"><Icon name="file-text" /></span>
+    <span class={styles.body}>
+      <span class={styles.name} data-item-name>{name}</span>
+      <span class={styles.meta} data-item-meta>{item && describeFileItem(item, locale)}</span>
+    </span>
   </span>
   <span class={styles.actions}>
     <button type="button" class={styles.control} aria-label={m.moveUp(name)} data-move="up">

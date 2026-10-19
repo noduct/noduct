@@ -5,11 +5,14 @@ import {
   type ListChangeDetail
 } from './contracts';
 import { fileWorkflowMessages, resolveFileWorkflowLocale } from './messages';
+import { ObjectUrls, showThumbnail } from '../workspace-ui/thumbnails';
 
 export interface ReorderableListController {
   /** Replaces every item. Rendering uses text nodes only. */
   setItems(items: readonly FileListItem[]): void;
   getIds(): string[];
+  /** Shows a first-page preview for an item; it survives reordering and re-renders. */
+  setThumbnail(id: string, image: Blob | undefined): void;
 }
 
 const controllers = new WeakMap<HTMLElement, ReorderableListController>();
@@ -160,15 +163,28 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
       .querySelector('[data-move="down"]')
       ?.setAttribute('aria-label', messages.moveDown(entry.name));
     item.querySelector('[data-remove]')?.setAttribute('aria-label', messages.remove(entry.name));
+    showThumbnail(item.querySelector('[data-item-thumb]'), thumbnailUrls.get(entry.id));
     return item;
   };
 
+  const thumbnails = new ObjectUrls();
+  const thumbnailUrls = new Map<string, string>();
+
   const controller: ReorderableListController = {
     setItems(entries) {
+      const present = entries.map((entry) => entry.id);
+      thumbnails.retain(present);
+      for (const id of thumbnailUrls.keys()) if (!present.includes(id)) thumbnailUrls.delete(id);
       list.replaceChildren(...entries.flatMap((entry) => render(entry) ?? []));
       sync();
     },
-    getIds: ids
+    getIds: ids,
+    setThumbnail(id, image) {
+      if (image) thumbnailUrls.set(id, thumbnails.get(id, image));
+      else thumbnailUrls.delete(id);
+      const item = items().find((entry) => entry.dataset.itemId === id);
+      showThumbnail(item?.querySelector('[data-item-thumb]') ?? null, thumbnailUrls.get(id));
+    }
   };
   sync();
   controllers.set(root, controller);

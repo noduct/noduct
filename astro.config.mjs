@@ -57,7 +57,12 @@ export default defineConfig({
   output: 'static',
   integrations: [sitemap({ filter: (page) => !isExcludedFromSitemap(page) })],
   build: { format: 'directory' },
-  vite: { server: { strictPort: true, proxy: devToolProxy() } },
+  // O PDF.js das miniaturas (ADR 0006) é importado sob demanda; pré-otimizado, o dev não
+  // descobre a dependência no meio da sessão e não serve "Outdated Optimize Dep".
+  vite: {
+    optimizeDeps: { include: ['pdfjs-dist/legacy/build/pdf.mjs'] },
+    server: { strictPort: true, proxy: devToolProxy() }
+  },
   devToolbar: {
     enabled: false
   }

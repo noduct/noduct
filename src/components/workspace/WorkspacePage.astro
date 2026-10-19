@@ -1,0 +1,38 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
+import WorkspaceManager from '@noduct/design-system/components/WorkspaceManager.astro';
+import { getShellMessages } from '@noduct/design-system/shell/messages';
+import { getMessages } from '@/i18n/messages';
+import { localizePath, type Locale } from '@/i18n/config';
+
+const { locale } = Astro.props as { locale: Locale };
+const m = getMessages(locale).workspacePage;
+const shellMessages = getShellMessages(locale);
+---
+
+<BaseLayout title={m.title} description={m.description} {locale}>
+  <header class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label={shellMessages.nav.breadcrumb}>
+        <a class="breadcrumb-link" href={localizePath('/', locale)}>
+          <Icon class="breadcrumb-icon" name="house" />
+          <span>{shellMessages.nav.breadcrumbHome}</span>
+        </a>
+        <Icon class="breadcrumb-sep" name="chevron-right" />
+        <span class="breadcrumb-current" aria-current="page">{m.heading}</span>
+      </nav>
+      <p class="eyebrow">{m.eyebrow}</p>
+      <h1>{m.heading}</h1>
+      <p class="lede">{m.intro}</p>
+    </div>
+  </header>
+  <section class="container section">
+    <WorkspaceManager {locale} />
+  </section>
+</BaseLayout>
+
+<script>
+  import { connectHubWorkspace } from './WorkspaceIsland';
+  connectHubWorkspace();
+</script>

@@ -46,7 +46,7 @@ async function signature(region: Locator) {
     const rootBox = root.getBoundingClientRect();
     const round = (value: number) => Math.round(value * 100) / 100;
     return [root, ...root.querySelectorAll('*')]
-      .filter((node) => !['SCRIPT', 'STYLE', 'TEMPLATE'].includes(node.tagName) && !node.closest('[data-workspace-root]'))
+      .filter((node) => !['SCRIPT', 'STYLE', 'TEMPLATE'].includes(node.tagName))
       .map((node) => {
         const box = node.getBoundingClientRect();
         const style = getComputedStyle(node);
@@ -108,23 +108,14 @@ async function preparePage(
   return { context, page };
 }
 
-async function assertWorkspaceTrigger(page: Page, slug: string, profile: string, locale: string, theme: string) {
-  const workspace = page.locator('[data-workspace-trigger]');
-  const settings = page.locator('[data-settings-trigger]');
-  await expect(workspace, `${slug} ${profile} ${locale} ${theme}: workspace trigger`).toBeVisible();
-  const appearance = async (button: Locator) => button.evaluate((node) => {
-    const style = getComputedStyle(node);
-    return {
-      height: node.getBoundingClientRect().height,
-      borderColor: style.borderColor,
-      borderRadius: style.borderRadius,
-      backgroundColor: style.backgroundColor,
-      color: style.color,
-      boxShadow: style.boxShadow
-    };
-  });
-  expect(await appearance(workspace), `${slug} ${profile} ${locale} ${theme}: workspace control differs from Settings`).toEqual(await appearance(settings));
-  expect(await workspace.evaluate((node) => node.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
+// ADR 0006: a Área Local entra pela DropZone, pelo resultado, pela home e por /workspace/;
+// o header da ferramenta não pode ganhar controle de workspace.
+async function assertNoWorkspaceInHeader(page: Page, context: string) {
+  const header = page.locator('body > header');
+  await expect(
+    header.locator('[data-workspace-root], [data-workspace-trigger], [data-workspace-source]'),
+    `${context}: workspace control in header`
+  ).toHaveCount(0);
 }
 
 async function assertOpenStateParity(hub: Page, tool: Page, trigger: string, name: string, context: string, slug: string) {
@@ -218,12 +209,11 @@ for (const profile of profiles) {
               theme
             );
             try {
-              await assertWorkspaceTrigger(tool.page, slug, profile.name, locale, theme);
-              // Compare the shared header after checking and hiding the tool-specific action slot.
-              await tool.page.addStyleTag({ content: '[data-workspace-root] { display: none !important; }' });
+              const context = `${slug} / ${profile.name} / ${locale} / ${theme}`;
+              await assertNoWorkspaceInHeader(tool.page, context);
+              // Sem nada escondido: o header da ferramenta precisa ser idêntico ao do hub.
               await assertRegionParity(hub.page, tool.page, 'header');
               await assertRegionParity(hub.page, tool.page, 'footer');
-              const context = `${slug} / ${profile.name} / ${locale} / ${theme}`;
               await assertOpenStateParity(hub.page, tool.page, '[data-settings-trigger]', 'Settings open', context, slug);
               await assertOpenStateParity(hub.page, tool.page, '[data-menu-button]', 'mobile menu open', context, slug);
               await assertOpenStateParity(hub.page, tool.page, '[data-categories-menu] > summary', 'category dropdown open', context, slug);

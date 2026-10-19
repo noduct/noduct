@@ -16,6 +16,14 @@ export interface WorkspaceDocument {
 /** Metadados sem o payload; listar e renovar prazo não tocam no Blob (schema v4). */
 export type WorkspaceDocumentSummary = Omit<WorkspaceDocument, 'blob'>;
 
+/** Prévia derivada do documento (ADR 0006); apagada junto com ele. */
+export interface WorkspaceThumbnail {
+  readonly id: string;
+  readonly blob: Blob;
+  readonly width: number;
+  readonly height: number;
+}
+
 export interface NewWorkspaceDocument {
   readonly id?: string | undefined;
   readonly name: string;
@@ -37,12 +45,17 @@ export interface WorkspaceStateRecord {
 }
 
 export type WorkspaceChangeType =
-  'document_added' | 'document_updated' | 'document_deleted' | 'workspace_cleared';
+  | 'document_added'
+  | 'document_updated'
+  | 'document_deleted'
+  | 'workspace_cleared'
+  | 'thumbnail_updated';
 
 export interface WorkspaceChangeEvent {
   readonly type: WorkspaceChangeType;
   readonly documentId?: string | undefined;
-  readonly reason?: 'expired' | undefined;
+  /** `expired`: limpeza de 24 h; `accessed`: só renovou o prazo (leitura), sem mudar o conteúdo. */
+  readonly reason?: 'expired' | 'accessed' | undefined;
   readonly timestamp: number;
 }
 

@@ -120,8 +120,18 @@ describe('UI guardrails reject violating fixtures', () => {
     expect(validateUiContent('.github/CODEOWNERS', 'https://' + ['nod' + 'uct', 'github', 'io'].join('.'))).toContain('hardcoded product URL');
   });
 
-  it('limits the workspace parity marker to the drawer component', () => {
-    expect(validateUiContent('packages/merge-pdf/src/components/Other.astro', '<div data-workspace-root />')).toContain('workspace root outside WorkspaceDrawer');
+  it('rejects native browser dialogs and accepts the system confirmation', () => {
+    for (const code of ['window.confirm("x")', 'if (!confirm("x")) return;', 'alert(message)', 'window.prompt'])
+      expect(validateUiContent('packages/merge-pdf/src/components/Bad.astro', `<script>${code}</script>`)).toContain('native browser dialog');
+    expect(validateUiContent('packages/merge-pdf/src/components/Ok.astro', '<script>await confirmAction({ title, message, confirmLabel });</script>')).not.toContain('native browser dialog');
+    expect(validateUiContent('packages/design-system/src/x.ts', 'dialog.confirm(); onConfirm(); const confirmed = true;')).not.toContain('native browser dialog');
+  });
+
+  it('limits Local Workspace surfaces to the design system components (ADR 0006)', () => {
+    for (const marker of ['data-workspace-root', 'data-workspace-trigger', 'data-workspace-picker', 'data-workspace-manager'])
+      expect(validateUiContent('packages/merge-pdf/src/components/Other.astro', `<div ${marker} />`)).toContain('workspace surface outside design system');
+    expect(validateUiContent('packages/design-system/src/components/WorkspacePicker.astro', '<dialog data-workspace-picker />')).not.toContain('workspace surface outside design system');
+    expect(validateUiContent('packages/design-system/src/components/DropZone.astro', '<button data-workspace-source />')).not.toContain('workspace surface outside design system');
   });
 
   it('rejects the domain-browser fixture through ESLint', async () => {

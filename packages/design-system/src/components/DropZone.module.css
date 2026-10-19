@@ -98,6 +98,64 @@
   box-shadow: none;
 }
 
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+/* Segunda origem (ADR 0006): mesmo peso visual de um botão secundário, ao lado do primário. */
+.source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm), var(--rim-light);
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple),
+    transform var(--duration-instant) var(--ease-out-quad);
+}
+
+.source[hidden] {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .source:not(:disabled):hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-hover);
+  }
+}
+
+.source:not(:disabled):active {
+  transform: scale(var(--scale-active-button));
+}
+
+.source:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.source:disabled {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .status {
   min-height: 1.25rem;
   margin: 0;
@@ -115,7 +173,12 @@
     padding: var(--space-4) var(--space-3);
   }
 
-  .trigger {
+  .sources {
+    width: 100%;
+  }
+
+  .trigger,
+  .source {
     width: 100%;
   }
 }

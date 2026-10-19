@@ -6,7 +6,6 @@ import DropZone from '@noduct/design-system/components/DropZone.astro';
 import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
 import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
-import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
 import type { Locale } from '@noduct/tool-runtime';
 import { tool } from '../config';
@@ -33,7 +32,9 @@ const clientMessages = {
   statusMerging: m.statusMerging,
   statusSaving: m.statusSaving,
   downloadFileName: m.downloadFileName,
-  errorMergeFailed: m.errorMergeFailed
+  errorMergeFailed: m.errorMergeFailed,
+  budgetWarningTitle: m.budgetWarningTitle,
+  budgetWarningConfirm: m.budgetWarningConfirm
 } satisfies MergeClientMessages;
 ---
 
@@ -45,7 +46,6 @@ const clientMessages = {
   noindex={!tool.published}
   {jsonLd}
 >
-  <WorkspaceDrawer id="merge-workspace-drawer" locale={locale} slot="actions" />
   <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
     <section class={styles.workspace} aria-label={m.name}>
       <DropZone
@@ -54,6 +54,7 @@ const clientMessages = {
         description={m.dropDescription}
         multiple={true}
         locale={locale}
+        workspace={{ confirmLabel: m.addToMerge }}
       />
 
       <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
@@ -101,6 +102,7 @@ const clientMessages = {
         fileName={m.downloadFileName}
         hidden={true}
         locale={locale}
+        workspace={{ sourceTool: tool.slug }}
       />
 
       <p class={styles.privacyNotice}>
@@ -148,12 +150,14 @@ const clientMessages = {
         type FilesSelectedDetail,
         type ListChangeDetail
       } from '@noduct/design-system/file-workflow';
-      import { connectWorkspaceDrawer } from '@noduct/design-system/workspace-ui';
+      import {
+        connectLocalWorkspace,
+        createWorkspaceServices
+      } from '@noduct/design-system/workspace-ui';
       import type { MergeWorkflow, WorkflowFileItem } from '../lib/merge-workflow';
-      import type { WorkspaceClient } from '@noduct/workspace-core';
       import { OperationCancelledError } from '@noduct/pdf-core';
+      import { confirmAction } from '@noduct/design-system/shell/confirm';
       import { formatBudgetIssue } from '../lib/workspace-budget-messages';
-      import { formatWorkspaceError } from '../lib/workspace-error-messages';
 
       const language = document.documentElement.lang;
       const clientLocale: Locale = language === 'pt-BR' || language === 'es' ? language : 'en';
@@ -164,21 +168,13 @@ const clientMessages = {
       const formatMessage = (template: string, values: Record<string, string>) =>
         template.replace(/\{(name|files|pages)\}/g, (_, key: string) => values[key] ?? '');
 
-      let workspacePromise: Promise<WorkspaceClient> | undefined;
-      function getLocalWorkspace(): Promise<WorkspaceClient> {
-        if (!workspacePromise) {
-          workspacePromise = import('@noduct/workspace-core')
-            .then(({ openWorkspace }) => openWorkspace())
-            .catch((error: unknown) => {
-              workspacePromise = undefined;
-              throw error;
-            });
-        }
-        return workspacePromise;
-      }
-      window.addEventListener('pagehide', () => {
-        void workspacePromise?.then((workspace) => workspace.close());
+      // Área de Trabalho Local híbrida (ADR 0006): origem local na DropZone, salvar opt-in no
+      // resultado e miniaturas. Nada é carregado até o primeiro uso.
+      const workspace = createWorkspaceServices({
+        loadWorkspace: () => import('@noduct/workspace-core'),
+        loadRenderer: () => import('@noduct/pdf-core/render')
       });
+      connectLocalWorkspace(document, workspace);
 
       // Lazy load workflow module to optimize LCP < 1.5s
       let workflowPromise: Promise<MergeWorkflow> | undefined;
@@ -249,6 +245,12 @@ const clientMessages = {
         const validItems = state.items.filter((i) => i.status === 'valid');
 
         reorderList.setItems(validItems);
+        // Prévia da primeira página de cada PDF da pilha; o cache evita renderizar de novo.
+        for (const item of validItems) {
+          void workspace.thumbnails.forFile(item.file).then((preview) => {
+            if (preview) reorderList.setThumbnail(item.id, preview.blob);
+          });
+        }
         renderAlerts(state.items, workflow);
 
         mergeBtn.disabled = !state.canMerge;
@@ -306,7 +308,11 @@ const clientMessages = {
         }
         if (
           assessment.decision === 'warning' &&
-          !window.confirm(formatBudgetIssue(assessment, clientLocale))
+          !(await confirmAction({
+            title: messages.budgetWarningTitle,
+            message: formatBudgetIssue(assessment, clientLocale),
+            confirmLabel: messages.budgetWarningConfirm
+          }))
         )
           return;
 
@@ -336,21 +342,8 @@ const clientMessages = {
 
           feedbackEl.hidden = true;
           dropZone.setDisabled(false);
+          // Salvar na Área Local é opt-in, pelo próprio cartão (ADR 0006 D3).
           downloadCard.show({ file: result.blob, fileName: messages.downloadFileName });
-
-          try {
-            const ws = await getLocalWorkspace();
-            await ws.saveDocument({
-              name: messages.downloadFileName,
-              mimeType: 'application/pdf',
-              blob: result.blob,
-              size: result.blob.size,
-              sourceTool: 'merge-pdf',
-              metadata: { toolSource: 'merge-pdf' }
-            });
-          } catch {
-            // Gracefully ignore local workspace save errors if storage is unavailable
-          }
         } catch (error) {
           feedbackEl.hidden = true;
           dropZone.setDisabled(false);
@@ -391,31 +384,6 @@ const clientMessages = {
         const workflow = await getWorkflow();
         handleReset(workflow);
       });
-
-      const workspaceRoot = document.querySelector<HTMLElement>('[data-workspace-root]');
-      if (workspaceRoot) {
-        const {
-          DEFAULT_DOCUMENT_MAX_IDLE_MS,
-          detectDeviceProfile,
-          DESKTOP_RESOURCE_BUDGET,
-          MOBILE_RESOURCE_BUDGET
-        } = await import('@noduct/workspace-core');
-        const disconnect = connectWorkspaceDrawer(workspaceRoot, getLocalWorkspace, {
-          maxIdleMs: DEFAULT_DOCUMENT_MAX_IDLE_MS,
-          limitBytes: () =>
-            (detectDeviceProfile() === 'mobile' ? MOBILE_RESOURCE_BUDGET : DESKTOP_RESOURCE_BUDGET)
-              .maxWorkspaceStorageBytes,
-          formatError: (error) => formatWorkspaceError(error, clientLocale)
-        });
-        window.addEventListener(
-          'pagehide',
-          () => {
-            disconnect();
-            void workspacePromise?.then((client) => client.close());
-          },
-          { once: true }
-        );
-      }
     </script>
   </ToolPage>
 </AppShell>

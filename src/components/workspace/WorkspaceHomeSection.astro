@@ -1,0 +1,41 @@
+---
+import WorkspaceRecents from '@noduct/design-system/components/WorkspaceRecents.astro';
+import { WORKSPACE_DB_NAME } from '@noduct/workspace-core';
+import type { Locale } from '@/i18n/config';
+import styles from './WorkspaceHomeSection.module.css';
+
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<div class={styles.wrap} data-workspace-db={WORKSPACE_DB_NAME}>
+  <WorkspaceRecents id="home-workspace" {locale} />
+</div>
+
+<script>
+  // Sem banco salvo, a home não baixa o runtime do workspace nem cria IndexedDB; a seção fica só
+  // com a apresentação. O orçamento de scripts da home foi aprovado pelo dono (ADR 0006 D1).
+  const wrap = document.querySelector<HTMLElement>('[data-workspace-db]');
+  let connected = false;
+
+  const hasWorkspace = async (): Promise<boolean> => {
+    try {
+      if (!indexedDB.databases) return true;
+      const databases = await indexedDB.databases();
+      return databases.some((database) => database.name === wrap?.dataset.workspaceDb);
+    } catch {
+      return true;
+    }
+  };
+
+  const refresh = async () => {
+    if (!wrap || connected || !(await hasWorkspace())) return;
+    connected = true;
+    const { connectHubWorkspace } = await import('./WorkspaceIsland');
+    connectHubWorkspace();
+  };
+
+  void refresh();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void refresh();
+  });
+</script>

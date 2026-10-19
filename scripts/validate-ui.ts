@@ -8,6 +8,9 @@ const emoji = /\p{RGI_Emoji}/v;
 const deprecatedName = String.fromCharCode(84, 111, 108, 118, 105, 114, 97);
 const productHost = ['noduct', 'github', 'io'].join('.');
 const generatedClass = /_[a-zA-Z]+_[a-z0-9]{5}_\d+/;
+const NATIVE_DIALOG = /\bwindow\.(?:alert|confirm|prompt)\b|(?<![\w.$])(?:alert|confirm|prompt)\s*\(/;
+const WORKSPACE_COMPONENT =
+  /^packages\/design-system\/src\/components\/(?:DropZone|DownloadCard|Workspace[A-Za-z]+)\.astro$/;
 const iconGlyph = /[\u2190-\u21ff\u22ee\u2300-\u23ff\u2500-\u257f\u25a0-\u25ff\u2600-\u26ff\u2700-\u27bf]/u;
 function containsIconGlyph(source: string): boolean {
   if (iconGlyph.test(source) || /&(?:times|check|cross|rarr|larr|star);/i.test(source)) return true;
@@ -91,9 +94,14 @@ export function validateUiContent(path: string, contents: string): string[] {
   )
     errors.push('hardcoded product URL');
   if (generatedClass.test(contents)) errors.push('generated CSS Module class hash');
-  if (path.endsWith('.astro') && path !== 'packages/design-system/src/components/WorkspaceDrawer.astro' &&
-      /<[A-Za-z][^>]*\bdata-workspace-root\b/.test(contents))
-    errors.push('workspace root outside WorkspaceDrawer');
+  // Diálogos nativos do navegador quebram tema, idioma e foco: use confirmAction() do shell.
+  if (/\.(?:astro|[cm]?[jt]s)$/.test(path) && !/\.(?:test|spec)\.[cm]?[jt]s$/.test(path) &&
+      NATIVE_DIALOG.test(contents))
+    errors.push('native browser dialog');
+  // ADR 0006: seletor, gestão e seção da Área Local só existem nos componentes do design system.
+  if (path.endsWith('.astro') && !WORKSPACE_COMPONENT.test(path) &&
+      /<[A-Za-z][^>]*\bdata-workspace-(?:root|trigger|picker|source|manager|recents)\b/.test(contents))
+    errors.push('workspace surface outside design system');
   if (
     /^(?:packages\/[^/]+\/src\/|src\/data\/tools\.json$|src\/i18n\/catalog\/)/.test(path) &&
     contents.includes('TODO(i18n)')
@@ -178,10 +186,15 @@ export function validateUi(): string[] {
           'Importe classes do CSS Module ou use data-*.',
           'ui-contract'
         ],
-        'workspace root outside WorkspaceDrawer': [
-          'A marca do drawer não pode excluir conteúdo da paridade.',
-          'Use o componente WorkspaceDrawer.',
-          'shell-parity'
+        'native browser dialog': [
+          'alert, confirm e prompt ignoram tema, idioma e foco do sistema.',
+          'Use confirmAction() de @noduct/design-system/shell/confirm ou uma mensagem na própria página.',
+          'ui-contract'
+        ],
+        'workspace surface outside design system': [
+          'Uma Área Local própria diverge do padrão híbrido e pode reaparecer no header.',
+          'Use DropZone e DownloadCard com workspace e connectLocalWorkspace() (ADR 0006).',
+          'ui-contract'
         ],
         'unresolved i18n placeholder': [
           'Traduções incompletas chegam ao usuário.',

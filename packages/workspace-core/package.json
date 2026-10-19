@@ -1,6 +1,6 @@
 {
   "name": "@noduct/workspace-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Client-side IndexedDB persistence and multi-tab coordination for Noduct tools",
   "type": "module",
   "main": "./src/index.ts",

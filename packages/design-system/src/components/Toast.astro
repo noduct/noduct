@@ -1,0 +1,9 @@
+---
+import Icon from '../icons/Icon.astro';
+import styles from './Toast.module.css';
+---
+
+<div class={styles.toast} data-toast hidden>
+  <Icon name="circle-check" />
+  <span role="status" aria-live="polite" aria-atomic="true" data-toast-message></span>
+</div>

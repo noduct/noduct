@@ -8,10 +8,15 @@ export interface FileListItem {
   pageCount?: number | undefined;
 }
 
-export interface FilesSelectedDetail {
+/** De onde vieram os arquivos; `documentIds` acompanha a origem `workspace` (ADR 0006). */
+export type FileOrigin =
+  | { readonly source: 'device' }
+  | { readonly source: 'workspace'; readonly documentIds: readonly string[] };
+
+export type FilesSelectedDetail = {
   accepted: File[];
   rejected: File[];
-}
+} & FileOrigin;
 
 export interface ListChangeDetail {
   action: 'move' | 'remove';

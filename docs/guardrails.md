@@ -5,7 +5,7 @@ Este documento explica como o [Contrato da issue #39](../AGENTS.md#contrato-de-c
 | Regra do Contrato | Ferramenta e comando | Configuração ou exemplo | Correção |
 | --- | --- | --- | --- |
 | 1. Shell e ToolPage | ESLint, UI, e2e; `npm run check`, `npm run verify` | [ESLint](../eslint.config.js), [paridade](../tests/e2e/shell-parity.spec.ts) | Componha [AppShell](../packages/design-system/src/shell/AppShell.astro) e [ToolPage](../packages/design-system/src/shell/ToolPage.astro). Revise visualmente com o hub. |
-| 2. Workspace no header | E2E e revisão; `npm run verify` | [shell-parity](../tests/e2e/shell-parity.spec.ts) | Monte o drawer no slot `actions`. |
+| 2. Área Local híbrida (ADR 0006) | UI, e2e e revisão; `npm run check`, `npm run verify` | [validador](../scripts/validate-ui.ts), [shell-parity](../tests/e2e/shell-parity.spec.ts), [merge](../tests/e2e/merge-pdf.spec.ts) | Use `DropZone`/`DownloadCard` com `workspace` e `connectLocalWorkspace()`; não monte workspace no header. |
 | 3. URLs | UI, unitários de topologia, SEO; `npm run check`, `npm run verify` | [topology](../packages/tool-runtime/src/topology.ts), [SEO](../scripts/validate-seo.ts) | Use `@noduct/tool-runtime`; remova literais de origem e prefixos manuais. |
 | 4. Ícones | ESLint, UI; `npm run check` | [registry](../packages/design-system/src/icons/registry.ts), [Icon](../packages/design-system/src/icons/Icon.astro) | Escolha um ícone permitido e renderize por `Icon`/`IconSprite`. |
 | 5. Tokens | Stylelint e contraste; `npm run check` | [Stylelint](../stylelint.config.mjs), [tokens](../packages/design-system/src/tokens.css), [contraste](../tests/unit/theme-colors.test.ts) | Defina token antes do uso e confira AA nos dois temas. |
@@ -65,7 +65,7 @@ Script raiz extra ou slug fixo quebra a descoberta automática. Use subcomandos 
 ### shell-parity
 Diferença entre hub e ferramenta indica shell ou estilo local indevido. Compare [shell-parity.spec.ts](../tests/e2e/shell-parity.spec.ts) e o hub nos três idiomas, dois temas e perfis exigidos.
 
-A paridade compara o gatilho do Workspace com Settings e os estados abertos de Settings, menu mobile e categorias. O listener de `securitypolicyviolation` permanece dormente até a CSP da #33; ele detectará violações quando a política for ativada. Os testes funcionais de Merge PDF rodam nos perfis desktop/tablet/mobile; o projeto Playwright `pages` concentra a paridade do artefato montado.
+A paridade exige header da ferramenta idêntico ao do hub, sem esconder nada e sem controle de workspace (ADR 0006), e compara os estados abertos de Settings, menu mobile e categorias. O listener de `securitypolicyviolation` permanece dormente até a CSP da #33; ele detectará violações quando a política for ativada. Os testes funcionais de Merge PDF rodam nos perfis desktop/tablet/mobile; o projeto Playwright `pages` concentra a paridade do artefato montado.
 
 <a id="agent-scope"></a>
 ### agent-scope

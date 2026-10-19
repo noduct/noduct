@@ -134,6 +134,20 @@ describe('topology — slugs', () => {
     for (const id of CATEGORY_IDS) expect(RESERVED_HUB_SEGMENTS.has(id)).toBe(true);
     expect(RESERVED_HUB_SEGMENTS.has('noduct')).toBe(true);
   });
+
+  it('serves the Local Workspace page from the hub in every locale (ADR 0006)', () => {
+    expect(() => topology.toolBase('workspace')).toThrow();
+    expect(topology.hubPath('workspace/', 'en')).toBe('/workspace/');
+    expect(topology.hubPath('workspace/', 'pt-BR')).toBe('/pt-br/workspace/');
+    expect(topology.hubPath('workspace/', 'es')).toBe('/es/workspace/');
+    for (const locale of ['en', 'pt-BR', 'es'] as const) {
+      const parsed = topology.parse(topology.hubUrl('workspace/', locale));
+      expect(parsed).toEqual({ scope: HUB_SCOPE, locale, path: 'workspace/' });
+      expect(topology.hubPath(parsed!.path, parsed!.locale)).toBe(
+        topology.hubPath('workspace/', locale)
+      );
+    }
+  });
 });
 
 describe('topology — injectable origin', () => {

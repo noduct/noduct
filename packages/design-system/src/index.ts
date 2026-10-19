@@ -1,4 +1,4 @@
-export const designSystemVersion = '0.5.0';
+export const designSystemVersion = '0.7.0';
 export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disabled';
 export { THEME_COLOR_TOKEN, themeColors } from './theme';
 export type { ThemeName } from './theme';
@@ -9,5 +9,6 @@ export { default as DropZone } from './components/DropZone.astro';
 export { default as ReorderableList } from './components/ReorderableList.astro';
 export { default as ProcessingFeedback } from './components/ProcessingFeedback.astro';
 export { default as DownloadCard } from './components/DownloadCard.astro';
-export { default as WorkspaceDrawer } from './components/WorkspaceDrawer.astro';
+export { default as WorkspaceManager } from './components/WorkspaceManager.astro';
+export { default as WorkspaceRecents } from './components/WorkspaceRecents.astro';
 export { default as ToolPage } from './shell/ToolPage.astro';

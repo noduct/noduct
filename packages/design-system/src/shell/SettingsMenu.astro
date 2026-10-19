@@ -2,7 +2,6 @@
 import { LOCALES, type Locale } from '@noduct/tool-runtime';
 import Icon from '../icons/Icon.astro';
 import { getShellMessages } from './messages';
-import headerControl from './HeaderControl.module.css';
 import popover from './Popover.module.css';
 import styles from './SettingsMenu.module.css';
 
@@ -32,7 +31,7 @@ const titleId = `${idPrefix}-settings-title`;
 
 <div class={styles.settings} data-settings data-locale={locale}>
   <button
-    class:list={[headerControl.control, styles.trigger]}
+    class={styles.trigger}
     type="button"
     aria-label={m.settings.open}
     title={m.settings.title}

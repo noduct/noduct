@@ -37,6 +37,8 @@ export const RESERVED_HUB_SEGMENTS: ReadonlySet<string> = new Set<string>([
   'privacy',
   'terms',
   'sponsor',
+  // Página de gestão da Área de Trabalho Local (ADR 0006).
+  'workspace',
   'data',
   'brand',
   '404',

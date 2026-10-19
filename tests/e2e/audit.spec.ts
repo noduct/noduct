@@ -15,6 +15,7 @@ const routes = [
   '/about/',
   '/sponsor/',
   '/privacy/',
+  '/workspace/',
   '/terms/',
   '/contact/'
 ];
@@ -121,7 +122,10 @@ test('runtime payload stays lightweight', async ({ page }) => {
     }))
   );
   const scripts = resources.filter((resource) => resource.type === 'script');
-  expect(scripts.length).toBeLessThanOrEqual(3);
+  // ADR 0006 D1, aprovado pelo dono em 2026-10-19: a seção da Área Local na home soma a entrada
+  // da ilha, o chunk separado de `topology` e o helper de import dinâmico (3 → 6). O teto de
+  // bytes abaixo continua o mesmo, e o runtime do workspace só carrega se já houver banco.
+  expect(scripts.length).toBeLessThanOrEqual(6);
   expect(scripts.reduce((sum, resource) => sum + resource.size, 0)).toBeLessThan(50_000);
 });
 

@@ -11,5 +11,6 @@
   {"id":"glyph-arrow","path":"packages/merge-pdf/src/components/Bad.astro","content":"<button>→</button>","expected":"text glyph used as an icon"},
   {"id":"glyph-css","path":"packages/merge-pdf/src/components/Bad.css","content":".button::before { content: '✔'; }","expected":"text glyph used as an icon"},
   {"id":"entity-glyph","path":"packages/merge-pdf/src/components/Bad.astro","content":"<button>&#x2713;</button>","expected":"text glyph used as an icon"},
-  {"id":"workspace-parity-escape","path":"packages/merge-pdf/src/components/Bad.astro","content":"<div data-workspace-root />","expected":"workspace root outside WorkspaceDrawer"}
+  {"id":"workspace-parity-escape","path":"packages/merge-pdf/src/components/Bad.astro","content":"<div data-workspace-root />","expected":"workspace surface outside design system"},
+  {"id":"workspace-custom-picker","path":"packages/merge-pdf/src/components/Bad.astro","content":"<dialog data-workspace-picker></dialog>","expected":"workspace surface outside design system"}
 ]

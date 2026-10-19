@@ -11,6 +11,8 @@ const mimeTypes = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.js': 'text/javascript',
+  // O worker do PDF.js é emitido como .mjs; o GitHub Pages o serve como JavaScript.
+  '.mjs': 'text/javascript',
   '.json': 'application/json',
   '.map': 'application/json',
   '.png': 'image/png',

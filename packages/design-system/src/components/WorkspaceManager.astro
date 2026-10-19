@@ -1,0 +1,215 @@
+---
+import type { Locale } from '@noduct/tool-runtime';
+import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
+import Icon from '../icons/Icon.astro';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import Select from './Select.astro';
+import SelectionControl from './SelectionControl.astro';
+import Toast from './Toast.astro';
+import WorkspaceFileMeta from './WorkspaceFileMeta.astro';
+import item from './WorkspaceItem.module.css';
+import styles from './WorkspaceManager.module.css';
+
+export interface Props {
+  id?: string;
+  accept?: string;
+  locale?: Locale;
+}
+
+const { id = 'workspace-manager', accept = DEFAULT_PDF_ACCEPT, locale = 'en' } = Astro.props;
+const currentLocale = resolveWorkspaceUiLocale(locale);
+const m = workspaceUiMessages[currentLocale];
+const searchId = `${id}-search`;
+const inputId = `${id}-input`;
+const privacyId = `${id}-privacy`;
+const listId = `${id}-list`;
+const renameId = `${id}-rename`;
+---
+
+<div
+  id={id}
+  class={styles.manager}
+  data-workspace-manager
+  data-locale={currentLocale}
+  data-accept={accept}
+>
+  <div class={styles.panel}>
+    <div class={styles.toolbar}>
+      <div class={styles.search}>
+        <Icon class={styles.searchIcon} name="search" />
+        <label for={searchId} class="sr-only">{m.searchLabel}</label>
+        <input
+          id={searchId}
+          class={styles.searchInput}
+          type="search"
+          placeholder={m.searchPlaceholder}
+          autocomplete="off"
+          data-manager-search
+        />
+      </div>
+      <div class={styles.sort} data-manager-sort>
+        <Select
+          id={`${id}-sort`}
+          label={m.sortLabel}
+          labelHidden
+          value="recent"
+          options={[
+            { value: 'recent', label: m.sortRecent },
+            { value: 'name', label: m.sortName },
+            { value: 'size', label: m.sortSize }
+          ]}
+        />
+      </div>
+      <div class={styles.views} role="group" aria-label={m.view} data-manager-views>
+        <button
+          type="button"
+          class={styles.viewButton}
+          aria-pressed="true"
+          aria-label={m.viewList}
+          title={m.viewList}
+          aria-controls={listId}
+          data-view="list"
+        >
+          <Icon name="layout-list" />
+        </button>
+        <button
+          type="button"
+          class={styles.viewButton}
+          aria-pressed="false"
+          aria-label={m.viewGrid}
+          title={m.viewGrid}
+          aria-controls={listId}
+          data-view="grid"
+        >
+          <Icon name="layout-grid" />
+        </button>
+      </div>
+      <div class={styles.add}>
+        <input
+          id={inputId}
+          class={styles.fileInput}
+          type="file"
+          accept={accept}
+          multiple
+          data-manager-input
+        />
+        <label for={inputId} class={styles.addButton}>
+          <Icon name="upload" />
+          <span>{m.addFiles}</span>
+        </label>
+      </div>
+    </div>
+
+    <div class={styles.usage}>
+      <p class={styles.usageHead}>
+        <span class={styles.usageValue} data-manager-usage>{m.loading}</span>
+        <span class={styles.usagePercent} data-manager-percent aria-hidden="true"></span>
+      </p>
+      <div
+        class={styles.bar}
+        role="meter"
+        aria-label={m.usageLabel}
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+        data-level="normal"
+        data-manager-meter
+      >
+        <span class={styles.fill} data-manager-meter-fill></span>
+      </div>
+      <p class={styles.estimate} data-manager-estimate hidden></p>
+    </div>
+  </div>
+
+  <div class={styles.results}>
+    <div class={styles.resultsHead}>
+      <p class={styles.count} data-manager-count></p>
+      <p class={styles.status} role="status" aria-live="polite" data-manager-status></p>
+    </div>
+    <div class={styles.selectionBar} data-selection-bar hidden>
+      <span class={styles.selectionCount} data-selection-count></span>
+      <button type="button" class={styles.selectionTextButton} data-selection-action="all-visible">
+        {m.selectVisible}
+      </button>
+      <button type="button" class={styles.selectionTextButton} data-selection-action="clear">
+        {m.clearSelection}
+      </button>
+      <span class={styles.selectionActions}>
+        <button type="button" class={styles.selectionButton} data-selection-action="rename">
+          {m.rename}
+        </button>
+        <button type="button" class={styles.selectionButton} data-selection-action="download">
+          <Icon name="download" /><span>{m.downloadSelected}</span>
+        </button>
+        <button type="button" class:list={[styles.selectionButton, styles.selectionDanger]} data-selection-action="delete">
+          <Icon name="trash-2" /><span>{m.deleteSelected}</span>
+        </button>
+      </span>
+      <form class={styles.renameForm} data-rename-form hidden>
+        <label for={renameId}>{m.renameLabel}</label>
+        <input id={renameId} type="text" maxlength="255" required data-rename-input />
+        <button type="submit" class={styles.selectionButton} data-rename-save>{m.renameSave}</button>
+        <button type="button" class={styles.selectionTextButton} data-rename-cancel>{m.close}</button>
+      </form>
+    </div>
+    <ul id={listId} class={styles.list} aria-label={m.listLabel} data-view="list" data-manager-list>
+    </ul>
+    <div class={styles.empty} data-manager-empty hidden>
+      <span class={styles.emptyIcon}><Icon name="folder" /></span>
+      <p class={styles.emptyTitle}>{m.emptyTitle}</p>
+      <p>{m.emptyText}</p>
+      <label for={inputId} class={styles.addButton}>
+        <Icon name="upload" />
+        <span>{m.addFiles}</span>
+      </label>
+    </div>
+  </div>
+
+  <Toast />
+
+  <div class={styles.footer}>
+    <details class={styles.privacy}>
+      <summary id={privacyId} class={styles.privacyTitle}>
+        <Icon name="lock" />
+        <span>{m.privacyTitle}</span>
+        <Icon class={styles.privacyChevron} name="chevron-down" />
+      </summary>
+      <ul aria-labelledby={privacyId}>
+        {m.privacyPoints.map((point) => <li>{point}</li>)}
+      </ul>
+    </details>
+    <button type="button" class={styles.clear} hidden data-manager-clear>
+      <Icon name="trash-2" />
+      <span>{m.clearAll}</span>
+    </button>
+  </div>
+
+  <template data-manager-item>
+    <li class={styles.item}>
+      <SelectionControl class={styles.selection} />
+      <span class:list={[item.thumb, styles.thumb]} data-thumb><Icon name="file-text" /></span>
+      <span class={styles.info}>
+        <span class={item.name} data-name></span>
+        <WorkspaceFileMeta />
+        <span class={item.badge} data-retention-badge>
+          <span data-retention></span>
+        </span>
+      </span>
+      <span class:list={[item.actions, styles.actions]}>
+        <button type="button" class={item.iconButton} data-action="preview">
+          <Icon name="eye" />
+        </button>
+        <button type="button" class={item.iconButton} data-action="download">
+          <Icon name="download" />
+        </button>
+        <button type="button" class={item.iconButton} data-action="retention">
+          <Icon class={item.temporary} name="hourglass" />
+          <Icon class={item.kept} name="timer-off" />
+        </button>
+        <button type="button" class:list={[item.iconButton, item.danger]} data-action="delete">
+          <Icon name="trash-2" />
+        </button>
+      </span>
+    </li>
+  </template>
+</div>

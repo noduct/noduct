@@ -1,8 +1,15 @@
-import { acceptsFile, FILES_SELECTED_EVENT, type FilesSelectedDetail } from './contracts';
+import {
+  acceptsFile,
+  FILES_SELECTED_EVENT,
+  type FileOrigin,
+  type FilesSelectedDetail
+} from './contracts';
 import { fileWorkflowMessages, resolveFileWorkflowLocale } from './messages';
 
 export interface DropZoneController {
   setDisabled(disabled: boolean): void;
+  /** Entrega arquivos de outra origem (ex.: Área Local) pelo mesmo evento e anúncio. */
+  select(files: readonly File[], origin?: FileOrigin): void;
 }
 
 const controllers = new WeakMap<HTMLElement, DropZoneController>();
@@ -31,7 +38,7 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     zone.dataset.state = state;
   };
 
-  const select = (files: readonly File[]) => {
+  const select = (files: readonly File[], origin: FileOrigin = { source: 'device' }) => {
     const accepted = files.filter((file) => acceptsFile(file, accept));
     const rejected = files.filter((file) => !acceptsFile(file, accept));
     if (!multiple) rejected.push(...accepted.splice(1));
@@ -45,10 +52,11 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     zone.dispatchEvent(
       new CustomEvent<FilesSelectedDetail>(FILES_SELECTED_EVENT, {
         bubbles: true,
-        detail: { accepted, rejected }
+        detail: { accepted, rejected, ...origin }
       })
     );
   };
+  const source = zone.querySelector<HTMLButtonElement>('[data-workspace-source]');
 
   input.addEventListener('change', () => {
     select([...(input.files ?? [])]);
@@ -83,8 +91,12 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     setDisabled(value) {
       zone.dataset.disabled = value ? 'true' : 'false';
       input.disabled = value;
+      if (source) source.disabled = value;
       depth = 0;
       setState('idle');
+    },
+    select(files, origin) {
+      if (!disabled()) select(files, origin);
     }
   };
   controllers.set(zone, controller);

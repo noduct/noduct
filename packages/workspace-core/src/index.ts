@@ -11,6 +11,9 @@ import {
   dbListDocumentSummaries,
   dbListExpiredDocumentIds,
   dbPutDocument,
+  dbPutThumbnail,
+  dbRenameDocument,
+  dbListThumbnails,
   dbSetRetention,
   dbSetState,
   dbTouchDocument,
@@ -30,7 +33,8 @@ import {
   type WorkspaceChangeListener,
   type WorkspaceDocument,
   type WorkspaceDocumentSummary,
-  type WorkspaceRetention
+  type WorkspaceRetention,
+  type WorkspaceThumbnail
 } from './types';
 
 export const DEFAULT_DOCUMENT_MAX_IDLE_MS = 24 * 60 * 60 * 1000;
@@ -41,6 +45,7 @@ export { WORKSPACE_CHANNEL_NAME } from './broadcast';
 export {
   CURRENT_SCHEMA_VERSION,
   DOCUMENT_BLOBS_STORE,
+  DOCUMENT_THUMBNAILS_STORE,
   DOCUMENTS_STORE,
   STATE_STORE,
   TRANSFERS_STORE,
@@ -83,6 +88,7 @@ export class WorkspaceClient {
       this.notifier.emit({
         type: 'document_updated',
         documentId: id,
+        reason: 'accessed',
         timestamp: doc.lastAccessedAt
       });
     return doc;
@@ -93,6 +99,13 @@ export class WorkspaceClient {
     if (!doc) throw new DocumentNotFoundError(id);
     this.notifier.emit({ type: 'document_updated', documentId: id, timestamp: doc.lastAccessedAt });
     return doc;
+  }
+
+  async renameDocument(id: string, name: string): Promise<WorkspaceDocumentSummary> {
+    const summary = await dbRenameDocument(this.db, id, name);
+    if (!summary) throw new DocumentNotFoundError(id);
+    this.notifier.emit({ type: 'document_updated', documentId: id, timestamp: Date.now() });
+    return summary;
   }
 
   async withDocumentLock<T>(id: string, operation: () => Promise<T>): Promise<T> {
@@ -162,6 +175,22 @@ export class WorkspaceClient {
       );
     }
     return deleted;
+  }
+
+  /** Grava a prévia derivada; devolve `false` se o documento já não existe. */
+  async saveThumbnail(thumbnail: WorkspaceThumbnail): Promise<boolean> {
+    const saved = await dbPutThumbnail(this.db, thumbnail);
+    if (saved)
+      this.notifier.emit({
+        type: 'thumbnail_updated',
+        documentId: thumbnail.id,
+        timestamp: Date.now()
+      });
+    return saved;
+  }
+
+  async listThumbnails(): Promise<readonly WorkspaceThumbnail[]> {
+    return dbListThumbnails(this.db);
   }
 
   async listDocuments(): Promise<readonly WorkspaceDocument[]> {

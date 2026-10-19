@@ -1,0 +1,15 @@
+---
+import Icon from '../icons/Icon.astro';
+import styles from './WorkspaceFileMeta.module.css';
+---
+
+<span class={styles.meta}>
+  <span class={styles.row}>
+    <Icon name="calendar-days" />
+    <span data-saved></span>
+  </span>
+  <span class={styles.row}>
+    <Icon name="database" />
+    <span data-size></span>
+  </span>
+</span>

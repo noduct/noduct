@@ -121,6 +121,37 @@ describe('architecture guardrail', () => {
     );
   });
 
+  it('confines PDF.js to the pdf-core renderer and workspace islands in the hub (ADR 0006)', () => {
+    const renderManifest = source(
+      'packages/pdf-core/package.json',
+      JSON.stringify({
+        name: '@noduct/pdf-core',
+        exports: { '.': './src/index.ts', './render': './src/render/index.ts' },
+        dependencies: { 'pdf-lib': '1.17.1', 'pdfjs-dist': '6.3.289' }
+      })
+    );
+    const files = [
+      manifests[0]!,
+      manifests[1]!,
+      manifests[3]!,
+      renderManifest,
+      source('packages/pdf-core/src/render/index.ts', "import('pdfjs-dist/legacy/build/pdf.mjs');"),
+      source('packages/pdf-core/src/core.ts', "import { getDocument } from 'pdfjs-dist';"),
+      source(
+        'src/components/workspace/WorkspaceIsland.astro',
+        "<script>import('@noduct/workspace-core'); import('@noduct/pdf-core/render');</script>"
+      ),
+      source('src/components/pages/HomePage.astro', "<script>import('@noduct/workspace-core');</script>"),
+      source('src/components/workspace/Other.astro', "<script>import('@noduct/pdf-core');</script>")
+    ];
+    const messages = validateArchitecture(files).map((violation) => [violation.path, violation.message]);
+    expect(messages).toEqual([
+      ['packages/pdf-core/src/core.ts', 'pdf-core must not import pdfjs-dist'],
+      ['src/components/pages/HomePage.astro', 'Hub must not import @noduct/workspace-core'],
+      ['src/components/workspace/Other.astro', 'Hub must not import @noduct/pdf-core']
+    ]);
+  });
+
   it('rejects Astro dependency and imports in pure domain packages', () => {
     const violations = validateArchitecture([
       source('packages/pdf-core/package.json', JSON.stringify({ name: '@noduct/pdf-core', dependencies: { astro: '^5' } })),

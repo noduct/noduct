@@ -2,6 +2,7 @@ import {
   type NewWorkspaceDocument,
   type WorkspaceDocument,
   type WorkspaceDocumentSummary,
+  type WorkspaceThumbnail,
   type WorkspaceStateRecord,
   type WorkspaceTransferRecord,
   type WorkspaceRetention,
@@ -15,6 +16,9 @@ export const CURRENT_SCHEMA_VERSION = 4;
 export const DOCUMENTS_STORE = 'documents';
 /** Payloads ficam fora de `documents` para que metadados sejam regravados sem copiar o Blob. */
 export const DOCUMENT_BLOBS_STORE = 'document_blobs';
+/** Miniaturas derivadas (ADR 0006); seguem o ciclo de vida do documento. */
+export const DOCUMENT_THUMBNAILS_STORE = 'document_thumbnails';
+const DOCUMENT_STORES = [DOCUMENTS_STORE, DOCUMENT_BLOBS_STORE, DOCUMENT_THUMBNAILS_STORE];
 export const STATE_STORE = 'workspace_state';
 export const TRANSFERS_STORE = 'transfers';
 
@@ -80,6 +84,9 @@ export function openDatabase(factory?: IDBFactory): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(DOCUMENT_BLOBS_STORE)) {
         db.createObjectStore(DOCUMENT_BLOBS_STORE, { keyPath: 'id' });
+      }
+      if (!db.objectStoreNames.contains(DOCUMENT_THUMBNAILS_STORE)) {
+        db.createObjectStore(DOCUMENT_THUMBNAILS_STORE, { keyPath: 'id' });
       }
       if (event.oldVersion > 0 && event.oldVersion < 4) {
         // Uma passada só: v1/v2 ganham retenção (v3) e todo registro perde o Blob embutido (v4).
@@ -158,11 +165,13 @@ export async function dbPutDocument(
 ): Promise<WorkspaceDocument> {
   const now = Date.now();
   const id = doc.id ?? crypto.randomUUID();
-  const tx = db.transaction([DOCUMENTS_STORE, DOCUMENT_BLOBS_STORE], 'readwrite');
+  const tx = db.transaction(DOCUMENT_STORES, 'readwrite');
   const store = tx.objectStore(DOCUMENTS_STORE);
   const existing = doc.id
     ? ((await requestToPromise(store.get(id))) as WorkspaceDocumentSummary | undefined)
     : undefined;
+  // Conteúdo novo invalida a prévia antiga; a próxima superfície a regenera.
+  if (existing) await requestToPromise(tx.objectStore(DOCUMENT_THUMBNAILS_STORE).delete(id));
   const summary: WorkspaceDocumentSummary = {
     id,
     name: doc.name,
@@ -224,19 +233,39 @@ export async function dbSetRetention(
   return updateSummary(db, id, (summary) => ({ ...summary, retention, lastAccessedAt: now }));
 }
 
+/** Renomeia apenas o registro de metadados: payload, miniatura e data de salvamento são preservados. */
+export async function dbRenameDocument(
+  db: IDBDatabase,
+  id: string,
+  name: string,
+  now = Date.now()
+): Promise<WorkspaceDocumentSummary | undefined> {
+  const tx = db.transaction(DOCUMENTS_STORE, 'readwrite');
+  const store = tx.objectStore(DOCUMENTS_STORE);
+  const summary = (await requestToPromise(store.get(id))) as WorkspaceDocumentSummary | undefined;
+  if (!summary) return undefined;
+  const updated = { ...summary, name, lastAccessedAt: now };
+  await requestToPromise(store.put(updated));
+  await transactionToPromise(tx);
+  return updated;
+}
+
 export async function dbDeleteDocumentIfExpired(
   db: IDBDatabase,
   id: string,
   cutoff: number
 ): Promise<boolean> {
-  const tx = db.transaction([DOCUMENTS_STORE, DOCUMENT_BLOBS_STORE], 'readwrite');
+  const tx = db.transaction(DOCUMENT_STORES, 'readwrite');
   const store = tx.objectStore(DOCUMENTS_STORE);
   const doc = (await requestToPromise(store.get(id))) as WorkspaceDocumentSummary | undefined;
   if (!doc || doc.retention !== 'ephemeral' || doc.lastAccessedAt >= cutoff) return false;
-  await requestToPromise(store.delete(id));
-  await requestToPromise(tx.objectStore(DOCUMENT_BLOBS_STORE).delete(id));
+  await deleteDocumentRecords(tx, id);
   await transactionToPromise(tx);
   return true;
+}
+
+async function deleteDocumentRecords(tx: IDBTransaction, id: string): Promise<void> {
+  for (const name of DOCUMENT_STORES) await requestToPromise(tx.objectStore(name).delete(id));
 }
 
 export async function dbListExpiredDocumentIds(db: IDBDatabase, cutoff: number): Promise<string[]> {
@@ -302,20 +331,37 @@ export async function dbListDocuments(db: IDBDatabase): Promise<readonly Workspa
 }
 
 export async function dbDeleteDocument(db: IDBDatabase, id: string): Promise<boolean> {
-  const tx = db.transaction([DOCUMENTS_STORE, DOCUMENT_BLOBS_STORE], 'readwrite');
-  const store = tx.objectStore(DOCUMENTS_STORE);
-  if ((await requestToPromise(store.getKey(id))) === undefined) return false;
-  await requestToPromise(store.delete(id));
-  await requestToPromise(tx.objectStore(DOCUMENT_BLOBS_STORE).delete(id));
+  const tx = db.transaction(DOCUMENT_STORES, 'readwrite');
+  if ((await requestToPromise(tx.objectStore(DOCUMENTS_STORE).getKey(id))) === undefined)
+    return false;
+  await deleteDocumentRecords(tx, id);
   await transactionToPromise(tx);
   return true;
 }
 
 export async function dbClearDocuments(db: IDBDatabase): Promise<void> {
-  const tx = db.transaction([DOCUMENTS_STORE, DOCUMENT_BLOBS_STORE], 'readwrite');
-  await requestToPromise(tx.objectStore(DOCUMENTS_STORE).clear());
-  await requestToPromise(tx.objectStore(DOCUMENT_BLOBS_STORE).clear());
+  const tx = db.transaction(DOCUMENT_STORES, 'readwrite');
+  for (const name of DOCUMENT_STORES) await requestToPromise(tx.objectStore(name).clear());
   await transactionToPromise(tx);
+}
+
+/** Grava a prévia só se o documento ainda existir, para não deixar miniatura órfã. */
+export async function dbPutThumbnail(
+  db: IDBDatabase,
+  thumbnail: WorkspaceThumbnail
+): Promise<boolean> {
+  const tx = db.transaction([DOCUMENTS_STORE, DOCUMENT_THUMBNAILS_STORE], 'readwrite');
+  if ((await requestToPromise(tx.objectStore(DOCUMENTS_STORE).getKey(thumbnail.id))) === undefined)
+    return false;
+  await requestToPromise(tx.objectStore(DOCUMENT_THUMBNAILS_STORE).put(thumbnail));
+  await transactionToPromise(tx);
+  return true;
+}
+
+export async function dbListThumbnails(db: IDBDatabase): Promise<readonly WorkspaceThumbnail[]> {
+  const tx = db.transaction(DOCUMENT_THUMBNAILS_STORE, 'readonly');
+  const result = await requestToPromise(tx.objectStore(DOCUMENT_THUMBNAILS_STORE).getAll());
+  return (result as WorkspaceThumbnail[]) || [];
 }
 
 export async function dbGetState(db: IDBDatabase, key: string): Promise<unknown | undefined> {

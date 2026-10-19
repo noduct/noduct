@@ -1,6 +1,8 @@
 ---
 import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import WorkspacePicker from './WorkspacePicker.astro';
 import type { Locale } from '@noduct/tool-runtime';
 import styles from './DropZone.module.css';
 
@@ -12,6 +14,11 @@ export interface Props {
   multiple?: boolean;
   disabled?: boolean;
   locale?: Locale;
+  /**
+   * Oferece a origem `Da Área Local` (ADR 0006). `confirmLabel` nomeia a ação da ferramenta,
+   * por exemplo “Adicionar à mesclagem”. A página liga o seletor com `connectLocalWorkspace()`.
+   */
+  workspace?: { readonly confirmLabel: string } | undefined;
 }
 
 const {
@@ -21,10 +28,13 @@ const {
   accept = DEFAULT_PDF_ACCEPT,
   multiple = true,
   disabled = false,
-  locale = 'en'
+  locale = 'en',
+  workspace
 } = Astro.props;
 const descriptionId = `${id}-description`;
 const statusId = `${id}-status`;
+const pickerId = `${id}-workspace-picker`;
+const workspaceMessages = workspaceUiMessages[resolveWorkspaceUiLocale(locale)];
 ---
 
 <div
@@ -35,6 +45,7 @@ const statusId = `${id}-status`;
   data-multiple={multiple ? 'true' : 'false'}
   data-disabled={disabled ? 'true' : 'false'}
   data-state="idle"
+  data-workspace-picker-id={workspace ? pickerId : undefined}
 >
   <span class={styles.icon}><Icon name="upload" /></span>
   {
@@ -44,19 +55,38 @@ const statusId = `${id}-status`;
       </p>
     )
   }
-  <input
-    id={id}
-    class={styles.input}
-    type="file"
-    accept={accept}
-    multiple={multiple}
-    disabled={disabled}
-    aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
-    data-drop-input
-  />
-  <label for={id} class={styles.trigger}>{label}</label>
+  <div class={styles.sources}>
+    <input
+      id={id}
+      class={styles.input}
+      type="file"
+      accept={accept}
+      multiple={multiple}
+      disabled={disabled}
+      aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
+      data-drop-input
+    />
+    <label for={id} class={styles.trigger}>{label}</label>
+    {
+      workspace && (
+        <button
+          type="button"
+          class={styles.source}
+          aria-haspopup="dialog"
+          aria-controls={pickerId}
+          disabled={disabled}
+          hidden
+          data-workspace-source
+        >
+          <Icon name="folder" />
+          <span>{workspaceMessages.fromWorkspace}</span>
+        </button>
+      )
+    }
+  </div>
   <p id={statusId} class={styles.status} role="status" data-drop-status></p>
 </div>
+{workspace && <WorkspacePicker id={pickerId} confirmLabel={workspace.confirmLabel} {locale} />}
 
 <script>
   import { initializeDropZones } from '../file-workflow/drop-zone-runtime';

@@ -9,6 +9,7 @@ export interface MergeMessages {
   dropDescription: string;
   listLabel: string;
   actionMerge: string;
+  addToMerge: string;
   minFilesRequired: string;
   clear: string;
   remove: string;
@@ -22,6 +23,8 @@ export interface MergeMessages {
   downloadTitle: string;
   downloadFileName: string;
   errorMergeFailed: string;
+  budgetWarningTitle: string;
+  budgetWarningConfirm: string;
   errorEncrypted: string;
   errorCorrupted: string;
   howTitle: string;
@@ -45,6 +48,8 @@ export type MergeClientMessages = Pick<MergeMessages,
   | 'statusSaving'
   | 'downloadFileName'
   | 'errorMergeFailed'
+  | 'budgetWarningTitle'
+  | 'budgetWarningConfirm'
 >;
 
 export function formatMergeLimits(locale: Locale): string {
@@ -67,6 +72,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     dropDescription: 'Drop PDF files here or select them from your computer',
     listLabel: 'Files to merge in specified order',
     actionMerge: 'Merge PDF files',
+    addToMerge: 'Add to merge',
     minFilesRequired: 'Select at least 2 PDF files to merge.',
     clear: 'Clear',
     remove: 'Remove',
@@ -80,14 +86,16 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     downloadTitle: 'Your merged PDF is ready',
     downloadFileName: 'merged.pdf',
     errorMergeFailed: 'Could not merge the PDF files. Please try again.',
+    budgetWarningTitle: 'This is a large merge',
+    budgetWarningConfirm: 'Merge anyway',
     errorEncrypted: '"{name}" is password-protected. Please remove it or provide an unencrypted version.',
     errorCorrupted: '"{name}" is corrupted or could not be parsed as a valid PDF.',
     howTitle: 'How to merge PDF files',
     how: [
-      'Select or drag and drop 2 or more PDF documents into the file area.',
+      'Select or drag 2 or more PDF documents into the file area, or choose files saved in your Local Workspace.',
       'Reorder the files using the drag handle, arrow buttons, or keyboard shortcuts to set your desired page sequence.',
       'Click "Merge PDF files" to initiate client-side merging.',
-      'Download the merged PDF file immediately to your computer.'
+      'Download the merged PDF, or save it to your Local Workspace to reuse it in another tool.'
     ],
     limitsTitle: 'Limitations & file capacity',
     limits:
@@ -104,6 +112,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     dropDescription: 'Solte arquivos PDF aqui ou selecione no seu computador',
     listLabel: 'Arquivos a mesclar na ordem especificada',
     actionMerge: 'Mesclar arquivos PDF',
+    addToMerge: 'Adicionar à mesclagem',
     minFilesRequired: 'Selecione pelo menos 2 arquivos PDF para mesclar.',
     clear: 'Limpar',
     remove: 'Remover',
@@ -117,14 +126,16 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     downloadTitle: 'Seu PDF mesclado está pronto',
     downloadFileName: 'documento-mesclado.pdf',
     errorMergeFailed: 'Não foi possível mesclar os arquivos PDF. Tente novamente.',
+    budgetWarningTitle: 'Esta é uma mesclagem grande',
+    budgetWarningConfirm: 'Mesclar mesmo assim',
     errorEncrypted: '"{name}" está protegido por senha. Remova-o ou utilize uma versão sem senha.',
     errorCorrupted: '"{name}" está corrompido ou não é um documento PDF válido.',
     howTitle: 'Como mesclar arquivos PDF',
     how: [
-      'Selecione ou arraste 2 ou mais documentos PDF para a área de arquivos.',
+      'Selecione ou arraste 2 ou mais documentos PDF para a área de arquivos, ou escolha arquivos salvos na sua Área Local.',
       'Reordene os arquivos utilizando a alça de arrasto, os botões ou o teclado para definir a sequência desejada.',
       'Clique em "Mesclar arquivos PDF" para executar a junção no seu navegador.',
-      'Baixe o arquivo PDF unificado imediatamente para o seu dispositivo.'
+      'Baixe o PDF mesclado ou salve-o na Área Local para reutilizá-lo em outra ferramenta.'
     ],
     limitsTitle: 'Limitações e capacidade',
     limits:
@@ -141,6 +152,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     dropDescription: 'Arrastra archivos PDF aquí o selecciónalos de tu equipo',
     listLabel: 'Archivos a combinar en el orden especificado',
     actionMerge: 'Combinar archivos PDF',
+    addToMerge: 'Añadir a la combinación',
     minFilesRequired: 'Selecciona al menos 2 archivos PDF para combinar.',
     clear: 'Limpiar',
     remove: 'Quitar',
@@ -154,14 +166,16 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     downloadTitle: 'Tu PDF combinado está listo',
     downloadFileName: 'documento-combinado.pdf',
     errorMergeFailed: 'No se pudieron combinar los archivos PDF. Inténtalo de nuevo.',
+    budgetWarningTitle: 'Esta es una combinación grande',
+    budgetWarningConfirm: 'Combinar de todos modos',
     errorEncrypted: '"{name}" está protegido por contraseña. Quítalo o usa una versión sin contraseña.',
     errorCorrupted: '"{name}" está dañado o no es un documento PDF válido.',
     howTitle: 'Cómo combinar archivos PDF',
     how: [
-      'Selecciona o arrastra 2 o más documentos PDF al área de archivos.',
+      'Selecciona o arrastra 2 o más documentos PDF al área de archivos, o elige archivos guardados en tu área local.',
       'Reordena los archivos usando el control de arrastre, los botones o el teclado para fijar el orden deseado.',
       'Haz clic en "Combinar archivos PDF" para ejecutar la unión en tu navegador.',
-      'Descarga el archivo PDF unificado de inmediato a tu equipo.'
+      'Descarga el PDF combinado o guárdalo en el área local para reutilizarlo en otra herramienta.'
     ],
     limitsTitle: 'Limitaciones y capacidad',
     limits:

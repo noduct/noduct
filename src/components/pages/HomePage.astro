@@ -5,6 +5,7 @@ import ToolSearch from '@/components/tools/ToolSearch.astro';
 import ToolCard from '@/components/tools/ToolCard.astro';
 import ToolIcon from '@/components/tools/ToolIcon.astro';
 import RecentTools from '@/components/tools/RecentTools.astro';
+import WorkspaceHomeSection from '@/components/workspace/WorkspaceHomeSection.astro';
 import SponsorRail from '@/components/sponsors/SponsorRail.astro';
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
@@ -30,6 +31,7 @@ const m = getMessages(locale);
   </header>
   <div class:list={['container', styles.workspace]}>
     <RecentTools tools={tools} locale={locale} />
+    <WorkspaceHomeSection locale={locale} />
     <div class={styles.layout}>
       <div class={styles.libraryIsland}>
         <div class={styles.libraryHeader}>

@@ -1,6 +1,6 @@
 {
   "name": "@noduct/design-system",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "type": "module",
   "peerDependencies": {
@@ -33,6 +33,9 @@
     "./shell/support": "./src/shell/support.ts",
     "./shell/preferences": "./src/shell/preferences.ts",
     "./shell/messages": "./src/shell/messages.ts",
+    "./shell/confirm": "./src/shell/confirm-dialog.ts",
+    "./controls": "./src/controls/index.ts",
+    "./components/Select.astro": "./src/components/Select.astro",
     "./shell/Popover.module.css": "./src/shell/Popover.module.css",
     "./components/SponsorCard.astro": "./src/components/SponsorCard.astro",
     "./components/SponsorshipSlot.astro": "./src/components/SponsorshipSlot.astro",
@@ -40,6 +43,7 @@
     "./components/ReorderableList.astro": "./src/components/ReorderableList.astro",
     "./components/ProcessingFeedback.astro": "./src/components/ProcessingFeedback.astro",
     "./components/DownloadCard.astro": "./src/components/DownloadCard.astro",
-    "./components/WorkspaceDrawer.astro": "./src/components/WorkspaceDrawer.astro"
+    "./components/WorkspaceManager.astro": "./src/components/WorkspaceManager.astro",
+    "./components/WorkspaceRecents.astro": "./src/components/WorkspaceRecents.astro"
   }
 }

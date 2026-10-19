@@ -1,13 +1,17 @@
 {
   "name": "@noduct/pdf-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./render": "./src/render/index.ts"
   },
   "scripts": {
     "check": "tsc --noEmit --skipLibCheck --moduleResolution bundler --module esnext --target es2022 --allowImportingTsExtensions src/index.ts",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "pdfjs-dist": "6.3.289"
   }
 }

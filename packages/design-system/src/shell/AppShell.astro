@@ -11,6 +11,7 @@ import SeoHead from '../components/SeoHead.astro';
 import IconSprite from '../icons/IconSprite.astro';
 import { THEME_COLOR_TOKEN, themeColors } from '../theme';
 import AmbientArtwork from './AmbientArtwork.astro';
+import ConfirmDialog from './ConfirmDialog.astro';
 import SiteFooter from './SiteFooter.astro';
 import SiteHeader from './SiteHeader.astro';
 import { preferenceKeys } from './preferences';
@@ -159,5 +160,6 @@ const redirectPaths = Object.fromEntries(
     </SiteHeader>
     <main id="main-content"><slot /></main>
     <SiteFooter {locale} supportUrl={resolvedSupportUrl} />
+    <ConfirmDialog {locale} />
   </body>
 </html>

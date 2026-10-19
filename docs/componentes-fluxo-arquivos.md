@@ -8,16 +8,16 @@ Os componentes renderizam HTML estático e carregam um runtime nativo, sem frame
 
 Todos aceitam `locale` (`en`, `pt-BR` ou `es`, padrão `en`) para textos genéricos e anúncios. Rótulos específicos da ferramenta são props.
 
-O `WorkspaceDrawer` também pertence ao design system e aparece no slot `actions` do `SiteHeader`, não junto ao H1. Seus controles de retenção de 24 h e descarte usam mensagens localizadas, tokens do tema e `Icon` da allowlist; não use emoji, SVG solto ou valores de cor locais. Veja [Local Workspace](architecture/local-workspace.md) e [guardrails](guardrails.md).
+A Área de Trabalho Local é híbrida ([ADR 0006](adr/0006-hybrid-local-workspace.md)) e não tem entrada no header. Com `workspace`, a `DropZone` ganha a origem `Da Área Local` (diálogo `WorkspacePicker`) e o `DownloadCard` ganha “Salvar na Área Local”, sempre opt-in. A página `/workspace/` usa `WorkspaceManager`, e a home usa `WorkspaceRecents`. `connectLocalWorkspace(root, services)` liga todas as superfícies; `createWorkspaceServices({ loadWorkspace, loadRenderer })` injeta cliente e renderer por `import()` dinâmico, sem o design system depender de `workspace-core` ou `pdf-core`. Veja [Local Workspace](architecture/local-workspace.md) e [guardrails](guardrails.md).
 
 ## API
 
 | Componente           | Props                                                                                                                         | Controlador (`get*`)                          | Evento                                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------- |
-| `DropZone`           | `id`, `label`, `description?`, `accept?` (padrão `application/pdf,.pdf`), `multiple?` (padrão `true`), `disabled?`, `locale?` | `getDropZone(zone).setDisabled(bool)`         | `noduct:files` → `{ accepted, rejected }`    |
-| `ReorderableList`    | `id`, `label`, `items?`, `locale?`                                                                                            | `setItems(items)`, `getIds()`                 | `noduct:list-change` → `{ action, id, ids }` |
+| `DropZone`           | `id`, `label`, `description?`, `accept?` (padrão `application/pdf,.pdf`), `multiple?` (padrão `true`), `disabled?`, `locale?`, `workspace?` | `setDisabled(bool)`, `select(files, origin?)` | `noduct:files` → `{ accepted, rejected, source, documentIds? }` |
+| `ReorderableList`    | `id`, `label`, `items?`, `locale?`                                                                                            | `setItems(items)`, `getIds()`, `setThumbnail(id, blob)` | `noduct:list-change` → `{ action, id, ids }` |
 | `ProcessingFeedback` | `label`, `status`, `value?` (0–100; ausente = indeterminado), `cancellable?`, `hidden?`, `locale?`                            | `update({ status, value? })`, `isCancelled()` | `noduct:cancel`                              |
-| `DownloadCard`       | `id`, `title?`, `fileName?`, `fileSize?`, `downloadUrl?`, `hidden?`, `locale?`                                                | `show({ file, fileName })`, `reset()`         | `noduct:restart`                             |
+| `DownloadCard`       | `id`, `title?`, `fileName?`, `fileSize?`, `downloadUrl?`, `hidden?`, `locale?`, `workspace?`                                  | `show({ file, fileName })`, `reset()`, `setPreview(blob)`, `enableSave(save, describeError)` | `noduct:restart`, `noduct:download-ready` |
 
 Os nomes dos eventos estão exportados como `FILES_SELECTED_EVENT`, `LIST_CHANGE_EVENT`, `CANCEL_EVENT` e `RESTART_EVENT`; todos borbulham a partir da raiz do componente. Os getters recebem o elemento raiz (`[data-drop-zone]`, `[data-reorderable-list]`, `[data-processing-feedback]`, `[data-download-card]`) e inicializam o componente sob demanda, independentemente da ordem dos scripts.
 

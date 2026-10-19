@@ -56,7 +56,7 @@ Nenhuma URL do produto é escrita fora de `topology.ts`.
 - o template `ToolPage`;
 - `base.css`.
 
-O hub consome o mesmo shell e não mantém header, footer nem Settings próprios. O `WorkspaceDrawer` é montado no slot `actions` do header.
+O hub consome o mesmo shell e não mantém header, footer nem Settings próprios. O `WorkspaceDrawer` era montado no slot `actions` do header; o [ADR 0006](0006-hybrid-local-workspace.md) substituiu essa entrada pela Área de Trabalho Local híbrida.
 
 ### D4. Ícones
 

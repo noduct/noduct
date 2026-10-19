@@ -558,6 +558,49 @@ describe('Workspace schema v4 payload separation', () => {
   });
 });
 
+describe('Workspace thumbnails', () => {
+  it('stores thumbnails beside documents and removes them with the document lifecycle', async () => {
+    const factory = new IDBFactory();
+    stubLocks();
+    const client = await openWorkspace({ factory });
+    try {
+      const listener = vi.fn();
+      client.subscribe(listener);
+      const kept = await client.saveDocument({ name: 'kept.pdf', blob: new Blob(['a']) });
+      const gone = await client.saveDocument({ name: 'gone.pdf', blob: new Blob(['b']) });
+      const preview = (id: string) => ({ id, blob: new Blob(['jpeg']), width: 160, height: 226 });
+      expect(await client.saveThumbnail(preview(kept.id))).toBe(true);
+      expect(await client.saveThumbnail(preview(gone.id))).toBe(true);
+      expect(listener).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'thumbnail_updated', documentId: kept.id })
+      );
+      expect((await client.listThumbnails()).map((item) => item.id).sort()).toEqual(
+        [kept.id, gone.id].sort()
+      );
+
+      await client.deleteDocument(gone.id);
+      expect((await client.listThumbnails()).map((item) => item.id)).toEqual([kept.id]);
+      expect(await client.saveThumbnail(preview(gone.id))).toBe(false);
+
+      await client.saveDocument({ id: kept.id, name: 'kept.pdf', blob: new Blob(['changed']) });
+      expect(await client.listThumbnails()).toEqual([]);
+
+      await client.saveThumbnail(preview(kept.id));
+      await client.setRetention(kept.id, 'ephemeral');
+      await client.cleanupExpiredDocuments(Date.now() + 2 * DEFAULT_DOCUMENT_MAX_IDLE_MS);
+      expect(await client.listThumbnails()).toEqual([]);
+
+      const again = await client.saveDocument({ name: 'again.pdf', blob: new Blob(['c']) });
+      await client.saveThumbnail(preview(again.id));
+      await client.clearDocuments();
+      expect(await client.listThumbnails()).toEqual([]);
+    } finally {
+      client.close();
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
 async function readRawStores(factory: IDBFactory): Promise<{
   documents: Record<string, unknown>[];
   blobs: { id: string; blob: Blob }[];

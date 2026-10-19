@@ -83,6 +83,12 @@ type ShellSnapshot = {
 
 function normalizeNonVisualStates(snapshot: ShellSnapshot): ShellSnapshot {
   const normalized = structuredClone(snapshot);
+  // O rodapé fica abaixo do conteúdo da home, que cresce com novas seções (ADR 0006). Compará-lo
+  // relativo ao próprio topo mantém a verificação do layout do shell sem depender dessa altura.
+  const footerTop = normalized.footerStyles[0]?.box.y ?? 0;
+  for (const entry of normalized.footerStyles)
+    if (entry.box.width > 0 || entry.box.height > 0)
+      entry.box.y = Math.round((entry.box.y - footerTop) * 100) / 100;
   for (const entry of normalized.headerStyles) {
     // A baseline v1 registrou frames diferentes da animação do dropdown fechado. O estilo
     // computado continua sendo comparado, e a geometria final aberta é verificada abaixo.

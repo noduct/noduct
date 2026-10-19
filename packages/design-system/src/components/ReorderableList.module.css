@@ -40,6 +40,40 @@
   box-shadow: var(--shadow-lg);
 }
 
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* Prévia da primeira página (ADR 0006); o ícone fica até a miniatura chegar. */
+.thumb {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 48px;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.thumb[data-ready] svg {
+  display: none;
+}
+
 .body {
   display: grid;
   min-width: 0;

@@ -24,7 +24,7 @@ Antes de codar, leia a issue, os [ADRs 0001](docs/adr/0001-static-independent-to
 
 - **Sempre:** siga o Contrato abaixo, mantenha TypeScript strict e conteúdo essencial estático em Astro, rode `npm run check` durante o trabalho e `npm run verify` antes de concluir.
 - **Pergunte antes:** mudar dependências, topologia, tokens globais ou guardrails; remover ou afrouxar testes; tocar em mais de um pacote fora do escopo da issue. Uma issue que autorize expressamente a mudança já atende essa condição.
-- **Nunca:** criar header, footer, Settings ou breadcrumb próprios; usar emoji ou glifos como ícones; escrever URL do produto à mão; adicionar supressão ou `.skip` sem a label e justificativa exigidas; fazer push ou merge em `main`; criar repositório ou expor tokens.
+- **Nunca:** criar header, footer, Settings ou breadcrumb próprios; usar emoji ou glifos como ícones; usar `alert`, `confirm` ou `prompt` nativos (use `confirmAction()` do shell); escrever URL do produto à mão; adicionar supressão ou `.skip` sem a label e justificativa exigidas; fazer push ou merge em `main`; criar repositório ou expor tokens.
 
 ## Contrato de conformidade — issue #39, seção 4
 
@@ -35,7 +35,7 @@ Toda issue de aplicação, componente ou documentação, a partir desta, deve cu
    - a ferramenta usa `ToolPage`;
    - é proibido criar header, footer, Settings, breadcrumb ou estrutura de página próprios;
    - a referência visual é o hub.
-2. **Workspace:** o `WorkspaceDrawer` vai no slot `actions` do header.
+2. **Workspace ([ADR 0006](docs/adr/0006-hybrid-local-workspace.md)):** a Área Local entra pela `DropZone` e pelo `DownloadCard` com `workspace`, ligados por `connectLocalWorkspace()`; nada de workspace no header nem seletor próprio.
 3. **URLs:** só via `@noduct/tool-runtime` (`defineTool()`, `topology`). Nenhum literal `noduct.github.io` ou `/noduct` fora de `topology.ts`.
 4. **Ícones:** só via `Icon` / `IconSprite`, a partir da allowlist `icons/registry.ts`. Emoji e glifos de texto usados como ícone são proibidos.
 5. **Tokens:** cores, raios, sombras, z-index, durações e espaçamentos globais só via tokens. Um token novo entra primeiro em `tokens.css`, com contraste AA nos dois temas.

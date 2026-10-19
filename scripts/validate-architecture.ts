@@ -100,6 +100,25 @@ function findCycle(edges: Map<string, Set<string>>): string[] | undefined {
   return undefined;
 }
 
+// ADR 0006 D6: o renderer de miniaturas é o único lugar do pdf-core com PDF.js, e só as ilhas
+// da Área de Trabalho no hub podem ler o workspace e pedir miniaturas.
+const PDF_CORE_ENGINES = new Set(['pdf-lib', 'pdfjs-dist']);
+const PDF_RENDER_DIRECTORY = 'packages/pdf-core/src/render/';
+const HUB_WORKSPACE_DIRECTORY = 'src/components/workspace/';
+const HUB_WORKSPACE_IMPORTS = new Set(['@noduct/workspace-core', '@noduct/pdf-core/render']);
+
+function allowedPdfCoreImport(path: string, specifier: string): boolean {
+  if (specifier === 'pdf-lib') return true;
+  return (
+    (specifier === 'pdfjs-dist' || specifier.startsWith('pdfjs-dist/')) &&
+    path.startsWith(PDF_RENDER_DIRECTORY)
+  );
+}
+
+function hubMayImport(path: string, specifier: string): boolean {
+  return path.startsWith(HUB_WORKSPACE_DIRECTORY) && HUB_WORKSPACE_IMPORTS.has(specifier);
+}
+
 export function validateArchitecture(files: readonly ArchitectureFile[]): ArchitectureViolation[] {
   const violations: ArchitectureViolation[] = [];
   const manifests = new Map<string, { readonly name: string; readonly exports: Set<string> }>();
@@ -154,7 +173,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
       for (const dependency of Object.keys(manifest[field] ?? {})) {
         if ((source === 'pdf-core' || source === 'tool-runtime') &&
             !dependency.startsWith('@noduct/') &&
-            !(source === 'pdf-core' && dependency === 'pdf-lib'))
+            !(source === 'pdf-core' && PDF_CORE_ENGINES.has(dependency)))
           violations.push({ path, message: `${source} must not depend on ${dependency}` });
         const target = names.get(dependency);
         addEdge(source, target, path);
@@ -171,7 +190,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
           !/\.test\.[cm]?[jt]sx?$/.test(path) &&
           !specifier.startsWith('.') && !specifier.startsWith('node:') &&
           !specifier.startsWith('@noduct/') &&
-          !(source === 'pdf-core' && specifier === 'pdf-lib'))
+          !(source === 'pdf-core' && allowedPdfCoreImport(path, specifier)))
         violations.push({ path, message: `${source} must not import ${specifier}` });
       const namedPackage = packageName(specifier);
       if (namedPackage && names.has(namedPackage)) {
@@ -181,8 +200,9 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
         if (!manifests.get(target)!.exports.has(exportKey)) {
           violations.push({ path, message: `Import ${specifier} is not a public package export` });
         }
-        if (path.startsWith('src/') && (target === 'pdf-core' || target === 'workspace-core')) {
-          violations.push({ path, message: `Hub must not import ${namedPackage}` });
+        if (path.startsWith('src/') && (target === 'pdf-core' || target === 'workspace-core') &&
+            !hubMayImport(path, specifier)) {
+          violations.push({ path, message: `Hub must not import ${specifier}` });
         }
         addEdge(source, target, path);
         continue;

@@ -1,0 +1,78 @@
+---
+import { topology, type Locale } from '@noduct/tool-runtime';
+import Icon from '../icons/Icon.astro';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import Toast from './Toast.astro';
+import WorkspaceFileMeta from './WorkspaceFileMeta.astro';
+import item from './WorkspaceItem.module.css';
+import styles from './WorkspaceRecents.module.css';
+
+export interface Props {
+  id?: string;
+  locale?: Locale;
+}
+
+const { id = 'workspace-recents', locale = 'en' } = Astro.props;
+const currentLocale = resolveWorkspaceUiLocale(locale);
+const m = workspaceUiMessages[currentLocale];
+const titleId = `${id}-title`;
+const manageHref = topology.hubPath('workspace/', currentLocale);
+---
+
+<section
+  id={id}
+  class={styles.section}
+  aria-labelledby={titleId}
+  data-workspace-recents
+  data-locale={currentLocale}
+  data-state="intro"
+>
+  <div class={styles.head}>
+    <span class={styles.badge}><Icon name="folder" /></span>
+    <div class={styles.copy}>
+      <h2 id={titleId} class={styles.title}>{m.recentsTitle}</h2>
+      <p class={styles.intro}>{m.recentsIntro}</p>
+    </div>
+    <div class={styles.headActions}>
+      <span class={styles.count} data-recents-count></span>
+      <a class={styles.open} href={manageHref} data-recents-link>
+        <span data-recents-link-label data-intro={m.openWorkspace} data-list={m.viewAll}
+          >{m.openWorkspace}</span
+        >
+        <Icon name="arrow-right" />
+      </a>
+    </div>
+  </div>
+  <p class={styles.status} role="status" aria-live="polite" data-recents-status></p>
+  <ul class={styles.list} aria-label={m.recentsLabel} hidden data-recents-list></ul>
+  <Toast />
+  <template data-recents-item>
+    <li class={styles.card}>
+      <span class:list={[item.thumb, styles.thumb]} data-thumb><Icon name="file-text" /></span>
+      <span class={styles.text}>
+        <span class={item.name} data-name></span>
+        <WorkspaceFileMeta />
+      </span>
+      <span class:list={[item.actions, styles.actions]}>
+        <button type="button" class={item.iconButton} data-action="preview">
+          <Icon name="eye" />
+        </button>
+        <button type="button" class={item.iconButton} data-action="download">
+          <Icon name="download" />
+        </button>
+        <button type="button" class:list={[item.iconButton, item.danger]} data-action="delete">
+          <Icon name="trash-2" />
+        </button>
+      </span>
+    </li>
+  </template>
+  <template data-recents-more>
+    <li class={styles.moreCard}>
+      <a class={styles.moreLink} href={manageHref} data-recents-more-link>
+        <span class={styles.moreNumber} aria-hidden="true" data-recents-more-count></span>
+        <span class={styles.moreLabel} data-recents-more-label></span>
+        <Icon name="arrow-right" />
+      </a>
+    </li>
+  </template>
+</section>

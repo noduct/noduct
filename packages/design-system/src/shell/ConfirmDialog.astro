@@ -1,0 +1,34 @@
+---
+import type { Locale } from '@noduct/tool-runtime';
+import Icon from '../icons/Icon.astro';
+import { getShellMessages } from './messages';
+import styles from './ConfirmDialog.module.css';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const m = getShellMessages(locale);
+---
+
+{/* Confirmação do sistema: `confirmAction()` preenche e abre; diálogos nativos são proibidos. */}
+<dialog
+  class={styles.dialog}
+  aria-labelledby="confirm-dialog-title"
+  aria-describedby="confirm-dialog-message"
+  data-confirm-dialog
+  data-tone="default"
+>
+  <div class={styles.panel}>
+    <span class={styles.icon}><Icon name="triangle-alert" /></span>
+    <div class={styles.body}>
+      <h2 id="confirm-dialog-title" class={styles.title} data-confirm-title></h2>
+      <p id="confirm-dialog-message" class={styles.message} data-confirm-message></p>
+    </div>
+    <div class={styles.actions}>
+      <button type="button" class={styles.cancel} data-confirm-cancel>{m.confirm.cancel}</button>
+      <button type="button" class={styles.accept} data-confirm-accept></button>
+    </div>
+  </div>
+</dialog>

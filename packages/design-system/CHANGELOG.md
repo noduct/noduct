@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.0 — 2026-10-19
+
+Área de Trabalho Local híbrida ([ADR 0006](../../docs/adr/0006-hybrid-local-workspace.md)).
+
+- **Removidos:** `WorkspaceDrawer`, `connectWorkspaceDrawer()`, `bindWorkspaceDrawer()`, `workspace-drawer-runtime` e `shell/HeaderControl.module.css`. Nenhum controle de workspace vai no header.
+- `DropZone` aceita `workspace={{ confirmLabel }}`: origem `Da Área Local` com o diálogo `WorkspacePicker` (busca, compatibilidade por `accept`, seleção e confirmação). O controller ganha `select(files, origin)` e `noduct:files` informa `source` e `documentIds`.
+- `DownloadCard` aceita `workspace={{ sourceTool }}`: “Salvar na Área Local” opt-in com estados salvando, salvo e falha, mais `setPreview()` e o evento `noduct:download-ready`.
+- `ReorderableList` mostra miniaturas por `setThumbnail(id, blob)`.
+- Novos `WorkspaceManager` (página `/workspace/`) e `WorkspaceRecents` (home).
+- `Select` (combobox “select-only” do WAI-ARIA, com teclado e busca por digitação) e o subpath `@noduct/design-system/controls`.
+- `ConfirmDialog` no `AppShell` e `confirmAction()` (`@noduct/design-system/shell/confirm`): substitui `alert`, `confirm` e `prompt` nativos, agora proibidos.
+- Página e home da Área Local com ações por ícone (`download`, `hourglass`/`timer-off`, `trash-2`), lista ou grade lembrada, miniaturas sob demanda e lista por chave (sem piscar).
+- Ícones novos na allowlist: `download`, `hourglass`, `timer-off`, `layout-grid`, `layout-list`, `triangle-alert`.
+- `workspace-ui`: `connectLocalWorkspace()`, `createWorkspaceServices()`, `createWorkspaceSync()`, serviço de miniaturas com fila única, `formatWorkspaceError()` e mensagens en/pt-BR/es.
+
 ## 0.6.0 — 2026-10-19
 
 - `connectWorkspaceDrawer()` compartilha a integração do drawer com o cliente injetado por cada ferramenta.
