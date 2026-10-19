@@ -38,6 +38,16 @@ const messages: Record<WorkspaceErrorCode, Record<Locale, string>> = {
     'pt-BR': 'Não foi possível abrir o armazenamento local. Tente recarregar esta aba.',
     es: 'No se pudo abrir el almacenamiento local. Intenta recargar esta pestaña.'
   },
+  SCHEMA_VERSION_UNSUPPORTED: {
+    en: 'This workspace was opened by a newer version of Noduct. Close other Noduct tabs and try again.',
+    'pt-BR': 'Esta área de trabalho foi aberta por uma versão mais nova do Noduct. Feche as outras abas do Noduct e tente novamente.',
+    es: 'Esta área de trabajo se abrió con una versión más reciente de Noduct. Cierra las otras pestañas de Noduct e inténtalo de nuevo.'
+  },
+  DB_UPGRADE_BLOCKED: {
+    en: 'Close the other Noduct tabs and try opening the workspace again.',
+    'pt-BR': 'Feche as outras abas do Noduct e tente abrir a área de trabalho novamente.',
+    es: 'Cierra las otras pestañas de Noduct e intenta abrir el área de trabajo de nuevo.'
+  },
   REQUEST_ERROR: {
     en: 'Local storage could not complete this action. Try again.',
     'pt-BR': 'O armazenamento local não conseguiu concluir esta ação. Tente novamente.',

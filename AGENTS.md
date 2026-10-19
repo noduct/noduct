@@ -72,6 +72,8 @@ Mensagens i18n de referência: [hub](src/i18n/messages.ts) e [shell](packages/de
 
 ## Dúvidas, pronto e GitHub
 
+Commits: `tipo(escopo): descrição em português (#<issue>)` — tipos `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`.
+
 Se houver dúvida sobre contrato ou uma falha de guardrail, pare a mudança dependente, registre a dúvida no PR e pergunte. Nunca contorne o guardrail para “fazer passar”. Declare pronto somente com a saída de `npm run verify` e o checklist da issue; execute uma fase por vez, com commit e comentário na issue ao final.
 
 Cada épico usa `epic/<slug>` a partir de `main`; cada issue usa branch própria a partir do épico e volta para ele após validação. Não integre issues diretamente em `main`. Use `node scripts/github/manage.mjs` para operações GitHub, seguindo [o protocolo](scripts/github/README.md): consulte, revise o plano sem `--execute`, depois execute. Para push, use `npm run github -- push <branch>` antes de repetir com `--execute`. Nunca registre credenciais.

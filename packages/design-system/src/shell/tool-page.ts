@@ -1,6 +1,9 @@
 import {
   categoryPath,
   getCategory,
+  breadcrumbList,
+  jsonLdGraph,
+  softwareApplication,
   topology,
   type BreadcrumbItem,
   type Locale,
@@ -22,4 +25,20 @@ export function toolBreadcrumbItems(
     },
     { name: heading, url: topology.canonical(tool.scope, '', locale) }
   ];
+}
+
+export function toolJsonLd(
+  tool: ToolManifest,
+  locale: Locale,
+  content: { name: string; description: string }
+) {
+  return jsonLdGraph([
+    softwareApplication({
+      name: content.name,
+      description: content.description,
+      url: topology.canonical(tool.scope, '', locale),
+      locale
+    }),
+    breadcrumbList(toolBreadcrumbItems(tool, locale, content.name))
+  ]);
 }

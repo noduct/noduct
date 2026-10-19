@@ -7,10 +7,9 @@ import styles from './WorkspaceDrawer.module.css';
 export interface Props {
   readonly id?: string | undefined;
   readonly locale?: Locale | undefined;
-  readonly compact?: boolean | undefined;
 }
 
-const { id = 'workspace-drawer', locale = 'en', compact = false } = Astro.props;
+const { id = 'workspace-drawer', locale = 'en' } = Astro.props;
 const currentLocale = resolveWorkspaceUiLocale(locale);
 const m = workspaceUiMessages[currentLocale];
 ---
@@ -18,7 +17,7 @@ const m = workspaceUiMessages[currentLocale];
 <div class={styles.root} id={id} data-workspace-root data-locale={currentLocale}>
   <button type="button" class={styles.trigger} data-workspace-trigger>
     <Icon name="folder" />
-    <span class:list={[compact && 'sr-only']}>{m.triggerLabel}</span>
+    <span>{m.triggerLabel}</span>
   </button>
 
   <dialog class={styles.dialog} data-workspace-dialog aria-labelledby={`${id}-title`}>

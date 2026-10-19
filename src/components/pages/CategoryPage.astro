@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
+import { getShellMessages } from '@noduct/design-system/shell/messages';
 import ToolCard from '@/components/tools/ToolCard.astro';
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
@@ -9,14 +10,15 @@ import { localizePath, type Locale } from '@/i18n/config';
 import type { ToolCategory } from '@/types/tool';
 const { locale, categoryId } = Astro.props as { locale: Locale; categoryId: ToolCategory };
 const m = getMessages(locale); const category = getLocalizedCategories(locale).find((item) => item.id === categoryId)!; const tools = getLocalizedTools(locale).filter((tool) => tool.category === categoryId);
+const shellMessages = getShellMessages(locale);
 ---
 <BaseLayout title={category.name} description={m.categoryPage.description(category.name, category.description)} locale={locale}>
   <header class="page-head">
     <div class="container">
-      <nav class="breadcrumb" aria-label={m.categoryPage.breadcrumb}>
+      <nav class="breadcrumb" aria-label={shellMessages.nav.breadcrumb}>
         <a class="breadcrumb-link" href={localizePath('/', locale)}>
           <Icon class="breadcrumb-icon" name="house" />
-          <span>{m.common.home}</span>
+          <span>{shellMessages.nav.breadcrumbHome}</span>
         </a>
         <Icon class="breadcrumb-sep" name="chevron-right" />
         <span class="breadcrumb-current" aria-current="page">{category.name}</span>

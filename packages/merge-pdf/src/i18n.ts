@@ -1,4 +1,5 @@
 import type { Locale } from '@noduct/tool-runtime';
+import { DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } from '@noduct/workspace-core';
 
 export interface MergeMessages {
   name: string;
@@ -20,6 +21,7 @@ export interface MergeMessages {
   statusSaving: string;
   downloadTitle: string;
   downloadFileName: string;
+  errorMergeFailed: string;
   errorEncrypted: string;
   errorCorrupted: string;
   howTitle: string;
@@ -41,7 +43,20 @@ export type MergeClientMessages = Pick<MergeMessages,
   | 'statusValidating'
   | 'statusMerging'
   | 'statusSaving'
+  | 'downloadFileName'
+  | 'errorMergeFailed'
 >;
+
+export function formatMergeLimits(locale: Locale): string {
+  const format = new Intl.NumberFormat(locale);
+  const values: Record<string, string> = {
+    desktopFiles: format.format(DESKTOP_RESOURCE_BUDGET.maxFiles),
+    desktopSize: format.format(DESKTOP_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024)),
+    mobileFiles: format.format(MOBILE_RESOURCE_BUDGET.maxFiles),
+    mobileSize: format.format(MOBILE_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024))
+  };
+  return mergeMessages[locale].limits.replace(/\{(desktopFiles|desktopSize|mobileFiles|mobileSize)\}/g, (_, key: string) => values[key] ?? '');
+}
 
 export const mergeMessages: Record<Locale, MergeMessages> = {
   en: {
@@ -64,6 +79,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     statusSaving: 'Finalizing PDF output...',
     downloadTitle: 'Your merged PDF is ready',
     downloadFileName: 'merged.pdf',
+    errorMergeFailed: 'Could not merge the PDF files. Please try again.',
     errorEncrypted: '"{name}" is password-protected. Please remove it or provide an unencrypted version.',
     errorCorrupted: '"{name}" is corrupted or could not be parsed as a valid PDF.',
     howTitle: 'How to merge PDF files',
@@ -75,7 +91,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     ],
     limitsTitle: 'Limitations & file capacity',
     limits:
-      'Processing occurs entirely in your browser. The limit is 20 files or 200 MB on desktop, and 8 files or 50 MB on mobile. Password-protected files must be unlocked before merging.',
+      'Processing occurs entirely in your browser. The limit is {desktopFiles} files or {desktopSize} MB on desktop, and {mobileFiles} files or {mobileSize} MB on mobile. Password-protected files must be unlocked before merging.',
     securityTitle: 'Privacy & Security Guarantee',
     security:
       'Noduct tools operate with 0% server uploads. Data never leaves your machine: your documents remain completely private.'
@@ -100,6 +116,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     statusSaving: 'Finalizando arquivo PDF...',
     downloadTitle: 'Seu PDF mesclado está pronto',
     downloadFileName: 'documento-mesclado.pdf',
+    errorMergeFailed: 'Não foi possível mesclar os arquivos PDF. Tente novamente.',
     errorEncrypted: '"{name}" está protegido por senha. Remova-o ou utilize uma versão sem senha.',
     errorCorrupted: '"{name}" está corrompido ou não é um documento PDF válido.',
     howTitle: 'Como mesclar arquivos PDF',
@@ -111,7 +128,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     ],
     limitsTitle: 'Limitações e capacidade',
     limits:
-      'O processamento ocorre integralmente no navegador. O limite é de 20 arquivos ou 200 MB no desktop e 8 arquivos ou 50 MB no celular. Arquivos protegidos por senha precisam ser desbloqueados antes da mesclagem.',
+      'O processamento ocorre integralmente no navegador. O limite é de {desktopFiles} arquivos ou {desktopSize} MB no desktop e {mobileFiles} arquivos ou {mobileSize} MB no celular. Arquivos protegidos por senha precisam ser desbloqueados antes da mesclagem.',
     securityTitle: 'Garantia de Privacidade e Segurança',
     security:
       'As ferramentas Noduct operam sem envio de dados para servidores. Nenhum dado sai do seu dispositivo: seus documentos permanecem 100% seguros.'
@@ -136,6 +153,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     statusSaving: 'Finalizando archivo PDF...',
     downloadTitle: 'Tu PDF combinado está listo',
     downloadFileName: 'documento-combinado.pdf',
+    errorMergeFailed: 'No se pudieron combinar los archivos PDF. Inténtalo de nuevo.',
     errorEncrypted: '"{name}" está protegido por contraseña. Quítalo o usa una versión sin contraseña.',
     errorCorrupted: '"{name}" está dañado o no es un documento PDF válido.',
     howTitle: 'Cómo combinar archivos PDF',
@@ -147,7 +165,7 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     ],
     limitsTitle: 'Limitaciones y capacidad',
     limits:
-      'El procesamiento se realiza por completo en el navegador. El límite es de 20 archivos o 200 MB en escritorio y 8 archivos o 50 MB en móvil. Los archivos con contraseña deben desbloquearse antes de combinarlos.',
+      'El procesamiento se realiza por completo en el navegador. El límite es de {desktopFiles} archivos o {desktopSize} MB en escritorio y {mobileFiles} archivos o {mobileSize} MB en móvil. Los archivos con contraseña deben desbloquearse antes de combinarlos.',
     securityTitle: 'Garantía de Privacidad y Seguridad',
     security:
       'Las herramientas de Noduct funcionan sin subir datos a servidores. Ningún archivo sale de tu equipo: tus documentos permanecen privados.'

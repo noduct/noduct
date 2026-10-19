@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  WORKSPACE_ACTION_EVENT,
-  WORKSPACE_CLOSE_EVENT,
-  WORKSPACE_OPEN_EVENT
-} from './contracts';
+import { WORKSPACE_ACTION_EVENT, WORKSPACE_CLOSE_EVENT, WORKSPACE_OPEN_EVENT } from './contracts';
 import { resolveWorkspaceUiLocale, workspaceUiMessages } from './messages';
+import { formatWorkspaceBytes } from './workspace-drawer-runtime';
 
 describe('WorkspaceDrawer Contracts and Messages', () => {
   it('defines unique and correctly namespaced event names', () => {
@@ -42,5 +39,23 @@ describe('WorkspaceDrawer Contracts and Messages', () => {
       expect(usage).toContain('250');
     }
   });
-});
 
+  it('formats sizes and action labels for each locale', () => {
+    expect(formatWorkspaceBytes(12.5 * 1024 * 1024, 'en')).toBe('12.5 MB');
+    expect(formatWorkspaceBytes(12.5 * 1024 * 1024, 'pt-BR')).toBe('12,5 MB');
+    expect(formatWorkspaceBytes(12.5 * 1024 * 1024, 'es')).toBe('12,5 MB');
+    for (const locale of ['en', 'pt-BR', 'es'] as const) {
+      const m = workspaceUiMessages[locale];
+      expect(m.keepFile('paper.pdf')).toContain(m.keep);
+      expect(m.allowExpiryFile('paper.pdf')).toContain(m.allowExpiry);
+      expect(m.downloadFile('paper.pdf')).toContain(m.download);
+      expect(m.deleteFile('paper.pdf')).toContain(m.delete);
+      expect(m.expiryUnavailable).toBeTruthy();
+      expect(m.expiryPending).toBeTruthy();
+      expect(m.expiresSoon).toBeTruthy();
+      expect(m.expiresInHours(2)).toBeTruthy();
+      expect(m.expiredRemoved(2)).toContain('2');
+      expect(m.persistent).toBeTruthy();
+    }
+  });
+});

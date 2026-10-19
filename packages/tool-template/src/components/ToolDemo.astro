@@ -1,24 +1,16 @@
 ---
 import AppShell from '@noduct/design-system/shell/AppShell.astro';
 import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
-import { toolBreadcrumbItems } from '@noduct/design-system/shell/tool-page';
+import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
+import { toolJsonLd } from '@noduct/design-system/shell/tool-page';
 import type { Locale } from '@noduct/tool-runtime';
-import { breadcrumbList, jsonLdGraph, softwareApplication, topology } from '@noduct/tool-runtime';
 import { tool } from '../config';
 import { toolMessages } from '../i18n';
 import styles from './ToolDemo.module.css';
 
 const { locale } = Astro.props as { locale: Locale };
 const m = toolMessages[locale];
-const jsonLd = jsonLdGraph([
-  softwareApplication({
-    name: m.name,
-    description: m.description,
-    url: topology.canonical(tool.scope, '', locale),
-    locale
-  }),
-  breadcrumbList(toolBreadcrumbItems(tool, locale, m.name))
-]);
+const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.description });
 ---
 
 <AppShell
@@ -29,6 +21,7 @@ const jsonLd = jsonLdGraph([
   noindex={!tool.published}
   {jsonLd}
 >
+  <WorkspaceDrawer id="tool-workspace-drawer" locale={locale} slot="actions" />
   <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
     <section class={styles.workspace} aria-labelledby="tool-title">
       <h2 id="tool-title">{m.toolTitle}</h2>
@@ -67,6 +60,37 @@ const jsonLd = jsonLdGraph([
 
     <script>
       import { cleanText } from '../lib/clean-text';
+      import { workspaceErrorMessages } from '../i18n';
+      import { connectWorkspaceDrawer } from '@noduct/design-system/workspace-ui';
+      import {
+        openWorkspace,
+        DEFAULT_DOCUMENT_MAX_IDLE_MS,
+        detectDeviceProfile,
+        DESKTOP_RESOURCE_BUDGET,
+        MOBILE_RESOURCE_BUDGET
+      } from '@noduct/workspace-core';
+      const language = document.documentElement.lang;
+      const locale = language === 'pt-BR' || language === 'es' ? language : 'en';
+      const workspaceRoot = document.querySelector<HTMLElement>('[data-workspace-root]');
+      if (workspaceRoot) {
+        let clientPromise: ReturnType<typeof openWorkspace> | undefined;
+        const getClient = () => (clientPromise ??= openWorkspace());
+        const disconnect = connectWorkspaceDrawer(workspaceRoot, getClient, {
+          maxIdleMs: DEFAULT_DOCUMENT_MAX_IDLE_MS,
+          limitBytes: () =>
+            (detectDeviceProfile() === 'mobile' ? MOBILE_RESOURCE_BUDGET : DESKTOP_RESOURCE_BUDGET)
+              .maxWorkspaceStorageBytes,
+          formatError: () => workspaceErrorMessages[locale]
+        });
+        window.addEventListener(
+          'pagehide',
+          () => {
+            disconnect();
+            void clientPromise?.then((client) => client.close());
+          },
+          { once: true }
+        );
+      }
       const source = document.querySelector<HTMLTextAreaElement>('#source');
       const result = document.querySelector<HTMLElement>('#result');
       document.querySelector('#process')?.addEventListener('click', () => {

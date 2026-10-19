@@ -324,6 +324,50 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
   await expect(page.locator('[data-merge-alerts]')).toContainText('protegido por contraseña');
 });
 
+for (const locale of [
+  { path: '/merge-pdf/', fileName: 'merged.pdf', error: 'Could not merge' },
+  {
+    path: '/merge-pdf/pt-br/',
+    fileName: 'documento-mesclado.pdf',
+    error: 'Não foi possível mesclar'
+  },
+  { path: '/merge-pdf/es/', fileName: 'documento-combinado.pdf', error: 'No se pudieron combinar' }
+]) {
+  test(`Merge PDF: localized download and merge error in ${locale.path}`, async ({ page }) => {
+    await page.goto(locale.path);
+    await page.locator('#merge-drop-zone').setInputFiles([
+      { name: 'first.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'First') },
+      { name: 'second.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Second') }
+    ]);
+    const merge = page.locator('#start-merge-btn');
+    await expect(merge).toBeEnabled();
+    await page.evaluate(() => {
+      const state = window as Window & {
+        __originalFileArrayBuffer?: typeof File.prototype.arrayBuffer;
+      };
+      state.__originalFileArrayBuffer = File.prototype.arrayBuffer;
+      File.prototype.arrayBuffer = async () => {
+        throw new Error('Simulated read failure');
+      };
+    });
+    await merge.click();
+    await expect(page.locator('[data-merge-alerts]')).toContainText(locale.error);
+    await page.evaluate(() => {
+      const state = window as Window & {
+        __originalFileArrayBuffer?: typeof File.prototype.arrayBuffer;
+      };
+      if (state.__originalFileArrayBuffer)
+        File.prototype.arrayBuffer = state.__originalFileArrayBuffer;
+    });
+    await merge.click();
+    const card = page.locator('[data-download-card]');
+    await expect(card).toBeVisible();
+    const downloadPromise = page.waitForEvent('download');
+    await card.locator('[data-download-link]').click();
+    expect((await downloadPromise).suggestedFilename()).toBe(locale.fileName);
+  });
+}
+
 test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages files, and clears data', async ({
   page
 }) => {
@@ -426,4 +470,82 @@ test('Merge PDF: temporary workspace document expires after 24 hours without use
   await expect(page.locator('[data-workspace-announcement]')).toContainText(
     '1 temporary document was removed'
   );
+});
+
+test('Merge PDF: pt-BR announces expired local documents', async ({ page }) => {
+  await page.clock.install({ time: new Date('2026-10-17T12:00:00Z') });
+  await page.goto('/merge-pdf/pt-br/');
+  await page.locator('#merge-drop-zone').setInputFiles([
+    { name: 'um.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Um') },
+    { name: 'dois.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Dois') }
+  ]);
+  await page.locator('#start-merge-btn').click();
+  await expect(page.locator('[data-download-card]')).toBeVisible();
+  const trigger = page.locator('[data-workspace-trigger]');
+  await trigger.click();
+  await expect(page.locator('[data-workspace-item]')).toHaveCount(1);
+  await page.locator('[data-workspace-close]').click();
+  await page.clock.fastForward(24 * 60 * 60 * 1000 + 1);
+  await trigger.click();
+  await expect(page.locator('[data-workspace-item]')).toHaveCount(0);
+  await expect(page.locator('[data-workspace-announcement]')).toContainText(
+    'documento temporário foi removido'
+  );
+});
+
+test('Merge PDF: another tab cannot expire a document held by a shared Web Lock', async ({
+  page
+}) => {
+  const now = new Date('2026-10-19T12:00:00Z');
+  await page.clock.install({ time: now });
+  await page.goto(toolUrl);
+  await page.locator('#merge-drop-zone').setInputFiles([
+    { name: 'one.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'One') },
+    { name: 'two.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Two') }
+  ]);
+  await page.locator('#start-merge-btn').click();
+  await expect(page.locator('[data-download-card]')).toBeVisible();
+  await page.locator('[data-workspace-trigger]').click();
+  const id = await page.locator('[data-workspace-item]').getAttribute('data-workspace-item');
+  expect(id).toBeTruthy();
+  await page.evaluate((documentId) => {
+    const state = window as Window & { __lockHeld?: boolean; __releaseDocument?: () => void };
+    void navigator.locks.request(`noduct-doc-${documentId}`, { mode: 'shared' }, async () => {
+      state.__lockHeld = true;
+      await new Promise<void>((resolve) => {
+        state.__releaseDocument = resolve;
+      });
+    });
+  }, id);
+  await expect
+    .poll(() => page.evaluate(() => (window as Window & { __lockHeld?: boolean }).__lockHeld))
+    .toBe(true);
+
+  const other = await page.context().newPage();
+  try {
+    await other.clock.install({ time: now });
+    await other.goto(toolUrl);
+    await other.clock.fastForward(24 * 60 * 60 * 1000 + 5 * 60 * 1000);
+    await other.locator('[data-workspace-trigger]').click();
+    await expect(other.locator('[data-workspace-item]')).toHaveCount(1);
+    await page.evaluate(() =>
+      (window as Window & { __releaseDocument?: () => void }).__releaseDocument?.()
+    );
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async (documentId) =>
+            (await navigator.locks.query()).held?.some(
+              (lock) => lock.name === `noduct-doc-${documentId}`
+            ),
+          id
+        )
+      )
+      .toBe(false);
+    await other.locator('[data-workspace-close]').click();
+    await other.locator('[data-workspace-trigger]').click();
+    await expect(other.locator('[data-workspace-item]')).toHaveCount(0);
+  } finally {
+    await other.close();
+  }
 });

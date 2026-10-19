@@ -55,6 +55,7 @@ export {
 export class WorkspaceClient {
   private notifier = new WorkspaceNotifier();
   private visibilityListener?: () => void;
+  private activeSessions = new Set<() => void>();
   initialCleanupRemovedIds: readonly string[] = [];
 
   constructor(private db: IDBDatabase) {}
@@ -87,14 +88,46 @@ export class WorkspaceClient {
   async setRetention(id: string, retention: WorkspaceRetention): Promise<WorkspaceDocument> {
     const doc = await dbSetRetention(this.db, id, retention);
     if (!doc) throw new DocumentNotFoundError(id);
-    this.notifier.emit({ type: 'document_updated', documentId: id, timestamp: doc.updatedAt });
+    this.notifier.emit({ type: 'document_updated', documentId: id, timestamp: doc.lastAccessedAt });
     return doc;
   }
 
   async withDocumentLock<T>(id: string, operation: () => Promise<T>): Promise<T> {
     const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
     if (!locks) return operation();
-    return locks.request(`noduct-doc-${id}`, { mode: 'exclusive' }, operation);
+    return locks.request(`noduct-doc-${id}`, { mode: 'shared' }, operation);
+  }
+
+  async acquireDocument(id: string): Promise<{ document: WorkspaceDocument; release(): void }> {
+    const locks = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+    if (!locks) {
+      const document = await this.touchDocument(id);
+      if (!document) throw new DocumentNotFoundError(id);
+      return { document, release() {} };
+    }
+    return new Promise((resolve, reject) => {
+      void locks
+        .request(`noduct-doc-${id}`, { mode: 'shared' }, async () => {
+          let endSession: () => void = () => {};
+          const held = new Promise<void>((release) => {
+            endSession = release;
+          });
+          try {
+            const document = await this.touchDocument(id);
+            if (!document) throw new DocumentNotFoundError(id);
+            const release = () => {
+              this.activeSessions.delete(release);
+              endSession();
+            };
+            this.activeSessions.add(release);
+            resolve({ document, release });
+            await held;
+          } catch (error) {
+            reject(error);
+          }
+        })
+        .catch(reject);
+    });
   }
 
   async cleanupExpiredDocuments(
@@ -188,7 +221,24 @@ export class WorkspaceClient {
   }
 
   async consumeFromUrl(currentTool?: string): Promise<WorkspaceDocument | undefined> {
-    return consumeTransferFromUrl(this.db, currentTool);
+    const transferId =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('transferId')
+        : null;
+    if (!transferId) return undefined;
+    const ticket = await dbGetTransfer(this.db, transferId);
+    const document = !ticket
+      ? await consumeTransferFromUrl(this.db, currentTool)
+      : await this.withDocumentLock(ticket.documentId, () =>
+          consumeTransferFromUrl(this.db, currentTool)
+        );
+    if (document)
+      this.notifier.emit({
+        type: 'document_updated',
+        documentId: document.id,
+        timestamp: document.lastAccessedAt
+      });
+    return document;
   }
 
   async cleanupExpiredTransfers(now = Date.now()): Promise<number> {
@@ -204,6 +254,7 @@ export class WorkspaceClient {
   }
 
   close(): void {
+    for (const release of this.activeSessions) release();
     if (this.visibilityListener && typeof document !== 'undefined') {
       document.removeEventListener('visibilitychange', this.visibilityListener);
     }

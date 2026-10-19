@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — 2026-10-19
+
+- `connectWorkspaceDrawer()` compartilha a integração do drawer com o cliente injetado por cada ferramenta.
+- Rótulos, tamanhos e anúncios do drawer respeitam o idioma da página.
+- `toolJsonLd()` usa a mesma lista de breadcrumb da página visível.
+- Removido o export público sem consumidores de `ScrollArea`.
+- Removida a prop sem consumidores `compact` do `WorkspaceDrawer`; o modo compacto continua responsivo.
+
 ## 0.5.0 — 2026-10-17
 
 - Adicionados `shell/*`, `ToolPage`, `icons/*`, `base.css` e tokens compartilhados com o hub.

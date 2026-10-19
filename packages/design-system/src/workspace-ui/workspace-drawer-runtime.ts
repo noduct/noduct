@@ -31,6 +31,18 @@ export interface WorkspaceDrawerController {
 
 const controllers = new WeakMap<HTMLElement, WorkspaceDrawerController>();
 
+export function formatWorkspaceBytes(
+  bytes: number,
+  locale: ReturnType<typeof resolveWorkspaceUiLocale>
+): string {
+  const messages = workspaceUiMessages[locale];
+  const numberFormat = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  if (bytes < 1024) return `${numberFormat.format(bytes)} ${messages.byteUnits.bytes}`;
+  if (bytes < 1024 * 1024)
+    return `${numberFormat.format(bytes / 1024)} ${messages.byteUnits.kilobytes}`;
+  return `${numberFormat.format(bytes / (1024 * 1024))} ${messages.byteUnits.megabytes}`;
+}
+
 export function getWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController | undefined {
   return controllers.get(root) ?? armWorkspaceDrawer(root);
 }
@@ -50,6 +62,7 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
 
   const locale = resolveWorkspaceUiLocale(root.dataset.locale);
   const messages = workspaceUiMessages[locale];
+  const numberFormat = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
 
   function open() {
     if (typeof dialogEl.showModal === 'function') {
@@ -100,12 +113,6 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
     }
   });
 
-  function formatBytes(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} kB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  }
-
   const controller: WorkspaceDrawerController = {
     open,
     close,
@@ -117,8 +124,8 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
       if (announcementEl) announcementEl.textContent = message;
     },
     setItems(items, totalBytes, limitBytes, maxIdleMs) {
-      const usedMb = (totalBytes / (1024 * 1024)).toFixed(1);
-      const limitMb = Math.round(limitBytes / (1024 * 1024)).toString();
+      const usedMb = numberFormat.format(totalBytes / (1024 * 1024));
+      const limitMb = numberFormat.format(limitBytes / (1024 * 1024));
       if (usageEl) {
         usageEl.textContent = messages.storageUsage(usedMb, limitMb);
       }
@@ -147,7 +154,7 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
 
         const size = document.createElement('span');
         size.setAttribute('data-workspace-size', '');
-        size.textContent = formatBytes(item.size);
+        size.textContent = formatWorkspaceBytes(item.size, locale);
 
         const retention = document.createElement('span');
         retention.setAttribute('data-workspace-expiry', '');
@@ -157,7 +164,9 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
           const remainingMs = maxIdleMs - (Date.now() - item.lastAccessedAt);
           retention.textContent =
             remainingMs <= 0
-              ? messages.expiryPending
+              ? typeof navigator !== 'undefined' && navigator.locks
+                ? messages.expiryPending
+                : messages.expiryUnavailable
               : remainingMs < 60 * 60 * 1000
                 ? messages.expiresSoon
                 : messages.expiresInHours(Math.ceil(remainingMs / (60 * 60 * 1000)));
@@ -192,7 +201,7 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
         const dlBtn = document.createElement('button');
         dlBtn.type = 'button';
         dlBtn.textContent = messages.download;
-        dlBtn.setAttribute('aria-label', `${messages.download} ${item.name}`);
+        dlBtn.setAttribute('aria-label', messages.downloadFile(item.name));
         dlBtn.addEventListener('click', () => {
           root.dispatchEvent(
             new CustomEvent<WorkspaceActionDetail>(WORKSPACE_ACTION_EVENT, {
@@ -205,7 +214,7 @@ export function armWorkspaceDrawer(root: HTMLElement): WorkspaceDrawerController
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
         delBtn.textContent = messages.delete;
-        delBtn.setAttribute('aria-label', `${messages.delete} ${item.name}`);
+        delBtn.setAttribute('aria-label', messages.deleteFile(item.name));
         delBtn.addEventListener('click', () => {
           root.dispatchEvent(
             new CustomEvent<WorkspaceActionDetail>(WORKSPACE_ACTION_EVENT, {

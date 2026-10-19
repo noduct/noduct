@@ -13,6 +13,7 @@
     "@astrojs/sitemap": "^3.6.0",
     "@noduct/design-system": "*",
     "@noduct/tool-runtime": "*",
+    "@noduct/workspace-core": "*",
     "astro": "^5.14.0"
   },
   "devDependencies": {

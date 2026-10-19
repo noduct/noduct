@@ -1,7 +1,7 @@
 ---
 import AppShell from '@noduct/design-system/shell/AppShell.astro';
 import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
-import { toolBreadcrumbItems } from '@noduct/design-system/shell/tool-page';
+import { toolJsonLd } from '@noduct/design-system/shell/tool-page';
 import DropZone from '@noduct/design-system/components/DropZone.astro';
 import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
 import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
@@ -9,9 +9,8 @@ import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
 import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
 import type { Locale } from '@noduct/tool-runtime';
-import { breadcrumbList, jsonLdGraph, softwareApplication, topology } from '@noduct/tool-runtime';
 import { tool } from '../config';
-import { mergeMessages } from '../i18n';
+import { formatMergeLimits, mergeMessages } from '../i18n';
 import type { MergeClientMessages } from '../i18n';
 import styles from './MergePdfApp.module.css';
 
@@ -21,15 +20,7 @@ interface Props {
 
 const { locale = 'en' } = Astro.props;
 const m = mergeMessages[locale];
-const jsonLd = jsonLdGraph([
-  softwareApplication({
-    name: m.name,
-    description: m.description,
-    url: topology.canonical(tool.scope, '', locale),
-    locale
-  }),
-  breadcrumbList(toolBreadcrumbItems(tool, locale, m.name))
-]);
+const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.description });
 const clientMessages = {
   minFilesRequired: m.minFilesRequired,
   oneFileReady: m.oneFileReady,
@@ -40,7 +31,9 @@ const clientMessages = {
   errorCorrupted: m.errorCorrupted,
   statusValidating: m.statusValidating,
   statusMerging: m.statusMerging,
-  statusSaving: m.statusSaving
+  statusSaving: m.statusSaving,
+  downloadFileName: m.downloadFileName,
+  errorMergeFailed: m.errorMergeFailed
 } satisfies MergeClientMessages;
 ---
 
@@ -126,7 +119,7 @@ const clientMessages = {
 
       <section class={styles.infoSection}>
         <h2>{m.limitsTitle}</h2>
-        <p>{m.limits}</p>
+        <p>{formatMergeLimits(locale)}</p>
       </section>
 
       <section class={styles.infoSection}>
@@ -155,14 +148,10 @@ const clientMessages = {
         type FilesSelectedDetail,
         type ListChangeDetail
       } from '@noduct/design-system/file-workflow';
-      import {
-        getWorkspaceDrawer,
-        WORKSPACE_ACTION_EVENT,
-        WORKSPACE_OPEN_EVENT,
-        type WorkspaceActionDetail
-      } from '@noduct/design-system/workspace-ui';
+      import { connectWorkspaceDrawer } from '@noduct/design-system/workspace-ui';
       import type { MergeWorkflow, WorkflowFileItem } from '../lib/merge-workflow';
       import type { WorkspaceClient } from '@noduct/workspace-core';
+      import { OperationCancelledError } from '@noduct/pdf-core';
       import { formatBudgetIssue } from '../lib/workspace-budget-messages';
       import { formatWorkspaceError } from '../lib/workspace-error-messages';
 
@@ -347,12 +336,12 @@ const clientMessages = {
 
           feedbackEl.hidden = true;
           dropZone.setDisabled(false);
-          downloadCard.show({ file: result.blob, fileName: result.fileName });
+          downloadCard.show({ file: result.blob, fileName: messages.downloadFileName });
 
           try {
             const ws = await getLocalWorkspace();
             await ws.saveDocument({
-              name: result.fileName,
+              name: messages.downloadFileName,
               mimeType: 'application/pdf',
               blob: result.blob,
               size: result.blob.size,
@@ -362,10 +351,14 @@ const clientMessages = {
           } catch {
             // Gracefully ignore local workspace save errors if storage is unavailable
           }
-        } catch {
+        } catch (error) {
           feedbackEl.hidden = true;
           dropZone.setDisabled(false);
           updateUI(workflow);
+          if (!(error instanceof OperationCancelledError)) {
+            alertsEl.textContent = messages.errorMergeFailed;
+            alertsEl.hidden = false;
+          }
         }
       });
 
@@ -401,94 +394,27 @@ const clientMessages = {
 
       const workspaceRoot = document.querySelector<HTMLElement>('[data-workspace-root]');
       if (workspaceRoot) {
-        const drawer = getWorkspaceDrawer(workspaceRoot);
-        let initialCleanupAnnounced = false;
-        let subscribed = false;
-
-        async function syncWorkspace() {
-          try {
-            const {
-              DEFAULT_DOCUMENT_MAX_IDLE_MS,
-              detectDeviceProfile,
-              DESKTOP_RESOURCE_BUDGET,
-              MOBILE_RESOURCE_BUDGET
-            } = await import('@noduct/workspace-core');
-            const ws = await getLocalWorkspace();
-            const removedOnOpen = initialCleanupAnnounced ? 0 : ws.initialCleanupRemovedIds.length;
-            initialCleanupAnnounced = true;
-            const removedNow = await ws.cleanupExpiredDocuments();
-            drawer?.announceExpired(removedOnOpen + removedNow.length);
-            if (!subscribed) {
-              ws.subscribe((event) => {
-                if (
-                  event.type === 'document_deleted' &&
-                  event.reason === 'expired' &&
-                  drawer?.isOpen()
-                ) {
-                  drawer.announceExpired(1);
-                }
-                if (drawer?.isOpen()) void syncWorkspace();
-              });
-              subscribed = true;
-            }
-            const docs = await ws.listDocuments();
-            const size = await ws.getWorkspaceSize();
-            drawer?.setItems(
-              docs.map((d) => ({
-                id: d.id,
-                name: d.name,
-                size: d.size,
-                createdAt: d.createdAt,
-                retention: d.retention,
-                lastAccessedAt: d.lastAccessedAt
-              })),
-              size.totalBytes,
-              (detectDeviceProfile() === 'mobile'
-                ? MOBILE_RESOURCE_BUDGET
-                : DESKTOP_RESOURCE_BUDGET
-              ).maxWorkspaceStorageBytes,
-              DEFAULT_DOCUMENT_MAX_IDLE_MS
-            );
-          } catch (error) {
-            drawer?.announceError(formatWorkspaceError(error, clientLocale));
-          }
-        }
-
-        document.addEventListener(WORKSPACE_OPEN_EVENT, () => {
-          syncWorkspace();
+        const {
+          DEFAULT_DOCUMENT_MAX_IDLE_MS,
+          detectDeviceProfile,
+          DESKTOP_RESOURCE_BUDGET,
+          MOBILE_RESOURCE_BUDGET
+        } = await import('@noduct/workspace-core');
+        const disconnect = connectWorkspaceDrawer(workspaceRoot, getLocalWorkspace, {
+          maxIdleMs: DEFAULT_DOCUMENT_MAX_IDLE_MS,
+          limitBytes: () =>
+            (detectDeviceProfile() === 'mobile' ? MOBILE_RESOURCE_BUDGET : DESKTOP_RESOURCE_BUDGET)
+              .maxWorkspaceStorageBytes,
+          formatError: (error) => formatWorkspaceError(error, clientLocale)
         });
-
-        document.addEventListener(WORKSPACE_ACTION_EVENT, async (event) => {
-          const detail = (event as CustomEvent<WorkspaceActionDetail>).detail;
-          try {
-            const ws = await getLocalWorkspace();
-            if (detail.action === 'clear-all') {
-              await ws.clearDocuments();
-              await syncWorkspace();
-            } else if (detail.action === 'delete') {
-              await ws.deleteDocument(detail.documentId);
-              await syncWorkspace();
-            } else if (detail.action === 'set-retention') {
-              await ws.setRetention(detail.documentId, detail.retention);
-              await syncWorkspace();
-            } else if (detail.action === 'download') {
-              const doc = await ws.getDocument(detail.documentId);
-              if (doc) {
-                const url = URL.createObjectURL(doc.blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = doc.name;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-                await syncWorkspace();
-              }
-            }
-          } catch (error) {
-            drawer?.announceError(formatWorkspaceError(error, clientLocale));
-          }
-        });
+        window.addEventListener(
+          'pagehide',
+          () => {
+            disconnect();
+            void workspacePromise?.then((client) => client.close());
+          },
+          { once: true }
+        );
       }
     </script>
   </ToolPage>

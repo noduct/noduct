@@ -3,7 +3,6 @@ export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disable
 export { THEME_COLOR_TOKEN, themeColors } from './theme';
 export type { ThemeName } from './theme';
 export { designMessages } from './i18n';
-export { default as ScrollArea } from './components/ScrollArea.astro';
 export { default as SponsorCard } from './components/SponsorCard.astro';
 export { default as SponsorshipSlot } from './components/SponsorshipSlot.astro';
 export { default as DropZone } from './components/DropZone.astro';

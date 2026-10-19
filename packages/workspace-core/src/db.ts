@@ -32,10 +32,22 @@ export function openDatabase(factory?: IDBFactory): Promise<IDBDatabase> {
   const idb = getFactory(factory);
 
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const timeout = setTimeout(() => fail('DB_UPGRADE_BLOCKED'), 10000);
+    function fail(
+      code: 'DB_UPGRADE_BLOCKED' | 'SCHEMA_VERSION_UNSUPPORTED' | 'DB_OPEN_ERROR',
+      cause?: unknown
+    ) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      reject(new WorkspaceError(code, code, cause));
+    }
     let request: IDBOpenDBRequest;
     try {
       request = idb.open(WORKSPACE_DB_NAME, CURRENT_SCHEMA_VERSION);
     } catch (error) {
+      clearTimeout(timeout);
       reject(new WorkspaceUnavailableError(undefined, error));
       return;
     }
@@ -85,15 +97,22 @@ export function openDatabase(factory?: IDBFactory): Promise<IDBDatabase> {
 
     request.onsuccess = () => {
       const db = request.result;
+      if (settled) {
+        db.close();
+        return;
+      }
+      settled = true;
+      clearTimeout(timeout);
       db.onversionchange = () => db.close();
       resolve(db);
     };
     request.onerror = () =>
-      reject(
-        new WorkspaceError('Failed to open workspace database', 'DB_OPEN_ERROR', request.error)
+      fail(
+        request.error?.name === 'VersionError' ? 'SCHEMA_VERSION_UNSUPPORTED' : 'DB_OPEN_ERROR',
+        request.error
       );
     request.onblocked = () => {
-      console.warn('[noduct-workspace] Database open blocked by another active tab.');
+      fail('DB_UPGRADE_BLOCKED');
     };
   });
 }
@@ -174,7 +193,6 @@ export async function dbSetRetention(
   const updated = {
     ...doc,
     retention,
-    updatedAt: now,
     lastAccessedAt: now
   } satisfies WorkspaceDocument;
   await requestToPromise(store.put(updated));

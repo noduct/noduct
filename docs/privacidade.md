@@ -8,7 +8,7 @@ O hub não recebe arquivos, não possui contas, formulário backend ou analytics
 
 Cada ferramenta documenta fluxo de dados, dependências e persistência. “Processado localmente” só pode aparecer quando nenhum conteúdo é enviado. Conteúdo de arquivos jamais deve entrar em analytics ou logs.
 
-O Local Workspace guarda documentos em IndexedDB na origem compartilhada das ferramentas, sem enviá-los ao servidor. Documentos temporários expiram após mais de 24 horas sem uso e são removidos na próxima abertura do workspace/drawer ou quando a aba volta ao primeiro plano. O usuário pode escolher “Manter neste dispositivo” para impedir a expiração automática; esse documento permanece até exclusão manual ou limpeza dos dados do navegador. Documentos em uso por outra aba não são removidos automaticamente.
+O Local Workspace guarda documentos em IndexedDB na origem compartilhada das ferramentas, sem enviá-los ao servidor. Documentos temporários expiram após mais de 24 horas sem uso e são removidos na próxima abertura do workspace/drawer ou quando a aba volta ao primeiro plano. O usuário pode escolher “Manter neste dispositivo” para impedir a expiração automática; esse documento permanece até exclusão manual ou limpeza dos dados do navegador. Quando uma ferramenta mantém um documento aberto via `acquireDocument()`, o Web Lock compartilhado impede que a limpeza automática de outra aba o remova até `release()`; sem Web Locks, a limpeza automática não exclui documentos.
 
 ## Evolução
 

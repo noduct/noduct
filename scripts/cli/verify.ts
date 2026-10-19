@@ -1,8 +1,10 @@
 import { build } from './build.ts';
 import { check } from './check.ts';
 import { e2e } from './e2e.ts';
+import { assertInstalledDependencies } from './dependencies.ts';
 
 export async function verify(): Promise<void> {
+  assertInstalledDependencies();
   console.log('[verify] 1/5 check');
   check();
   console.log('[verify] 2/5 build');

@@ -50,6 +50,8 @@ Armazena os documentos PDF manipulados localmente:
 
 O upgrade preserva blobs e demais campos. Cada documento v2 recebe `retention: 'ephemeral'` e `lastAccessedAt = updatedAt`; o índice novo é criado na mesma transação de upgrade. A migração tem fixture v2 e teste de integridade. Documentos novos usam `ephemeral` salvo escolha expressa do usuário.
 
+O histórico é: v1 criou `documents` e `workspace_state`; v2 acrescentou `transfers` para tickets entre ferramentas; v3 acrescentou retenção, último acesso e o índice correspondente. Uma versão maior que a suportada gera `SCHEMA_VERSION_UNSUPPORTED`; um upgrade impedido por outra aba gera `DB_UPGRADE_BLOCKED`. A UI orienta fechar as outras abas antes de tentar novamente.
+
 ### 2.2 Store `workspace_state` (KeyPath: `key`)
 
 Armazena preferências e estados transitórios da sessão local:
@@ -75,7 +77,9 @@ O canal `noduct-workspace` notifica mutações entre abas abertas simultaneament
 
 Um documento efêmero expira **depois** de 24 horas sem acesso (`now - lastAccessedAt > 24 h`). Leitura, abertura e transferência renovam `lastAccessedAt`; listagens e varreduras não renovam. `setRetention(id, 'persistent')` impede expiração automática; voltar a `ephemeral` reativa o prazo. A limpeza devolve os IDs removidos, emite `document_deleted` para cada um e limpa também tickets de transferência vencidos.
 
-A limpeza é acionada na abertura do workspace, na abertura do drawer e quando a aba volta a ficar visível. Não há timer de fundo. Antes de excluir, ela tenta obter sem espera o Web Lock `noduct-doc-<id>`; operações longas usam o mesmo lock. Se a API de Web Locks não existir, a limpeza automática não exclui documentos, pois não pode garantir que outra aba não esteja usando o blob. O `BroadcastChannel` distribui as exclusões e mudanças de retenção às outras abas para atualização da interface.
+A limpeza é acionada na abertura do workspace, na abertura do drawer e quando a aba volta a ficar visível. Não há timer de fundo. Leitores e operações de transferência usam o Web Lock `noduct-doc-<id>` em modo `shared`. Um consumidor que mantém o blob aberto chama `acquireDocument(id)` e segura esse lock até `release()` ou `WorkspaceClient.close()`; o download do drawer faz isso durante a criação do arquivo local e libera em `finally`, e a página fecha o cliente em `pagehide`. A limpeza tenta obter o mesmo lock em modo `exclusive` com `ifAvailable: true`; se estiver ocupado, pula o documento. Se a API de Web Locks não existir, a limpeza automática não exclui documentos, pois não pode garantir que outra aba não esteja usando o blob. O `BroadcastChannel` distribui as exclusões e mudanças de retenção às outras abas para atualização da interface.
+
+`touchDocument` e `setRetention` ainda regravam o registro completo, inclusive o Blob. A separação de metadados e conteúdo exige medição de custo e uma eventual migração v4; nenhuma migração é feita sem essa evidência.
 
 O drawer apresenta o prazo restante calculado no momento da abertura, permite “Manter neste dispositivo” e “Permitir expiração” e anuncia a remoção de temporários via `aria-live`. Limpar dados do navegador remove inclusive os documentos persistentes.
 
