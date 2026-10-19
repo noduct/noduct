@@ -1,4 +1,5 @@
 import { deployedTools } from '../pages-manifest.ts';
+import { resolveRatchetBase } from './ratchet-base.ts';
 import { assertFreshArtifact } from './artifact.ts';
 import { localBin, run } from './shared.ts';
 
@@ -8,6 +9,8 @@ const checks: Record<string, () => void> = {
     run(localBin('stylelint'), [
       'src/**/*.{css,astro}',
       'packages/*/src/**/*.{css,astro}',
+      '--config',
+      'stylelint.config.mjs',
       '--custom-formatter',
       'scripts/stylelint-formatter.mjs'
     ]),
@@ -29,7 +32,7 @@ const checks: Record<string, () => void> = {
     run(tsx, [
       'scripts/check-guardrail-ratchet.ts',
       '--base',
-      process.env.GITHUB_BASE_SHA ?? 'HEAD'
+      resolveRatchetBase()
     ]),
   scripts: () => run(tsx, ['scripts/check-scripts.ts']),
   agents: () => run(tsx, ['scripts/check-agents.ts']),
@@ -51,7 +54,7 @@ export function check(name?: string): void {
     task();
     return;
   }
-  run(localBin('eslint'), ['.', '--format', './scripts/eslint-formatter.mjs']);
+  run(localBin('eslint'), ['.', '--config', 'eslint.config.js', '--max-warnings', '0', '--format', './scripts/eslint-formatter.mjs']);
   for (const key of [
     'css',
     'ui',

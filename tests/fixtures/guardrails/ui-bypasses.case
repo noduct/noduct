@@ -1,0 +1,15 @@
+[
+  {"id":"alternate-stylelint","path":".stylelintrc.json","content":"{}","expected":"alternative lint configuration"},
+  {"id":"alternate-eslint","path":"packages/merge-pdf/.eslintrc.cjs","content":"module.exports = {}","expected":"alternative lint configuration"},
+  {"id":"package-stylelint","path":"packages/merge-pdf/package.json","content":"{\"stylelint\":{}}","expected":"alternative lint configuration"},
+  {"id":"backtick-url","path":"packages/merge-pdf/astro.config.mjs","content":"const base = `/noduct/old`;","expected":"hardcoded product URL"},
+  {"id":"assembled-host","path":"packages/merge-pdf/astro.config.mjs","content":"const host = ['noduct','github','io'].join('.');","expected":"hardcoded product URL"},
+  {"id":"public-url","path":"public/legacy.js","content":"const path = '/noduct/old';","expected":"hardcoded product URL"},
+  {"id":"svg-through-html","path":"packages/merge-pdf/src/components/Bad.astro","content":"<Fragment set:html={\"<svg></svg>\"} />","expected":"raw SVG through set:html"},
+  {"id":"script-through-html","path":"packages/merge-pdf/src/components/Bad.astro","content":"<Fragment set:html={\"<script>alert(1)</script>\"} />","expected":"inline script outside AppShell"},
+  {"id":"implicit-inline-script","path":"packages/merge-pdf/src/components/Bad.astro","content":"<script define:vars={{ value: 1 }} />","expected":"inline script outside AppShell"},
+  {"id":"glyph-arrow","path":"packages/merge-pdf/src/components/Bad.astro","content":"<button>→</button>","expected":"text glyph used as an icon"},
+  {"id":"glyph-css","path":"packages/merge-pdf/src/components/Bad.css","content":".button::before { content: '✔'; }","expected":"text glyph used as an icon"},
+  {"id":"entity-glyph","path":"packages/merge-pdf/src/components/Bad.astro","content":"<button>&#x2713;</button>","expected":"text glyph used as an icon"},
+  {"id":"workspace-parity-escape","path":"packages/merge-pdf/src/components/Bad.astro","content":"<div data-workspace-root />","expected":"workspace root outside WorkspaceDrawer"}
+]

@@ -13,7 +13,7 @@ export interface ArchitectureViolation {
   readonly message: string;
 }
 
-const SOURCE_EXTENSIONS = /\.(?:ts|tsx|js|mjs|astro)$/;
+const SOURCE_EXTENSIONS = /\.(?:ts|tsx|js|jsx|mjs|cjs|mts|cts|astro|css)$/;
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 
 function normalize(path: string): string {
@@ -37,6 +37,8 @@ function sourceSlices(file: ArchitectureFile): string[] {
 
 export function importedSpecifiers(file: ArchitectureFile): string[] {
   const imports: string[] = [];
+  if (file.path.endsWith('.css'))
+    return [...file.content.matchAll(/@import\s+(?:url\()?\s*['"]([^'"]+)['"]/g)].map((match) => match[1] ?? '');
   for (const source of sourceSlices(file)) {
     const ast = ts.createSourceFile(file.path + '.ts', source, ts.ScriptTarget.Latest, true);
     const visit = (node: ts.Node): void => {
@@ -150,6 +152,10 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
     const manifest = JSON.parse(file.content) as Record<string, Record<string, string>>;
     for (const field of ['dependencies', 'devDependencies', 'peerDependencies'] as const) {
       for (const dependency of Object.keys(manifest[field] ?? {})) {
+        if ((source === 'pdf-core' || source === 'tool-runtime') &&
+            !dependency.startsWith('@noduct/') &&
+            !(source === 'pdf-core' && dependency === 'pdf-lib'))
+          violations.push({ path, message: `${source} must not depend on ${dependency}` });
         const target = names.get(dependency);
         addEdge(source, target, path);
       }
@@ -161,6 +167,12 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
     if (!SOURCE_EXTENSIONS.test(path)) continue;
     const source = packageDirectory(path);
     for (const specifier of importedSpecifiers(file)) {
+      if ((source === 'pdf-core' || source === 'tool-runtime') &&
+          !/\.test\.[cm]?[jt]sx?$/.test(path) &&
+          !specifier.startsWith('.') && !specifier.startsWith('node:') &&
+          !specifier.startsWith('@noduct/') &&
+          !(source === 'pdf-core' && specifier === 'pdf-lib'))
+        violations.push({ path, message: `${source} must not import ${specifier}` });
       const namedPackage = packageName(specifier);
       if (namedPackage && names.has(namedPackage)) {
         const target = names.get(namedPackage)!;
@@ -178,7 +190,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
       if (!specifier.startsWith('.')) continue;
       const resolved = normalize(relative(ROOT, resolve(ROOT, dirname(path), specifier)));
       const target = packageDirectory(resolved);
-      if (target && target !== source && resolved.includes('/src/')) {
+      if (target && target !== source) {
         violations.push({
           path,
           message: `Private cross-package import ${specifier}; use a public export`
@@ -199,7 +211,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { execFileSync } = await import('node:child_process');
-  const paths = execFileSync('git', ['ls-files', '-z'], { cwd: ROOT, encoding: 'utf8' })
+  const paths = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: ROOT, encoding: 'utf8' })
     .split('\0')
     .filter(
       (path) =>

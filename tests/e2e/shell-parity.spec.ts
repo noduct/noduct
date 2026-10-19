@@ -46,7 +46,7 @@ async function signature(region: Locator) {
     const rootBox = root.getBoundingClientRect();
     const round = (value: number) => Math.round(value * 100) / 100;
     return [root, ...root.querySelectorAll('*')]
-      .filter((node) => !['SCRIPT', 'STYLE', 'TEMPLATE'].includes(node.tagName))
+      .filter((node) => !['SCRIPT', 'STYLE', 'TEMPLATE'].includes(node.tagName) && !node.closest('[data-workspace-root]'))
       .map((node) => {
         const box = node.getBoundingClientRect();
         const style = getComputedStyle(node);
@@ -105,12 +105,42 @@ async function preparePage(
     await document.fonts.ready;
     await Promise.all([...document.images].map((image) => image.decode().catch(() => undefined)));
   });
-  // A ferramenta pode adicionar ações próprias ao slot do header. Comparamos a parte
-  // compartilhada do shell depois de retirar apenas esse slot variável.
-  await page
-    .locator('[data-workspace-root]')
-    .evaluateAll((roots) => roots.forEach((root) => root.remove()));
   return { context, page };
+}
+
+async function assertWorkspaceTrigger(page: Page, slug: string, profile: string, locale: string, theme: string) {
+  const workspace = page.locator('[data-workspace-trigger]');
+  const settings = page.locator('[data-settings-trigger]');
+  await expect(workspace, `${slug} ${profile} ${locale} ${theme}: workspace trigger`).toBeVisible();
+  const appearance = async (button: Locator) => button.evaluate((node) => {
+    const style = getComputedStyle(node);
+    return {
+      height: node.getBoundingClientRect().height,
+      borderColor: style.borderColor,
+      borderRadius: style.borderRadius,
+      backgroundColor: style.backgroundColor,
+      color: style.color,
+      boxShadow: style.boxShadow
+    };
+  });
+  expect(await appearance(workspace), `${slug} ${profile} ${locale} ${theme}: workspace control differs from Settings`).toEqual(await appearance(settings));
+  expect(await workspace.evaluate((node) => node.getBoundingClientRect().width)).toBeGreaterThanOrEqual(44);
+}
+
+async function assertOpenStateParity(hub: Page, tool: Page, trigger: string, name: string, context: string, slug: string) {
+  const hubTrigger = hub.locator(trigger);
+  const toolTrigger = tool.locator(trigger);
+  expect(await toolTrigger.isVisible(), `${context}: ${name} visibility`).toBe(await hubTrigger.isVisible());
+  if (!await hubTrigger.isVisible()) return;
+  await hubTrigger.click();
+  await toolTrigger.click();
+  const hubHeader = hub.locator('body > header');
+  const toolHeader = tool.locator('body > header');
+  const toolAria = (await toolHeader.ariaSnapshot()).replaceAll(`/url: /${slug}/`, '/url: /');
+  expect(toolAria, `${context}: ${name} aria`).toBe(await hubHeader.ariaSnapshot());
+  expect(await signature(toolHeader), `${context}: ${name} style and geometry`).toEqual(await signature(hubHeader));
+  await hubTrigger.click();
+  await toolTrigger.click();
 }
 
 async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'footer') {
@@ -188,8 +218,15 @@ for (const profile of profiles) {
               theme
             );
             try {
+              await assertWorkspaceTrigger(tool.page, slug, profile.name, locale, theme);
+              // Compare the shared header after checking and hiding the tool-specific action slot.
+              await tool.page.addStyleTag({ content: '[data-workspace-root] { display: none !important; }' });
               await assertRegionParity(hub.page, tool.page, 'header');
               await assertRegionParity(hub.page, tool.page, 'footer');
+              const context = `${slug} / ${profile.name} / ${locale} / ${theme}`;
+              await assertOpenStateParity(hub.page, tool.page, '[data-settings-trigger]', 'Settings open', context, slug);
+              await assertOpenStateParity(hub.page, tool.page, '[data-menu-button]', 'mobile menu open', context, slug);
+              await assertOpenStateParity(hub.page, tool.page, '[data-categories-menu] > summary', 'category dropdown open', context, slug);
               expect(
                 await tool.page.evaluate(
                   () => (window as Window & { __cspViolations?: string[] }).__cspViolations

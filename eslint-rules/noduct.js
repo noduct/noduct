@@ -1,42 +1,72 @@
 import { readFileSync } from 'node:fs';
-import { dirname, extname, resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
+import { parseForESLint } from 'astro-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
 import { guardrails } from '../guardrails.config.ts';
 
 const root = process.cwd();
 const normalized = (path) => path.replaceAll('\\', '/');
 
-function hasAppShell(file, seen = new Set()) {
-  if (seen.has(file) || extname(file) !== '.astro') return false;
+function hasAppShell(file, sourceOverride, seen = new Set(), isPage = true) {
+  if (seen.has(file) || !file.endsWith('.astro')) return false;
   seen.add(file);
   let source;
   try {
-    source = readFileSync(file, 'utf8');
+    source = sourceOverride ?? readFileSync(file, 'utf8');
   } catch {
     return false;
   }
-  if (
-    /import\s+AppShell\s+from\s+['"]@noduct\/design-system\/shell\/AppShell\.astro['"]/.test(
-      source
-    ) &&
-    /<AppShell\b/.test(source)
-  )
-    return true;
-  const imports = source.matchAll(/import\s+\w+\s+from\s+['"]([^'"]+\.astro)['"]/g);
-  for (const match of imports) {
-    const specifier = match[1];
-    if (!specifier) continue;
-    let target;
-    if (specifier.startsWith('@/')) target = resolve(root, 'src', specifier.slice(2));
-    else if (specifier.startsWith('.')) target = resolve(dirname(file), specifier);
-    else if (specifier.startsWith('@noduct/design-system/'))
-      target = resolve(
-        root,
-        'packages/design-system',
-        specifier.slice('@noduct/design-system/'.length)
-      );
-    if (target && hasAppShell(target, seen)) return true;
+  let ast;
+  try {
+    ast = parseForESLint(source, { parser: tsParser }).ast;
+  } catch {
+    return false;
   }
-  return false;
+  const imports = new Map();
+  for (const statement of ast.body) {
+    if (statement.type !== 'ImportDeclaration' || !statement.source?.value?.endsWith('.astro')) continue;
+    for (const binding of statement.specifiers)
+      if (binding.type === 'ImportDefaultSpecifier') imports.set(binding.local.name, statement.source.value);
+  }
+  const fragment = ast.body.find((statement) => statement.type === 'AstroFragment');
+  const roots = fragment?.children.filter((child) =>
+    child.type !== 'AstroHTMLComment' &&
+    !(child.type === 'JSXText' && !child.value.trim()) &&
+    !(child.type === 'JSXElement' && ['style', 'script'].includes(child.openingElement?.name?.name))
+  ) ?? [];
+  const rootElements = roots.map((node) => node.type === 'JSXElement'
+    ? node
+    : node.type === 'JSXExpressionContainer' && node.expression?.type === 'LogicalExpression' &&
+      node.expression.operator === '&&' && node.expression.right?.type === 'JSXElement'
+      ? node.expression.right : undefined);
+  if (rootElements.length === 0 || rootElements.some((node) => !node)) return false;
+  let forbidden = false;
+  const visit = (node) => {
+    if (node.type !== 'JSXElement') return;
+    const name = node.openingElement?.name?.name?.toLowerCase();
+    if (name === 'header' || name === 'footer') forbidden = true;
+    if (name === 'nav' && node.openingElement.attributes?.some((attribute) =>
+      attribute.name?.name === 'aria-label' && /breadcrumb/i.test(String(attribute.value?.value ?? ''))
+    )) forbidden = true;
+    for (const child of node.children ?? []) visit(child);
+  };
+  if (isPage) for (const element of rootElements) visit(element);
+  if (forbidden) return false;
+  const shellPath = createRequire(file).resolve('@noduct/design-system/shell/AppShell.astro');
+  return rootElements.every((element) => {
+    const specifier = imports.get(element.openingElement.name?.name);
+    if (!specifier) return false;
+    let target;
+    try {
+      target = specifier.startsWith('@/')
+        ? resolve(root, 'src', specifier.slice(2))
+        : createRequire(file).resolve(specifier);
+    } catch {
+      if (specifier.startsWith('.')) target = resolve(dirname(file), specifier);
+    }
+    return Boolean(target && (target === shellPath || hasAppShell(target, undefined, new Set(seen), false)));
+  });
 }
 
 const requireAppShell = {
@@ -51,21 +81,28 @@ const requireAppShell = {
   create(context) {
     return {
       Program(node) {
-        if (!hasAppShell(context.filename)) context.report({ node, messageId: 'missing' });
+        if (!hasAppShell(context.filename, context.sourceCode.text)) context.report({ node, messageId: 'missing' });
       }
     };
   }
 };
 
-const visibleAttributes = new Set(['aria-label', 'title', 'alt', 'placeholder']);
+const visibleAttributes = new Set(['aria-label', 'aria-description', 'title', 'alt', 'placeholder', 'value']);
 const clientTextProperties = new Set([
   'textContent',
   'innerText',
+  'innerHTML',
   'ariaLabel',
   'title',
   'alt',
   'placeholder'
 ]);
+function textLiteral(node) {
+  if (node?.type === 'Literal' && typeof node.value === 'string') return node.value;
+  if (node?.type === 'TemplateLiteral' && node.expressions.length === 0)
+    return node.quasis.map((part) => part.value.cooked ?? part.value.raw).join('');
+  return undefined;
+}
 const noHardcodedText = {
   meta: {
     type: 'problem',
@@ -77,28 +114,6 @@ const noHardcodedText = {
     const file = normalized(context.filename).replace(`${normalized(root)}/`, '');
     if (guardrails.hardcodedTextFiles.includes(file)) return {};
     return {
-      Program(node) {
-        // Astro exposes client <script> bodies as raw markup, outside the JS AST.
-        const source = context.sourceCode.text;
-        for (const script of source.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) {
-          const body = script[1] ?? '';
-          const bodyStart = (script.index ?? 0) + script[0].indexOf(body);
-          const report = (match) => {
-            const location = context.sourceCode.getLocFromIndex(bodyStart + (match.index ?? 0));
-            context.report({ node, loc: { start: location, end: location }, messageId: 'text' });
-          };
-          const assignments =
-            /\.(?:textContent|innerText|ariaLabel|title|alt|placeholder)\s*=\s*(['"])([^'"\r\n]+)\1/g;
-          for (const match of body.matchAll(assignments)) {
-            if (/\p{L}/u.test(match[2]) && !guardrails.brandTexts.includes(match[2])) report(match);
-          }
-          const attributes =
-            /\.setAttribute\(\s*(['"])(aria-label|title|alt|placeholder)\1\s*,\s*(['"])([^'"\r\n]+)\3\s*\)/g;
-          for (const match of body.matchAll(attributes)) {
-            if (/\p{L}/u.test(match[4]) && !guardrails.brandTexts.includes(match[4])) report(match);
-          }
-        }
-      },
       JSXText(node) {
         const value = node.value?.trim();
         if (!value || !/\p{L}/u.test(value) || guardrails.brandTexts.includes(value)) return;
@@ -106,10 +121,17 @@ const noHardcodedText = {
         if (parentName === 'script' || parentName === 'style') return;
         context.report({ node, messageId: 'text' });
       },
+      JSXExpressionContainer(node) {
+        if (node.parent?.type !== 'JSXElement') return;
+        const value = textLiteral(node.expression);
+        if (value && /\p{L}/u.test(value) && !guardrails.brandTexts.includes(value))
+          context.report({ node, messageId: 'text' });
+      },
       JSXAttribute(node) {
         const name = node.name?.name;
-        if (!visibleAttributes.has(name) || node.value?.type !== 'Literal') return;
-        const value = String(node.value.value ?? '').trim();
+        if (!visibleAttributes.has(name)) return;
+        if (name === 'value' && node.parent?.name?.name !== 'button') return;
+        const value = textLiteral(node.value?.type === 'JSXExpressionContainer' ? node.value.expression : node.value)?.trim();
         if (value && !guardrails.brandTexts.includes(value))
           context.report({ node, messageId: 'text' });
       },
@@ -117,11 +139,11 @@ const noHardcodedText = {
         if (
           node.left?.type !== 'MemberExpression' ||
           node.left.computed ||
-          node.right?.type !== 'Literal'
+          !textLiteral(node.right)
         )
           return;
         if (!clientTextProperties.has(node.left.property?.name)) return;
-        const value = node.right.value;
+        const value = textLiteral(node.right);
         if (
           typeof value === 'string' &&
           /\p{L}/u.test(value) &&
@@ -136,9 +158,10 @@ const noHardcodedText = {
         )
           return;
         const [attribute, content] = node.arguments ?? [];
-        if (attribute?.type !== 'Literal' || content?.type !== 'Literal') return;
-        if (!visibleAttributes.has(attribute.value) || typeof content.value !== 'string') return;
-        if (/\p{L}/u.test(content.value) && !guardrails.brandTexts.includes(content.value))
+        const attributeName = textLiteral(attribute);
+        const contentValue = textLiteral(content);
+        if (!visibleAttributes.has(attributeName) || !contentValue) return;
+        if (/\p{L}/u.test(contentValue) && !guardrails.brandTexts.includes(contentValue))
           context.report({ node, messageId: 'text' });
       }
     };

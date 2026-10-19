@@ -35,6 +35,10 @@ Texto visível fixo deixa idiomas incompletos. Use [mensagens do shell](../packa
 ### token-value
 Valor visual literal fragmenta os temas. Defina em [tokens.css](../packages/design-system/src/tokens.css) e use `var(--token)`.
 
+O Stylelint usa explicitamente `stylelint.config.mjs`; ESLint usa `eslint.config.js`, sem configurações inline e com zero warnings. Configurações alternativas são erro de `check -- ui`. Só os três arquivos canônicos de tokens/temas recebem exceção para declarar valores literais. Durações de transição e animação usam `--duration-*`; `0ms` é aceito para movimento reduzido.
+
+**Decisão de espaçamento em 19/10/2026:** o repositório ainda contém espaçamentos locais em `rem`, `em` e pixels para dimensões de conteúdo, bordas e alvos de toque. Uma regra automática para `padding`, `margin`, `gap` e `inset` sem distinguir esses usos teria falsos positivos. Até 19/11/2026, medir os usos e separar espaçamento global (`--space-*`) das dimensões locais; depois adicionar a regra e fixtures. Valores novos de espaçamento global seguem o Contrato, item 5, desde já.
+
 <a id="lint-rule"></a>
 ### lint-rule
 Uma regra geral de ESLint encontrou erro de código. Corrija a linha indicada sem desativar a regra; consulte [configuração](../eslint.config.js).
@@ -51,6 +55,8 @@ Imports internos e dependências invertidas impedem extração dos pacotes. Use 
 ### ratchet
 Supressões e allowlists novas ocultam regressões. Corrija a causa; exceções precisam de `guardrail-change`, justificativa e revisão do dono.
 
+O ratchet compara a branch inteira com o merge-base do épico (`NODUCT_BASE_REF` pode escolher a base), incluindo arquivos novos e trocas um-por-um. Em push, o CI usa `github.event.before`; em PR, usa a base do PR e consulta a label atual pela API. Alterações em `guardrails.config.ts`, regras, validadores, formatadores, configs de lint/teste, CI e paridade exigem a label mesmo sem crescimento de contadores. [CODEOWNERS](../.github/CODEOWNERS) atribui esses controles ao dono. Sem base Git disponível, o check falha com instrução de recuperação.
+
 <a id="script-contract"></a>
 ### script-contract
 Script raiz extra ou slug fixo quebra a descoberta automática. Use subcomandos de [noduct.ts](../scripts/noduct.ts) e manifests.
@@ -58,6 +64,8 @@ Script raiz extra ou slug fixo quebra a descoberta automática. Use subcomandos 
 <a id="shell-parity"></a>
 ### shell-parity
 Diferença entre hub e ferramenta indica shell ou estilo local indevido. Compare [shell-parity.spec.ts](../tests/e2e/shell-parity.spec.ts) e o hub nos três idiomas, dois temas e perfis exigidos.
+
+A paridade compara o gatilho do Workspace com Settings e os estados abertos de Settings, menu mobile e categorias. O listener de `securitypolicyviolation` permanece dormente até a CSP da #33; ele detectará violações quando a política for ativada. Os testes funcionais de Merge PDF rodam nos perfis desktop/tablet/mobile; o projeto Playwright `pages` concentra a paridade do artefato montado.
 
 <a id="agent-scope"></a>
 ### agent-scope

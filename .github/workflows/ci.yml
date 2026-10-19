@@ -4,8 +4,10 @@ on:
     branches: [main, 'epic/**']
   pull_request:
     branches: [main, 'epic/**']
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 permissions:
   contents: read
+  issues: read
 jobs:
   quality:
     runs-on: ubuntu-latest
@@ -18,7 +20,8 @@ jobs:
       - run: npm ci
       - run: npm run check
         env:
-          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.sha }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npm run build
       - run: npm run check -- pages
       - run: npm run check -- seo
@@ -40,6 +43,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
@@ -59,4 +64,5 @@ jobs:
           NODUCT_DEV_SLUG: ci-sample-tool
       - run: npm run verify
         env:
-          GITHUB_BASE_SHA: ${{ github.sha }}
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

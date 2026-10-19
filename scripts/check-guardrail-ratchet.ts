@@ -3,13 +3,19 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { guardrails } from '../guardrails.config';
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const SOURCE_FILE = /\.(?:ts|tsx|js|mjs|astro|css)$/;
-const CONTROL_FILES = /^(?:eslint\.config\.js|stylelint\.config\.mjs|eslint-rules\/)/;
+const SOURCE_FILE = /\.(?:ts|tsx|js|jsx|mjs|cjs|mts|cts|astro|css)$/;
+const CONTROL_FILES = /^(?:guardrails\.config\.ts|(?:[^/]+\/)*eslint\.config\.[^/]+|(?:[^/]+\/)*stylelint\.config\.[^/]+|(?:[^/]+\/)*playwright\.[^/]*config\.[^/]+|(?:[^/]+\/)*vitest\.config\.[^/]+|(?:[^/]+\/)*astro\.config\.[^/]+|(?:[^/]+\/)*tsconfig(?:\.[^/]*)?\.json|package\.json|\.github\/(?:workflows\/[^/]+\.ya?ml|CODEOWNERS)|eslint-rules\/.*|scripts\/(?:guardrail-skip-baseline\.json|(?:check-guardrail-ratchet|check-scripts|check-agents|validate-ui|validate-architecture|eslint-formatter|stylelint-formatter|cli\/(?:check|verify|ratchet-base))\.[^/]+)|tests\/e2e\/shell-parity\.spec\.ts|packages\/design-system\/src\/icons\/registry\.ts)$/;
 const CONFIG_PATH = 'guardrails.config.ts';
 const ICON_PATH = 'packages/design-system/src/icons/registry.ts';
 const TOPOLOGY_PATH = 'packages/tool-runtime/src/topology.ts';
+function isControlFile(path: string): boolean {
+  return CONTROL_FILES.test(path) || guardrails.controlFiles.some((entry) =>
+    entry.endsWith('/') ? path.startsWith(entry) : path === entry
+  );
+}
 
 export interface RatchetSnapshot {
   readonly files: ReadonlyMap<string, string>;
@@ -127,7 +133,8 @@ export function ratchetCounts(snapshot: RatchetSnapshot): Map<string, number> {
     ['eslint-disable', ['eslint', 'disable'].join('-')],
     ['stylelint-disable', ['stylelint', 'disable'].join('-')],
     ['@ts-ignore', ['@ts', 'ignore'].join('-')],
-    ['@ts-expect-error', ['@ts', 'expect', 'error'].join('-')]
+    ['@ts-expect-error', ['@ts', 'expect', 'error'].join('-')],
+    ['@ts-nocheck', ['@ts', 'nocheck'].join('-')]
   ] as const;
   for (const [path, source] of snapshot.files) {
     if (!SOURCE_FILE.test(path)) continue;
@@ -149,16 +156,13 @@ export function ratchetCounts(snapshot: RatchetSnapshot): Map<string, number> {
       : source;
     const ast = ts.createSourceFile(path, code, ts.ScriptTarget.Latest, true);
     const visit = (node: ts.Node): void => {
-      if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression)) {
-        const property = node.expression;
-        if (
-          ts.isIdentifier(property.expression) &&
-          ['test', 'it', 'describe'].includes(property.expression.text)
-        ) {
-          if (property.name.text === 'skip' || property.name.text === 'fixme') {
-            const name = `test.${property.name.text}`;
-            counts.set(name, (counts.get(name) ?? 0) + 1);
-          }
+      if (ts.isCallExpression(node)) {
+        const callee = node.expression;
+        if (ts.isIdentifier(callee) && /^(?:x(?:it|describe)|(?:it|test)\.todo)$/.test(callee.text))
+          counts.set('test.skip', (counts.get('test.skip') ?? 0) + 1);
+        if (ts.isPropertyAccessExpression(callee) && /^(?:skip|skipIf|fixme|todo|fail)$/.test(callee.name.text)) {
+          const name = `test.${callee.name.text}`;
+          counts.set(name, (counts.get(name) ?? 0) + 1);
         }
       }
       if (ts.isPropertyAccessExpression(node) && node.name.text === 'only') {
@@ -190,14 +194,31 @@ export function evaluateRatchet(
   for (const name of new Set([...before.keys(), ...after.keys()])) {
     const delta = (after.get(name) ?? 0) - (before.get(name) ?? 0);
     deltas.set(name, delta);
-    if (delta > 0 && !hasGuardrailChangeLabel) {
+    if (delta > 0 && !hasGuardrailChangeLabel)
       violations.push(`${name} increased by ${delta}; PR needs guardrail-change label`);
-    }
   }
   if (!hasGuardrailChangeLabel) {
+    for (const [path, source] of current.files) {
+      if (!SOURCE_FILE.test(path)) continue;
+      const old = base.files.get(path) ?? '';
+      const beforeComments = new Map<string, number>();
+      for (const comment of actualComments(path, old))
+        beforeComments.set(comment, (beforeComments.get(comment) ?? 0) + 1);
+      for (const comment of actualComments(path, source)) {
+        const remaining = beforeComments.get(comment) ?? 0;
+        if (remaining > 0) { beforeComments.set(comment, remaining - 1); continue; }
+        if (/(?:eslint-disable|stylelint-disable|@ts-(?:ignore|expect-error|nocheck))/u.test(comment))
+          violations.push(`${path} added a suppression; PR needs guardrail-change label`);
+      }
+      const beforeSkips = ratchetCounts({ files: new Map([[path, old]]) });
+      const afterSkips = ratchetCounts({ files: new Map([[path, source]]) });
+      for (const [name, count] of afterSkips)
+        if ((name.startsWith('test.') || name === '.only') && count > (beforeSkips.get(name) ?? 0))
+          violations.push(`${path} added ${name}; PR needs guardrail-change label`);
+    }
     for (const path of new Set([...base.files.keys(), ...current.files.keys()])) {
       if (
-        CONTROL_FILES.test(path) &&
+        isControlFile(path) &&
         base.files.get(path)?.replace(/\r\n/g, '\n') !==
           current.files.get(path)?.replace(/\r\n/g, '\n')
       ) {
@@ -216,7 +237,7 @@ function snapshotAt(ref: string): RatchetSnapshot {
   const paths = git(['ls-tree', '-r', '--name-only', '-z', ref]).split('\0').filter(Boolean);
   const files = new Map<string, string>();
   for (const path of paths) {
-    if (!SOURCE_FILE.test(path) && path !== CONFIG_PATH) continue;
+    if (!SOURCE_FILE.test(path) && !isControlFile(path)) continue;
     files.set(path, git(['show', `${ref}:${path}`]));
   }
   return { files };
@@ -228,19 +249,30 @@ function workingSnapshot(): RatchetSnapshot {
     .filter(Boolean);
   const files = new Map<string, string>();
   for (const path of paths) {
-    if ((!SOURCE_FILE.test(path) && path !== CONFIG_PATH) || !existsSync(resolve(ROOT, path)))
+    if ((!SOURCE_FILE.test(path) && !isControlFile(path)) || !existsSync(resolve(ROOT, path)))
       continue;
     files.set(path, readFileSync(resolve(ROOT, path), 'utf8'));
   }
   return { files };
 }
 
-function prHasLabel(): boolean {
-  const eventPath = process.env.GITHUB_EVENT_PATH;
+export async function prHasLabel(
+  eventPath = process.env.GITHUB_EVENT_PATH,
+  repository = process.env.GITHUB_REPOSITORY,
+  token = process.env.GITHUB_TOKEN
+): Promise<boolean> {
   if (!eventPath) return false;
   const event = JSON.parse(readFileSync(eventPath, 'utf8')) as {
-    pull_request?: { labels?: { name?: string }[] };
+    pull_request?: { number?: number; labels?: { name?: string }[] };
   };
+  if (event.pull_request?.number && repository && token) {
+    const response = await fetch(`https://api.github.com/repos/${repository}/issues/${event.pull_request.number}/labels`, {
+      headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+    });
+    if (!response.ok) throw new Error(`Cannot verify current PR labels (HTTP ${response.status}).`);
+    const labels = await response.json() as { name?: string }[];
+    return labels.some((label) => label.name === 'guardrail-change');
+  }
   return event.pull_request?.labels?.some((label) => label.name === 'guardrail-change') ?? false;
 }
 
@@ -252,7 +284,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     process.exitCode = 2;
   } else {
     try {
-      const label = prHasLabel();
+      const label = await prHasLabel();
       const result = evaluateRatchet(snapshotAt(baseRef), workingSnapshot(), label);
       for (const violation of result.violations) {
         const path = violation.startsWith('allowlist:')

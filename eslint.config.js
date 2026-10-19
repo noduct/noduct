@@ -6,6 +6,7 @@ import noduct from './eslint-rules/noduct.js';
 import { guardrails } from './guardrails.config.ts';
 
 export default tseslint.config(
+  { linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: 'error' } },
   {
     ignores: [
       '.astro/**',
@@ -22,6 +23,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   ...astro.configs.recommended,
   { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
+  { files: ['experiments/pdf-engines-benchmark/scripts/browser-benchmark.mjs'], languageOptions: { globals: { PDFLib: 'readonly' } } },
   { plugins: { noduct } },
   {
     files: ['packages/**/*.{ts,tsx,astro,js,mjs}'],
@@ -42,7 +44,20 @@ export default tseslint.config(
   },
   {
     files: ['packages/{pdf-core,tool-runtime}/src/**/*.{ts,tsx,js,mjs}'],
-    rules: { 'no-restricted-globals': ['error', 'window', 'document', 'localStorage'] }
+    rules: {
+      'no-restricted-globals': ['error', 'window', 'document', 'localStorage', 'sessionStorage', 'indexedDB', 'navigator', 'location', 'fetch'],
+      'no-restricted-properties': ['error', ...['document', 'localStorage', 'sessionStorage', 'indexedDB', 'navigator', 'location', 'fetch'].flatMap((property) => [
+        { object: 'globalThis', property, message: 'Pure domain packages cannot use browser APIs.' },
+        { object: 'self', property, message: 'Pure domain packages cannot use browser APIs.' }
+      ])],
+      'no-restricted-imports': ['error', {
+        patterns: [
+          { group: ['astro', 'astro/*'], message: 'Pure domain packages must not import Astro.' },
+          { group: ['@/*'], message: 'Packages must not import the hub alias.' },
+          { group: ['**/BrandHeader.astro', '**/BrandFooter.astro', '**/ToolFrame.astro'], message: 'Use AppShell and ToolPage.' }
+        ]
+      }]
+    }
   },
   {
     files: ['**/*.astro'],
@@ -62,7 +77,7 @@ export default tseslint.config(
     rules: { 'noduct/require-app-shell': 'error' }
   },
   {
-    files: ['src/**/*.astro', 'packages/*/src/**/*.astro'],
+    files: ['src/**/*.{astro,ts,tsx}', 'packages/*/src/**/*.{astro,ts,tsx}'],
     rules: { 'noduct/no-hardcoded-text': 'error' }
   }
 );

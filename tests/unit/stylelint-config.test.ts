@@ -30,7 +30,9 @@ describe('Stylelint design token guardrails', () => {
       'literal shadow',
       '.sample { box-shadow: 0 1px 2px var(--color-border); }',
       'scale-unlimited/declaration-strict-value'
-    ]
+    ],
+    ['local radius token', '.sample { --my-radius: 3px; border-radius: var(--my-radius); }', 'declaration-property-value-disallowed-list'],
+    ['literal transition', '.sample { transition: all 300ms; }', 'declaration-property-value-disallowed-list']
   ])(
     'rejects %s',
     async (_, code, rule) => {
@@ -51,5 +53,14 @@ describe('Stylelint design token guardrails', () => {
     expect(
       await lint('.sample { color: var(--color-text); border-radius: var(--radius-md); }')
     ).toEqual([]);
+  }, 30_000);
+
+  it('does not exempt a similarly named token file outside the canonical paths', async () => {
+    const result = await stylelint.lint({
+      code: '.sample { color: #ff00ff; z-index: 99999; }',
+      codeFilename: 'packages/tool-template/src/tokens.css',
+      configFile: 'stylelint.config.mjs'
+    });
+    expect(result.results.flatMap((item) => item.warnings.map((warning) => warning.rule))).toContain('color-no-hex');
   }, 30_000);
 });

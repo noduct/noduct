@@ -1,4 +1,4 @@
-@import '../../packages/design-system/src/tokens.css';
+@import '@noduct/design-system/tokens.css';
 
 :root {
   --radius-card: var(--radius-lg);

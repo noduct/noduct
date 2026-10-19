@@ -60,8 +60,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
   transition:
-    background-color 300ms var(--ease-apple),
-    color 300ms var(--ease-apple);
+    background-color var(--duration-normal) var(--ease-apple),
+    color var(--duration-normal) var(--ease-apple);
 }
 
 button,
@@ -425,8 +425,8 @@ a.card:active {
 :root[data-motion='reduce'] *::before,
 :root[data-motion='reduce'] *::after {
   scroll-behavior: auto !important;
-  transition-duration: 0.001ms !important;
-  animation-duration: 0.001ms !important;
+  transition-duration: 0ms !important;
+  animation-duration: 0ms !important;
   animation-iteration-count: 1 !important;
   transform: none !important;
 }
@@ -436,8 +436,8 @@ a.card:active {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.001ms !important;
-    animation-duration: 0.001ms !important;
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
     animation-iteration-count: 1 !important;
     transform: none !important;
   }

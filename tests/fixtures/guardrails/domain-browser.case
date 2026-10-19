@@ -1,0 +1,6 @@
+import 'astro/zod';
+globalThis.document;
+self.localStorage;
+sessionStorage;
+indexedDB;
+navigator;

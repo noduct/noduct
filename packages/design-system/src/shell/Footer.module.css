@@ -135,7 +135,7 @@
   font-size: 0.86rem;
   font-weight: 500;
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--duration-fast) ease;
   min-height: 32px;
   display: inline-flex;
   align-items: center;

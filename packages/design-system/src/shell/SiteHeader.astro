@@ -68,7 +68,7 @@ const uid = `${scope.kind === 'hub' ? 'hub' : scope.slug}-${locale}`;
   </div>
 </header>
 
-<script is:inline>
+<script>
   (() => {
     const menu = document.querySelector('[data-menu-button]');
     const nav = document.getElementById(menu?.getAttribute('aria-controls') ?? '');
@@ -81,7 +81,7 @@ const uid = `${scope.kind === 'hub' ? 'hub' : scope.slug}-${locale}`;
     // Fechar dropdown de Categorias ao clicar fora
     const catDetails = document.querySelector('[data-categories-menu]');
     document.addEventListener('click', (event) => {
-      if (catDetails && catDetails.hasAttribute('open') && !catDetails.contains(event.target)) {
+      if (catDetails && catDetails.hasAttribute('open') && event.target instanceof Node && !catDetails.contains(event.target)) {
         catDetails.removeAttribute('open');
       }
     });

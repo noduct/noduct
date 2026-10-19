@@ -100,4 +100,34 @@ describe('architecture guardrail', () => {
       ])
     );
   });
+
+  it.each(['mts', 'cts'])('rejects private imports from untracked .%s files', (extension) => {
+    const violations = validateArchitecture([
+      ...manifests,
+      source(`packages/merge-pdf/src/new.${extension}`, "import '../../pdf-core/dist/private.js';")
+    ]);
+    expect(violations.map((violation) => violation.message)).toContainEqual(
+      expect.stringContaining('Private cross-package import')
+    );
+  });
+
+  it('rejects CSS imports into another package internals', () => {
+    const violations = validateArchitecture([
+      ...manifests,
+      source('src/styles/fixture.css', "@import '../../packages/design-system/src/tokens.css';")
+    ]);
+    expect(violations.map((violation) => violation.message)).toContainEqual(
+      expect.stringContaining('Private cross-package import')
+    );
+  });
+
+  it('rejects Astro dependency and imports in pure domain packages', () => {
+    const violations = validateArchitecture([
+      source('packages/pdf-core/package.json', JSON.stringify({ name: '@noduct/pdf-core', dependencies: { astro: '^5' } })),
+      manifests[0]!, manifests[1]!, manifests[3]!,
+      source('packages/tool-runtime/src/fixture.ts', "import { z } from 'astro/zod';")
+    ]);
+    expect(violations.map((violation) => violation.message)).toContain('pdf-core must not depend on astro');
+    expect(violations.map((violation) => violation.message)).toContain('tool-runtime must not import astro/zod');
+  });
 });

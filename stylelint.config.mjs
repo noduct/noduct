@@ -25,7 +25,11 @@ const tokenRules = {
   'csstools/value-no-unknown-custom-properties': [
     true,
     { importFrom: [tokenSource, localTokenSource] }
-  ]
+  ],
+  'declaration-property-value-disallowed-list': {
+    '/^--/': ['/^(?!var\\(--[a-z0-9-]+\\)$).+/i'],
+    '/^(?:transition|animation)(?:-.+)?$/': ['/\\b(?:[1-9]\\d*|0?\\.\\d+)(?:ms|s)\\b/i']
+  }
 };
 
 /** @type {import('stylelint').Config} */
@@ -39,12 +43,13 @@ export default {
       extends: ['stylelint-config-html/astro']
     },
     {
-      files: ['**/tokens.css', '**/themes.css'],
+      files: ['packages/design-system/src/tokens.css', 'src/styles/tokens.css', 'src/styles/themes.css'],
       rules: {
         'color-no-hex': null,
         'color-named': null,
         'function-disallowed-list': null,
-        'scale-unlimited/declaration-strict-value': null
+        'scale-unlimited/declaration-strict-value': null,
+        'declaration-property-value-disallowed-list': null
       }
     }
   ]

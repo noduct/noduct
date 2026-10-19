@@ -1,0 +1,17 @@
+guardrails.config.ts
+scripts/validate-ui.ts
+scripts/validate-architecture.ts
+scripts/check-guardrail-ratchet.ts
+scripts/check-scripts.ts
+scripts/check-agents.ts
+scripts/cli/check.ts
+scripts/cli/verify.ts
+scripts/cli/ratchet-base.ts
+scripts/guardrail-skip-baseline.json
+scripts/eslint-formatter.mjs
+scripts/stylelint-formatter.mjs
+tests/e2e/shell-parity.spec.ts
+playwright.config.ts
+.github/workflows/ci.yml
+tsconfig.json
+packages/design-system/src/icons/registry.ts

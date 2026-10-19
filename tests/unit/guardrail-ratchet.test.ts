@@ -1,6 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
 import {
   evaluateRatchet,
+  prHasLabel,
   ratchetCounts,
   type RatchetSnapshot
 } from '../../scripts/check-guardrail-ratchet';
@@ -73,7 +76,79 @@ describe('guardrail ratchet', () => {
     const higher = snapshot({
       'guardrails.config.ts': `export const guardrails = { exemptFixtures: ['a', 'b', 'c'] } as const;`
     });
-    expect(evaluateRatchet(base, lower, false).violations).toEqual([]);
-    expect(evaluateRatchet(base, higher, false).violations).toHaveLength(1);
+    expect(evaluateRatchet(base, lower, false).violations).toContain(
+      'guardrails.config.ts changed; PR needs guardrail-change label'
+    );
+    expect(evaluateRatchet(base, higher, false).violations).toContain(
+      'guardrails.config.ts changed; PR needs guardrail-change label'
+    );
+  });
+
+  it.each(readFileSync(new URL('../fixtures/guardrails/ratchet-control-paths.case', import.meta.url), 'utf8').trim().split(/\r?\n/))('protects control file %s', (path) => {
+    const base = snapshot({ [path]: 'before' });
+    const current = snapshot({ [path]: 'after' });
+    expect(evaluateRatchet(base, current, false).violations).toContain(
+      `${path} changed; PR needs guardrail-change label`
+    );
+  });
+
+  it('rejects one-for-one suppression and allowlist substitutions', () => {
+    const base = snapshot({
+      'src/one.ts': '// eslint-disable-next-line no-unused-vars',
+      'guardrails.config.ts': "export const guardrails = { exemptFixtures: ['tests/fixtures/guardrails/'] } as const;"
+    });
+    const current = snapshot({
+      'src/one.ts': '// eslint-disable-next-line no-console',
+      'guardrails.config.ts': "export const guardrails = { exemptFixtures: ['packages/'] } as const;"
+    });
+    const violations = evaluateRatchet(base, current, false).violations;
+    expect(violations).toContain('src/one.ts added a suppression; PR needs guardrail-change label');
+    expect(violations).toContain('guardrails.config.ts changed; PR needs guardrail-change label');
+  });
+
+  it.each([
+    '// @ts-nocheck', 'test.describe.skip("group", () => {})',
+    'test.describe.fixme("group", () => {})', 'xit("case", () => {})',
+    'xdescribe("group", () => {})', 'test.skip(true, "reason")',
+    'test.skipIf(true)("case", () => {})', 'testInfo.skip()',
+    'test.fail("case", () => {})'
+  ])('detects added suppression form %s', (content) => {
+    const violations = evaluateRatchet(snapshot({}), snapshot({ 'tests/unit/new.test.ts': content }), false).violations;
+    expect(violations.length).toBeGreaterThan(0);
+  });
+
+  it.each(['cjs', 'mts', 'cts', 'jsx'])('scans .%s source files', (extension) => {
+    const counts = ratchetCounts(snapshot({ [`tests/new.${extension}`]: '// @ts-nocheck' }));
+    expect(counts.get('@ts-nocheck')).toBe(1);
+  });
+
+  it('reads a real pull request event fixture', async () => {
+    const event = fileURLToPath(new URL('../fixtures/guardrails/pr-labeled.case', import.meta.url));
+    expect(await prHasLabel(event, '', '')).toBe(true);
+  });
+
+  it('reads current PR labels instead of trusting a stale event snapshot', async () => {
+    const event = fileURLToPath(new URL('../fixtures/guardrails/pr-labeled.case', import.meta.url));
+    const fetchMock = vi.fn(async () => ({ ok: true, json: async () => [] }));
+    vi.stubGlobal('fetch', fetchMock);
+    try {
+      expect(await prHasLabel(event, 'noduct/noduct', 'test-token')).toBe(false);
+      expect(fetchMock).toHaveBeenCalledWith(
+        'https://api.github.com/repos/noduct/noduct/issues/39/labels',
+        expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer test-token' }) })
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('documents every pre-existing skipped test with a reason', () => {
+    const baseline = JSON.parse(readFileSync(new URL('../../scripts/guardrail-skip-baseline.json', import.meta.url), 'utf8')) as Array<{ path: string; marker: string; count: number; reason: string }>;
+    expect(baseline).toHaveLength(2);
+    for (const entry of baseline) {
+      const source = readFileSync(fileURLToPath(new URL(`../../${entry.path}`, import.meta.url)), 'utf8');
+      expect(source.split(entry.marker).length - 1, entry.path).toBe(entry.count);
+      expect(entry.reason.length).toBeGreaterThan(20);
+    }
   });
 });
