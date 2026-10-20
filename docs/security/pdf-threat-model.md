@@ -44,7 +44,7 @@ documentos; ambos alteram apenas o impacto de disponibilidade/privacidade.
 
   A revisão de publicação precisa verificar a origem de todos os project sites da
   conta, porque código de qualquer um deles pode acessar o mesmo armazenamento
-  local. O [Contrato #39](../guardrails.md) exige publicação autorizada e `npm run verify`.
+  local. O [Contrato de conformidade](../../AGENTS.md#contrato-de-conformidade) exige publicação autorizada e `npm run verify`.
 
 ### Data flows and trust boundaries
 

@@ -4,7 +4,7 @@
 
 O Hub mantém a configuração administrativa pública em `sponsorship/` e publica um manifesto JSON durante sua geração estática. A rota Astro `src/pages/data/sponsorships.json.ts` disponibiliza `/data/sponsorships.json` na origem única. Consumidores recebem o endereço por `topology.registryUrl`; não escrevem origem ou base manualmente. Durante a transição, `assemble-pages.ts` também copia o manifesto para o stub legado. O endpoint é um arquivo estático e não depende de processo de servidor em execução. [Documentação do GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages).
 
-Essa URL segue o Contrato #39: qualquer mudança deve usar `@noduct/tool-runtime` e passar por `npm run verify`. Consulte [guardrails](guardrails.md) antes de alterar o produtor ou os consumidores.
+Essa URL segue o [Contrato de conformidade](../AGENTS.md#contrato-de-conformidade): qualquer mudança deve usar `@noduct/tool-runtime` e passar por `npm run verify`. Consulte [guardrails](guardrails.md) antes de alterar o produtor ou os consumidores.
 
 Os contratos canônicos ficam em `packages/design-system/src/sponsorship/contracts.ts`. O Hub os reexporta em `src/features/sponsorship/index.ts`; consumidores independentes importam o subpath `@noduct/design-system/sponsorship`. Isso mantém a interpretação de `schemaVersion: 1`, campanhas, posicionamentos e intervalos de elegibilidade compartilhada entre produtor e consumidores.
 

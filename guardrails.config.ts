@@ -13,7 +13,8 @@ export const guardrails = {
     'scripts/eslint-formatter.mjs', 'scripts/stylelint-formatter.mjs',
     'scripts/guardrail-skip-baseline.json',
     'tests/e2e/shell-parity.spec.ts',
-    'packages/design-system/src/icons/registry.ts'
+    'packages/design-system/src/icons/registry.ts',
+    '.claude/settings.json', '.claude/hooks/'
   ],
   rawSvgFiles: [
     'packages/design-system/src/icons/Icon.astro',
@@ -41,7 +42,47 @@ export const guardrails = {
     'scripts/validate-ui.ts'
   ],
   hardcodedTextFiles: [],
-  inlineScriptFiles: ['packages/design-system/src/shell/AppShell.astro']
+  inlineScriptFiles: ['packages/design-system/src/shell/AppShell.astro'],
+  /**
+   * Fronteiras entre pacotes (ADR 0003, ADR 0005 D4, ADR 0006 D6). `internal` lista os pacotes
+   * internos permitidos; `external: null` não restringe dependências externas. Pacotes ausentes
+   * (ferramentas) podem consumir qualquer biblioteca pelos exports públicos.
+   * `npx tsx scripts/validate-architecture.ts --write` regenera docs/architecture/README.md.
+   */
+  architecture: {
+    packages: {
+      'tool-runtime': {
+        role: 'URLs, locales, SEO, taxonomia e defineTool(); TypeScript puro.',
+        internal: [],
+        external: []
+      },
+      'design-system': {
+        role: 'Shell, tokens, ícones e componentes acessíveis; recebe serviços injetados.',
+        internal: ['tool-runtime'],
+        external: null
+      },
+      'pdf-core': {
+        role: 'Domínio PDF puro; erros por código; motores carregados sob demanda.',
+        internal: [],
+        external: ['pdf-lib', 'pdfjs-dist']
+      },
+      'workspace-core': {
+        role: 'Persistência IndexedDB, locks, retenção e tickets de transferência.',
+        internal: ['tool-runtime'],
+        external: null
+      }
+    },
+    scopedExternal: [{ dependency: 'pdfjs-dist', directory: 'packages/pdf-core/src/render/' }],
+    hub: {
+      forbidden: ['pdf-core', 'workspace-core'],
+      exceptions: [
+        {
+          directory: 'src/components/workspace/',
+          imports: ['@noduct/workspace-core', '@noduct/pdf-core/render']
+        }
+      ]
+    }
+  }
 } as const;
 
 export { RESERVED_HUB_SEGMENTS };

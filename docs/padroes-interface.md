@@ -1,4 +1,6 @@
-# Padrões de Interface e Guardrails — Noduct
+# Padrões de Interface — Noduct
+
+Este documento descreve a linguagem visual e de interação. As regras obrigatórias e sua verificação automática estão no Contrato do [AGENTS.md](../AGENTS.md#contrato-de-conformidade) e em [guardrails](guardrails.md); em conflito, elas prevalecem.
 
 ## 1. Filosofia e Direção Visual
 
@@ -81,11 +83,26 @@ box-shadow: var(--shadow-sm), var(--rim-light);
 
 ## 5. Botões e Ações Interativas
 
-### 5.1 Anatomia e Estilos
-* **Botão Primário (`.button`):** Fundo `--color-primary`, texto branco, borda sólida ou transparente, sombra suave e rim light.
-* **Botão Secundário (`.button.secondary`):** Fundo `--color-surface-card`, borda `--color-border`, texto `--color-text`.
-* **Botão Ghost (`.btn-ghost` / `.navLink`):** Fundo transparente, ganhando `--color-surface-hover` no hover.
-* **Botão de Ícone (`.themeToggle`, `.menuButton`):** alvo de toque mínimo de 44 × 44 px, cantos `--radius-sm`, centralização `display: grid; place-items: center;`.
+### 5.1 Anatomia e hierarquia
+
+Use `Button` de `@noduct/design-system/components/Button.astro` nas ações com texto, inclusive links apresentados como botões. O componente aceita `variant`, `size`, `href`, `type`, `icon`, `iconTrailing`, `disabled` e atributos `data-*`. A classe global antiga `.button` não é um contrato público. Componentes com `input[type=file]` usam um `<label>` com as classes importadas de `Button.module.css`, mantendo o mesmo acabamento e foco no input.
+
+| Variante | Uso | Acabamento |
+| --- | --- | --- |
+| `primary` | Ação principal do contexto, como mesclar, baixar ou enviar arquivo | `--color-action-primary` com texto branco, sombra e linha superior especular |
+| `secondary` | Alternativa ou ação de apoio, como escolher da Área Local ou reiniciar | Superfície, borda, sombra e linha superior especular |
+| `quiet` | Ação auxiliar sem ênfase em repouso | Transparente, sem elevação |
+| `danger` | Confirmação destrutiva que precisa de destaque | `--color-action-danger` com texto branco, sombra e linha superior especular |
+| `danger-quiet` | Ação destrutiva disponível sem competir com a principal | Transparente, texto vermelho |
+
+`size` pode ser `sm`, `md` (padrão) ou `lg`; todos preservam alvo de 44 px em toque. A linha superior é `--rim-light-strong`, mais visível que o `--rim-light` das superfícies no tema escuro. Use uma ação `primary` por grupo de decisões; a variante `danger` só cabe na confirmação final da ação destrutiva. Controles de ícone, alternâncias, navegação em abas e links de texto mantêm suas semânticas e padrões próprios.
+
+```astro
+<Button variant="primary" data-action="merge">{m.actionMerge}</Button>
+<Button variant="secondary" href={toolsHref} iconTrailing="chevron-right">{m.allTools}</Button>
+```
+
+* **Botão de ícone (`.themeToggle`, `.menuButton`):** alvo de toque mínimo de 44 × 44 px, cantos `--radius-sm`, centralização `display: grid; place-items: center;`.
 
 ### 5.2 Feedback Físico
 * **Hover (Pointer fino):**
@@ -174,23 +191,23 @@ import { ScrollArea } from '@noduct/design-system';
 
 ---
 
-## 9. Guardrails Contratuais para Novos Apps (`tool-template`)
+## 9. Padrões de implementação para ferramentas
 
-Qualquer micro-aplicativo ou extensão do Noduct **deve obedecer impreterivelmente** aos seguintes 7 guardrails:
+Além do Contrato, toda ferramenta segue estes padrões de interface. Os itens 1, 3, 4 e 5 também são verificados por guardrails ([matriz](guardrails.md)); os demais são revisados no PR.
 
-1. **Guardrail 1: Consumo Universal de Tokens**
+1. **Padrão 1: Consumo Universal de Tokens**
    Proibido declarar transições manuais como `transition: all .2s ease` ou escalas arbitrárias. Use sempre as variáveis semânticas de `--ease-apple` e `--duration-*`.
-2. **Guardrail 2: GPU-Only Transitions (Anti-Jank)**
+2. **Padrão 2: GPU-Only Transitions (Anti-Jank)**
    Nunca anime `width`, `height`, `top`, `left`, `margin` ou `padding` em interações de hover/clique. Use exclusivamente `transform` e `opacity`.
-3. **Guardrail 3: Contraste WCAG AA Inegociável**
+3. **Padrão 3: Contraste WCAG AA Inegociável**
    Tanto em tema claro quanto escuro, todo texto legível deve atender ou exceder a razão de contraste de 4.5:1. Textos secundários usam `--color-text-secondary` e terciários `--color-text-muted`.
-4. **Guardrail 4: Shell e template compartilhados**
+4. **Padrão 4: Shell e template compartilhados**
    Toda ferramenta independente deve usar `<AppShell>` envolvendo `<ToolPage>` do `@noduct/design-system`. O template fornece breadcrumb, título, área funcional e patrocínio com os tokens globais.
-5. **Guardrail 5: Conformidade com `prefers-reduced-motion`**
-   Quando o usuário solicitar movimento reduzido, todas as durações devem ser zeradas (`0.001ms`) e escalas anuladas (`transform: none !important`).
-6. **Guardrail 6: Scrollbar Limpa e Transparente**
+5. **Padrão 5: Conformidade com `prefers-reduced-motion`**
+   Com `prefers-reduced-motion: reduce` ou a preferência “Reduzir animações” do Settings, os tokens `--duration-*` caem para `0.001ms` e as escalas ativas para `1` (`tokens.css`); a base global força `transition-duration` e `animation-duration` em `0ms` e `transform: none` (`base.css`). Não declare durações fora dos tokens.
+6. **Padrão 6: Scrollbar Limpa e Transparente**
    Áreas roláveis internas de micro-apps (tabelas de dados, editores de texto, visualizadores JSON) devem usar o componente `<ScrollArea>` ou herdar o estilo de scrollbar customizada do sistema.
-7. **Guardrail 7: Foco Ótico Sem Anel Duplo**
+7. **Padrão 7: Foco Ótico Sem Anel Duplo**
    Campos de formulário (`input`, `textarea`, `select`) integrados a contêineres estilizados nunca devem exibir contorno ou sombra nativa direta no elemento interno, delegando o anel de foco ótico para a cápsula externa via `:focus-within`.
 
 ---
@@ -204,3 +221,4 @@ Antes de publicar qualquer alteração no Hub ou em um novo micro-app:
 - [ ] Navegação 100% por teclado com um único indicador de foco visível, sem contornos sobrepostos.
 - [ ] Scrollbar flutuante limpa sem faixas cinzas nativas do browser.
 - [ ] Teste em janela anônima no Chrome DevTools com emulação Mobile e Dark Theme.
+- [ ] `npm run verify` verde (definição de pronto do [AGENTS.md](../AGENTS.md)).

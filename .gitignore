@@ -15,3 +15,7 @@ packages/tool-template/dist/
 experiments/pdf-engines-benchmark/node_modules/
 experiments/pdf-engines-benchmark/fixtures/
 experiments/pdf-engines-benchmark/package-lock.json
+
+# Configuração de agentes versionada; preferências pessoais ficam fora.
+!.claude/
+.claude/settings.local.json

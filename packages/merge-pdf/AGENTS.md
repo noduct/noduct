@@ -1,23 +1,10 @@
-Complementa o AGENTS.md da raiz.
+Complementa [AGENTS.md](../../AGENTS.md).
 
 # Escopo local
-- Páginas compõem `AppShell`, `ToolPage` e `defineTool()`.
-- Não crie shell, header, footer ou Settings locais.
-- Localize en, pt-BR e es inclusive no script cliente.
-- Use serviços de URL do `tool-runtime`, sem prefixos manuais.
-- Teste fluxo real, privacidade e paridade com o hub.
-
-# Como trabalhar
-
-1. Leia o contrato raiz e a documentação da área `packages/merge-pdf/`.
-2. Consulte os arquivos canônicos citados em `AGENTS.md`.
-3. Faça a menor mudança que atenda à issue.
-4. Rode `npm run check` após alterar a área.
-5. Registre a saída de `npm run verify` antes de concluir.
-6. Se uma regra bloquear uma mudança necessária, registre a dúvida no PR e pergunte.
-7. Não amplie allowlists nem adicione supressões para ocultar falhas.
-
-# Revisão
-
-- Confira os contratos públicos afetados por `packages/merge-pdf/`.
-- Atualize documentação e testes quando o comportamento mudar.
+- Ferramenta de referência: ao criar outra, siga a mesma estrutura de arquivos.
+- `src/config.ts` declara a ferramenta com `defineTool()`; o slug se repete só em `noduct.slug` do `package.json`.
+- `src/pages/` só compõe `AppShell` e `ToolPage`; a interface fica em `src/components/MergePdfApp.astro` com CSS Module.
+- Regras de fluxo testáveis ficam em `src/lib/*.ts`, com o teste ao lado (`*.test.ts`).
+- Mensagens en, pt-BR e es em `src/i18n.ts`, inclusive script cliente, erros e nome do arquivo gerado.
+- Área Local só via `DropZone` e `DownloadCard` com `workspace` e `connectLocalWorkspace()`.
+- E2E em `tests/e2e/merge-pdf.spec.ts`, sobre o artefato montado.

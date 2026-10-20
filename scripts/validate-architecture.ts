@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { resolve, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
+import { guardrails } from '../guardrails.config.ts';
+export const GUARDRAIL_IDS = ['architecture-boundary', 'architecture-doc'];
 
 export interface ArchitectureFile {
   readonly path: string;
@@ -100,23 +102,69 @@ function findCycle(edges: Map<string, Set<string>>): string[] | undefined {
   return undefined;
 }
 
-// ADR 0006 D6: o renderer de miniaturas é o único lugar do pdf-core com PDF.js, e só as ilhas
-// da Área de Trabalho no hub podem ler o workspace e pedir miniaturas.
-const PDF_CORE_ENGINES = new Set(['pdf-lib', 'pdfjs-dist']);
-const PDF_RENDER_DIRECTORY = 'packages/pdf-core/src/render/';
-const HUB_WORKSPACE_DIRECTORY = 'src/components/workspace/';
-const HUB_WORKSPACE_IMPORTS = new Set(['@noduct/workspace-core', '@noduct/pdf-core/render']);
+// As fronteiras são dados em guardrails.config.ts; este validador só as aplica.
+interface PackageBoundary {
+  readonly role: string;
+  readonly internal: readonly string[];
+  readonly external: readonly string[] | null;
+}
+const BOUNDARIES: Readonly<Record<string, PackageBoundary>> = guardrails.architecture.packages;
+const { scopedExternal, hub: HUB } = guardrails.architecture;
 
-function allowedPdfCoreImport(path: string, specifier: string): boolean {
-  if (specifier === 'pdf-lib') return true;
-  return (
-    (specifier === 'pdfjs-dist' || specifier.startsWith('pdfjs-dist/')) &&
-    path.startsWith(PDF_RENDER_DIRECTORY)
-  );
+function externalName(specifier: string): string {
+  const parts = specifier.split('/');
+  return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]!;
+}
+
+function allowedExternal(source: string, path: string, dependency: string): boolean {
+  const allowed = BOUNDARIES[source]?.external;
+  if (!allowed) return true;
+  if (!allowed.includes(dependency)) return false;
+  const scope = scopedExternal.find((entry) => entry.dependency === dependency);
+  return !scope || path.endsWith('package.json') || path.startsWith(scope.directory);
 }
 
 function hubMayImport(path: string, specifier: string): boolean {
-  return path.startsWith(HUB_WORKSPACE_DIRECTORY) && HUB_WORKSPACE_IMPORTS.has(specifier);
+  return HUB.exceptions.some(
+    (entry) =>
+      path.startsWith(entry.directory) && (entry.imports as readonly string[]).includes(specifier)
+  );
+}
+
+export function boundariesMarkdown(): string {
+  const rows = Object.entries(BOUNDARIES).map(([name, boundary]) => {
+    const internal = boundary.internal.length
+      ? boundary.internal.map((item) => `\`${item}\``).join(', ')
+      : 'nenhum';
+    const external =
+      boundary.external === null
+        ? 'sem restrição'
+        : boundary.external.length
+          ? boundary.external.map((item) => `\`${item}\``).join(', ')
+          : 'nenhuma';
+    return `| \`${name}\` | ${boundary.role} | ${internal} | ${external} |`;
+  });
+  const scoped = scopedExternal.map(
+    (entry) => `- \`${entry.dependency}\` só em \`${entry.directory}\`.`
+  );
+  const hubRules = [
+    `- O hub (\`src/\`) não importa ${HUB.forbidden.map((item) => `\`${item}\``).join(' nem ')}, exceto:`,
+    ...HUB.exceptions.map(
+      (entry) =>
+        `  - em \`${entry.directory}\`: ${entry.imports.map((item) => `\`${item}\``).join(', ')}.`
+    )
+  ];
+  return [
+    '| Pacote | Responsabilidade | Pacotes internos permitidos | Dependências externas |',
+    '| --- | --- | --- | --- |',
+    ...rows,
+    '',
+    'Ferramentas (`packages/<slug>/`) e o template compõem esses pacotes pelos exports públicos.',
+    '',
+    ...scoped,
+    ...hubRules,
+    '- Imports entre pacotes usam somente o campo `exports`; ciclos são proibidos.'
+  ].join('\n');
 }
 
 export function validateArchitecture(files: readonly ArchitectureFile[]): ArchitectureViolation[] {
@@ -150,18 +198,14 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
   const addEdge = (source: string | undefined, target: string | undefined, path: string): void => {
     if (!source || !target || source === target) return;
     edges.get(source)?.add(target);
-    if (source === 'tool-runtime') {
+    const boundary = BOUNDARIES[source];
+    if (boundary && !boundary.internal.includes(target))
       violations.push({
         path,
-        message: 'tool-runtime must not depend on another internal package'
+        message: boundary.internal.length
+          ? `${source} must not depend on ${target}`
+          : `${source} must not depend on another internal package`
       });
-    } else if (source === 'design-system' && target !== 'tool-runtime') {
-      violations.push({ path, message: `design-system must not depend on ${target}` });
-    } else if (source === 'pdf-core') {
-      violations.push({ path, message: `pdf-core must not depend on ${target}` });
-    } else if (source === 'workspace-core' && target !== 'tool-runtime') {
-      violations.push({ path, message: `workspace-core must not depend on ${target}` });
-    }
   };
 
   for (const file of files) {
@@ -171,9 +215,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
     const manifest = JSON.parse(file.content) as Record<string, Record<string, string>>;
     for (const field of ['dependencies', 'devDependencies', 'peerDependencies'] as const) {
       for (const dependency of Object.keys(manifest[field] ?? {})) {
-        if ((source === 'pdf-core' || source === 'tool-runtime') &&
-            !dependency.startsWith('@noduct/') &&
-            !(source === 'pdf-core' && PDF_CORE_ENGINES.has(dependency)))
+        if (!dependency.startsWith('@noduct/') && !allowedExternal(source, path, dependency))
           violations.push({ path, message: `${source} must not depend on ${dependency}` });
         const target = names.get(dependency);
         addEdge(source, target, path);
@@ -186,11 +228,10 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
     if (!SOURCE_EXTENSIONS.test(path)) continue;
     const source = packageDirectory(path);
     for (const specifier of importedSpecifiers(file)) {
-      if ((source === 'pdf-core' || source === 'tool-runtime') &&
-          !/\.test\.[cm]?[jt]sx?$/.test(path) &&
+      if (source && !/\.test\.[cm]?[jt]sx?$/.test(path) &&
           !specifier.startsWith('.') && !specifier.startsWith('node:') &&
           !specifier.startsWith('@noduct/') &&
-          !(source === 'pdf-core' && allowedPdfCoreImport(path, specifier)))
+          !allowedExternal(source, path, externalName(specifier)))
         violations.push({ path, message: `${source} must not import ${specifier}` });
       const namedPackage = packageName(specifier);
       if (namedPackage && names.has(namedPackage)) {
@@ -200,7 +241,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
         if (!manifests.get(target)!.exports.has(exportKey)) {
           violations.push({ path, message: `Import ${specifier} is not a public package export` });
         }
-        if (path.startsWith('src/') && (target === 'pdf-core' || target === 'workspace-core') &&
+        if (path.startsWith('src/') && (HUB.forbidden as readonly string[]).includes(target) &&
             !hubMayImport(path, specifier)) {
           violations.push({ path, message: `Hub must not import ${specifier}` });
         }
@@ -217,7 +258,7 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
         });
         addEdge(source, target, path);
       }
-      if (path.startsWith('src/') && (target === 'pdf-core' || target === 'workspace-core')) {
+      if (path.startsWith('src/') && target && (HUB.forbidden as readonly string[]).includes(target)) {
         violations.push({ path, message: `Hub must not import ${target}` });
       }
     }
@@ -229,13 +270,38 @@ export function validateArchitecture(files: readonly ArchitectureFile[]): Archit
   return violations;
 }
 
+const ARCHITECTURE_DOC = 'docs/architecture/README.md';
+const DOC_START = '<!-- generated:boundaries:start -->';
+const DOC_END = '<!-- generated:boundaries:end -->';
+
+/** Devolve o documento com a seção gerada atualizada, ou undefined se faltarem os marcadores. */
+export function syncArchitectureDoc(source: string): string | undefined {
+  const start = source.indexOf(DOC_START);
+  const end = source.indexOf(DOC_END);
+  if (start < 0 || end < start) return undefined;
+  return `${source.slice(0, start + DOC_START.length)}\n${boundariesMarkdown()}\n${source.slice(end)}`;
+}
+
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { execFileSync } = await import('node:child_process');
+  const { existsSync, writeFileSync } = await import('node:fs');
+  const docPath = resolve(ROOT, ARCHITECTURE_DOC);
+  const docSource = existsSync(docPath) ? readFileSync(docPath, 'utf8').replace(/\r\n/g, '\n') : '';
+  const synced = syncArchitectureDoc(docSource);
+  if (process.argv.includes('--write') && synced) writeFileSync(docPath, synced);
+  else if (!synced || synced !== docSource) {
+    console.error(
+      `[architecture-doc] ${ARCHITECTURE_DOC}:1 — O mapa de pacotes divergiu de guardrails.config.ts. Rode npx tsx scripts/validate-architecture.ts --write e revise o diff. Ver docs/guardrails.md#architecture-doc`
+    );
+    process.exitCode = 1;
+  }
   const paths = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '-z'], { cwd: ROOT, encoding: 'utf8' })
     .split('\0')
     .filter(
       (path) =>
-        path && (SOURCE_EXTENSIONS.test(path) || /packages\/[^/]+\/package\.json$/.test(path))
+        path &&
+        (SOURCE_EXTENSIONS.test(path) || /packages\/[^/]+\/package\.json$/.test(path)) &&
+        existsSync(resolve(ROOT, path))
     );
   const files = paths.map((path) => ({ path, content: readFileSync(resolve(ROOT, path), 'utf8') }));
   const violations = validateArchitecture(files);
@@ -249,5 +315,5 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     );
   }
   if (violations.length > 0) process.exitCode = 1;
-  else console.log(`Architecture validation passed (${files.length} files).`);
+  else if (!process.exitCode) console.log(`Architecture validation passed (${files.length} files).`);
 }

@@ -2,7 +2,7 @@
 
 Este documento descreve o modelo arquitetural de persistência no cliente implementado pelo pacote `@noduct/workspace-core`.
 
-As regras locais do pacote complementam [AGENTS.md](../../AGENTS.md); o [Contrato #39](../guardrails.md) exige erros por código e parâmetros e UI traduzida; o [ADR 0006](../adr/0006-hybrid-local-workspace.md) define as superfícies híbridas (home, seletor na `DropZone`, salvar no `DownloadCard` e página `/workspace/`), sem entrada no header. Mudanças de retenção exigem fixture de migração e teste com relógio controlado.
+As regras locais do pacote complementam [AGENTS.md](../../AGENTS.md); o [Contrato de conformidade](../../AGENTS.md#contrato-de-conformidade) exige erros por código e parâmetros e UI traduzida; o [ADR 0006](../adr/0006-hybrid-local-workspace.md) define as superfícies híbridas (home, seletor na `DropZone`, salvar no `DownloadCard` e página `/workspace/`), sem entrada no header. Mudanças de retenção exigem fixture de migração e teste com relógio controlado.
 
 ---
 

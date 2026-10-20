@@ -28,8 +28,8 @@ body:
   - type: textarea
     id: contrato
     attributes:
-      label: 'Conformidade com o Contrato (#39 / ADR 0005)'
-      description: 'Descreva shell, URLs, ícones, tokens, i18n, SEO, acessibilidade, testes e guardrails aplicáveis; justifique itens não aplicáveis.'
+      label: 'Conformidade com o Contrato (AGENTS.md)'
+      description: 'Descreva shell, URLs, ícones, tokens, i18n, SEO, acessibilidade, testes e guardrails aplicáveis; justifique itens não aplicáveis. Mudança de comportamento: cite a mudança OpenSpec (openspec/changes/<nome>).'
     validations: { required: true }
   - type: textarea
     id: aceite

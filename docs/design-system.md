@@ -14,4 +14,4 @@ A versão `0.7.0` reúne `AppShell` e `ToolPage` para todas as ferramentas, alé
 
 Altere o token mais semântico possível e teste ambos os temas em mobile e desktop. Rode Playwright com axe. O monograma `N` do shell é a referência de marca.
 
-Para mudanças recorrentes, siga as receitas de [componente](agentes/receitas/componente-design-system.md), [ícone](agentes/receitas/icone.md) e [token](agentes/receitas/token.md). `npm run check` aplica os guardrails de CSS, ícones e shell; `npm run verify` valida o artefato e a paridade com o hub. A [matriz de guardrails](guardrails.md) registra o reparo de cada falha.
+Para mudanças recorrentes, siga as skills [noduct-component](../.agents/skills/noduct-component/SKILL.md), [noduct-icon](../.agents/skills/noduct-icon/SKILL.md) e [noduct-token](../.agents/skills/noduct-token/SKILL.md). `npm run check` aplica os guardrails de CSS, ícones e shell; `npm run verify` valida o artefato e a paridade com o hub. A [matriz de guardrails](guardrails.md) registra o reparo de cada falha.

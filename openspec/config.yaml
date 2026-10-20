@@ -1,0 +1,42 @@
+schema: spec-driven
+
+context: |
+  Language: pt-BR
+  All artifacts must be written in pt-BR.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Projeto: Noduct, ferramentas estáticas que processam arquivos localmente no navegador.
+  Regras obrigatórias: AGENTS.md (raiz e da pasta afetada) e docs/guardrails.md.
+  Mapa de pacotes e fronteiras: docs/architecture/README.md. Glossário: docs/glossario.md.
+  Decisões vigentes: docs/adr/README.md. Uma spec não contradiz ADR; se precisar, proponha um ADR.
+  Interface, código e identificadores em inglês; specs, propostas e decisões em pt-BR.
+  Comandos: npm run check durante o trabalho; npm run verify antes de declarar pronto.
+  O CLI do OpenSpec é devDependency local: onde uma skill mandar rodar `openspec <cmd>`, rode `npx openspec <cmd>`.
+githubCopilot:
+  cloudAgent: false
+
+rules:
+  proposal:
+    - Cite a issue do GitHub que motiva a mudança e o que fica fora do escopo.
+    - Liste os pacotes e superfícies afetados (hub, ferramentas, template, design system).
+    - Diga quais itens do Contrato de conformidade do AGENTS.md a mudança toca.
+  specs:
+    - Descreva comportamento observável, nunca a implementação.
+    - Cubra en, pt-BR e es quando houver texto visível, e os dois temas quando houver mudança visual.
+    - Use os nomes do glossário em docs/glossario.md.
+  design:
+    - Respeite a direção de dependências de docs/architecture/README.md.
+    - Liste todos os pontos de uso de um padrão compartilhado e o código antigo a remover.
+    - Mudanças em dependências, topologia, tokens globais ou guardrails exigem autorização registrada.
+  tasks:
+    - Cada tarefa cita os arquivos que toca e termina com um comando de validação.
+    - Inclua testes que verificam o resultado renderizado ou o comportamento, não o código-fonte.
+    - A última tarefa roda npm run verify e registra a saída no PR.
+
+operations:
+  apply:
+    guidance:
+      - Rode npm run check entre as tarefas e corrija a causa das falhas; nunca suprima guardrails.
+  archive:
+    guidance:
+      - Arquive só depois de npm run verify verde e do merge da mudança.

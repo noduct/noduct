@@ -1,6 +1,6 @@
 # Memória arquitetural da issue #39
 
-Esta nota acompanha a [issue #39](https://github.com/noduct/noduct/issues/39) e o [ADR 0005](../adr/0005-unified-shell-topology-guardrails.md). Deve ser atualizada ao concluir cada fase. Ela registra **por que** cada contrato existe, para que uma entrega não seja considerada pronta apenas porque compila ou porque seus checkboxes foram marcados.
+Registro histórico do recomeço estrutural ([issue #39](https://github.com/noduct/noduct/issues/39), [ADR 0005](../adr/0005-unified-shell-topology-guardrails.md)). As regras vigentes estão no [AGENTS.md](../../AGENTS.md), nos ADRs e nas specs de `openspec/specs/`; decisões novas entram como ADR, não aqui. A nota registra **por que** cada contrato existe, para que uma entrega não seja considerada pronta apenas porque compila ou porque seus checkboxes foram marcados.
 
 ## Por que a issue existe
 

@@ -1,18 +1,22 @@
-## Issue e fase
+## Issue
 
-Closes #<!-- número -->. Fase: <!-- número e objetivo -->.
+Closes #<!-- número -->. Etapa entregue: <!-- objetivo desta entrega -->.
 
-## Contrato de conformidade (#39 / ADR 0005)
+Mudança OpenSpec: <!-- openspec/changes/<nome>, ou "não se aplica" com motivo -->.
 
-- [ ] Shell compartilhado `AppShell` e `ToolPage`; drawer em `actions`.
+## Contrato de conformidade ([AGENTS.md](../AGENTS.md#contrato-de-conformidade))
+
+- [ ] Shell compartilhado `AppShell` e `ToolPage`; nenhum header, footer, Settings ou breadcrumb próprio.
+- [ ] Área Local só por `DropZone` e `DownloadCard` com `workspace` (ADR 0006); nada no header.
 - [ ] URLs e locale via `@noduct/tool-runtime`.
-- [ ] Ícones via `Icon` e tokens nos dois temas.
-- [ ] i18n en, pt-BR e es, inclusive scripts e erros.
+- [ ] Ícones via `Icon`; tokens nos dois temas; ações com texto usam `Button`.
+- [ ] i18n en, pt-BR e es, inclusive scripts, erros, anúncios e nomes de arquivo.
 - [ ] CSS Modules sem hashes escritos à mão.
 - [ ] SEO, H1, hreflang e JSON-LD revisados.
 - [ ] WCAG AA, teclado, foco, toque e movimento reduzido revisados.
 - [ ] Testes existentes preservados; ferramenta nova coberta por paridade e montagem.
 - [ ] Guardrails preservados; exceções justificadas abaixo.
+- [ ] Specs vivas e documentação atualizadas quando o comportamento mudou.
 - [ ] `npm run verify` verde localmente e no CI.
 
 Marque “não se aplica” com motivo quando um item não for afetado.
@@ -27,4 +31,4 @@ Descreva regra, arquivo, motivo, alternativa considerada, impacto, testes e apro
 
 ## Dúvidas e riscos
 
-Registre divergências entre issue, ADR e instruções antes de alterar contrato.
+Registre divergências entre issue, ADR, spec e instruções antes de alterar contrato.
