@@ -2,6 +2,7 @@
 import { topology, type Locale } from '@noduct/tool-runtime';
 import { formatFileSize } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
+import Button from './Button.astro';
 import { fileWorkflowMessages } from '../file-workflow/messages';
 import { workspaceUiMessages } from '../workspace-ui/messages';
 import styles from './DownloadCard.module.css';
@@ -56,23 +57,22 @@ const titleId = `${id}-title`;
     </p>
   </div>
   <div class={styles.actions}>
-    <button type="button" class={styles.primary} data-download-link data-download-url={downloadUrl}>
+    <Button variant="primary" data-download-link data-download-url={downloadUrl}>
       {m.download}
-    </button>
+    </Button>
     {
       workspace && (
-        <button
-          type="button"
-          class={styles.secondary}
+        <Button
+          variant="secondary"
           hidden
           data-download-save
           data-state="idle"
         >
           {wm.saveToWorkspace}
-        </button>
+        </Button>
       )
     }
-    <button type="button" class={styles.secondary} data-download-restart>{m.startOver}</button>
+    <Button variant="secondary" data-download-restart>{m.startOver}</Button>
   </div>
   {
     workspace && (

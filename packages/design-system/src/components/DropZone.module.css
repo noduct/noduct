@@ -58,37 +58,12 @@
 }
 
 .trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-background);
-  font-size: 0.9375rem;
-  font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    transform var(--duration-instant) var(--ease-out-quad);
-}
-
-.trigger:hover {
-  background: var(--color-primary-hover);
-}
-
-.trigger:active {
-  transform: scale(var(--scale-active-button));
 }
 
 .input:focus-visible + .trigger {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
 }
 
 .input:disabled + .trigger {
@@ -107,53 +82,42 @@
 }
 
 /* Segunda origem (ADR 0006): mesmo peso visual de um botão secundário, ao lado do primário. */
-.source {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  box-sizing: border-box;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-card);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm), var(--rim-light);
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    border-color var(--duration-fast) var(--ease-apple),
-    transform var(--duration-instant) var(--ease-out-quad);
+.zone .workspaceSource[data-loading='true'] {
+  cursor: progress;
+  opacity: 1;
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
 }
 
-.source[hidden] {
+.workspaceSource[data-loading='true'] .sourceIcon,
+.workspaceSource:not([data-loading='true']) .sourceSpinner {
   display: none;
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .source:not(:disabled):hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface-hover);
+.sourceSpinner {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-strong);
+  border-top-color: currentColor;
+  border-radius: var(--radius-circle);
+  animation: source-spin calc(var(--duration-slow) * 2) linear infinite;
+}
+
+@keyframes source-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-.source:not(:disabled):active {
-  transform: scale(var(--scale-active-button));
+@media (prefers-reduced-motion: reduce) {
+  .sourceSpinner {
+    animation: none;
+  }
 }
 
-.source:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus-ring);
-}
-
-.source:disabled {
-  color: var(--color-text-muted);
-  cursor: not-allowed;
-  box-shadow: none;
+:global(html[data-motion='reduce']) .sourceSpinner {
+  animation: none;
 }
 
 .status {
@@ -177,8 +141,7 @@
     width: 100%;
   }
 
-  .trigger,
-  .source {
+  .sources > :is(label, button) {
     width: 100%;
   }
 }

@@ -8,8 +8,7 @@ function crc32Update(current: number, bytes: Uint8Array): number {
   let crc = current;
   for (const byte of bytes) {
     crc ^= byte;
-    for (let bit = 0; bit < 8; bit += 1)
-      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    for (let bit = 0; bit < 8; bit += 1) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
   }
   return crc;
 }
@@ -29,7 +28,11 @@ async function crc32(blob: Blob): Promise<number> {
 }
 
 function safeName(name: string, used: Set<string>): string {
-  const cleaned = name.replace(/[\\/\u0000-\u001f]/g, '_').trim();
+  const cleaned = Array.from(name, (character) =>
+    character === '/' || character === '\\' || character.charCodeAt(0) < 32 ? '_' : character
+  )
+    .join('')
+    .trim();
   if (!cleaned) throw new ZipLimitError('ZIP_NAME');
   const dot = cleaned.lastIndexOf('.');
   const stem = dot > 0 ? cleaned.slice(0, dot) : cleaned;
@@ -64,8 +67,7 @@ export async function createZipArchive(
     const name = encoder.encode(safeName(file.name, used));
     if (name.length > 0xffff || file.blob.size > MAX_ZIP32) throw new ZipLimitError('ZIP_SIZE');
     const headerLength = 30 + name.length;
-    if (offset + headerLength + file.blob.size > MAX_ZIP32)
-      throw new ZipLimitError('ZIP_SIZE');
+    if (offset + headerLength + file.blob.size > MAX_ZIP32) throw new ZipLimitError('ZIP_SIZE');
     const crc = await crc32(file.blob);
     const header = new Uint8Array(headerLength);
     const view = new DataView(header.buffer);

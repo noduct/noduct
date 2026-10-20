@@ -1,7 +1,7 @@
 import { createToast } from '../components/toast';
 import { confirmAction } from '../shell/confirm-dialog';
 import type { WorkspaceServices, WorkspaceSummaryLike } from './contracts';
-import { describeSaved, sortDocuments } from './document-format';
+import { describeSaved, sortDocuments, workspaceFileKind } from './document-format';
 import {
   formatWorkspaceBytes,
   formatWorkspaceError,
@@ -28,7 +28,8 @@ export function armWorkspaceRecents(
   const status = root.querySelector<HTMLElement>('[data-recents-status]');
   const linkLabel = root.querySelector<HTMLElement>('[data-recents-link-label]');
   const toastHost = root.querySelector<HTMLElement>('[data-toast]');
-  if (!list || !template || !moreTemplate || !count || !status || !linkLabel || !toastHost)
+  const loading = root.querySelector<HTMLElement>('[data-workspace-loading]');
+  if (!list || !template || !moreTemplate || !count || !status || !linkLabel || !toastHost || !loading)
     return undefined;
   const locale = resolveWorkspaceUiLocale(root.dataset.locale);
   const messages = workspaceUiMessages[locale];
@@ -40,6 +41,8 @@ export function armWorkspaceRecents(
   const showState = (hasDocuments: boolean) => {
     root.dataset.state = hasDocuments ? 'list' : 'intro';
     list.hidden = !hasDocuments;
+    loading.hidden = true;
+    list.setAttribute('aria-busy', 'false');
     linkLabel.textContent =
       (hasDocuments ? linkLabel.dataset.list : linkLabel.dataset.intro) ?? linkLabel.textContent;
   };
@@ -62,6 +65,8 @@ export function armWorkspaceRecents(
       }
       if (saved) saved.textContent = describeSaved(entry, locale);
       if (size) size.textContent = formatWorkspaceBytes(entry.size, locale);
+      const kind = node.querySelector<HTMLElement>('[data-file-kind-icon]');
+      if (kind) kind.dataset.kind = workspaceFileKind(entry);
       const preview = node.querySelector<HTMLButtonElement>('[data-action="preview"]');
       if (preview) {
         preview.hidden = entry.mimeType !== 'application/pdf' && !/\.pdf$/i.test(entry.name);
@@ -135,6 +140,7 @@ export function armWorkspaceRecents(
 
   const refresh = async () => {
     if (await services.hasStoredWorkspace()) await sync.sync();
+    else showState(false);
   };
   const onVisible = () => {
     if (document.visibilityState === 'visible') void refresh();

@@ -118,7 +118,7 @@ export class ObjectUrls {
   }
 }
 
-/** Troca o ícone de fallback por `<img alt="">` decorativa quando a prévia existir. */
+/** Troca o ícone neutro de fallback pela prévia decorativa quando ela existir. */
 export function showThumbnail(slot: Element | null, url: string | undefined): void {
   if (!(slot instanceof HTMLElement)) return;
   let image = slot.querySelector<HTMLImageElement>('img');

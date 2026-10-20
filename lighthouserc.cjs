@@ -35,7 +35,9 @@ module.exports = {
         matchingUrlPattern: exactUrlPattern(path),
         assertions: {
           ...assertions,
-          ...(indexable ? { 'categories:seo': ['error', { minScore: 0.95 }] } : {})
+          // Lighthouse keeps noindex in the category score even when its assertion is off.
+          'categories:seo': ['error', { minScore: indexable ? 0.95 : 0.9 }],
+          ...(indexable ? {} : { 'is-crawlable': 'off' })
         }
       }))
     },

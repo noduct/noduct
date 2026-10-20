@@ -101,7 +101,6 @@
 }
 
 .close:focus-visible,
-.confirm:focus-visible,
 .manage:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus-ring);
@@ -178,6 +177,7 @@
 }
 
 .option {
+  position: relative;
   display: grid;
   grid-template-columns: auto auto minmax(0, 1fr);
   align-items: center;
@@ -209,15 +209,42 @@
   box-shadow: var(--shadow-focus-ring);
 }
 
+/*
+ * O input nativo continua sendo o controle (checkbox ou rádio, teclado e leitor de tela), mas fica
+ * invisível: quem desenha o estado é a mesma caixa do `SelectionControl` da Área Local.
+ */
 .input {
-  width: 20px;
-  height: 20px;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   margin: 0;
-  accent-color: var(--color-primary);
+  opacity: 0;
+  cursor: pointer;
 }
 
 .input:focus-visible {
   outline: none;
+}
+
+.input[type='radio'] + .box {
+  border-radius: var(--radius-circle);
+}
+
+.input:checked + .box {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.input:checked + .box svg {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .option:hover .box {
+    border-color: var(--color-primary);
+  }
 }
 
 .thumb {
@@ -257,11 +284,6 @@
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.meta {
-  color: var(--color-text-secondary);
-  font-size: 0.75rem;
 }
 
 .empty {
@@ -339,38 +361,3 @@
   font-size: 0.8125rem;
 }
 
-.confirm {
-  min-height: 44px;
-  padding: 0 var(--space-4);
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm), var(--rim-light);
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    transform var(--duration-fast) var(--ease-apple);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .confirm:not(:disabled):hover {
-    background: var(--color-primary-hover);
-  }
-}
-
-.confirm:not(:disabled):active {
-  transform: scale(var(--scale-active-button));
-  transition-duration: var(--duration-instant);
-}
-
-.confirm:disabled {
-  border-color: var(--color-border);
-  background: var(--color-surface-sunken);
-  color: var(--color-text-muted);
-  box-shadow: none;
-  cursor: not-allowed;
-}

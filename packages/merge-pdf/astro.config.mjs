@@ -14,7 +14,12 @@ export default defineConfig({
   // descobre a dependência no meio da sessão e não serve "Outdated Optimize Dep".
   vite: {
     optimizeDeps: { include: ['pdfjs-dist/legacy/build/pdf.mjs'] },
-    server: { strictPort: true, hmr: { path: `${base}__vite_hmr` } }
+    server: { strictPort: true, hmr: { path: `${base}/__vite_hmr` } },
+    plugins: [{ name: 'noduct-dev-reload', handleHotUpdate(context) {
+      context.server.ws.send({ type: 'full-reload' });
+      return [];
+    } }]
   },
+  devToolbar: { enabled: false },
   integrations: [sitemap()]
 });

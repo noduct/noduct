@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { guardrails } from '../guardrails.config';
+export const GUARDRAIL_IDS = ['ratchet'];
 
 const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const SOURCE_FILE = /\.(?:ts|tsx|js|jsx|mjs|cjs|mts|cts|astro|css)$/;
@@ -285,13 +286,23 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   } else {
     try {
       const label = await prHasLabel();
-      const result = evaluateRatchet(snapshotAt(baseRef), workingSnapshot(), label);
+      const baseline = snapshotAt(baseRef);
+      const current = workingSnapshot();
+      const result = evaluateRatchet(baseline, current, label);
       for (const violation of result.violations) {
+        const counter = /^([^ ]+) increased by/.exec(violation)?.[1];
         const path = violation.startsWith('allowlist:')
           ? CONFIG_PATH
-          : violation.split(' ')[0] || CONFIG_PATH;
+          : counter
+            ? [...current.files].find(([file, source]) =>
+                source.split(counter).length > (baseline.files.get(file) ?? '').split(counter).length
+              )?.[0] ?? CONFIG_PATH
+            : violation.split(' ')[0] || CONFIG_PATH;
+        const before = (baseline.files.get(path) ?? '').split('\n');
+        const after = (current.files.get(path) ?? '').split('\n');
+        const line = Math.max(1, after.findIndex((content, index) => content !== before[index]) + 1);
         console.error(
-          `[ratchet] ${path}:1 — ${violation}. Aumento silencioso de exceções oculta regressões. Corrija a causa ou obtenha label guardrail-change e justificativa aprovada pelo dono. Ver docs/guardrails.md#ratchet`
+          `[ratchet] ${path}:${line} — ${violation}. Aumento silencioso de exceções oculta regressões. Corrija a causa ou obtenha label guardrail-change e justificativa aprovada pelo dono. Ver docs/guardrails.md#ratchet`
         );
       }
       if (result.violations.length > 0) process.exitCode = 1;

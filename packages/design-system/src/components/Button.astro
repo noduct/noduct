@@ -1,0 +1,78 @@
+---
+import Icon from '../icons/Icon.astro';
+import type { IconName } from '../icons/registry';
+import styles from './Button.module.css';
+
+export interface Props {
+  variant?: 'primary' | 'secondary' | 'quiet' | 'danger' | 'danger-quiet' | undefined;
+  size?: 'sm' | 'md' | 'lg' | undefined;
+  type?: 'button' | 'submit' | 'reset' | undefined;
+  href?: string | undefined;
+  icon?: IconName | undefined;
+  iconTrailing?: IconName | undefined;
+  disabled?: boolean | undefined;
+  id?: string | undefined;
+  class?: string | undefined;
+  ariaLabel?: string | undefined;
+  ariaControls?: string | undefined;
+  ariaExpanded?: boolean | 'true' | 'false' | undefined;
+  hidden?: boolean | undefined;
+  [key: `data-${string}`]: unknown;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  type = 'button',
+  href,
+  icon,
+  iconTrailing,
+  disabled = false,
+  id,
+  class: className,
+  ariaLabel,
+  ariaControls,
+  ariaExpanded,
+  hidden = false,
+  ...rest
+} = Astro.props;
+
+const classes = [styles.button, styles[variant], styles[size], className];
+---
+
+{
+  href ? (
+    <a
+      id={id}
+      href={disabled ? undefined : href}
+      aria-disabled={disabled ? 'true' : undefined}
+      tabindex={disabled ? -1 : undefined}
+      aria-label={ariaLabel}
+      aria-controls={ariaControls}
+      aria-expanded={ariaExpanded}
+      hidden={hidden || undefined}
+      class:list={classes}
+      {...rest}
+    >
+      {icon && <Icon name={icon} class={styles.iconLeading} />}
+      <slot />
+      {iconTrailing && <Icon name={iconTrailing} class={styles.iconTrailing} />}
+    </a>
+  ) : (
+    <button
+      id={id}
+      type={type}
+      disabled={disabled || undefined}
+      aria-label={ariaLabel}
+      aria-controls={ariaControls}
+      aria-expanded={ariaExpanded}
+      hidden={hidden || undefined}
+      class:list={classes}
+      {...rest}
+    >
+      {icon && <Icon name={icon} class={styles.iconLeading} />}
+      <slot />
+      {iconTrailing && <Icon name={iconTrailing} class={styles.iconTrailing} />}
+    </button>
+  )
+}

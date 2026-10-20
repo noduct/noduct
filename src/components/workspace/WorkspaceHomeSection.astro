@@ -27,11 +27,28 @@ const { locale } = Astro.props as { locale: Locale };
     }
   };
 
+  const showIntro = () => {
+    const section = wrap?.querySelector<HTMLElement>('[data-workspace-recents]');
+    const loading = section?.querySelector<HTMLElement>('[data-workspace-loading]');
+    const list = section?.querySelector<HTMLElement>('[data-recents-list]');
+    if (loading) loading.hidden = true;
+    list?.setAttribute('aria-busy', 'false');
+  };
+
   const refresh = async () => {
-    if (!wrap || connected || !(await hasWorkspace())) return;
+    if (!wrap || connected) return;
+    if (!(await hasWorkspace())) {
+      showIntro();
+      return;
+    }
     connected = true;
-    const { connectHubWorkspace } = await import('./WorkspaceIsland');
-    connectHubWorkspace();
+    try {
+      const { connectHubWorkspace } = await import('./WorkspaceIsland');
+      connectHubWorkspace();
+    } catch {
+      connected = false;
+      showIntro();
+    }
   };
 
   void refresh();

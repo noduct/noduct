@@ -1,6 +1,6 @@
 {
   "name": "@noduct/design-system",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "peerDependencies": {
@@ -12,8 +12,8 @@
     "zod": "^3.25.0"
   },
   "scripts": {
-    "check": "astro check --root ../..",
-    "test": "vitest run"
+    "check": "astro check --root .",
+    "test": "vitest run --root ../.. packages/design-system/src"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -44,6 +44,7 @@
     "./components/ProcessingFeedback.astro": "./src/components/ProcessingFeedback.astro",
     "./components/DownloadCard.astro": "./src/components/DownloadCard.astro",
     "./components/WorkspaceManager.astro": "./src/components/WorkspaceManager.astro",
-    "./components/WorkspaceRecents.astro": "./src/components/WorkspaceRecents.astro"
+    "./components/WorkspaceRecents.astro": "./src/components/WorkspaceRecents.astro",
+    "./components/Button.astro": "./src/components/Button.astro"
   }
 }

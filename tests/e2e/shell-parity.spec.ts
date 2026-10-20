@@ -6,6 +6,7 @@ import {
   type Locator,
   type Page
 } from '@playwright/test';
+export const GUARDRAIL_IDS = ['shell-parity'];
 import { topology, type Locale } from '@noduct/tool-runtime';
 import { deployedTools } from '../../scripts/pages-manifest';
 import { readFileSync } from 'node:fs';
@@ -134,8 +135,8 @@ async function assertOpenStateParity(hub: Page, tool: Page, trigger: string, nam
   await toolTrigger.click();
 }
 
-async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'footer') {
-  const repair = `[shell-parity] tests/e2e/shell-parity.spec.ts:117 — ${selector} deve ser igual no hub e na ferramenta para preservar navegação e preferências. Use AppShell do design system; veja packages/merge-pdf/src/pages/index.astro. Ver docs/guardrails.md#shell-parity`;
+async function assertRegionParity(hub: Page, tool: Page, selector: 'header' | 'footer', context: string) {
+  const repair = `[shell-parity] tests/e2e/shell-parity.spec.ts:138 — ${context} / ${selector} divergiu do hub. Use AppShell do design system e confira estilos e conteúdo desta região. Ver docs/guardrails.md#shell-parity`;
   const hubRegion = hub.locator(`body > ${selector}`);
   const toolRegion = tool.locator(`body > ${selector}`);
   await expect(hubRegion).toBeVisible();
@@ -212,8 +213,8 @@ for (const profile of profiles) {
               const context = `${slug} / ${profile.name} / ${locale} / ${theme}`;
               await assertNoWorkspaceInHeader(tool.page, context);
               // Sem nada escondido: o header da ferramenta precisa ser idêntico ao do hub.
-              await assertRegionParity(hub.page, tool.page, 'header');
-              await assertRegionParity(hub.page, tool.page, 'footer');
+              await assertRegionParity(hub.page, tool.page, 'header', context);
+              await assertRegionParity(hub.page, tool.page, 'footer', context);
               await assertOpenStateParity(hub.page, tool.page, '[data-settings-trigger]', 'Settings open', context, slug);
               await assertOpenStateParity(hub.page, tool.page, '[data-menu-button]', 'mobile menu open', context, slug);
               await assertOpenStateParity(hub.page, tool.page, '[data-categories-menu] > summary', 'category dropdown open', context, slug);

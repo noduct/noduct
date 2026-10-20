@@ -1,6 +1,6 @@
 ---
 import ToolCard from './ToolCard.astro';
-import Icon from '@noduct/design-system/icons/Icon.astro';
+import Button from '@noduct/design-system/components/Button.astro';
 import type { ToolDefinition } from '@/types/tool';
 import { getMessages } from '@/i18n/messages';
 import type { Locale } from '@/i18n/config';
@@ -16,10 +16,9 @@ const m = getMessages(locale);
       <p class="kicker">{m.recent.kicker}</p>
       <h2 id="recent-title" class="title">{m.recent.title}</h2>
     </div>
-    <button type="button" data-clear-recent class="clear-btn">
-      <Icon class="clear-icon" name="trash-2" />
+    <Button variant="danger-quiet" icon="trash-2" data-clear-recent>
       <span>{m.recent.clear}</span>
-    </button>
+    </Button>
   </div>
   <div class="items" data-recent-items>
     {
@@ -63,32 +62,6 @@ const m = getMessages(locale);
     font-size: 1rem;
     font-weight: 600;
     color: var(--color-text);
-  }
-
-  .clear-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 4px 8px;
-    border: 1px solid transparent;
-    border-radius: var(--radius-xs);
-    background: transparent;
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
-    cursor: pointer;
-    transition:
-      color var(--duration-fast) var(--ease-apple),
-      background-color var(--duration-fast) var(--ease-apple);
-  }
-
-  .clear-btn:hover {
-    color: var(--color-error);
-    background: var(--color-error-soft-hover);
-  }
-
-  .clear-icon {
-    width: 13px;
-    height: 13px;
   }
 
   .items {

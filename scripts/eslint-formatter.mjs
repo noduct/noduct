@@ -1,4 +1,5 @@
 import { relative } from 'node:path';
+export const GUARDRAIL_IDS = ['require-app-shell', 'no-hardcoded-text', 'no-raw-svg', 'architecture-boundary', 'lint-rule'];
 
 const details = {
   'noduct/require-app-shell': [

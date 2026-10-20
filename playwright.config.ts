@@ -27,15 +27,19 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop',
-      testIgnore: '**/shell-parity.spec.ts',
+      testIgnore: ['**/shell-parity.spec.ts', '**/dev-same-origin.spec.ts'],
       use: { ...devices['Desktop Chrome'] }
     },
     {
       name: 'tablet',
-      testIgnore: '**/shell-parity.spec.ts',
+      testIgnore: ['**/shell-parity.spec.ts', '**/dev-same-origin.spec.ts'],
       use: { ...devices['Desktop Chrome'], viewport: { width: 820, height: 1180 }, hasTouch: true }
     },
-    { name: 'mobile', testIgnore: '**/shell-parity.spec.ts', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'mobile',
+      testIgnore: ['**/shell-parity.spec.ts', '**/dev-same-origin.spec.ts'],
+      use: { ...devices['Pixel 7'] }
+    },
     { name: 'pages', testMatch: '**/shell-parity.spec.ts', use: { ...devices['Desktop Chrome'] } }
   ]
 });

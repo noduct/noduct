@@ -4,9 +4,13 @@ import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
 import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
 import Select from './Select.astro';
+import Button from './Button.astro';
+import buttonStyles from './Button.module.css';
 import SelectionControl from './SelectionControl.astro';
 import Toast from './Toast.astro';
 import WorkspaceFileMeta from './WorkspaceFileMeta.astro';
+import WorkspaceFileTypeIcon from './WorkspaceFileTypeIcon.astro';
+import WorkspaceLoading from './WorkspaceLoading.astro';
 import item from './WorkspaceItem.module.css';
 import styles from './WorkspaceManager.module.css';
 
@@ -23,7 +27,6 @@ const searchId = `${id}-search`;
 const inputId = `${id}-input`;
 const privacyId = `${id}-privacy`;
 const listId = `${id}-list`;
-const renameId = `${id}-rename`;
 ---
 
 <div
@@ -93,7 +96,7 @@ const renameId = `${id}-rename`;
           multiple
           data-manager-input
         />
-        <label for={inputId} class={styles.addButton}>
+        <label for={inputId} class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.addButton]}>
           <Icon name="upload" />
           <span>{m.addFiles}</span>
         </label>
@@ -126,43 +129,30 @@ const renameId = `${id}-rename`;
       <p class={styles.count} data-manager-count></p>
       <p class={styles.status} role="status" aria-live="polite" data-manager-status></p>
     </div>
-    <div class={styles.selectionBar} data-selection-bar hidden>
-      <span class={styles.selectionCount} data-selection-count></span>
-      <button type="button" class={styles.selectionTextButton} data-selection-action="all-visible">
-        {m.selectVisible}
-      </button>
-      <button type="button" class={styles.selectionTextButton} data-selection-action="clear">
-        {m.clearSelection}
-      </button>
-      <span class={styles.selectionActions}>
-        <button type="button" class={styles.selectionButton} data-selection-action="rename">
-          {m.rename}
-        </button>
-        <button type="button" class={styles.selectionButton} data-selection-action="download">
-          <Icon name="download" /><span>{m.downloadSelected}</span>
-        </button>
-        <button type="button" class:list={[styles.selectionButton, styles.selectionDanger]} data-selection-action="delete">
-          <Icon name="trash-2" /><span>{m.deleteSelected}</span>
-        </button>
-      </span>
-      <form class={styles.renameForm} data-rename-form hidden>
-        <label for={renameId}>{m.renameLabel}</label>
-        <input id={renameId} type="text" maxlength="255" required data-rename-input />
-        <button type="submit" class={styles.selectionButton} data-rename-save>{m.renameSave}</button>
-        <button type="button" class={styles.selectionTextButton} data-rename-cancel>{m.close}</button>
-      </form>
-    </div>
-    <ul id={listId} class={styles.list} aria-label={m.listLabel} data-view="list" data-manager-list>
+    <WorkspaceLoading variant="manager" label={m.loading} />
+    <ul id={listId} class={styles.list} aria-label={m.listLabel} aria-busy="true" data-view="list" data-manager-list>
     </ul>
     <div class={styles.empty} data-manager-empty hidden>
       <span class={styles.emptyIcon}><Icon name="folder" /></span>
       <p class={styles.emptyTitle}>{m.emptyTitle}</p>
       <p>{m.emptyText}</p>
-      <label for={inputId} class={styles.addButton}>
+      <label for={inputId} class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.addButton]}>
         <Icon name="upload" />
         <span>{m.addFiles}</span>
       </label>
     </div>
+  </div>
+
+  <div class={styles.selectionBar} role="group" aria-label={m.selectionToolbar} data-selection-bar hidden>
+    <span class={styles.selectionCount} role="status" aria-live="polite" data-selection-count></span>
+    <span class={styles.selectionChoices}>
+      <Button variant="quiet" data-selection-action="all-visible">{m.selectVisible}</Button>
+      <Button variant="quiet" data-selection-action="clear">{m.clearSelection}</Button>
+    </span>
+    <span class={styles.selectionActions}>
+      <Button variant="secondary" icon="download" data-selection-action="download">{m.downloadSelected}</Button>
+      <Button variant="danger-quiet" icon="trash-2" data-selection-action="delete">{m.deleteSelected}</Button>
+    </span>
   </div>
 
   <Toast />
@@ -178,10 +168,7 @@ const renameId = `${id}-rename`;
         {m.privacyPoints.map((point) => <li>{point}</li>)}
       </ul>
     </details>
-    <button type="button" class={styles.clear} hidden data-manager-clear>
-      <Icon name="trash-2" />
-      <span>{m.clearAll}</span>
-    </button>
+    <Button variant="danger-quiet" icon="trash-2" hidden data-manager-clear>{m.clearAll}</Button>
   </div>
 
   <template data-manager-item>
@@ -189,7 +176,7 @@ const renameId = `${id}-rename`;
       <SelectionControl class={styles.selection} />
       <span class:list={[item.thumb, styles.thumb]} data-thumb><Icon name="file-text" /></span>
       <span class={styles.info}>
-        <span class={item.name} data-name></span>
+        <span class={item.nameLine}><WorkspaceFileTypeIcon /><span class={item.name} data-name></span></span>
         <WorkspaceFileMeta />
         <span class={item.badge} data-retention-badge>
           <span data-retention></span>

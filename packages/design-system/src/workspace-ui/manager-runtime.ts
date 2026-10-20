@@ -9,6 +9,7 @@ import {
   describeRetention,
   matchesSearch,
   sortDocuments,
+  workspaceFileKind,
   type WorkspaceSort
 } from './document-format';
 import {
@@ -27,14 +28,14 @@ import {
 } from './surface';
 import { createWorkspaceSync } from './sync';
 import { createZipArchive, ZipLimitError } from './zip';
+import { WORKSPACE_VIEW_KEY } from './view-preference';
 
 const SORTS: readonly WorkspaceSort[] = ['recent', 'name', 'size'];
 type View = 'list' | 'grid';
-const VIEW_KEY = 'noduct-workspace-view';
 
 function readView(): View {
   try {
-    return localStorage.getItem(VIEW_KEY) === 'grid' ? 'grid' : 'list';
+    return localStorage.getItem(WORKSPACE_VIEW_KEY) === 'grid' ? 'grid' : 'list';
   } catch {
     return 'list';
   }
@@ -42,7 +43,7 @@ function readView(): View {
 
 function writeView(view: View): void {
   try {
-    localStorage.setItem(VIEW_KEY, view);
+    localStorage.setItem(WORKSPACE_VIEW_KEY, view);
   } catch {
     // Preferência de conveniência: sem armazenamento, a página só não lembra a escolha.
   }
@@ -70,14 +71,13 @@ export function armWorkspaceManager(
   const count = pick<HTMLElement>('[data-manager-count]');
   const clear = pick<HTMLButtonElement>('[data-manager-clear]');
   const toastHost = pick<HTMLElement>('[data-toast]');
+  const loading = pick<HTMLElement>('[data-workspace-loading]');
   const selectionBar = pick<HTMLElement>('[data-selection-bar]');
   const selectionCount = pick<HTMLElement>('[data-selection-count]');
-  const renameForm = pick<HTMLFormElement>('[data-rename-form]');
-  const renameInput = pick<HTMLInputElement>('[data-rename-input]');
-  const renameCancel = pick<HTMLButtonElement>('[data-rename-cancel]');
   if (!list || !template || !search || !sortRoot || !views || !input || !meter || !usage) return;
   if (!estimate || !status || !empty || !count || !clear || !toastHost) return;
-  if (!selectionBar || !selectionCount || !renameForm || !renameInput || !renameCancel) return;
+  if (!selectionBar || !selectionCount) return;
+  if (!loading) return;
 
   const locale = resolveWorkspaceUiLocale(root.dataset.locale);
   const messages = workspaceUiMessages[locale];
@@ -98,6 +98,7 @@ export function armWorkspaceManager(
 
   const setView = (view: View, remember: boolean) => {
     list.dataset.view = view;
+    loading.dataset.view = view;
     views
       .querySelectorAll<HTMLButtonElement>('[data-view]')
       .forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
@@ -105,15 +106,15 @@ export function armWorkspaceManager(
   };
 
   const renderSelection = () => {
-    selectionBar.hidden = selected.size === 0;
-    if (selected.size !== 1) renameForm.hidden = true;
+    const active = selected.size > 0;
+    selectionBar.hidden = !active;
+    root.dataset.selectionActive = String(active);
+    root.style.setProperty('--selection-bar-height', `${selectionBar.getBoundingClientRect().height}px`);
     selectionCount.textContent = messages.selected(selected.size);
     selectionBar.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
       button.disabled = busy || (button.dataset.selectionAction === 'all-visible' &&
-        (visible.length === 0 || visible.every((entry) => selected.has(entry.id)))) ||
-        (button.dataset.selectionAction === 'rename' && selected.size !== 1);
+        (visible.length === 0 || visible.every((entry) => selected.has(entry.id))));
     });
-    renameInput.disabled = busy;
     list.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
       button.disabled = busy;
     });
@@ -144,6 +145,8 @@ export function armWorkspaceManager(
           : messages.selectFile(document.name));
       }
       set('[data-name]', document.name);
+      const kind = node.querySelector<HTMLElement>('[data-file-kind-icon]');
+      if (kind) kind.dataset.kind = workspaceFileKind(document);
       node.querySelector('[data-name]')?.setAttribute('title', document.name);
       set('[data-saved]', describeSaved(document, locale));
       set('[data-size]', formatWorkspaceBytes(document.size, locale));
@@ -186,6 +189,10 @@ export function armWorkspaceManager(
     count.textContent =
       loaded && documents.length > 0 ? messages.fileCount(documents.length) : '';
     items.render(visible);
+    if (loaded) {
+      loading.hidden = true;
+      list.setAttribute('aria-busy', 'false');
+    }
     renderSelection();
     thumbnails.retain(documents.map((document) => document.id));
     if (loaded && documents.length > 0 && visible.length === 0) announce(messages.noResults);
@@ -317,22 +324,18 @@ export function armWorkspaceManager(
       return;
     }
     if (action === 'clear') {
+      const focusId = selected.values().next().value;
       selected.clear();
       render();
+      if (focusId) {
+        [...list.querySelectorAll<HTMLElement>('[data-document-id]')]
+          .find((item) => item.dataset.documentId === focusId)
+          ?.querySelector<HTMLButtonElement>('[data-select-document]')?.focus();
+      }
       return;
     }
     const targets = documents.filter((entry) => selected.has(entry.id));
     if (!targets.length) return;
-    if (action === 'rename') {
-      const target = targets[0];
-      if (!target || targets.length !== 1) return;
-      renameInput.value = target.name;
-      renameForm.hidden = false;
-      renameInput.focus();
-      const dot = target.name.lastIndexOf('.');
-      renameInput.setSelectionRange(0, dot > 0 ? dot : target.name.length);
-      return;
-    }
     if (action === 'download') {
       busy = true;
       renderSelection();
@@ -386,46 +389,9 @@ export function armWorkspaceManager(
         busy = false;
         await sync.sync();
         renderSelection();
+        if (selected.size === 0) search.focus();
       }
     }
-  };
-
-  const onRenameSubmit = (event: Event) => {
-    event.preventDefault();
-    if (busy) return;
-    const target = documents.find((entry) => selected.has(entry.id));
-    if (!target || selected.size !== 1) return;
-    const name = renameInput.value.trim();
-    if (!name) {
-      announce(messages.renameEmpty);
-      renameInput.focus();
-      return;
-    }
-    if (name === target.name) {
-      renameForm.hidden = true;
-      return;
-    }
-    busy = true;
-    renderSelection();
-    void (async () => {
-      try {
-        const { client } = await services.environment();
-        await client.renameDocument(target.id, name);
-        renameForm.hidden = true;
-        await sync.sync();
-        toast.show(messages.renamed(name));
-      } catch (error) {
-        announce(formatWorkspaceError(error, locale));
-      } finally {
-        busy = false;
-        renderSelection();
-      }
-    })();
-  };
-
-  const onRenameCancel = () => {
-    renameForm.hidden = true;
-    selectionBar.querySelector<HTMLButtonElement>('[data-selection-action="rename"]')?.focus();
   };
 
   const onFiles = () => {
@@ -482,13 +448,16 @@ export function armWorkspaceManager(
   };
   const onActionClick = (event: Event) => void onAction(event);
   const onClearClick = () => void onClear();
+  const selectionObserver = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(() => {
+    if (!selectionBar.hidden)
+      root.style.setProperty('--selection-bar-height', `${selectionBar.getBoundingClientRect().height}px`);
+  });
+  selectionObserver?.observe(selectionBar);
 
   setView(readView(), false);
   list.addEventListener('click', onActionClick);
   list.addEventListener('click', onSelection);
   selectionBar.addEventListener('click', onSelectionAction);
-  renameForm.addEventListener('submit', onRenameSubmit);
-  renameCancel.addEventListener('click', onRenameCancel);
   search.addEventListener('input', onSearch);
   sortRoot.addEventListener(SELECT_CHANGE_EVENT, onSearch);
   views.addEventListener('click', onView);
@@ -501,11 +470,11 @@ export function armWorkspaceManager(
     sync.dispose();
     thumbnails.dispose();
     toast.dispose();
+    selectionObserver?.disconnect();
+    root.style.removeProperty('--selection-bar-height');
     list.removeEventListener('click', onActionClick);
     list.removeEventListener('click', onSelection);
     selectionBar.removeEventListener('click', onSelectionAction);
-    renameForm.removeEventListener('submit', onRenameSubmit);
-    renameCancel.removeEventListener('click', onRenameCancel);
     search.removeEventListener('input', onSearch);
     sortRoot.removeEventListener(SELECT_CHANGE_EVENT, onSearch);
     views.removeEventListener('click', onView);

@@ -128,6 +128,9 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
 
   const mergeBtn = page.locator('#start-merge-btn');
   await expect(mergeBtn).toBeEnabled();
+  // Enabled at runtime, the shared Button must also look enabled.
+  await expect(mergeBtn).not.toHaveAttribute('aria-disabled', 'true');
+  await expect(mergeBtn).toHaveCSS('opacity', '1');
 
   // Reorder items: move first down
   const moveDownBtn = page.getByRole('button', { name: 'Move first.pdf down' });
@@ -152,6 +155,7 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
 
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('merged.pdf');
+  expect(download.url()).toMatch(/^blob:/);
 
   // Inspect the downloaded PDF bytes!
   const path = await download.path();
@@ -379,7 +383,9 @@ for (const locale of [
     await expect(card).toBeVisible();
     const downloadPromise = page.waitForEvent('download');
     await card.locator('[data-download-link]').click();
-    expect((await downloadPromise).suggestedFilename()).toBe(locale.fileName);
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe(locale.fileName);
+    expect(download.url()).toMatch(/^blob:/);
   });
 }
 
@@ -514,7 +520,9 @@ test('Local Workspace: the hub page and home section manage what tools saved', a
   await expect(home.getByRole('link', { name: 'View all files' })).toBeVisible();
   const downloadPromise = page.waitForEvent('download');
   await home.getByRole('button', { name: 'Download merged.pdf' }).click();
-  expect((await downloadPromise).suggestedFilename()).toBe('merged.pdf');
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('merged.pdf');
+  expect(download.url()).toMatch(/^blob:/);
 
   // Excluir usa o diálogo do sistema; cancelar não apaga nada.
   await home.getByRole('button', { name: 'Delete merged.pdf' }).click();

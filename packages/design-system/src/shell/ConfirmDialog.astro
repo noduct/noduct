@@ -1,6 +1,7 @@
 ---
 import type { Locale } from '@noduct/tool-runtime';
 import Icon from '../icons/Icon.astro';
+import Button from '../components/Button.astro';
 import { getShellMessages } from './messages';
 import styles from './ConfirmDialog.module.css';
 
@@ -27,8 +28,8 @@ const m = getShellMessages(locale);
       <p id="confirm-dialog-message" class={styles.message} data-confirm-message></p>
     </div>
     <div class={styles.actions}>
-      <button type="button" class={styles.cancel} data-confirm-cancel>{m.confirm.cancel}</button>
-      <button type="button" class={styles.accept} data-confirm-accept></button>
+      <Button variant="secondary" data-confirm-cancel>{m.confirm.cancel}</Button>
+      <Button variant="primary" class={styles.accept} data-confirm-accept />
     </div>
   </div>
 </dialog>

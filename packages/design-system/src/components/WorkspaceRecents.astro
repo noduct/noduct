@@ -4,6 +4,8 @@ import Icon from '../icons/Icon.astro';
 import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
 import Toast from './Toast.astro';
 import WorkspaceFileMeta from './WorkspaceFileMeta.astro';
+import WorkspaceFileTypeIcon from './WorkspaceFileTypeIcon.astro';
+import WorkspaceLoading from './WorkspaceLoading.astro';
 import item from './WorkspaceItem.module.css';
 import styles from './WorkspaceRecents.module.css';
 
@@ -44,13 +46,14 @@ const manageHref = topology.hubPath('workspace/', currentLocale);
     </div>
   </div>
   <p class={styles.status} role="status" aria-live="polite" data-recents-status></p>
-  <ul class={styles.list} aria-label={m.recentsLabel} hidden data-recents-list></ul>
+  <WorkspaceLoading variant="recents" label={m.loading} />
+  <ul class={styles.list} aria-label={m.recentsLabel} aria-busy="true" hidden data-recents-list></ul>
   <Toast />
   <template data-recents-item>
     <li class={styles.card}>
       <span class:list={[item.thumb, styles.thumb]} data-thumb><Icon name="file-text" /></span>
       <span class={styles.text}>
-        <span class={item.name} data-name></span>
+        <span class={item.nameLine}><WorkspaceFileTypeIcon /><span class={item.name} data-name></span></span>
         <WorkspaceFileMeta />
       </span>
       <span class:list={[item.actions, styles.actions]}>

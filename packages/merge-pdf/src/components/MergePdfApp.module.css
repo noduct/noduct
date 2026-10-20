@@ -65,71 +65,6 @@
   gap: var(--space-2);
 }
 
-.mergeButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-6);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-background);
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    transform var(--duration-instant) var(--ease-out-quad);
-}
-
-.mergeButton:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.mergeButton:active:not(:disabled) {
-  transform: scale(var(--scale-active-button));
-}
-
-.mergeButton:disabled {
-  border-color: var(--color-border);
-  background: var(--color-surface-hover);
-  color: var(--color-text-muted);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.clearButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  background: var(--color-surface-card);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-apple);
-}
-
-.clearButton:hover {
-  background: var(--color-surface-hover);
-}
-
-.clearButton[hidden] {
-  display: none;
-}
-
 .privacyNotice {
   display: flex;
   align-items: center;
@@ -174,8 +109,7 @@
     flex-direction: column;
   }
 
-  .mergeButton,
-  .clearButton {
+  .actions > * {
     width: 100%;
   }
 }

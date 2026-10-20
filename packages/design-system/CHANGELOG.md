@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.0 — 2026-10-20
+
+- `Button` público unifica ações com texto e links apresentados como botões em cinco variantes (`primary`, `secondary`, `quiet`, `danger`, `danger-quiet`) e três tamanhos.
+- Novos tokens `--color-action-primary`, `--color-action-danger` e respectivos `-hover`: fundos sólidos com texto branco AA nos dois temas (no escuro, o azul e o vermelho das ações ficam mais fechados que `--color-primary` e `--color-danger`).
+- Variantes elevadas usam o novo token `--rim-light-strong` (0,7 no claro, 0,24 no escuro), mais visível que o `--rim-light` das superfícies; foco, estado desabilitado, movimento reduzido e alvo de toque seguem o mesmo contrato.
+- Hub, Merge PDF, componentes de arquivo, Área Local, diálogo de confirmação e template de ferramenta adotam o componente. Labels de arquivo reutilizam suas classes de estilo.
+
 ## 0.7.0 — 2026-10-19
 
 Área de Trabalho Local híbrida ([ADR 0006](../../docs/adr/0006-hybrid-local-workspace.md)).
@@ -27,6 +34,7 @@
 
 ## 0.5.0 — 2026-10-17
 
+- `DownloadCard` passou de link com `download` para botão que cria um Object URL local no clique. Isso permite controlar o ciclo de vida do arquivo sem navegação; consumidores e testes devem procurar o botão e confirmar o download `blob:`.
 - Adicionados `shell/*`, `ToolPage`, `icons/*`, `base.css` e tokens compartilhados com o hub.
 - Integrado o `WorkspaceDrawer` ao slot `actions` do header, com controle compacto em telas estreitas.
 - Removidos `BrandHeader`, `BrandFooter`, `ToolFrame`, `SponsoredPlacement`, `designPath`, `DesignLocale` e o export público de `SeoHead`.

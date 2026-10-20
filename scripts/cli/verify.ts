@@ -5,15 +5,28 @@ import { assertInstalledDependencies } from './dependencies.ts';
 
 export async function verify(): Promise<void> {
   assertInstalledDependencies();
-  console.log('[verify] 1/5 check');
-  check();
-  console.log('[verify] 2/5 build');
-  await build();
-  console.log('[verify] 3/5 pages');
-  check('pages');
-  console.log('[verify] 4/5 seo');
-  check('seo');
-  console.log('[verify] 5/5 e2e');
-  e2e();
-  console.log('[verify] passed');
+  const results: string[] = [];
+  const steps: Array<[string, () => void | Promise<void>]> = [
+    ['check', () => check()],
+    ['build', () => build()],
+    ['pages', () => check('pages')],
+    ['seo', () => check('seo')],
+    ['e2e', () => e2e()]
+  ];
+  try {
+    for (const [name, task] of steps) {
+      console.log(`[verify] ${results.length + 1}/${steps.length} ${name}`);
+      const started = performance.now();
+      try {
+        await task();
+        results.push(`✔ ${name}: ${((performance.now() - started) / 1000).toFixed(1)}s`);
+      } catch (error) {
+        results.push(`✘ ${name}: ${((performance.now() - started) / 1000).toFixed(1)}s`);
+        throw error;
+      }
+    }
+    console.log('[verify] passed');
+  } finally {
+    console.log(`[verify] ${results.join(' | ')}`);
+  }
 }

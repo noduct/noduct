@@ -102,53 +102,6 @@
   font-size: 0.86rem;
 }
 
-.directoryLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-shrink: 0;
-  min-height: 36px;
-  padding: 0.35rem 0.85rem;
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-  font-size: 0.82rem;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: var(--shadow-sm), var(--rim-light-subtle);
-  transform: scale(1);
-  transition:
-    transform var(--duration-fast) var(--ease-apple),
-    border-color var(--duration-fast) var(--ease-apple),
-    background-color var(--duration-fast) var(--ease-apple),
-    color var(--duration-fast) var(--ease-apple);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .directoryLink:hover {
-    border-color: var(--color-border-strong);
-    color: var(--color-primary);
-    background: var(--color-surface-hover);
-  }
-
-  .directoryLink:hover .linkArrow {
-    transform: translateX(3px);
-  }
-}
-
-.directoryLink:active {
-  transform: scale(var(--scale-active-button));
-  transition-duration: var(--duration-instant);
-}
-
-.linkArrow {
-  width: 14px;
-  height: 14px;
-  transform: translateX(0);
-  transition: transform var(--duration-fast) var(--ease-apple);
-}
-
 /* Integrated Category Segment Bar (Responsive & Touch-ready) */
 .categoryNav {
   width: 100%;

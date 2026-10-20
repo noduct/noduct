@@ -18,13 +18,6 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
-      - run: npm run check
-        env:
-          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: npm run build
-      - run: npm run check -- pages
-      - run: npm run check -- seo
       - name: Cache Playwright Browsers
         uses: actions/cache@v4
         id: playwright-cache
@@ -37,7 +30,10 @@ jobs:
       - name: Install Playwright System Dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
-      - run: npm run test:e2e
+      - run: npm run verify
+        env:
+          GITHUB_BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: npx lhci autorun
   template:
     runs-on: ubuntu-latest
@@ -51,11 +47,17 @@ jobs:
       - name: Generate and review sample tool
         shell: bash
         run: |
-          if npm run new:tool -- ci-sample-tool --category text-tools; then
-            echo "The generated translation placeholders must fail check" >&2
+          npm run new:tool -- ci-sample-tool --category text-tools
+          test -f packages/ci-sample-tool/src/config.ts
+          if npm run check > template-check.log 2>&1; then
+            echo "Unreviewed translations unexpectedly passed check" >&2
             exit 1
           fi
-          test -f packages/ci-sample-tool/src/config.ts
+          grep -q 'unresolved i18n placeholder' template-check.log
+          if grep -E '^\[[^]]+\]' template-check.log | grep -v 'unresolved i18n placeholder'; then
+            cat template-check.log >&2
+            exit 1
+          fi
           sed -i 's/TODO(i18n)/Sample/g' packages/ci-sample-tool/src/i18n.ts src/data/tools.json src/i18n/catalog/pt-BR.json src/i18n/catalog/es.json
       - run: npm run build -- ci-sample-tool
       - run: npx playwright install --with-deps chromium

@@ -166,7 +166,9 @@ test('DownloadCard downloads the local result and restarts the flow', async ({ p
   await expect(downloadButton).toBeEnabled();
   const downloadPromise = page.waitForEvent('download');
   await downloadButton.click();
-  expect((await downloadPromise).suggestedFilename()).toBe('merged.pdf');
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('merged.pdf');
+  expect(download.url()).toMatch(/^blob:/);
   await card.getByRole('button', { name: 'Start over' }).click();
   await expect(card).toBeHidden();
   expect(await itemNames(page)).toEqual([]);

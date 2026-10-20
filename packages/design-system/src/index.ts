@@ -1,8 +1,9 @@
-export const designSystemVersion = '0.7.0';
+export const designSystemVersion = '0.8.0';
 export type ComponentState = 'idle' | 'loading' | 'success' | 'error' | 'disabled';
 export { THEME_COLOR_TOKEN, themeColors } from './theme';
 export type { ThemeName } from './theme';
 export { designMessages } from './i18n';
+export { default as Button } from './components/Button.astro';
 export { default as SponsorCard } from './components/SponsorCard.astro';
 export { default as SponsorshipSlot } from './components/SponsorshipSlot.astro';
 export { default as DropZone } from './components/DropZone.astro';

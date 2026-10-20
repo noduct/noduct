@@ -1,24 +1,28 @@
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
+export const GUARDRAIL_IDS = ['ui-contract', 'no-raw-svg', 'no-hardcoded-text', 'require-app-shell'];
 import { resolve } from 'node:path';
 import { guardrails } from '../guardrails.config.ts';
-import { checkAgents } from './check-agents.ts';
 
 const emoji = /\p{RGI_Emoji}/v;
 const deprecatedName = String.fromCharCode(84, 111, 108, 118, 105, 114, 97);
 const productHost = ['noduct', 'github', 'io'].join('.');
 const generatedClass = /_[a-zA-Z]+_[a-z0-9]{5}_\d+/;
-const NATIVE_DIALOG = /\bwindow\.(?:alert|confirm|prompt)\b|(?<![\w.$])(?:alert|confirm|prompt)\s*\(/;
+const NATIVE_DIALOG =
+  /\bwindow\.(?:alert|confirm|prompt)\b|(?<![\w.$])(?:alert|confirm|prompt)\s*\(/;
 const WORKSPACE_COMPONENT =
   /^packages\/design-system\/src\/components\/(?:DropZone|DownloadCard|Workspace[A-Za-z]+)\.astro$/;
-const iconGlyph = /[\u2190-\u21ff\u22ee\u2300-\u23ff\u2500-\u257f\u25a0-\u25ff\u2600-\u26ff\u2700-\u27bf]/u;
+const iconGlyph =
+  /[\u2190-\u21ff\u22ee\u2300-\u23ff\u2500-\u257f\u25a0-\u25ff\u2600-\u26ff\u2700-\u27bf]/u;
 function containsIconGlyph(source: string): boolean {
   if (iconGlyph.test(source) || /&(?:times|check|cross|rarr|larr|star);/i.test(source)) return true;
   return [...source.matchAll(/&#(x[0-9a-f]+|\d+);/gi)].some((match) => {
     const encoded = match[1];
     if (!encoded) return false;
     const value = encoded.startsWith('x') ? parseInt(encoded.slice(1), 16) : parseInt(encoded, 10);
-    return Number.isFinite(value) && value <= 0x10ffff && iconGlyph.test(String.fromCodePoint(value));
+    return (
+      Number.isFinite(value) && value <= 0x10ffff && iconGlyph.test(String.fromCodePoint(value))
+    );
   });
 }
 
@@ -57,7 +61,8 @@ export function validateUiContent(path: string, contents: string): string[] {
   if (path.endsWith('/package.json') || path === 'package.json') {
     try {
       const manifest = JSON.parse(contents) as Record<string, unknown>;
-      packageLintConfig = Object.hasOwn(manifest, 'stylelint') || Object.hasOwn(manifest, 'eslintConfig');
+      packageLintConfig =
+        Object.hasOwn(manifest, 'stylelint') || Object.hasOwn(manifest, 'eslintConfig');
     } catch {
       // JSON validity is checked by the package tooling.
     }
@@ -65,9 +70,11 @@ export function validateUiContent(path: string, contents: string): string[] {
   if (
     /(?:^|\/)\.(?:stylelintrc|eslintrc)(?:\.[^/]+)?$/.test(path) ||
     (/(?:^|\/)(?:eslint|stylelint)\.config\.[^/]+$/.test(path) &&
-      path !== 'eslint.config.js' && path !== 'stylelint.config.mjs') ||
+      path !== 'eslint.config.js' &&
+      path !== 'stylelint.config.mjs') ||
     packageLintConfig
-  ) errors.push('alternative lint configuration');
+  )
+    errors.push('alternative lint configuration');
   if (
     path.toLowerCase().includes(deprecatedName.toLowerCase()) ||
     contents.toLowerCase().includes(deprecatedName.toLowerCase())
@@ -81,9 +88,11 @@ export function validateUiContent(path: string, contents: string): string[] {
   )
     errors.push('removed root script in documentation');
   if (emoji.test(contents)) errors.push('emoji in source');
-  if (/(?:\.astro|\.ts|\.tsx|\.css)$/.test(path) &&
-      /^(?:src|packages\/[^/]+\/src)\//.test(path) &&
-      containsIconGlyph(path.endsWith('.astro') ? contents.replace(/---[\s\S]*?---/g, '') : contents))
+  if (
+    /(?:\.astro|\.ts|\.tsx|\.css)$/.test(path) &&
+    /^(?:src|packages\/[^/]+\/src)\//.test(path) &&
+    containsIconGlyph(path.endsWith('.astro') ? contents.replace(/---[\s\S]*?---/g, '') : contents)
+  )
     errors.push('text glyph used as an icon');
   if (
     !path.endsWith('.md') &&
@@ -95,21 +104,30 @@ export function validateUiContent(path: string, contents: string): string[] {
     errors.push('hardcoded product URL');
   if (generatedClass.test(contents)) errors.push('generated CSS Module class hash');
   // Diálogos nativos do navegador quebram tema, idioma e foco: use confirmAction() do shell.
-  if (/\.(?:astro|[cm]?[jt]s)$/.test(path) && !/\.(?:test|spec)\.[cm]?[jt]s$/.test(path) &&
-      NATIVE_DIALOG.test(contents))
+  if (
+    /\.(?:astro|[cm]?[jt]s)$/.test(path) &&
+    !/\.(?:test|spec)\.[cm]?[jt]s$/.test(path) &&
+    NATIVE_DIALOG.test(contents)
+  )
     errors.push('native browser dialog');
   // ADR 0006: seletor, gestão e seção da Área Local só existem nos componentes do design system.
-  if (path.endsWith('.astro') && !WORKSPACE_COMPONENT.test(path) &&
-      /<[A-Za-z][^>]*\bdata-workspace-(?:root|trigger|picker|source|manager|recents)\b/.test(contents))
+  if (
+    path.endsWith('.astro') &&
+    !WORKSPACE_COMPONENT.test(path) &&
+    /<[A-Za-z][^>]*\bdata-workspace-(?:root|trigger|picker|source|manager|recents)\b/.test(contents)
+  )
     errors.push('workspace surface outside design system');
   if (
     /^(?:packages\/[^/]+\/src\/|src\/data\/tools\.json$|src\/i18n\/catalog\/)/.test(path) &&
     contents.includes('TODO(i18n)')
   )
     errors.push('unresolved i18n placeholder');
-  if (path.endsWith('.astro') && /(?:^|\/)pages\//.test(path) &&
-      !guardrails.shelllessFixturePages.some((allowed) => allowed === path) &&
-      !hasShell(resolve(path)))
+  if (
+    path.endsWith('.astro') &&
+    /(?:^|\/)pages\//.test(path) &&
+    !guardrails.shelllessFixturePages.some((allowed) => allowed === path) &&
+    !hasShell(resolve(path))
+  )
     errors.push('page does not render AppShell');
   if (
     path.endsWith('.astro') &&
@@ -139,12 +157,18 @@ export function validateUi(): string[] {
     ['violationFixtureFiles', guardrails.violationFixtureFiles, /[\s\S]/]
   ];
   const staleEntries = allowlistChecks.flatMap(([name, paths, pattern]) =>
-    paths.filter((path) => !existsSync(path) || !pattern.test(readFileSync(path, 'utf8')))
-      .map((path) => `[ui-contract] guardrails.config.ts:1 — ${name} contains stale entry ${path}. Remove the exception or restore its specific fixture. Ver docs/guardrails.md#ui-contract`)
+    paths
+      .filter((path) => !existsSync(path) || !pattern.test(readFileSync(path, 'utf8')))
+      .map(
+        (path) =>
+          `[ui-contract] guardrails.config.ts:1 — ${name} contains stale entry ${path}. Remove the exception or restore its specific fixture. Ver docs/guardrails.md#ui-contract`
+      )
   );
   for (const path of guardrails.controlFiles) {
     if (!existsSync(path))
-      staleEntries.push(`[ui-contract] guardrails.config.ts:1 — controlFiles contains stale entry ${path}. Restore the control file or remove the entry with guardrail-change review. Ver docs/guardrails.md#ui-contract`);
+      staleEntries.push(
+        `[ui-contract] guardrails.config.ts:1 — controlFiles contains stale entry ${path}. Restore the control file or remove the entry with guardrail-change review. Ver docs/guardrails.md#ui-contract`
+      );
   }
   return [
     ...staleEntries,
@@ -222,25 +246,29 @@ export function validateUi(): string[] {
           'no-raw-svg'
         ]
       };
-      return validateUiContent(path, contents).map((error) => {
+      return validateUiContent(path, contents).flatMap((error) => {
         const [why, fix, id] = fixes[error] ?? [
           'Violação de UI.',
           'Consulte a regra.',
           'ui-contract'
         ];
         const fragment: Record<string, RegExp> = {
-          'emoji in source': /\p{RGI_Emoji}/v,
-          'hardcoded product URL': new RegExp(productHost.replaceAll('.', '\\.') + '|/noduct', 'u'),
-          'generated CSS Module class hash': /_[a-zA-Z]+_[a-z0-9]{5}_\d+/u,
-          'unresolved i18n placeholder': /TODO\(i18n\)/u,
-          'inline script outside AppShell': /is:inline/u
+          'emoji in source': /\p{RGI_Emoji}/gv,
+          'text glyph used as an icon': /[\u2190-\u21ff\u22ee\u2300-\u23ff\u2500-\u257f\u25a0-\u25ff\u2600-\u26ff\u2700-\u27bf]/gu,
+          'hardcoded product URL': new RegExp(productHost.replaceAll('.', '\\.') + '|/noduct', 'gu'),
+          'generated CSS Module class hash': /_[a-zA-Z]+_[a-z0-9]{5}_\d+/gu,
+          'unresolved i18n placeholder': /TODO\(i18n\)/gu,
+          'inline script outside AppShell': /is:inline/gu,
+          'native browser dialog': new RegExp(NATIVE_DIALOG.source, 'gu'),
+          'raw SVG through set:html': /set:html/gu
         };
-        const match = fragment[error]?.exec(contents);
-        const line = match ? contents.slice(0, match.index).split('\n').length : 1;
-        return `[${id}] ${path}:${line} — ${error}. ${why} ${fix} Ver docs/guardrails.md#${id}`;
+        const matches = fragment[error] ? [...contents.matchAll(fragment[error]!)] : [];
+        return (matches.length ? matches : [{ index: 0 }]).map((match) => {
+          const line = contents.slice(0, match.index).split('\n').length;
+          return `[${id}] ${path}:${line} — ${error}. ${why} ${fix} Ver docs/guardrails.md#${id}`;
+        });
       });
-    }),
-    ...checkAgents()
+    })
   ];
 }
 

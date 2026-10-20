@@ -10,6 +10,14 @@ Todos aceitam `locale` (`en`, `pt-BR` ou `es`, padrão `en`) para textos genéri
 
 A Área de Trabalho Local é híbrida ([ADR 0006](adr/0006-hybrid-local-workspace.md)) e não tem entrada no header. Com `workspace`, a `DropZone` ganha a origem `Da Área Local` (diálogo `WorkspacePicker`) e o `DownloadCard` ganha “Salvar na Área Local”, sempre opt-in. A página `/workspace/` usa `WorkspaceManager`, e a home usa `WorkspaceRecents`. `connectLocalWorkspace(root, services)` liga todas as superfícies; `createWorkspaceServices({ loadWorkspace, loadRenderer })` injeta cliente e renderer por `import()` dinâmico, sem o design system depender de `workspace-core` ou `pdf-core`. Veja [Local Workspace](architecture/local-workspace.md) e [guardrails](guardrails.md).
 
+Enquanto o runtime local carrega, a home e a página do workspace mostram o componente `WorkspaceLoading`, com cartões estáticos no formato da superfície. A página lê a preferência salva de lista ou grade antes de desenhar o skeleton, evitando a troca de layout durante a inicialização. Nas ferramentas, o botão `Da Área Local` da `DropZone` ocupa seu espaço desde o HTML inicial: fica desabilitado, com indicador de espera e nome acessível de carregamento, até `connectLocalWorkspace()` ligar o seletor. O indicador respeita movimento reduzido. Ao concluir ou falhar a leitura, os skeletons saem e a superfície exibe documentos, estado vazio ou erro.
+
+Na página de gestão, a seleção mostra uma ilha fixa no rodapé da janela com contagem, seleção dos itens visíveis, limpeza, download e exclusão. Ela não participa do fluxo da grade. A página reserva espaço de rolagem conforme a altura real da ilha para manter os últimos arquivos acessíveis, inclusive em telas estreitas, e desloca notificações acima dela. Renomear arquivos não é uma ação oferecida nesta interface.
+
+Na home e na página de gestão, um ícone discreto aparece ao lado do nome do arquivo, sem cobrir a miniatura. PDF usa documento em vermelho; imagens usam imagem em azul; planilhas e CSV usam tabela em verde; formatos de código e dados usam código; os demais usam documento neutro. A miniatura mantém apenas seu ícone neutro de fallback até a prévia carregar. A classificação privilegia extensões conhecidas quando o MIME salvo é genérico ou incorreto.
+
+O `WorkspacePicker` das ferramentas reutiliza `WorkspaceFileMeta`: abaixo do nome, a data salva aparece com calendário e o tamanho com o ícone de armazenamento, em linhas separadas como no hub. O seletor do Merge PDF já filtra arquivos compatíveis e não adiciona um indicador de tipo ao item.
+
 ## API
 
 | Componente           | Props                                                                                                                         | Controlador (`get*`)                          | Evento                                       |

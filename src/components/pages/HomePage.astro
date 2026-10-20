@@ -1,6 +1,7 @@
 ---
 import HubLayout from '@/layouts/HubLayout.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
+import Button from '@noduct/design-system/components/Button.astro';
 import ToolSearch from '@/components/tools/ToolSearch.astro';
 import ToolCard from '@/components/tools/ToolCard.astro';
 import ToolIcon from '@/components/tools/ToolIcon.astro';
@@ -36,7 +37,7 @@ const m = getMessages(locale);
       <div class={styles.libraryIsland}>
         <div class={styles.libraryHeader}>
           <div><h2 class={styles.libraryTitle}>{m.home.libraryTitle}</h2><p class={styles.librarySubtitle}>{m.home.libraryIntro}</p></div>
-          <a class={styles.directoryLink} href={localizePath('/tools/', locale)}><span>{m.home.fullDirectory}</span><Icon class={styles.linkArrow} name="chevron-right" /></a>
+          <Button variant="secondary" href={localizePath('/tools/', locale)} iconTrailing="chevron-right">{m.home.fullDirectory}</Button>
         </div>
         <nav class={styles.categoryNav} aria-label={m.home.categoryNav}>
           {categories.map((category) => { const count = tools.filter((tool) => tool.category === category.id).length; return <a href={`#${category.id}`} class={styles.categoryTab}><ToolIcon category={category.id} /><span class={styles.tabName}>{category.shortName}</span><span class={styles.tabCount}>{count}</span></a>; })}

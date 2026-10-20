@@ -1,7 +1,7 @@
 import { getDropZone } from '../file-workflow/drop-zone-runtime';
 import type { WorkspaceServices, WorkspaceSummaryLike } from './contracts';
-import { describeDocument, isCompatible, matchesSearch, sortDocuments } from './document-format';
-import { formatWorkspaceError, resolveWorkspaceUiLocale, workspaceUiMessages } from './messages';
+import { describeSaved, isCompatible, matchesSearch, sortDocuments } from './document-format';
+import { formatWorkspaceBytes, formatWorkspaceError, resolveWorkspaceUiLocale, workspaceUiMessages } from './messages';
 import { createWorkspaceSync } from './sync';
 import { KeyedList, LazyThumbnails } from './surface';
 
@@ -64,9 +64,14 @@ export function armWorkspacePicker(
       }
       node.dataset.documentId = document.id;
       const name = node.querySelector('[data-name]');
-      const meta = node.querySelector('[data-meta]');
-      if (name) name.textContent = document.name;
-      if (meta) meta.textContent = describeDocument(document, locale);
+      const saved = node.querySelector('[data-saved]');
+      const size = node.querySelector('[data-size]');
+      if (name) {
+        name.textContent = document.name;
+        name.setAttribute('title', document.name);
+      }
+      if (saved) saved.textContent = describeSaved(document, locale);
+      if (size) size.textContent = formatWorkspaceBytes(document.size, locale);
       thumbnails.watch(node.querySelector('[data-thumb]'), document);
     }
   );
@@ -172,12 +177,14 @@ export function armWorkspacePicker(
   search.addEventListener('input', onSearch);
   dialog.addEventListener('close', onClose);
   dialog.addEventListener('click', onBackdrop);
-  trigger.hidden = false;
+  delete trigger.dataset.loading;
+  trigger.removeAttribute('aria-label');
+  trigger.disabled = zone.dataset.disabled === 'true';
 
   return () => {
     sync.dispose();
     thumbnails.dispose();
-    trigger.hidden = true;
+    trigger.disabled = true;
     trigger.removeEventListener('click', open);
     close.removeEventListener('click', onDismiss);
     confirm.removeEventListener('click', onConfirm);

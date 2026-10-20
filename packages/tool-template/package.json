@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "check": "astro check && vitest run",
-    "test": "vitest run"
+    "check": "astro check",
+    "test": "vitest run --root ../.. packages/tool-template/src"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",

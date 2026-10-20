@@ -3,7 +3,7 @@ import Icon from '../icons/Icon.astro';
 import styles from './SelectionControl.module.css';
 
 interface Props {
-  class?: string;
+  class?: string | undefined;
 }
 
 const { class: className } = Astro.props;

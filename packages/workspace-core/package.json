@@ -9,8 +9,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "check": "tsc --noEmit --skipLibCheck --moduleResolution bundler --module esnext --target es2022 --allowImportingTsExtensions src/index.ts",
-    "test": "vitest run"
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/workspace-core/src"
   },
   "keywords": [
     "noduct",

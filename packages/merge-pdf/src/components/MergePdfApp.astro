@@ -6,6 +6,7 @@ import DropZone from '@noduct/design-system/components/DropZone.astro';
 import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
 import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
+import Button from '@noduct/design-system/components/Button.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
 import type { Locale } from '@noduct/tool-runtime';
 import { tool } from '../config';
@@ -67,24 +68,23 @@ const clientMessages = {
           {m.minFilesRequired}
         </p>
         <div class={styles.actions}>
-          <button
+          <Button
             id="clear-all-btn"
-            type="button"
-            class={styles.clearButton}
+            variant="secondary"
             hidden
             data-action="clear"
           >
             {m.clear}
-          </button>
-          <button
+          </Button>
+          <Button
             id="start-merge-btn"
-            type="button"
-            class={styles.mergeButton}
+            variant="primary"
+            size="lg"
             disabled
             data-action="merge"
           >
             {m.actionMerge}
-          </button>
+          </Button>
         </div>
       </div>
 

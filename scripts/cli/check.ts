@@ -45,16 +45,30 @@ const checks: Record<string, () => void> = {
     run(tsx, ['scripts/validate-seo.ts']);
   }
 };
+export const checkNames = Object.freeze(Object.keys(checks));
+
+function timedStep(name: string, task: () => void, results: string[]): void {
+  const started = performance.now();
+  try {
+    task();
+    results.push(`✔ ${name}: ${((performance.now() - started) / 1000).toFixed(1)}s`);
+  } catch (error) {
+    results.push(`✘ ${name}: ${((performance.now() - started) / 1000).toFixed(1)}s`);
+    throw error;
+  }
+}
 
 export function check(name?: string): void {
+  const results: string[] = [];
+  try {
   if (name) {
     const task = checks[name];
     if (!task)
       throw new Error(`Unknown check: ${name}. Available: ${Object.keys(checks).join(', ')}`);
-    task();
+    timedStep(name, task, results);
     return;
   }
-  run(localBin('eslint'), ['.', '--config', 'eslint.config.js', '--max-warnings', '0', '--format', './scripts/eslint-formatter.mjs']);
+  timedStep('lint', () => run(localBin('eslint'), ['.', '--config', 'eslint.config.js', '--max-warnings', '0', '--format', './scripts/eslint-formatter.mjs']), results);
   for (const key of [
     'css',
     'ui',
@@ -67,7 +81,10 @@ export function check(name?: string): void {
     'i18n',
     'sponsors'
   ])
-    checks[key]?.();
-  run(localBin('vitest'), ['run']);
+    if (checks[key]) timedStep(key, checks[key], results);
+  timedStep('unit', () => run(localBin('vitest'), ['run']), results);
   console.log('Check passed.');
+  } finally {
+    console.log(`[check] ${results.join(' | ')}`);
+  }
 }

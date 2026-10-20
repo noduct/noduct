@@ -23,22 +23,6 @@
   gap: var(--space-3);
 }
 
-.actions button {
-  min-height: 44px;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-background);
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.actions .secondary {
-  border-color: var(--color-border);
-  background: var(--color-surface-card);
-  color: var(--color-text);
-}
 
 .notice {
   color: var(--color-text-secondary);

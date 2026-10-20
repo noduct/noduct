@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { pagesDir, rootDir } from '../pages-manifest.ts';
 
-const roots = ['src', 'packages', 'scripts', 'tests/fixtures'];
+const roots = ['src', 'public', 'packages', 'scripts', 'tests/fixtures'];
 const files = [
   'package.json',
   'package-lock.json',
@@ -11,10 +11,13 @@ const files = [
   'tsconfig.json',
   'guardrails.config.ts'
 ];
-const ignored = new Set(['node_modules', 'dist', 'dist-pages', '.astro', '.git']);
+const ignored = new Set([
+  'node_modules', 'dist', 'dist-pages', '.astro', '.git',
+  'test-results', 'playwright-report', 'coverage', '.vite', '.cache', 'lighthouse-report'
+]);
 
-export function sourceHash(): string {
-  const paths = [...files.map((name) => join(rootDir, name))];
+export function sourceHash(root = rootDir): string {
+  const paths = [...files.map((name) => join(root, name))];
   const walk = (dir: string): void => {
     if (!existsSync(dir)) return;
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -24,11 +27,11 @@ export function sourceHash(): string {
       else if (entry.isFile()) paths.push(path);
     }
   };
-  for (const root of roots) walk(join(rootDir, root));
+  for (const directory of roots) walk(join(root, directory));
   const hash = createHash('sha256');
   for (const path of paths.sort()) {
     if (!existsSync(path)) continue;
-    hash.update(relative(rootDir, path).replaceAll('\\', '/'));
+    hash.update(relative(root, path).replaceAll('\\', '/'));
     hash.update(readFileSync(path));
   }
   return hash.digest('hex');

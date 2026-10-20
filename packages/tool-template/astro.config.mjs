@@ -11,5 +11,12 @@ export default defineConfig({
   base,
   output: 'static',
   integrations: [sitemap()],
-  vite: { server: { strictPort: true, hmr: { path: `${base}__vite_hmr` } } }
+  vite: {
+    server: { strictPort: true, hmr: { path: `${base}/__vite_hmr` } },
+    plugins: [{ name: 'noduct-dev-reload', handleHotUpdate(context) {
+      context.server.ws.send({ type: 'full-reload' });
+      return [];
+    } }]
+  },
+  devToolbar: { enabled: false }
 });

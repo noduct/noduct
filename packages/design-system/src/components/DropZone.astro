@@ -3,6 +3,8 @@ import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
 import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
 import WorkspacePicker from './WorkspacePicker.astro';
+import Button from './Button.astro';
+import buttonStyles from './Button.module.css';
 import type { Locale } from '@noduct/tool-runtime';
 import styles from './DropZone.module.css';
 
@@ -66,21 +68,23 @@ const workspaceMessages = workspaceUiMessages[resolveWorkspaceUiLocale(locale)];
       aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
       data-drop-input
     />
-    <label for={id} class={styles.trigger}>{label}</label>
+    <label for={id} class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.trigger]}>{label}</label>
     {
       workspace && (
-        <button
-          type="button"
-          class={styles.source}
+        <Button
+          variant="secondary"
+          class={styles.workspaceSource}
           aria-haspopup="dialog"
           aria-controls={pickerId}
-          disabled={disabled}
-          hidden
+          ariaLabel={workspaceMessages.loading}
+          disabled
+          data-loading="true"
           data-workspace-source
         >
-          <Icon name="folder" />
+          <Icon name="folder" class={styles.sourceIcon} />
+          <span class={styles.sourceSpinner} aria-hidden="true"></span>
           <span>{workspaceMessages.fromWorkspace}</span>
-        </button>
+        </Button>
       )
     }
   </div>

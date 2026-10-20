@@ -1,7 +1,8 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { deployedTools, rootDir } from './pages-manifest.ts';
+export const GUARDRAIL_IDS = ['script-contract'];
 
 const publicScripts: Record<string, string> = {
   dev: 'tsx scripts/noduct.ts dev',
@@ -31,6 +32,7 @@ const keys = Object.keys(root.scripts ?? {});
 errors.push(...rootScriptViolations(root.scripts ?? {}));
 
 const tools = deployedTools();
+const packages = new Set<string>();
 const slugs = new Set<string>();
 const versionedSlugs = new Set<string>();
 for (const tool of tools) {
@@ -45,8 +47,10 @@ for (const tool of tools) {
   )
     versionedSlugs.add(tool.slug);
   const manifest = JSON.parse(readFileSync(join(tool.packageDir, 'package.json'), 'utf8')) as {
+    name?: string;
     scripts?: Record<string, string>;
   };
+  if (manifest.name) packages.add(manifest.name);
   const scripts = Object.keys(manifest.scripts ?? {});
   for (const required of ['dev', 'build', 'check', 'test'])
     if (!scripts.includes(required)) errors.push(`${tool.slug}: missing ${required} script`);
@@ -63,10 +67,12 @@ for (const entry of readdirSync(join(rootDir, 'packages'), { withFileTypes: true
   const path = join(rootDir, 'packages', entry.name, 'package.json');
   if (!existsSync(path)) continue;
   const manifest = JSON.parse(readFileSync(path, 'utf8')) as {
+    name?: string;
     noduct?: { slug?: string };
     scripts?: Record<string, string>;
   };
   if (manifest.noduct?.slug) continue;
+  if (manifest.name) packages.add(manifest.name);
   const expected =
     entry.name === 'tool-template' ? ['dev', 'build', 'check', 'test'] : ['check', 'test'];
   for (const key of expected)
@@ -102,12 +108,45 @@ for (const file of walk('scripts').filter((path) => /\.(?:ts|mjs|js)$/.test(path
   for (const slug of versionedSlugs)
     if (read(file).includes(slug)) errors.push(`${file}: hardcoded tool slug ${slug}`);
 }
+export function executePackageScripts(names: Iterable<string>): string[] {
+  const failures: string[] = [];
+  for (const name of names) {
+    for (const script of ['check', 'test']) {
+      const result = spawnSync('npm', ['run', script, '--workspace', name], {
+        cwd: rootDir,
+        encoding: 'utf8',
+        shell: process.platform === 'win32',
+        maxBuffer: 8 * 1024 * 1024
+      });
+      if (result.error || result.status !== 0)
+        failures.push(
+          `${name} ${script} failed: ${result.error?.message ?? result.stderr ?? result.stdout}`
+        );
+      else console.log(`Package ${name} ${script} passed.`);
+    }
+  }
+  return failures;
+}
+
 if (process.argv[1]?.replaceAll('\\', '/').endsWith('/check-scripts.ts')) {
+  if (!errors.length) errors.push(...executePackageScripts(packages));
   if (errors.length) {
     for (const error of errors) {
-      const path = /^([^:]+\.(?:yml|ts|js|mjs)):/.exec(error)?.[1] ?? 'package.json';
+      const file = /^([^:]+\.(?:yml|ts|js|mjs)):/.exec(error)?.[1];
+      const slug = /^([a-z0-9-]+):/.exec(error)?.[1];
+      const path = file ?? (slug && existsSync(join(rootDir, 'packages', slug, 'package.json'))
+        ? `packages/${slug}/${error.includes('config.ts') ? 'src/config.ts' : 'package.json'}`
+        : 'package.json');
+      const content = read(path);
+      const needle = error.includes('hardcoded tool slug') ? error.split('hardcoded tool slug ')[1]
+        : error.includes('obsolete script') ? 'npm run'
+        : error.includes('slug mismatch') ? 'slug:'
+        : error.includes('missing') ? '"scripts"'
+        : slug ?? '"scripts"';
+      const index = content.indexOf(needle ?? '');
+      const line = index >= 0 ? content.slice(0, index).split('\n').length : 1;
       console.error(
-        `[script-contract] ${path}:1 — ${error}. Scripts e slugs fixos quebram a descoberta automática. Use apenas os subcomandos de scripts/noduct.ts e os manifests de pacote. Ver docs/guardrails.md#script-contract`
+        `[script-contract] ${path}:${line} — ${error}. Scripts e slugs fixos quebram a descoberta automática. Use apenas os subcomandos de scripts/noduct.ts e os manifests de pacote. Ver docs/guardrails.md#script-contract`
       );
     }
     process.exitCode = 1;

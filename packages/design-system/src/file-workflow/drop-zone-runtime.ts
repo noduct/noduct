@@ -91,7 +91,7 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     setDisabled(value) {
       zone.dataset.disabled = value ? 'true' : 'false';
       input.disabled = value;
-      if (source) source.disabled = value;
+      if (source) source.disabled = value || source.dataset.loading === 'true';
       depth = 0;
       setState('idle');
     },

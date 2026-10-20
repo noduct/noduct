@@ -1,9 +1,28 @@
 import type { Locale } from '@noduct/tool-runtime';
 import { acceptsFile } from '../file-workflow/contracts';
 import type { WorkspaceSummaryLike } from './contracts';
-import { formatWorkspaceBytes, workspaceUiMessages } from './messages';
+import { workspaceUiMessages } from './messages';
 
 const HOUR_MS = 60 * 60 * 1000;
+
+export type WorkspaceFileKind = 'pdf' | 'file' | 'image' | 'table' | 'code';
+
+/** A extensão conhecida prevalece quando o navegador fornece um MIME genérico ou incorreto. */
+export function workspaceFileKind(
+  document: Pick<WorkspaceSummaryLike, 'name' | 'mimeType'>
+): WorkspaceFileKind {
+  const name = document.name.toLowerCase();
+  const mime = document.mimeType.toLowerCase();
+  if (/\.(png|jpe?g|gif|webp|avif|svg|bmp|tiff?)$/.test(name)) return 'image';
+  if (/\.(csv|tsv|xlsx?|ods)$/.test(name)) return 'table';
+  if (/\.(json|xml|html?|css|jsx?|tsx?)$/.test(name)) return 'code';
+  if (/\.pdf$/.test(name) || mime === 'application/pdf') return 'pdf';
+  if (mime.startsWith('image/')) return 'image';
+  if (mime === 'text/csv' || mime.includes('spreadsheet') || mime.includes('excel')) return 'table';
+  if (mime === 'application/json' || mime === 'application/xml' || mime.startsWith('text/html'))
+    return 'code';
+  return 'file';
+}
 
 /** Texto de retenção de um documento no instante `now`. */
 export function describeRetention(
@@ -24,10 +43,6 @@ export function describeRetention(
 export function describeSaved(document: Pick<WorkspaceSummaryLike, 'updatedAt'>, locale: Locale) {
   const date = new Intl.DateTimeFormat(locale, { dateStyle: 'medium' }).format(document.updatedAt);
   return workspaceUiMessages[locale].savedOn(date);
-}
-
-export function describeDocument(document: WorkspaceSummaryLike, locale: Locale): string {
-  return `${formatWorkspaceBytes(document.size, locale)} · ${describeSaved(document, locale)}`;
 }
 
 /** Busca sem distinção de caixa nem de acentos. */

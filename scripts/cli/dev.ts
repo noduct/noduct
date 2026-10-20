@@ -1,7 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { createServer } from 'node:net';
 import { join } from 'node:path';
-import { deployedTools, rootDir } from '../pages-manifest.ts';
+import { rootDir } from '../pages-manifest.ts';
 import { selectedTools } from './shared.ts';
 
 export function toolPorts(slugs: readonly string[], first = 4331): Map<string, number> {
@@ -32,6 +32,14 @@ export function proxyEnvironment(ports: ReadonlyMap<string, number>): string {
   return [...ports].map(([slug, port]) => `${slug}=${port}`).join(',');
 }
 
+export function parseDevArgs(args: readonly string[]): { only: boolean; slugs: string[] } {
+  const only = args[0] === '--only';
+  const slugs = only ? args.slice(1) : [...args];
+  if (only && slugs.length !== 1) throw new Error('Usage: npm run dev -- --only <slug>');
+  if (slugs.some((slug) => slug.startsWith('--'))) throw new Error('Unknown dev option.');
+  return { only, slugs };
+}
+
 function stopTree(child: ChildProcess): void {
   if (!child.pid) return;
   if (process.platform === 'win32') {
@@ -43,14 +51,11 @@ function stopTree(child: ChildProcess): void {
 }
 
 export async function dev(args: string[]): Promise<void> {
-  const only = args[0] === '--only';
-  const slugs = only ? args.slice(1) : args;
-  if (only && slugs.length !== 1) throw new Error('Usage: npm run dev -- --only <slug>');
+  const { only, slugs } = parseDevArgs(args);
   const tools = selectedTools(slugs);
-  const all = deployedTools();
   const ports = only
     ? new Map<string, number>()
-    : await availableToolPorts(all.map((tool) => tool.slug));
+    : await availableToolPorts(tools.map((tool) => tool.slug));
   const children: ChildProcess[] = [];
   const launch = (args: string[], label: string, env = process.env): ChildProcess => {
     const child = spawn(

@@ -3,6 +3,7 @@ import AppShell from '@noduct/design-system/shell/AppShell.astro';
 import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
 import DropZone from '@noduct/design-system/components/DropZone.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
+import Button from '@noduct/design-system/components/Button.astro';
 import { toolJsonLd } from '@noduct/design-system/shell/tool-page';
 import type { Locale } from '@noduct/tool-runtime';
 import { tool } from '../config';
@@ -38,8 +39,8 @@ const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.descripti
       <label for="source">{m.label}</label>
       <textarea id="source" placeholder={m.placeholder}></textarea>
       <div class={styles.actions}>
-        <button id="process" type="button">{m.process}</button>
-        <button id="clear" class={styles.secondary} type="button">{m.clear}</button>
+        <Button id="process" variant="primary">{m.process}</Button>
+        <Button id="clear" variant="secondary">{m.clear}</Button>
       </div>
       <p class={styles.notice}>{m.privacy}</p>
       <div
