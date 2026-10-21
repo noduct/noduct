@@ -5,6 +5,8 @@ const pagesUrl = 'http://127.0.0.1:4324';
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
+  // Axe and PDF rendering compete for the same browser resources across profiles.
+  workers: 2,
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',
   use: { baseURL: pagesUrl, trace: 'on-first-retry' },
