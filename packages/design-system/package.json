@@ -45,6 +45,8 @@
     "./components/DownloadCard.astro": "./src/components/DownloadCard.astro",
     "./components/WorkspaceManager.astro": "./src/components/WorkspaceManager.astro",
     "./components/WorkspaceRecents.astro": "./src/components/WorkspaceRecents.astro",
-    "./components/Button.astro": "./src/components/Button.astro"
+    "./components/Button.astro": "./src/components/Button.astro",
+    "./components/Button.module.css": "./src/components/Button.module.css",
+    "./components/Switch.astro": "./src/components/Switch.astro"
   }
 }

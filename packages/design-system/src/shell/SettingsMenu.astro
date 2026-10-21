@@ -1,6 +1,8 @@
 ---
 import { LOCALES, type Locale } from '@noduct/tool-runtime';
 import Icon from '../icons/Icon.astro';
+import Button from '../components/Button.astro';
+import Switch from '../components/Switch.astro';
 import { getShellMessages } from './messages';
 import popover from './Popover.module.css';
 import styles from './SettingsMenu.module.css';
@@ -30,17 +32,18 @@ const titleId = `${idPrefix}-settings-title`;
 ---
 
 <div class={styles.settings} data-settings data-locale={locale}>
-  <button
+  <Button
+    variant="secondary"
+    iconOnly
     class={styles.trigger}
-    type="button"
-    aria-label={m.settings.open}
+    ariaLabel={m.settings.open}
     title={m.settings.title}
-    aria-expanded="false"
-    aria-controls={panelId}
+    ariaExpanded="false"
+    ariaControls={panelId}
     data-settings-trigger
   >
     <Icon class={styles.gear} name="settings" />
-  </button>
+  </Button>
 
   <div
     id={panelId}
@@ -55,72 +58,81 @@ const titleId = `${idPrefix}-settings-title`;
     </div>
 
     <div class={styles.body}>
-      <fieldset class={styles.group}>
-        <legend class={styles.label}>{m.settings.theme}</legend>
-        <div class={styles.segmented}>
-          <label class={styles.segment}>
-            <input type="radio" name="settings-theme" value="light" checked data-pref-theme />
-            <Icon name="sun" />
-            <span>{m.settings.light}</span>
-          </label>
-          <label class={styles.segment}>
-            <input type="radio" name="settings-theme" value="dark" data-pref-theme />
-            <Icon name="moon" />
-            <span>{m.settings.dark}</span>
-          </label>
-        </div>
-      </fieldset>
+      <!-- SEÇÃO 1: APARÊNCIA E EXIBIÇÃO (INSET CARD) -->
+      <section class={styles.section} aria-label={m.settings.theme}>
+        <span class={styles.sectionTitle}>{m.settings.theme}</span>
+        <div class={styles.insetCard}>
+          <!-- Linha de Tema: Rótulo à esquerda, controle segmentado compacto à direita -->
+          <fieldset class={styles.row}>
+            <legend class={styles.srOnly}>{m.settings.theme}</legend>
+            <span class={styles.rowLabel} aria-hidden="true">{m.settings.theme}</span>
+            <div class={styles.segmented} role="radiogroup" aria-label={m.settings.theme}>
+              <label class={styles.segment}>
+                <input type="radio" name="settings-theme" value="light" checked data-pref-theme />
+                <Icon class={styles.segmentIcon} name="sun" />
+                <span>{m.settings.light}</span>
+              </label>
+              <label class={styles.segment}>
+                <input type="radio" name="settings-theme" value="dark" data-pref-theme />
+                <Icon class={styles.segmentIcon} name="moon" />
+                <span>{m.settings.dark}</span>
+              </label>
+            </div>
+          </fieldset>
 
-      {showArtworkControls && <div class={styles.option}>
-        <div class={styles.optionText}>
-          <span id="settings-art-label" class={styles.label}>{m.settings.artwork}</span>
-          <span id="settings-art-hint" class={styles.hint}>{m.settings.artworkHint}</span>
-        </div>
-        <button
-          class={styles.switch}
-          type="button"
-          role="switch"
-          aria-checked="true"
-          aria-labelledby="settings-art-label"
-          aria-describedby="settings-art-hint"
-          data-pref-art></button>
-      </div>}
+          {showArtworkControls && (
+            <div class:list={[styles.row, styles.artworkRow]}>
+              <div class={styles.optionText}>
+                <span id="settings-art-label" class={styles.rowLabel}>{m.settings.artwork}</span>
+                <span id="settings-art-hint" class={styles.hint}>{m.settings.artworkHint}</span>
+              </div>
+              <Switch
+                checked={true}
+                ariaLabelledby="settings-art-label"
+                ariaDescribedby="settings-art-hint"
+                data-pref-art
+              />
+            </div>
+          )}
 
-      {showArtworkControls && <div class={styles.option}>
-        <div class={styles.optionText}>
-          <span id="settings-motion-label" class={styles.label}>{m.settings.motion}</span>
-          <span id="settings-motion-hint" class={styles.hint}>{m.settings.motionHint}</span>
+          {showArtworkControls && (
+            <div class:list={[styles.row, styles.artworkRow]}>
+              <div class={styles.optionText}>
+                <span id="settings-motion-label" class={styles.rowLabel}>{m.settings.motion}</span>
+                <span id="settings-motion-hint" class={styles.hint}>{m.settings.motionHint}</span>
+              </div>
+              <Switch
+                checked={false}
+                ariaLabelledby="settings-motion-label"
+                ariaDescribedby="settings-motion-hint"
+                data-pref-motion
+              />
+            </div>
+          )}
         </div>
-        <button
-          class={styles.switch}
-          type="button"
-          role="switch"
-          aria-checked="false"
-          aria-labelledby="settings-motion-label"
-          aria-describedby="settings-motion-hint"
-          data-pref-motion></button>
-      </div>}
+      </section>
 
-      <div class={styles.group} role="group" aria-labelledby="settings-language-label">
-        <span id="settings-language-label" class={styles.label}>{m.settings.language}</span>
-        <ul class={styles.languages}>
-          <li>
-            <button
-              class={styles.language}
-              type="button"
-              aria-pressed="true"
-              data-pref-locale="auto"
-            >
-              <span class={styles.languageText}>
-                <span>{m.settings.automatic}</span>
-                <span class={styles.hint}>{m.settings.automaticHint}</span>
-              </span>
-              <Icon class={styles.check} name="check" />
-            </button>
-          </li>
-          {
-            languages.map((language) => (
-              <li>
+      <!-- SEÇÃO 2: IDIOMA E REGIÃO (INSET CARD) -->
+      <section class={styles.section} aria-labelledby="settings-language-label">
+        <span id="settings-language-label" class={styles.sectionTitle}>{m.settings.language}</span>
+        <div class={styles.insetCard}>
+          <ul class={styles.languages} role="list">
+            <li class={styles.languageItem}>
+              <button
+                class={styles.language}
+                type="button"
+                aria-pressed="true"
+                data-pref-locale="auto"
+              >
+                <span class={styles.languageText}>
+                  <span class={styles.languageName}>{m.settings.automatic}</span>
+                  <span class={styles.hint}>{m.settings.automaticHint}</span>
+                </span>
+                <Icon class={styles.check} name="check" />
+              </button>
+            </li>
+            {languages.map((language) => (
+              <li class={styles.languageItem}>
                 <a
                   class={styles.language}
                   href={language.href}
@@ -129,14 +141,16 @@ const titleId = `${idPrefix}-settings-title`;
                   aria-current={language.code === locale ? 'page' : undefined}
                   data-pref-locale={language.code}
                 >
-                  <span class={styles.languageText}>{language.name}</span>
+                  <span class={styles.languageText}>
+                    <span class={styles.languageName}>{language.name}</span>
+                  </span>
                   <Icon class={styles.check} name="check" />
                 </a>
               </li>
-            ))
-          }
-        </ul>
-      </div>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
   </div>
 </div>
@@ -169,7 +183,18 @@ const titleId = `${idPrefix}-settings-title`;
       });
       const artworkEnabled = html.dataset.art !== 'off';
       artSwitch?.setAttribute('aria-checked', String(artworkEnabled));
-      motionSwitch?.setAttribute('aria-checked', String(html.dataset.motion === 'reduce'));
+      const motionChecked = artworkEnabled && html.dataset.motion === 'reduce';
+      motionSwitch?.setAttribute('aria-checked', String(motionChecked));
+      if (motionSwitch) {
+        motionSwitch.disabled = !artworkEnabled;
+        if (!artworkEnabled) {
+          motionSwitch.setAttribute('aria-disabled', 'true');
+          motionSwitch.setAttribute('data-blocked', 'true');
+        } else {
+          motionSwitch.removeAttribute('aria-disabled');
+          motionSwitch.removeAttribute('data-blocked');
+        }
+      }
       const saved = readPreference(preferenceKeys.locale);
       const selected = saved && isLocale(saved) ? saved : 'auto';
       languageOptions.forEach((option) => {
@@ -206,9 +231,18 @@ const titleId = `${idPrefix}-settings-title`;
     artSwitch?.addEventListener('click', () =>
       update(preferenceKeys.art, html.dataset.art === 'off' ? null : 'off')
     );
-    motionSwitch?.addEventListener('click', () =>
-      update(preferenceKeys.motion, html.dataset.motion === 'reduce' ? null : 'reduce')
-    );
+    motionSwitch?.addEventListener('click', () => {
+      if (
+        html.dataset.art === 'off' ||
+        motionSwitch.disabled ||
+        motionSwitch.getAttribute('aria-disabled') === 'true' ||
+        motionSwitch.dataset.blocked === 'true'
+      ) {
+        return;
+      }
+      update(preferenceKeys.motion, html.dataset.motion === 'reduce' ? null : 'reduce');
+    });
+    render();
 
     languageOptions.forEach((option) => {
       option.addEventListener('click', (event) => {

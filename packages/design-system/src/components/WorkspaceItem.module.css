@@ -3,7 +3,6 @@
  * ícone. Nenhuma transição de hover usa transform no item, para não haver tremor sob o mouse.
  */
 .thumb {
-  position: relative;
   display: inline-flex;
   flex: none;
   align-items: center;
@@ -51,66 +50,31 @@
 }
 
 .badge {
-  display: block;
+  display: inline-flex;
+  align-items: center;
   justify-self: start;
   max-width: 100%;
+  margin-top: 2px;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-sunken);
   color: var(--color-text-secondary);
   font-size: 0.6875rem;
+  font-weight: 550;
   line-height: 1.4;
+}
+
+.badge[data-kept='true'] {
+  border-color: var(--color-primary-border-soft);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 .actions {
   display: flex;
   align-items: center;
   gap: var(--space-1);
-}
-
-.iconButton {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: 1.05rem;
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    border-color var(--duration-fast) var(--ease-apple),
-    color var(--duration-fast) var(--ease-apple);
-}
-
-.iconButton[hidden] {
-  display: none;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .iconButton:hover {
-    border-color: var(--color-border);
-    background: var(--color-surface-hover);
-    color: var(--color-text);
-  }
-
-  .danger:hover {
-    border-color: var(--color-danger-soft);
-    background: var(--color-danger-soft);
-    color: var(--color-danger);
-  }
-}
-
-.iconButton:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus-ring);
-}
-
-.iconButton:disabled {
-  color: var(--color-text-muted);
-  cursor: default;
 }
 
 /* Retenção: ampulheta = temporário; relógio cortado (pressionado) = mantido neste dispositivo. */
@@ -122,8 +86,4 @@
 [data-kept='false'] > .temporary,
 [data-kept='true'] > .kept {
   display: inline;
-}
-
-.iconButton[aria-pressed='true'] {
-  color: var(--color-primary);
 }

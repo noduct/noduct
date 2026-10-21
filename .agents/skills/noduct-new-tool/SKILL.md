@@ -19,10 +19,10 @@ description: Cria uma ferramenta nova do Noduct em packages/<slug>/ com npm run 
 1. `npm run new:tool -- <slug> --category <category>`. O comando recusa slug reservado ou existente sem alterar nada e termina com `check` falhando só em `unresolved i18n placeholder`.
 2. Substitua cada `TODO(i18n)` em `packages/<slug>/src/i18n.ts`, `src/data/tools.json` e `src/i18n/catalog/*.json` por textos reais em en, pt-BR e es.
 3. Troque a lógica de exemplo de `src/lib/` pela operação real, com teste ao lado (`*.test.ts`). Operação de domínio PDF vai para `pdf-core` (skill `noduct-pdf-operation`).
-4. Se a ferramenta recebe ou produz arquivos, mantenha o padrão do [ADR 0006](../../../docs/adr/0006-hybrid-local-workspace.md):
+4. Se a ferramenta recebe ou produz arquivos, declare `accept` em `src/config.ts` (`defineTool({ slug, category, accept, ... })`) e mantenha o padrão do [ADR 0006](../../../docs/adr/0006-hybrid-local-workspace.md):
 
    ```astro
-   <DropZone id="<slug>-drop-zone" label={m.dropLabel} locale={locale} workspace={{ confirmLabel: m.addToOperation }} />
+   <DropZone id="<slug>-drop-zone" label={m.dropLabel} accept={tool.accept} locale={locale} workspace={{ confirmLabel: m.addToOperation }} />
    <DownloadCard id="<slug>-download-card" title={m.downloadTitle} fileName={m.downloadFileName} locale={locale} workspace={{ sourceTool: tool.slug }} />
    ```
 

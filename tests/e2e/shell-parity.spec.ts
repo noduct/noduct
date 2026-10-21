@@ -51,13 +51,17 @@ async function signature(region: Locator) {
       .map((node) => {
         const box = node.getBoundingClientRect();
         const style = getComputedStyle(node);
+        // Caixas internas de SVG oscilam 0,01 px entre páginas; os pixels são comparados abaixo.
+        const roundBox = node instanceof SVGElement
+          ? (value: number) => Math.round(value * 10) / 10
+          : round;
         return {
           tag: node.tagName,
           box: {
-            x: box.width === 0 && box.height === 0 ? 0 : round(box.x - rootBox.x),
-            y: box.width === 0 && box.height === 0 ? 0 : round(box.y - rootBox.y),
-            width: round(box.width),
-            height: round(box.height)
+            x: box.width === 0 && box.height === 0 ? 0 : roundBox(box.x - rootBox.x),
+            y: box.width === 0 && box.height === 0 ? 0 : roundBox(box.y - rootBox.y),
+            width: roundBox(box.width),
+            height: roundBox(box.height)
           },
           style: {
             display: style.display,

@@ -120,7 +120,7 @@ export function executePackageScripts(names: Iterable<string>): string[] {
       });
       if (result.error || result.status !== 0)
         failures.push(
-          `${name} ${script} failed: ${result.error?.message ?? result.stderr ?? result.stdout}`
+          `packages/${name.replace('@noduct/', '')}/package.json: ${name} ${script} failed: ${result.error?.message ?? `${result.stdout}\n${result.stderr}`}`
         );
       else console.log(`Package ${name} ${script} passed.`);
     }
@@ -132,7 +132,7 @@ if (process.argv[1]?.replaceAll('\\', '/').endsWith('/check-scripts.ts')) {
   if (!errors.length) errors.push(...executePackageScripts(packages));
   if (errors.length) {
     for (const error of errors) {
-      const file = /^([^:]+\.(?:yml|ts|js|mjs)):/.exec(error)?.[1];
+      const file = /^([^:]+\.(?:json|yml|ts|js|mjs)):/.exec(error)?.[1];
       const slug = /^([a-z0-9-]+):/.exec(error)?.[1];
       const path = file ?? (slug && existsSync(join(rootDir, 'packages', slug, 'package.json'))
         ? `packages/${slug}/${error.includes('config.ts') ? 'src/config.ts' : 'package.json'}`

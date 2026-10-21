@@ -77,6 +77,48 @@
   }
 }
 
+/* Modo 1x1 (Icon-Only): proporção quadrada exata com escala tátil de ícone */
+.iconOnly {
+  padding: 0;
+  gap: 0;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.iconOnly.sm {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+}
+
+.iconOnly.md {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+.iconOnly.lg {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+}
+
+@media (pointer: coarse) {
+  .iconOnly.sm {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+.iconOnly:active:not(:disabled, [aria-disabled='true']) {
+  transform: scale(var(--scale-active-icon));
+}
+
 /* Variante: Primary (CTA de destaque) com iluminação especular rim-light */
 .primary {
   border: 1px solid transparent;
@@ -108,11 +150,18 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .secondary:hover:not(:disabled, [aria-disabled='true']) {
+  .secondary:hover:not(:disabled, [aria-disabled='true'], [aria-expanded='true'], [aria-pressed='true']) {
     border-color: var(--color-border-strong);
     background: var(--color-surface-hover);
     color: var(--color-text);
   }
+}
+
+.secondary[aria-expanded='true'],
+.secondary[aria-pressed='true'] {
+  border-color: var(--color-primary-border-active);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 /* Variante: Quiet / Ghost (Sutil, sem superfície em repouso) */
@@ -125,9 +174,16 @@
 
 @media (hover: hover) and (pointer: fine) {
   .quiet:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-border);
     background: var(--color-surface-hover);
     color: var(--color-text);
   }
+}
+
+.quiet[aria-pressed='true'] {
+  border-color: var(--color-primary-border-soft);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
 /* Variante: Danger (Destrutivo Proeminente) com rim-light */
@@ -152,8 +208,13 @@
   box-shadow: none;
 }
 
+.danger-quiet.iconOnly {
+  color: var(--color-text-secondary);
+}
+
 @media (hover: hover) and (pointer: fine) {
   .danger-quiet:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-danger-soft);
     background: var(--color-danger-soft);
     color: var(--color-danger);
   }
@@ -161,7 +222,9 @@
 
 /* Ícones */
 .iconLeading,
-.iconTrailing {
+.iconTrailing,
+.iconGlyph,
+.iconOnly > svg {
   flex: none;
   width: 18px;
   height: 18px;

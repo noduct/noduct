@@ -176,7 +176,10 @@ export async function dbPutDocument(
     id,
     name: doc.name,
     size: doc.size ?? doc.blob.size,
-    mimeType: doc.mimeType ?? doc.blob.type ?? 'application/pdf',
+    mimeType:
+      doc.mimeType ||
+      doc.blob.type ||
+      (/\.pdf$/i.test(doc.name) ? 'application/pdf' : 'application/octet-stream'),
     pageCount: doc.pageCount,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,

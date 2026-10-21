@@ -40,7 +40,7 @@ export function toolAgentsMarkdown(slug: string): string {
     '- Regras de fluxo testáveis ficam em `src/lib/*.ts`, com o teste ao lado (`*.test.ts`).',
     '- Mensagens en, pt-BR e es em `src/i18n.ts`, inclusive script cliente, erros e nome do arquivo gerado.',
     '- Área Local só via `DropZone` e `DownloadCard` com `workspace` e `connectLocalWorkspace()`.',
-    '- Siga o [merge-pdf](../merge-pdf/AGENTS.md) como referência.',
+    '- Siga o [guia de ferramenta](../../docs/criar-nova-ferramenta.md) como referência.',
     ''
   ].join('\n');
 }

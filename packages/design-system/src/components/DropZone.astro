@@ -46,6 +46,7 @@ const workspaceMessages = workspaceUiMessages[resolveWorkspaceUiLocale(locale)];
   data-accept={accept}
   data-multiple={multiple ? 'true' : 'false'}
   data-disabled={disabled ? 'true' : 'false'}
+  data-compact="false"
   data-state="idle"
   data-workspace-picker-id={workspace ? pickerId : undefined}
 >
@@ -68,7 +69,13 @@ const workspaceMessages = workspaceUiMessages[resolveWorkspaceUiLocale(locale)];
       aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
       data-drop-input
     />
-    <label for={id} class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.trigger]}>{label}</label>
+    <label
+      for={id}
+      class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.trigger]}
+    >
+      <Icon name="upload" class={buttonStyles.iconLeading} />
+      <span>{label}</span>
+    </label>
     {
       workspace && (
         <Button
@@ -82,7 +89,7 @@ const workspaceMessages = workspaceUiMessages[resolveWorkspaceUiLocale(locale)];
           data-workspace-source
         >
           <Icon name="folder" class={styles.sourceIcon} />
-          <span class={styles.sourceSpinner} aria-hidden="true"></span>
+          <span class={styles.sourceSpinner} aria-hidden="true" />
           <span>{workspaceMessages.fromWorkspace}</span>
         </Button>
       )

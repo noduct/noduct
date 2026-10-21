@@ -48,44 +48,45 @@ const clientMessages = {
   {jsonLd}
 >
   <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
-    <section class={styles.workspace} aria-label={m.name}>
-      <DropZone
-        id="merge-drop-zone"
-        label={m.dropLabel}
-        description={m.dropDescription}
-        multiple={true}
-        locale={locale}
-        workspace={{ confirmLabel: m.addToMerge }}
-      />
+    <section
+      class={styles.workspace}
+      aria-label={m.name}
+      data-merge-workspace
+      data-has-files="false"
+    >
+      <div class={styles.workbenchBar}>
+        <div class={styles.dropZoneWrap}>
+          <DropZone
+            id="merge-drop-zone"
+            label={m.dropLabel}
+            description={m.dropDescription}
+            accept={tool.accept}
+            multiple={true}
+            locale={locale}
+            workspace={{ confirmLabel: m.addToMerge }}
+          />
+        </div>
+
+        <div class={styles.controlsBar}>
+          <p id="merge-file-count" class={styles.statusText} data-merge-count>
+            {m.minFilesRequired}
+          </p>
+          <div class={styles.actions}>
+            <Button id="clear-all-btn" variant="secondary" hidden data-action="clear">
+              {m.clear}
+            </Button>
+            <Button id="start-merge-btn" variant="primary" disabled data-action="merge">
+              {m.actionMerge}
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
       <p class={styles.alerts} role="alert" hidden data-budget-alert></p>
 
-      <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} />
-
-      <div class={styles.controlsBar}>
-        <p id="merge-file-count" class={styles.statusText} data-merge-count>
-          {m.minFilesRequired}
-        </p>
-        <div class={styles.actions}>
-          <Button
-            id="clear-all-btn"
-            variant="secondary"
-            hidden
-            data-action="clear"
-          >
-            {m.clear}
-          </Button>
-          <Button
-            id="start-merge-btn"
-            variant="primary"
-            size="lg"
-            disabled
-            data-action="merge"
-          >
-            {m.actionMerge}
-          </Button>
-        </div>
+      <div class={styles.reorderContainer}>
+        <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} variant="grid" />
       </div>
 
       <ProcessingFeedback
@@ -137,6 +138,7 @@ const clientMessages = {
     <script>
       import type { MergeClientMessages } from '../i18n';
       import clientStyles from './MergePdfApp.module.css';
+      import buttonStyles from '@noduct/design-system/components/Button.module.css';
       import type { Locale } from '@noduct/tool-runtime';
       import {
         CANCEL_EVENT,
@@ -189,6 +191,7 @@ const clientMessages = {
         return workflowPromise;
       }
 
+      const workspaceEl = document.querySelector<HTMLElement>('[data-merge-workspace]')!;
       const dropZoneEl = document.querySelector<HTMLElement>('[data-drop-zone]')!;
       const listEl = document.querySelector<HTMLElement>('[data-reorderable-list]')!;
       const feedbackEl = document.querySelector<HTMLElement>('[data-processing-feedback]')!;
@@ -203,6 +206,29 @@ const clientMessages = {
       const reorderList = getReorderableList(listEl)!;
       const feedback = getProcessingFeedback(feedbackEl)!;
       const downloadCard = getDownloadCard(downloadEl)!;
+
+      // Soltar arquivos em qualquer ponto da bancada inteira quando ativa
+      workspaceEl.addEventListener('dragover', (event) => {
+        if (!event.dataTransfer?.types.includes('Files')) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+        workspaceEl.dataset.dragOver = 'true';
+      });
+
+      workspaceEl.addEventListener('dragleave', (event) => {
+        if (!workspaceEl.contains(event.relatedTarget as Node | null)) {
+          delete workspaceEl.dataset.dragOver;
+        }
+      });
+
+      workspaceEl.addEventListener('drop', (event) => {
+        delete workspaceEl.dataset.dragOver;
+        if (dropZoneEl.contains(event.target as Node)) return;
+        const files = event.dataTransfer?.files;
+        if (!files || files.length === 0) return;
+        event.preventDefault();
+        dropZone.select([...files]);
+      });
 
       function renderAlerts(items: readonly WorkflowFileItem[], workflow: MergeWorkflow) {
         const invalid = items.filter((i) => i.status !== 'valid');
@@ -229,7 +255,11 @@ const clientMessages = {
             btn.type = 'button';
             btn.textContent = messages.remove;
             btn.setAttribute('aria-label', formatMessage(messages.removeFile, { name: item.name }));
-            btn.className = clientStyles.alertDismiss!;
+            btn.className = [
+              buttonStyles.button,
+              buttonStyles['danger-quiet'],
+              buttonStyles.sm
+            ].join(' ');
             btn.addEventListener('click', () => {
               workflow.removeItem(item.id);
             });
@@ -243,8 +273,18 @@ const clientMessages = {
       function updateUI(workflow: MergeWorkflow) {
         const state = workflow.getState();
         const validItems = state.items.filter((i) => i.status === 'valid');
+        const hasFiles = state.items.length > 0;
 
-        reorderList.setItems(validItems);
+        workspaceEl.dataset.hasFiles = hasFiles ? 'true' : 'false';
+        dropZone.setCompact(hasFiles);
+
+        const displayedIds = reorderList.getIds();
+        if (
+          displayedIds.length !== validItems.length ||
+          validItems.some((item, index) => item.id !== displayedIds[index])
+        ) {
+          reorderList.setItems(validItems);
+        }
         // Prévia da primeira página de cada PDF da pilha; o cache evita renderizar de novo.
         for (const item of validItems) {
           void workspace.thumbnails.forFile(item.file).then((preview) => {
@@ -254,7 +294,7 @@ const clientMessages = {
         renderAlerts(state.items, workflow);
 
         mergeBtn.disabled = !state.canMerge;
-        clearBtn.hidden = state.items.length === 0;
+        clearBtn.hidden = !hasFiles;
 
         if (validItems.length === 0) {
           countEl.textContent = messages.minFilesRequired;
@@ -284,7 +324,6 @@ const clientMessages = {
         } else if (detail.action === 'remove') {
           workflow.removeItem(detail.id);
         }
-        updateUI(workflow);
       });
 
       mergeBtn.addEventListener('click', async () => {
@@ -368,6 +407,8 @@ const clientMessages = {
         feedbackEl.hidden = true;
         downloadCard.reset();
         dropZone.setDisabled(false);
+        dropZone.setCompact(false);
+        workspaceEl.dataset.hasFiles = 'false';
         alertsEl.replaceChildren();
         alertsEl.hidden = true;
         budgetAlertEl.hidden = true;

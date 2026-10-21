@@ -23,7 +23,6 @@
   gap: var(--space-3);
 }
 
-
 .notice {
   color: var(--color-text-secondary);
   font-size: 0.9rem;
@@ -32,9 +31,33 @@
 .result {
   padding: var(--space-4);
   border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-sm);
   background: var(--color-background);
 }
 
 .info {
   margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-card);
+  box-shadow: var(--shadow-sm), var(--rim-light);
+}
+
+.info h2 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.05rem;
+  font-weight: 650;
+}
+
+.info p,
+.info ol {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.info ol {
+  padding-left: var(--space-4);
 }

@@ -8,7 +8,9 @@ export const preferenceKeys = {
   art: 'noduct-art',
   motion: 'noduct-motion',
   locale: 'noduct-locale',
-  recentTools: 'noduct-recent-tools'
+  recentTools: 'noduct-recent-tools',
+  workspaceView: 'noduct-workspace-view',
+  workspaceRecents: 'noduct-workspace-recents'
 } as const;
 
 export const preferencesChangeEvent = 'noduct:preferences';
@@ -37,10 +39,15 @@ export function setPreference(key: string, value: string | null): void {
   if (key === preferenceKeys.theme) switchTheme(root, value === 'dark' ? 'dark' : 'light');
   if (key === preferenceKeys.art) toggleAttribute(root, 'art', value);
   if (key === preferenceKeys.motion) toggleAttribute(root, 'motion', value);
+  if (key === preferenceKeys.workspaceRecents) toggleAttribute(root, 'workspaceRecents', value);
   window.dispatchEvent(new Event(preferencesChangeEvent));
 }
 
-function toggleAttribute(root: HTMLElement, name: 'art' | 'motion', value: string | null): void {
+function toggleAttribute(
+  root: HTMLElement,
+  name: 'art' | 'motion' | 'workspaceRecents',
+  value: string | null
+): void {
   if (value === null) delete root.dataset[name];
   else root.dataset[name] = value;
 }

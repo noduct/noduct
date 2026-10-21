@@ -72,6 +72,7 @@
   transform: rotate(180deg);
 }
 
+/* Bandeja flutuante com estética Inset Card e divisores sutis */
 .listbox {
   position: absolute;
   top: calc(100% + var(--space-1));
@@ -79,15 +80,18 @@
   z-index: var(--z-popover);
   box-sizing: border-box;
   min-width: 100%;
+  max-width: calc(100vw - 1.5rem);
   max-height: 280px;
   margin: 0;
-  padding: var(--space-1);
+  padding: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-card);
   list-style: none;
   box-shadow: var(--shadow-popover), var(--shadow-border), var(--rim-light);
+  transform-origin: top right;
   animation: select-open var(--duration-fast) var(--ease-apple);
 }
 
@@ -98,21 +102,44 @@
 @keyframes select-open {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
 .option {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  min-height: 40px;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-sm);
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 42px;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0;
   color: var(--color-text);
-  font-size: 0.875rem;
+  font-size: 0.84rem;
+  font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple);
+}
+
+.option:first-child {
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.option:last-child {
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+.option + .option {
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 @media (pointer: coarse) {
@@ -127,19 +154,34 @@
 
 .optionLabel {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .check {
   flex: none;
+  width: 16px;
+  height: 16px;
   color: var(--color-primary);
-  visibility: hidden;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--duration-fast) var(--ease-apple),
+    transform var(--duration-fast) var(--ease-apple-spring);
 }
 
 .option[aria-selected='true'] {
+  background: var(--color-primary-soft);
   color: var(--color-primary);
   font-weight: 600;
 }
 
+.option[aria-selected='true'][data-active='true'] {
+  background: var(--color-primary-soft);
+}
+
 .option[aria-selected='true'] .check {
-  visibility: visible;
+  opacity: 1;
+  transform: scale(1);
 }

@@ -8,6 +8,8 @@ import { fileWorkflowMessages, resolveFileWorkflowLocale } from './messages';
 
 export interface DropZoneController {
   setDisabled(disabled: boolean): void;
+  /** Recolhe a zona numa faixa com as origens, mantendo seletor, arrasto e anúncios. */
+  setCompact(compact: boolean): void;
   /** Entrega arquivos de outra origem (ex.: Área Local) pelo mesmo evento e anúncio. */
   select(files: readonly File[], origin?: FileOrigin): void;
 }
@@ -94,6 +96,9 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
       if (source) source.disabled = value || source.dataset.loading === 'true';
       depth = 0;
       setState('idle');
+    },
+    setCompact(value) {
+      zone.dataset.compact = value ? 'true' : 'false';
     },
     select(files, origin) {
       if (!disabled()) select(files, origin);

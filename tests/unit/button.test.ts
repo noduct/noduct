@@ -52,4 +52,11 @@ describe('Button component & design-system specification', () => {
     expect(buttonCss).toMatch(/\.quiet\s*\{[^}]*background:\s*transparent/);
     expect(buttonCss).toMatch(/\.danger-quiet\s*\{[^}]*background:\s*transparent/);
   });
+
+  it('supports 1x1 iconOnly mode and exports Button.module.css', () => {
+    expect(packageJson.exports['./components/Button.module.css']).toBe('./src/components/Button.module.css');
+    expect(buttonAstro).toContain('iconOnly = false');
+    expect(buttonCss).toMatch(/\.iconOnly\s*\{[^}]*aspect-ratio:\s*1\s*\/\s*1/);
+    expect(buttonCss).toMatch(/\.iconOnly:active:not\(:disabled,\s*\[aria-disabled='true'\]\)\s*\{[^}]*scale\(var\(--scale-active-icon\)\)/);
+  });
 });

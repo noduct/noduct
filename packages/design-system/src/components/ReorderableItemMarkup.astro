@@ -1,52 +1,79 @@
 ---
 import { describeFileItem, type FileListItem } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
+import Button from './Button.astro';
 import { fileWorkflowMessages } from '../file-workflow/messages';
 import type { Locale } from '@noduct/tool-runtime';
 import styles from './ReorderableList.module.css';
 
 interface Props {
   item?: FileListItem;
+  /** Posição de 1 em diante; o runtime a atualiza a cada mudança de ordem. */
+  position?: number;
   instructionsId: string;
   locale?: Locale;
+  variant?: 'list' | 'grid';
 }
 
-const { item, instructionsId, locale = 'en' } = Astro.props;
+const { item, position, instructionsId, locale = 'en', variant = 'list' } = Astro.props;
 const m = fileWorkflowMessages[locale];
 const name = item?.name ?? '';
+const moveEarlier = variant === 'grid' ? m.moveBefore : m.moveUp;
+const moveLater = variant === 'grid' ? m.moveAfter : m.moveDown;
 ---
 
-<li class={styles.item} data-reorder-item data-item-id={item?.id}>
-  <button
-    type="button"
-    class:list={[styles.control, styles.handle]}
-    aria-label={m.reorder(name)}
-    aria-describedby={instructionsId}
-    data-reorder-handle
-  >
-    <Icon name="grip-vertical" />
-  </button>
+<li
+  class={styles.item}
+  data-reorder-item
+  data-item-id={item?.id}
+  data-position={position}
+  data-variant={variant}
+>
+  <div class={styles.cardHeader} data-reorder-header>
+    <div class={styles.headerLeft}>
+      <span class={styles.position} data-item-index aria-hidden="true">{position}</span>
+      <Button
+        variant="quiet"
+        iconOnly
+        icon="grip-vertical"
+        class={styles.handle}
+        ariaLabel={m.reorder(name)}
+        ariaDescribedby={instructionsId}
+        data-reorder-handle
+      />
+    </div>
+    <div class={styles.actions}>
+      <Button
+        variant="quiet"
+        iconOnly
+        icon="arrow-up"
+        class={styles.move}
+        ariaLabel={moveEarlier(name)}
+        data-move="up"
+      />
+      <Button
+        variant="quiet"
+        iconOnly
+        icon="arrow-down"
+        class={styles.move}
+        ariaLabel={moveLater(name)}
+        data-move="down"
+      />
+      <Button
+        variant="danger-quiet"
+        iconOnly
+        icon="x"
+        class={styles.remove}
+        ariaLabel={m.remove(name)}
+        data-remove
+      />
+    </div>
+  </div>
   <span class={styles.summary}>
     <span class={styles.thumb} data-item-thumb aria-hidden="true"><Icon name="file-text" /></span>
     <span class={styles.body}>
-      <span class={styles.name} data-item-name>{name}</span>
+      <span class={styles.name} data-item-name title={name || undefined}>{name}</span>
       <span class={styles.meta} data-item-meta>{item && describeFileItem(item, locale)}</span>
     </span>
-  </span>
-  <span class={styles.actions}>
-    <button type="button" class={styles.control} aria-label={m.moveUp(name)} data-move="up">
-      <Icon name="arrow-up" />
-    </button>
-    <button type="button" class={styles.control} aria-label={m.moveDown(name)} data-move="down">
-      <Icon name="arrow-down" />
-    </button>
-    <button
-      type="button"
-      class:list={[styles.control, styles.remove]}
-      aria-label={m.remove(name)}
-      data-remove
-    >
-      <Icon name="x" />
-    </button>
   </span>
 </li>

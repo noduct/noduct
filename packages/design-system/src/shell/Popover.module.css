@@ -1,6 +1,6 @@
 /*
- * Casca visual compartilhada dos popovers do hub (busca e configurações).
- * Posicionamento e dimensões ficam com cada componente; aqui só superfície, cabeçalho e entrada.
+ * Casca visual compartilhada dos popovers do hub e das ferramentas (busca, categorias e configurações).
+ * Posicionamento e dimensões ficam com cada componente; aqui só superfície, cabeçalho, ilha e entrada.
  */
 .panel {
   display: flex;
@@ -28,9 +28,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 0.85rem;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-surface);
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  background: var(--color-surface-sunken);
 }
 
 .title {
@@ -40,4 +40,28 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  padding: 0.12rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-card);
+  box-shadow: var(--rim-light-subtle);
+}
+
+.body {
+  padding: var(--space-2);
+  background: var(--color-surface-sunken);
+}
+
+.card {
+  overflow: hidden;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm), var(--rim-light-subtle);
 }

@@ -1,6 +1,6 @@
 ---
 import type { Locale } from '@noduct/tool-runtime';
-import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
+import { DEFAULT_WORKSPACE_ACCEPT } from '../file-workflow/contracts';
 import Icon from '../icons/Icon.astro';
 import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
 import Select from './Select.astro';
@@ -20,7 +20,7 @@ export interface Props {
   locale?: Locale;
 }
 
-const { id = 'workspace-manager', accept = DEFAULT_PDF_ACCEPT, locale = 'en' } = Astro.props;
+const { id = 'workspace-manager', accept = DEFAULT_WORKSPACE_ACCEPT, locale = 'en' } = Astro.props;
 const currentLocale = resolveWorkspaceUiLocale(locale);
 const m = workspaceUiMessages[currentLocale];
 const searchId = `${id}-search`;
@@ -64,40 +64,42 @@ const listId = `${id}-list`;
         />
       </div>
       <div class={styles.views} role="group" aria-label={m.view} data-manager-views>
-        <button
-          type="button"
+        <Button
+          variant="quiet"
+          size="sm"
+          iconOnly
+          icon="layout-list"
           class={styles.viewButton}
-          aria-pressed="true"
-          aria-label={m.viewList}
+          ariaPressed="true"
+          ariaLabel={m.viewList}
           title={m.viewList}
-          aria-controls={listId}
+          ariaControls={listId}
           data-view="list"
-        >
-          <Icon name="layout-list" />
-        </button>
-        <button
-          type="button"
+        />
+        <Button
+          variant="quiet"
+          size="sm"
+          iconOnly
+          icon="layout-grid"
           class={styles.viewButton}
-          aria-pressed="false"
-          aria-label={m.viewGrid}
+          ariaPressed="false"
+          ariaLabel={m.viewGrid}
           title={m.viewGrid}
-          aria-controls={listId}
+          ariaControls={listId}
           data-view="grid"
-        >
-          <Icon name="layout-grid" />
-        </button>
+        />
       </div>
       <div class={styles.add}>
         <input
           id={inputId}
           class={styles.fileInput}
           type="file"
-          accept={accept}
+          accept={accept || undefined}
           multiple
           data-manager-input
         />
         <label for={inputId} class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.addButton]}>
-          <Icon name="upload" />
+          <Icon name="upload" class={buttonStyles.iconLeading} />
           <span>{m.addFiles}</span>
         </label>
       </div>
@@ -137,7 +139,7 @@ const listId = `${id}-list`;
       <p class={styles.emptyTitle}>{m.emptyTitle}</p>
       <p>{m.emptyText}</p>
       <label for={inputId} class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.addButton]}>
-        <Icon name="upload" />
+        <Icon name="upload" class={buttonStyles.iconLeading} />
         <span>{m.addFiles}</span>
       </label>
     </div>
@@ -146,12 +148,12 @@ const listId = `${id}-list`;
   <div class={styles.selectionBar} role="group" aria-label={m.selectionToolbar} data-selection-bar hidden>
     <span class={styles.selectionCount} role="status" aria-live="polite" data-selection-count></span>
     <span class={styles.selectionChoices}>
-      <Button variant="quiet" data-selection-action="all-visible">{m.selectVisible}</Button>
-      <Button variant="quiet" data-selection-action="clear">{m.clearSelection}</Button>
+      <Button variant="quiet" size="sm" data-selection-action="all-visible">{m.selectVisible}</Button>
+      <Button variant="quiet" size="sm" data-selection-action="clear">{m.clearSelection}</Button>
     </span>
     <span class={styles.selectionActions}>
-      <Button variant="secondary" icon="download" data-selection-action="download">{m.downloadSelected}</Button>
-      <Button variant="danger-quiet" icon="trash-2" data-selection-action="delete">{m.deleteSelected}</Button>
+      <Button variant="secondary" size="sm" icon="download" data-selection-action="download">{m.downloadSelected}</Button>
+      <Button variant="danger-quiet" size="sm" icon="trash-2" data-selection-action="delete">{m.deleteSelected}</Button>
     </span>
   </div>
 
@@ -183,19 +185,13 @@ const listId = `${id}-list`;
         </span>
       </span>
       <span class:list={[item.actions, styles.actions]}>
-        <button type="button" class={item.iconButton} data-action="preview">
-          <Icon name="eye" />
-        </button>
-        <button type="button" class={item.iconButton} data-action="download">
-          <Icon name="download" />
-        </button>
-        <button type="button" class={item.iconButton} data-action="retention">
+        <Button variant="quiet" iconOnly icon="eye" data-action="preview" />
+        <Button variant="quiet" iconOnly icon="download" data-action="download" />
+        <Button variant="quiet" iconOnly data-action="retention">
           <Icon class={item.temporary} name="hourglass" />
           <Icon class={item.kept} name="timer-off" />
-        </button>
-        <button type="button" class:list={[item.iconButton, item.danger]} data-action="delete">
-          <Icon name="trash-2" />
-        </button>
+        </Button>
+        <Button variant="danger-quiet" iconOnly icon="trash-2" data-action="delete" />
       </span>
     </li>
   </template>

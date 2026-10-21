@@ -83,52 +83,46 @@ box-shadow: var(--shadow-sm), var(--rim-light);
 
 ## 5. Botões e Ações Interativas
 
-### 5.1 Anatomia e hierarquia
+### 5.1 Anatomia e hierarquia (`Button`)
 
-Use `Button` de `@noduct/design-system/components/Button.astro` nas ações com texto, inclusive links apresentados como botões. O componente aceita `variant`, `size`, `href`, `type`, `icon`, `iconTrailing`, `disabled` e atributos `data-*`. A classe global antiga `.button` não é um contrato público. Componentes com `input[type=file]` usam um `<label>` com as classes importadas de `Button.module.css`, mantendo o mesmo acabamento e foco no input.
+Use `Button` de `@noduct/design-system/components/Button.astro` nas ações com texto, links apresentados como botões e controles de ícone em proporção 1×1 (`iconOnly`). O componente aceita `variant`, `size`, `iconOnly`, `href`, `type`, `icon`, `iconTrailing`, `disabled`, `title`, `target`, `rel`, `download`, atributos ARIA (`ariaLabel`, `ariaExpanded`, `ariaControls`, `ariaPressed`, `ariaDescribedby`, `ariaHaspopup`, `ariaCurrent`, `ariaBusy`, `role`) e atributos `data-*`. Componentes com `input[type=file]` (`DropZone`, `WorkspaceManager`) e botões criados dinamicamente no cliente usam as classes exportadas de `@noduct/design-system/components/Button.module.css`, mantendo o mesmo acabamento e foco.
 
 | Variante | Uso | Acabamento |
 | --- | --- | --- |
-| `primary` | Ação principal do contexto, como mesclar, baixar ou enviar arquivo | `--color-action-primary` com texto branco, sombra e linha superior especular |
-| `secondary` | Alternativa ou ação de apoio, como escolher da Área Local ou reiniciar | Superfície, borda, sombra e linha superior especular |
-| `quiet` | Ação auxiliar sem ênfase em repouso | Transparente, sem elevação |
-| `danger` | Confirmação destrutiva que precisa de destaque | `--color-action-danger` com texto branco, sombra e linha superior especular |
-| `danger-quiet` | Ação destrutiva disponível sem competir com a principal | Transparente, texto vermelho |
+| `primary` | Ação principal do contexto, como mesclar, baixar ou enviar arquivo | `--color-action-primary` com texto branco, sombra e `--rim-light-strong` |
+| `secondary` | Alternativa ou ação de apoio, como escolher da Área Local, abrir a Área de Trabalho ou reiniciar | Superfície `--color-surface-card`, borda, sombra e `--rim-light-strong` |
+| `quiet` | Ação auxiliar ou botão de ícone em repouso | Transparente, hover em `--color-surface-hover` |
+| `danger` | Confirmação destrutiva que precisa de destaque | `--color-action-danger` com texto branco, sombra e `--rim-light-strong` |
+| `danger-quiet` | Ação destrutiva disponível sem competir com a principal | Transparente, texto vermelho e hover em `--color-danger-soft` |
 
-`size` pode ser `sm`, `md` (padrão) ou `lg`; todos preservam alvo de 44 px em toque. A linha superior é `--rim-light-strong`, mais visível que o `--rim-light` das superfícies no tema escuro. Use uma ação `primary` por grupo de decisões; a variante `danger` só cabe na confirmação final da ação destrutiva. Controles de ícone, alternâncias, navegação em abas e links de texto mantêm suas semânticas e padrões próprios.
+`size` pode ser `sm` (`36px`), `md` (`40px`, padrão) ou `lg` (`44px`); todos preservam área mínima de toque de 44×44 px em dispositivos coarse pointer. Quando `iconOnly={true}`, o botão assume proporção quadrada estrita `1 / 1` (`padding: 0`) e compressão ativa `--scale-active-icon` (`0.92`). Estados abertos ou pressionados (`[aria-expanded='true']`, `[aria-pressed='true']`) recebem realce automático em `--color-primary-soft` e `--color-primary-border-soft`.
 
 ```astro
 <Button variant="primary" data-action="merge">{m.actionMerge}</Button>
 <Button variant="secondary" href={toolsHref} iconTrailing="chevron-right">{m.allTools}</Button>
+<Button variant="quiet" iconOnly icon="settings" ariaLabel={m.settings.open} data-settings-trigger />
 ```
 
-* **Botão de ícone (`.themeToggle`, `.menuButton`):** alvo de toque mínimo de 44 × 44 px, cantos `--radius-sm`, centralização `display: grid; place-items: center;`.
+### 5.2 Alternâncias (`Switch`) e Configurações Adaptativas
 
-### 5.2 Feedback Físico
-* **Hover (Pointer fino):**
-  ```css
-  @media (hover: hover) and (pointer: fine) {
-    .button:hover {
-      background: var(--color-primary-hover);
-      transform: translateY(-1px);
-    }
-  }
-  ```
-* **Active (Pressionamento mecânico instantâneo):**
-  ```css
-  .button:active {
-    transform: scale(var(--scale-active-button)); /* 0.98 */
-    transition-duration: var(--duration-instant);  /* 100ms */
-  }
-  ```
+Para preferências binárias de efeito imediato, use `Switch` de `@noduct/design-system/components/Switch.astro`:
+* **Semântica e Ergonomia:** `button[role="switch"]` com `aria-checked`, trilho de `40×24 px` dentro de área de toque de `44×44 px`, transição com `--ease-apple-spring` e anel de foco único (`--shadow-focus-ring`).
+* **Estado Bloqueado (`blocked` / `disabled`):** Quando uma opção depende logicamente de outra (por exemplo, *Reduzir animações* quando *Arte de fundo* está desativada), o componente recebe `disabled` e `data-blocked="true"` (`cursor: not-allowed`, opacidade reduzida e bloqueio de eventos no cliente).
+* **Responsividade do `SettingsMenu`:** Como a arte ambiente lateral (`AmbientArtwork`) só é renderizada em telas largas (`>= 1400px`), a seção de controles de arte e animação do `SettingsMenu` fica oculta em viewports menores que `1400px`, exibindo apenas Tema e Idioma no mobile e em notebooks compactos.
 
 ---
 
-## 5.3 Confirmações e seleções
+## 5.3 Confirmações, Seleções (*Inset Grouped*) e Busca
 
 * **Nunca** use `alert`, `confirm` ou `prompt` nativos: eles ignoram tema, idioma e foco. Use `confirmAction({ title, message, confirmLabel, tone })` de `@noduct/design-system/shell/confirm`; em ações destrutivas (`tone: 'danger'`) o foco começa em Cancelar. O guardrail `native browser dialog` bloqueia o uso nativo.
-* Escolhas entre opções usam o `Select` do design system (combobox “select-only” do WAI-ARIA), não o `<select>` do navegador. Ele emite `noduct:select-change` com `detail.value`.
-* Ações repetidas em listas usam botões de ícone de 44 px com `aria-label` que inclui o item e `title` como dica; estados alternáveis usam `aria-pressed` e um selo de texto repete o estado.
+* **Padrão *Inset Grouped* para Menus e Seletores:** Escolhas entre opções (`Select` do design system, lista de idiomas do `SettingsMenu`, dropdown de `Categories` no `SiteHeader` e menu mobile) agrupam itens dentro de um contêiner rebaixado (`--color-surface-sunken`) ou popover elevado (`--color-surface-card`, `--shadow-popover`, `--rim-light`) com divisórias sutis de `1px solid var(--color-border-subtle)` entre itens adjacentes (`li + li`, `a + a`). O item selecionado recebe fundo `--color-primary-soft`, texto `--color-primary` e ícone `check`.
+* **Ancoragem Segura e Foco com Cantos Arredondados:** Dropdowns do cabeçalho (`Categories`) ancoram à direita (`right: 0; width: min(280px, calc(100vw - 1.5rem))`) para nunca causar overflow horizontal em viewports intermediárias. O seletor global `:focus-visible` não sobrescreve `border-radius`, preservando os cantos arredondados de `<summary>` e dos itens nas extremidades das listas agrupadas ao navegar com `Tab` ou `Shift+Tab`.
+* **Autocomplete de Busca (`ToolSearch`):** O popover de resultados usa `Popover.module.css` (`.popover`, `.body`, `.card`, `.badge`) com `z-index: var(--z-search)` e `overflow: visible` em `.page-head`, abrindo sempre colado abaixo do campo de busca tanto no Hero da Home quanto em `/tools/`.
+* **Filtro de Categorias na Biblioteca da Home (Zero-JS `:has()`):** Na página inicial, o filtro de categorias usa `<fieldset>` com pílulas `<label>` (`flex-wrap: wrap`, altura mínima de `44px`, opção inicial *Todas* / *All* + categorias com `ToolIcon`, nome completo e contador tabular) e inputs de rádio ocultos. As seções `[data-category-section]` são filtradas instantaneamente via CSS `:has()`, sem cortar rótulos em nenhuma largura de tela e sem adicionar scripts ao bundle.
+* **Cards, Patrocínio e Rodapé (*Buy Me a Coffee*):**
+  - `ToolCard` exibe `ToolIcon` colorido no cabeçalho, elevação suave para ferramentas disponíveis e superfície rebaixada tracejada para ferramentas `planned`.
+  - `SponsorRail` alinha seu breakpoint com o layout da Home (`1024px`) e usa `grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr))` com `white-space: nowrap` no selo e na ação para nunca espremer um card único em telas pequenas.
+  - `SiteFooter` apresenta o convite de apoio voluntário (*Buy me a coffee* / *Me pague um café* / *Invítame a un café*) como uma ilha elevada (`--color-surface-card`, `--rim-light`) com selo âmbar (`--color-warning-soft`, `--color-brand-support`), ícone `coffee` e seta externa `arrow-up-right`.
 
 ## 6. Breadcrumbs (Migalhas de Pão)
 

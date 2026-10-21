@@ -31,6 +31,7 @@ test('keyboard shortcut focuses search', async ({ page }) => {
 });
 
 test('settings menu changes theme, artwork and motion', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${siteBasePath}/tools/`);
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-theme', 'light');
@@ -39,10 +40,11 @@ test('settings menu changes theme, artwork and motion', async ({ page }) => {
   await expect(panel).toBeVisible();
   await panel.getByText('Dark', { exact: true }).click();
   await expect(html).toHaveAttribute('data-theme', 'dark');
-  await panel.getByRole('switch', { name: 'Background artwork' }).click();
-  await expect(html).toHaveAttribute('data-art', 'off');
   await panel.getByRole('switch', { name: 'Reduce motion' }).click();
   await expect(html).toHaveAttribute('data-motion', 'reduce');
+  await panel.getByRole('switch', { name: 'Background artwork' }).click();
+  await expect(html).toHaveAttribute('data-art', 'off');
+  await expect(panel.getByRole('switch', { name: 'Reduce motion' })).toBeDisabled();
   await page.keyboard.press('Escape');
   await expect(panel).toBeHidden();
   await page.reload();

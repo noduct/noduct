@@ -85,7 +85,7 @@ export const workspaceUiMessages = {
     cleared: 'All files were deleted.',
     emptyTitle: 'Your Local Workspace is empty',
     emptyText:
-      'Save a result from any tool, or add PDF files here, to reuse them later without selecting them again.',
+      'Save a result from any tool, or add files here, to reuse them later without selecting them again.',
     privacyTitle: 'How your files are kept',
     privacyPoints: [
       'Files stay in this browser on this device. Nothing is uploaded.',
@@ -97,6 +97,8 @@ export const workspaceUiMessages = {
     recentsIntro:
       'Reuse files across Noduct tools without selecting them again. They stay in this browser.',
     recentsLabel: 'Recently saved files',
+    collapseRecents: 'Minimize Local Workspace',
+    expandRecents: 'Expand Local Workspace',
     openWorkspace: 'Open Local Workspace',
     viewAll: 'View all files',
     moreFiles: (count: number) =>
@@ -201,7 +203,7 @@ export const workspaceUiMessages = {
     cleared: 'Todos os arquivos foram excluídos.',
     emptyTitle: 'Sua Área de Trabalho Local está vazia',
     emptyText:
-      'Salve um resultado em qualquer ferramenta, ou adicione arquivos PDF aqui, para reutilizá-los depois sem selecioná-los de novo.',
+      'Salve um resultado em qualquer ferramenta, ou adicione arquivos aqui, para reutilizá-los depois sem selecioná-los de novo.',
     privacyTitle: 'Como seus arquivos são guardados',
     privacyPoints: [
       'Os arquivos ficam neste navegador, neste dispositivo. Nada é enviado.',
@@ -213,8 +215,10 @@ export const workspaceUiMessages = {
     recentsIntro:
       'Reutilize arquivos entre as ferramentas do Noduct sem selecioná-los de novo. Eles ficam neste navegador.',
     recentsLabel: 'Arquivos salvos recentemente',
-    openWorkspace: 'Abrir a Área de Trabalho',
-    viewAll: 'Ver todos os arquivos',
+    collapseRecents: 'Minimizar Área de Trabalho',
+    expandRecents: 'Expandir Área de Trabalho',
+    openWorkspace: 'Ver todos',
+    viewAll: 'Ver todos',
     moreFiles: (count: number) =>
       plural(count, 'Ver mais 1 arquivo', `Ver mais ${count} arquivos`),
     selectFile: (name: string) => `Selecionar ${name}`,
@@ -317,7 +321,7 @@ export const workspaceUiMessages = {
     cleared: 'Se eliminaron todos los archivos.',
     emptyTitle: 'Tu área de trabajo local está vacía',
     emptyText:
-      'Guarda un resultado en cualquier herramienta, o añade archivos PDF aquí, para reutilizarlos después sin volver a seleccionarlos.',
+      'Guarda un resultado en cualquier herramienta, o añade archivos aquí, para reutilizarlos después sin volver a seleccionarlos.',
     privacyTitle: 'Cómo se guardan tus archivos',
     privacyPoints: [
       'Los archivos permanecen en este navegador, en este dispositivo. No se sube nada.',
@@ -329,8 +333,10 @@ export const workspaceUiMessages = {
     recentsIntro:
       'Reutiliza archivos entre las herramientas de Noduct sin volver a seleccionarlos. Permanecen en este navegador.',
     recentsLabel: 'Archivos guardados recientemente',
-    openWorkspace: 'Abrir el área de trabajo',
-    viewAll: 'Ver todos los archivos',
+    collapseRecents: 'Minimizar área de trabajo',
+    expandRecents: 'Expandir área de trabajo',
+    openWorkspace: 'Ver todos',
+    viewAll: 'Ver todos',
     moreFiles: (count: number) =>
       plural(count, 'Ver 1 archivo más', `Ver ${count} archivos más`),
     selectFile: (name: string) => `Seleccionar ${name}`,

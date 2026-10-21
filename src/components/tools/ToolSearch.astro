@@ -26,101 +26,109 @@ const m = getMessages(locale);
   data-one-result={m.search.oneResult}
   data-many-results={m.search.results}
 >
-  <label for="tool-search" class="sr-only">{m.search.label}</label>
-  <div class="input-wrap">
-    <Icon class="search-icon" name="search" />
-    <input
-      id="tool-search"
-      type="search"
-      placeholder={m.search.placeholder}
-      autocomplete="off"
-      spellcheck="false"
-      role="combobox"
-      aria-expanded="false"
-      aria-autocomplete="list"
-      aria-controls="search-dropdown-menu"
-      aria-describedby="search-help search-status"
-    />
-    <kbd aria-hidden="true">{m.search.shortcut}</kbd>
-  </div>
-  <small id="search-help" class="sr-only">{m.search.help}</small>
-  <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
-
-  <!-- Menu Select Flutuante em Live Search (Apple Spotlight Style) -->
-  <div
-    id="search-dropdown-menu"
-    class:list={[popover.panel, 'search-dropdown']}
-    data-dropdown
-    hidden
-  >
-    <div class={popover.header}>
-      <span class={popover.title}>{m.search.suggested}</span>
-      <span class="dropdown-count" data-count-badge>0 {m.search.results}</span>
+  <div class="search-box">
+    <label for="tool-search" class="sr-only">{m.search.label}</label>
+    <div class="input-wrap">
+      <Icon class="search-icon" name="search" />
+      <input
+        id="tool-search"
+        type="search"
+        placeholder={m.search.placeholder}
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="false"
+        aria-autocomplete="list"
+        aria-controls="search-dropdown-menu"
+        aria-describedby="search-help search-status"
+      />
+      <kbd aria-hidden="true">{m.search.shortcut}</kbd>
     </div>
+    <small id="search-help" class="sr-only">{m.search.help}</small>
+    <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
 
-    <ul class="dropdown-list" role="listbox" data-dropdown-list></ul>
+    <!-- Menu Select Flutuante em Live Search (Padrão Popover + Inset Grouped) -->
+    <div
+      id="search-dropdown-menu"
+      class:list={[popover.panel, 'search-dropdown']}
+      data-dropdown
+      hidden
+    >
+      <div class={popover.header}>
+        <span class={popover.title}>{m.search.suggested}</span>
+        <span class={popover.badge} data-count-badge>0 {m.search.results}</span>
+      </div>
 
-    <!--
-      Itens da busca em <template>: conteúdo inerte (fora do cálculo de estilo e layout) até o
-      primeiro uso. Metade do DOM da página ficava aqui, escondida, em todo carregamento.
-    -->
-    <template data-dropdown-items>
-      {
-        tools.map((tool) => {
-          const cat = getCategory(tool.category, locale);
-          const url = tool.url ?? '';
-          const isClickable = Boolean(tool.url);
+      <div class={popover.body}>
+        <div class={popover.card}>
+          <ul class="dropdown-list" role="listbox" data-dropdown-list></ul>
 
-          return (
-            <li
-              class="dropdown-item"
-              role="option"
-              data-search-item
-              data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
-              data-url={url}
-              data-clickable={isClickable ? 'true' : 'false'}
-              hidden
-            >
-              <a href={isClickable ? url : undefined} class="item-link" tabindex="-1">
-                <span class="item-icon-box" aria-hidden="true">
-                  <ToolIcon category={tool.category} />
-                </span>
-                <div class="item-body">
-                  <div class="item-head">
-                    <span class="item-title">{tool.name}</span>
-                    <span class="item-category">{cat?.name}</span>
-                  </div>
-                  <p class="item-desc">{tool.description}</p>
-                </div>
-                <div class="item-meta">
-                  <span class:list={['status-tag', `status-${tool.status}`]}>
-                    <span class="status-dot" />
-                    <span>
-                      {tool.status === 'published' || tool.status === 'ready'
-                        ? m.common.open
-                        : tool.status === 'beta'
-                          ? m.common.beta
-                          : m.common.planned}
-                    </span>
+          <!-- Estado Vazio Dentro da Ilha do Dropdown -->
+          <div class="dropdown-empty" data-empty hidden>
+            <span class="empty-icon-box" aria-hidden="true">
+              <Icon class="empty-icon" name="search-x" />
+            </span>
+            <p class="empty-title">{m.search.noResults}</p>
+            <p class="empty-desc">{m.search.noResultsHelp}</p>
+          </div>
+        </div>
+      </div>
+
+      <!--
+        Itens da busca em <template>: conteúdo inerte (fora do cálculo de estilo e layout) até o
+        primeiro uso. Metade do DOM da página ficava aqui, escondida, em todo carregamento.
+      -->
+      <template data-dropdown-items>
+        {
+          tools.map((tool) => {
+            const cat = getCategory(tool.category, locale);
+            const url = tool.url ?? '';
+            const isClickable = Boolean(tool.url);
+
+            return (
+              <li
+                class="dropdown-item"
+                role="option"
+                data-search-item
+                data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
+                data-url={url}
+                data-clickable={isClickable ? 'true' : 'false'}
+                hidden
+              >
+                <a href={isClickable ? url : undefined} class="item-link" tabindex="-1">
+                  <span class="item-icon-box" aria-hidden="true">
+                    <ToolIcon category={tool.category} />
                   </span>
-                  {isClickable ? (
-                    <Icon class="item-arrow" name="chevron-right" />
-                  ) : (
-                    <span class="roadmap-badge">{m.search.roadmap}</span>
-                  )}
-                </div>
-              </a>
-            </li>
-          );
-        })
-      }
-    </template>
-
-    <!-- Estado Vazio Dentro do Dropdown -->
-    <div class="dropdown-empty" data-empty hidden>
-      <Icon class="empty-icon" name="search-x" />
-      <p class="empty-title">{m.search.noResults}</p>
-      <p class="empty-desc">{m.search.noResultsHelp}</p>
+                  <div class="item-body">
+                    <div class="item-head">
+                      <span class="item-title">{tool.name}</span>
+                      <span class="item-category">{cat?.name}</span>
+                    </div>
+                    <p class="item-desc">{tool.description}</p>
+                  </div>
+                  <div class="item-meta">
+                    <span class:list={['status-tag', `status-${tool.status}`]}>
+                      <span class="status-dot" />
+                      <span>
+                        {tool.status === 'published' || tool.status === 'ready'
+                          ? m.common.open
+                          : tool.status === 'beta'
+                            ? m.common.beta
+                            : m.common.planned}
+                      </span>
+                    </span>
+                    {isClickable ? (
+                      <Icon class="item-arrow" name="chevron-right" />
+                    ) : (
+                      <span class="roadmap-badge">{m.search.roadmap}</span>
+                    )}
+                  </div>
+                </a>
+              </li>
+            );
+          })
+        }
+      </template>
     </div>
   </div>
 
@@ -204,6 +212,7 @@ const m = getMessages(locale);
       }
 
       openDropdown();
+      if (list) list.hidden = count === 0;
       if (empty) empty.hidden = count !== 0;
       const label = count === 1 ? root.dataset.oneResult : root.dataset.manyResults;
       if (countBadge) countBadge.textContent = `${count} ${label}`;
@@ -273,6 +282,11 @@ const m = getMessages(locale);
 
 <style>
   .search {
+    width: 100%;
+  }
+
+  /* Âncora isolada da barra de busca para que o popover nunca dependa da altura do directory-grid */
+  .search-box {
     position: relative;
     width: 100%;
   }
@@ -291,6 +305,12 @@ const m = getMessages(locale);
       border-color var(--duration-fast) var(--ease-apple),
       box-shadow var(--duration-fast) var(--ease-apple),
       background-color var(--duration-fast) var(--ease-apple);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .input-wrap:hover:not(:focus-within) {
+      border-color: var(--color-border-strong);
+    }
   }
 
   /* Halo de foco ótico Apple na cápsula externa */
@@ -358,49 +378,38 @@ const m = getMessages(locale);
     border: 1px solid var(--color-border);
     border-bottom-width: 2px;
     border-radius: var(--radius-xs);
-    background: var(--color-surface);
+    background: var(--color-surface-sunken);
     color: var(--color-text-secondary);
     font-size: 0.68rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     white-space: nowrap;
     user-select: none;
-    box-shadow: var(--shadow-key);
+    box-shadow: var(--shadow-key), var(--rim-light);
   }
 
-  /* Popover da busca: casca visual em Popover.module.css; aqui só posição e altura. */
+  /* Popover da busca: casca visual em Popover.module.css; aqui só posição e estrutura Inset Grouped */
   .search-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
     right: 0;
     z-index: var(--z-search);
-    max-height: 420px;
   }
 
   .search-dropdown[hidden] {
     display: none;
   }
 
-  .dropdown-count {
-    font-size: 0.7rem;
-    font-weight: 500;
-    color: var(--color-text-muted);
-    padding: 0.1rem 0.45rem;
-    border-radius: var(--radius-pill);
-    background: var(--color-surface-sunken);
-  }
-
   .dropdown-list {
     margin: 0;
-    padding: 0.35rem;
+    padding: 0;
     list-style: none;
     overflow-y: auto;
     overscroll-behavior: contain;
-    max-height: 320px;
+    max-height: 340px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) transparent;
   }
@@ -425,8 +434,12 @@ const m = getMessages(locale);
   }
 
   .dropdown-item {
-    border-radius: var(--radius-sm);
     transition: background-color var(--duration-fast) var(--ease-apple);
+  }
+
+  /* Hairline divider apenas entre itens visíveis consecutivos dentro da ilha */
+  .dropdown-item:not([hidden]) ~ .dropdown-item:not([hidden]) {
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .dropdown-item.is-active,
@@ -434,11 +447,15 @@ const m = getMessages(locale);
     background: var(--color-surface-hover);
   }
 
+  .dropdown-item[data-clickable='false'] .item-link {
+    cursor: default;
+  }
+
   .item-link {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.55rem 0.65rem;
+    padding: 0.65rem 0.85rem;
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -451,6 +468,12 @@ const m = getMessages(locale);
     flex-shrink: 0;
   }
 
+  .dropdown-item.is-active .item-icon-box :global(.icon),
+  .dropdown-item:hover .item-icon-box :global(.icon) {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary-border-soft);
+  }
+
   .item-body {
     flex: 1;
     min-width: 0;
@@ -459,32 +482,40 @@ const m = getMessages(locale);
   .item-head {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    line-height: 1.2;
+    gap: 0.45rem;
+    line-height: 1.25;
   }
 
   .item-title {
     margin: 0;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--color-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color var(--duration-fast) var(--ease-apple);
+  }
+
+  .dropdown-item[data-clickable='true'].is-active .item-title,
+  .dropdown-item[data-clickable='true']:hover .item-title {
+    color: var(--color-primary);
   }
 
   .item-category {
-    font-size: 0.7rem;
-    color: var(--color-text-muted);
-    padding: 0.05rem 0.35rem;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    padding: 0.08rem 0.4rem;
     background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border-subtle);
     border-radius: var(--radius-xs);
     white-space: nowrap;
   }
 
   .item-desc {
     margin: 0.2rem 0 0;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -539,6 +570,7 @@ const m = getMessages(locale);
 
   .roadmap-badge {
     font-size: 0.68rem;
+    font-weight: 500;
     color: var(--color-text-muted);
   }
 
@@ -557,33 +589,43 @@ const m = getMessages(locale);
     transform: translateX(2px);
   }
 
-  /* Estado vazio no dropdown */
+  /* Estado vazio dentro da ilha do dropdown */
   .dropdown-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 2rem 1.25rem;
     text-align: center;
   }
 
-  .empty-icon {
-    width: 28px;
-    height: 28px;
+  .empty-icon-box {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.6rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border-subtle);
     color: var(--color-text-muted);
-    margin-bottom: 0.5rem;
+  }
+
+  .empty-icon {
+    width: 18px;
+    height: 18px;
   }
 
   .empty-title {
     margin: 0;
-    font-size: 0.88rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--color-text);
   }
 
   .empty-desc {
     margin: 0.25rem 0 0;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     color: var(--color-text-secondary);
     max-width: 280px;
   }
@@ -606,6 +648,10 @@ const m = getMessages(locale);
 
   @media (max-width: 620px) {
     kbd {
+      display: none;
+    }
+
+    .roadmap-badge {
       display: none;
     }
   }

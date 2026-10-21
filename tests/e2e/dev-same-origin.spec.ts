@@ -38,6 +38,12 @@ test('hub and tool share one origin and theme in development', async ({ page }) 
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
     expect(ready).toBe(true);
+    // Em dev, a 404 é renderizada sob a URL pedida; um caminho localizado inexistente não pode
+    // derrubar o shell com erro de topologia.
+    const missing = await page.goto('/pt-br/missing-page/');
+    expect(missing?.status()).toBe(404);
+    await expect(page.locator('main h1')).toHaveCount(1);
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/404\/$/);
     await page.goto('/');
     await page.getByRole('button', { name: 'Open settings' }).click();
     await page.getByRole('dialog', { name: 'Settings' }).getByText('Dark', { exact: true }).click();

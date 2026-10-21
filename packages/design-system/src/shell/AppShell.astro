@@ -117,6 +117,10 @@ const redirectPaths = Object.fromEntries(
           if (localStorage.getItem(preferenceKeys.art) === 'off') root.dataset.art = 'off';
           if (localStorage.getItem(preferenceKeys.motion) === 'reduce')
             root.dataset.motion = 'reduce';
+          if (localStorage.getItem(preferenceKeys.workspaceView) === 'grid')
+            root.dataset.workspaceView = 'grid';
+          if (localStorage.getItem(preferenceKeys.workspaceRecents) === 'collapsed')
+            root.dataset.workspaceRecents = 'collapsed';
           savedLocale = localStorage.getItem(preferenceKeys.locale);
         } catch {
           /* Storage may be unavailable in hardened browsing modes. */

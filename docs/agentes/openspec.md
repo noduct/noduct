@@ -24,8 +24,9 @@ As regras do projeto para cada artefato estão em [openspec/config.yaml](../../o
 | Capacidade | Conteúdo |
 | --- | --- |
 | [url-topology](../../openspec/specs/url-topology/spec.md) | Origem única, hub na raiz, ferramentas em `/<slug>/`, slugs reservados e metadados. |
-| [tool-shell](../../openspec/specs/tool-shell/spec.md) | `AppShell`, `ToolPage`, paridade com o hub e preferências. |
-| [local-workspace](../../openspec/specs/local-workspace/spec.md) | Superfícies, salvamento explícito, retenção e locks da Área Local. |
+| [tool-shell](../../openspec/specs/tool-shell/spec.md) | `AppShell`, `ToolPage`, paridade com o hub, `SettingsMenu` adaptativo e rodapé de apoio. |
+| [design-system](../../openspec/specs/design-system/spec.md) | `Button` (incluindo `iconOnly` 1×1), `Switch` (`blocked`), listas *Inset Grouped* e filtro da Home. |
+| [local-workspace](../../openspec/specs/local-workspace/spec.md) | Superfícies, formatos livres vs. restrição por ferramenta, salvamento explícito, retenção e locks. |
 | [localization](../../openspec/specs/localization/spec.md) | Três idiomas, códigos de domínio e prefixos de locale. |
 
 Uma spec descreve comportamento, não implementação, e não contradiz ADR. Ao criar uma capacidade nova, acrescente uma linha a esta tabela.

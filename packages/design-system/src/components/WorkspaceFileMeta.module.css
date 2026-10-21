@@ -6,7 +6,7 @@
 
 .row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-1);
   min-width: 0;
   color: var(--color-text-secondary);
@@ -19,6 +19,5 @@
   flex: none;
   width: 14px;
   height: 14px;
-  margin-top: 1px;
   color: var(--color-text-muted);
 }

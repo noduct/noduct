@@ -8,6 +8,7 @@ import { defineTool } from '@noduct/tool-runtime';
 export const tool = defineTool({
   slug: 'merge-pdf',
   category: 'pdf-tools',
+  accept: 'application/pdf,.pdf',
   published: false,
   sponsorshipEnabled: false
 });

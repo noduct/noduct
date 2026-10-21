@@ -21,10 +21,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-success-border);
   border-radius: var(--radius-circle);
-  background: var(--color-surface-hover);
+  background: var(--color-success-soft);
   color: var(--color-success);
   font-size: 1.25rem;
   font-weight: 700;
@@ -45,9 +46,9 @@
 }
 
 .title:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+  border-radius: var(--radius-xs);
 }
 
 .meta {
@@ -73,9 +74,8 @@
 }
 
 .saveLink:focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
-  box-shadow: none;
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
 }
 
 .actions [data-state='saved'] {
@@ -112,6 +112,8 @@
   gap: var(--space-1) var(--space-3);
   grid-column: 1 / -1;
   margin: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border-subtle);
   color: var(--color-text-secondary);
   font-size: 0.8125rem;
 }
@@ -130,6 +132,7 @@
   align-items: center;
   gap: var(--space-1);
   min-height: 44px;
+  padding: 0 var(--space-2);
   border-radius: var(--radius-sm);
   color: var(--color-primary);
   font-weight: 600;

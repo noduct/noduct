@@ -1,18 +1,124 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
+import { getShellMessages } from '@noduct/design-system/shell/messages';
 import ToolIcon from '@/components/tools/ToolIcon.astro';
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
 import { getMessages } from '@/i18n/messages';
 import { localizePath, type Locale } from '@/i18n/config';
+
 const { locale } = Astro.props as { locale: Locale };
-const m = getMessages(locale); const categories = getLocalizedCategories(locale); const tools = getLocalizedTools(locale);
+const m = getMessages(locale);
+const shellMessages = getShellMessages(locale);
+const categories = getLocalizedCategories(locale);
+const tools = getLocalizedTools(locale);
 ---
+
 <BaseLayout title={m.categoriesPage.title} description={m.categoriesPage.description} locale={locale}>
-  <header class="page-head"><div class="container"><p class="eyebrow">{m.categoriesPage.eyebrow}</p><h1>{m.categoriesPage.heading}</h1><p class="lede">{m.categoriesPage.intro}</p></div></header>
-  <section class="section container"><div class="grid grid-3">{categories.map((category) => { const count = tools.filter((tool) => tool.category === category.id).length; return <a class="card category-card" href={localizePath(`/${category.id}/`, locale)}><div class="card-head"><ToolIcon category={category.id} /><span class="tool-count">{count} {m.common.tools}</span></div><h2>{category.name}</h2><p>{category.description}</p><div class="card-footer"><span>{m.categoriesPage.explore}</span><Icon class="arrow-icon" name="chevron-right" /></div></a>; })}</div></section>
+  <header class="page-head">
+    <div class="container">
+      <nav class="breadcrumb" aria-label={shellMessages.nav.breadcrumb}>
+        <a class="breadcrumb-link" href={localizePath('/', locale)}>
+          <Icon class="breadcrumb-icon" name="house" />
+          <span>{shellMessages.nav.breadcrumbHome}</span>
+        </a>
+        <Icon class="breadcrumb-sep" name="chevron-right" />
+        <span class="breadcrumb-current" aria-current="page">{m.categoriesPage.heading}</span>
+      </nav>
+      <p class="eyebrow">{m.categoriesPage.eyebrow}</p>
+      <h1>{m.categoriesPage.heading}</h1>
+      <p class="lede">{m.categoriesPage.intro}</p>
+    </div>
+  </header>
+  <section class="section container">
+    <div class="grid grid-3">
+      {
+        categories.map((category) => {
+          const count = tools.filter((tool) => tool.category === category.id).length;
+          return (
+            <a class="card category-card" href={localizePath(`/${category.id}/`, locale)}>
+              <div class="card-head">
+                <ToolIcon category={category.id} />
+                <span class="tool-count">
+                  {count} {m.common.tools}
+                </span>
+              </div>
+              <h2>{category.name}</h2>
+              <p>{category.description}</p>
+              <div class="card-footer">
+                <span>{m.categoriesPage.explore}</span>
+                <Icon class="arrow-icon" name="chevron-right" />
+              </div>
+            </a>
+          );
+        })
+      }
+    </div>
+  </section>
 </BaseLayout>
+
 <style>
-  .category-card { display:flex; flex-direction:column; justify-content:space-between; gap:.75rem; } .card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.25rem; } .tool-count { padding:.15rem .45rem; border-radius:var(--radius-xs); background:var(--color-surface); border:1px solid var(--color-border); color:var(--color-text-secondary); font-size:.72rem; font-weight:600; } h2 { font-size:1.15rem; font-weight:650; margin:0; } p { margin:0; flex:1; color:var(--color-text-secondary); font-size:.88rem; line-height:1.45; } .card-footer { display:inline-flex; align-items:center; gap:.35rem; margin-top:.75rem; padding-top:.65rem; border-top:1px solid var(--color-border-subtle); color:var(--color-primary); font-size:.82rem; font-weight:600; } .arrow-icon { width:14px; height:14px; }
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+
+  .tool-count {
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-xs);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--rim-light-subtle);
+    color: var(--color-text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  h2 {
+    font-size: 1.15rem;
+    font-weight: 650;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    flex: 1;
+    color: var(--color-text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.45;
+  }
+
+  .card-footer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--color-border-subtle);
+    color: var(--color-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .arrow-icon {
+    width: 14px;
+    height: 14px;
+    transition: transform var(--duration-fast) var(--ease-apple);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .category-card:hover .arrow-icon {
+      transform: translateX(3px);
+    }
+  }
 </style>

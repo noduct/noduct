@@ -7,6 +7,7 @@ import { defineTool } from '@noduct/tool-runtime';
 export const tool = defineTool({
   slug: 'example-tool',
   category: 'text-tools',
+  accept: 'text/plain,.txt',
   published: false,
   sponsorshipEnabled: false
 });

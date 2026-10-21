@@ -33,6 +33,7 @@ export default defineConfig({
   },
   test: {
     include: ['tests/unit/**/*.test.ts', 'packages/*/src/**/*.test.ts'],
+    maxWorkers: 4,
     coverage: { reporter: ['text', 'html'] }
   }
 });

@@ -1,3 +1,4 @@
+import { resolveFileMimeType } from '../file-workflow/contracts';
 import {
   DOWNLOAD_READY_EVENT,
   getDownloadCard,
@@ -45,7 +46,7 @@ function armResultCard(card: HTMLElement, services: WorkspaceServices): (() => v
           name: fileName,
           blob: file,
           size: file.size,
-          mimeType: file.type || 'application/pdf',
+          mimeType: resolveFileMimeType({ name: fileName, type: file.type }),
           // Salvar é uma escolha explícita: o documento fica até o usuário excluí-lo (ADR 0006 D4).
           retention: 'persistent',
           sourceTool

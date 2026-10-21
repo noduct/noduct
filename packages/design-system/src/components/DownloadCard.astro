@@ -57,13 +57,14 @@ const titleId = `${id}-title`;
     </p>
   </div>
   <div class={styles.actions}>
-    <Button variant="primary" data-download-link data-download-url={downloadUrl}>
+    <Button variant="primary" icon="download" data-download-link data-download-url={downloadUrl}>
       {m.download}
     </Button>
     {
       workspace && (
         <Button
           variant="secondary"
+          icon="folder"
           hidden
           data-download-save
           data-state="idle"

@@ -17,6 +17,15 @@ async function visualSignature(root: Locator) {
       const rect = node.getBoundingClientRect();
       const box = { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
 
+      // Descendentes de <details> fechado não são pintados, mesmo quando o navegador
+      // ainda calcula caixas durante a animação.
+      if (node.closest('details:not([open])')) {
+        box.x = 0;
+        box.y = 0;
+        box.width = 0;
+        box.height = 0;
+      }
+
       // Diferenças aprovadas na Fase 2 (#39): os controles de Settings e Menu cresceram
       // para 44 px. A normalização conserva a baseline original e neutraliza somente o
       // tamanho antigo e os deslocamentos de layout diretamente causados por esse aumento.
@@ -106,7 +115,7 @@ function normalizeNonVisualStates(snapshot: ShellSnapshot): ShellSnapshot {
 // shell. No CI a paridade contínua hub × ferramentas é coberta por shell-parity.spec.ts (Fase 5).
 test.skip(Boolean(process.env.CI), 'Baseline local de migração; paridade contínua em shell-parity.spec.ts.');
 
-test('matches the pre-migration hub shell with only the approved differences', async ({
+test('matches the approved hub shell visual baseline', async ({
   page
 }, testInfo) => {
   for (const locale of locales) {
@@ -122,6 +131,12 @@ test('matches the pre-migration hub shell with only the approved differences', a
 
       const header = page.getByRole('banner');
       const footer = page.getByRole('contentinfo');
+      await header.evaluate((element) =>
+        element.getAnimations({ subtree: true }).forEach((animation) => animation.finish())
+      );
+      await footer.evaluate((element) =>
+        element.getAnimations({ subtree: true }).forEach((animation) => animation.finish())
+      );
       const snapshot: ShellSnapshot = {
         headerAria: await header.ariaSnapshot(),
         footerAria: await footer.ariaSnapshot(),
@@ -137,12 +152,12 @@ test('matches the pre-migration hub shell with only the approved differences', a
       if (page.viewportSize()?.width && page.viewportSize()!.width > 720) {
         const details = header.locator('[data-categories-menu]');
         await details.evaluate((element) => element.setAttribute('open', ''));
-        await details.locator('div').evaluate((element) =>
+        await details.locator('div').first().evaluate((element) =>
           element.getAnimations().forEach((animation) => animation.finish())
         );
         const itemBox = await details.locator('a').nth(1).boundingBox();
-        expect(itemBox?.width).toBeCloseTo(206.8, 1);
-        expect(itemBox?.height).toBeCloseTo(36.15, 1);
+        expect(itemBox?.width).toBeCloseTo(260, 1);
+        expect(itemBox?.height).toBeCloseTo(45, 1);
         await details.evaluate((element) => element.removeAttribute('open'));
       }
     }

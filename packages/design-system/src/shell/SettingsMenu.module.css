@@ -2,49 +2,14 @@
   position: relative;
 }
 
-/* Botão de ícone da top bar (mesmo acabamento dos controles do header). */
-.trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface-card);
+/* ==========================================================================
+   Botão Trigger (Ícone de Engrenagem na Topbar)
+   ========================================================================== */
+.trigger[data-settings-trigger] {
   color: var(--color-text-secondary);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm), var(--rim-light);
-  touch-action: manipulation;
-  transform: scale(1);
-  transition:
-    transform var(--duration-fast) var(--ease-apple),
-    border-color var(--duration-fast) var(--ease-apple),
-    background-color var(--duration-fast) var(--ease-apple),
-    color var(--duration-fast) var(--ease-apple);
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .trigger:hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface-hover);
-    color: var(--color-text);
-  }
-}
-
-.trigger:active {
-  transform: scale(var(--scale-active-icon));
-  transition-duration: var(--duration-instant);
-}
-
-.trigger:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus-ring);
-}
-
-.trigger[aria-expanded='true'] {
-  border-color: var(--color-primary-border-active);
-  background: var(--color-primary-soft);
+.trigger[data-settings-trigger][aria-expanded='true']:not(:disabled) {
   color: var(--color-primary);
 }
 
@@ -58,69 +23,146 @@
   transform: rotate(60deg);
 }
 
-/* Painel: a casca vem de Popover.module.css. */
+/* ==========================================================================
+   Painel Popover (Geometria & Posicionamento Responsivo)
+   ========================================================================== */
 .panel {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   z-index: var(--z-popover);
-  width: min(300px, calc(100vw - 2rem));
+  width: min(340px, calc(100vw - 1.5rem));
+  max-height: min(520px, calc(100vh - 80px));
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
   transform-origin: top right;
+}
+
+@media (max-width: 720px) {
+  .panel {
+    right: -48px;
+    width: min(330px, calc(100vw - 1rem));
+  }
 }
 
 .panel[hidden] {
   display: none;
 }
 
+/* ==========================================================================
+   Corpo & Seções (Padrão Inset Grouped)
+   ========================================================================== */
 .body {
   display: flex;
   flex-direction: column;
-  padding: 0.35rem;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  background: var(--color-surface-sunken);
 }
 
-.group,
-.option {
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
   margin: 0;
-  padding: 0.65rem;
+  padding: 0;
   border: 0;
   min-inline-size: 0;
 }
 
-.group + .option,
-.option + .option,
-.option + .group {
+.sectionTitle {
+  padding-inline: 0.25rem;
+  color: var(--color-text-muted);
+  font-size: 0.70rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Cartão Ilha (Superfície Inset com borda e rim-light) */
+.insetCard {
+  overflow: hidden;
+  background: var(--color-surface-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm), var(--rim-light-subtle);
+}
+
+/* ==========================================================================
+   Linhas de Opção (Row Pattern)
+   ========================================================================== */
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border: 0;
+  min-inline-size: 0;
+  min-height: 44px;
+  transition: background-color var(--duration-fast) var(--ease-apple);
+}
+
+fieldset.row {
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  border: 0;
+  min-inline-size: 0;
+}
+
+/* Hairline divider entre itens consecutivos dentro da mesma ilha */
+.row + .row {
   border-top: 1px solid var(--color-border-subtle);
 }
 
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.row:has([data-blocked='true']),
+.row:has(:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.label {
-  padding: 0;
+/* Telas menores que 1400px não possuem largura lateral suficiente para renderizar os dots da arte ambiente */
+@media (max-width: 1399px) {
+  .artworkRow {
+    display: none;
+  }
+}
+
+.rowLabel {
   color: var(--color-text);
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.optionText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
 }
 
 .hint {
-  color: var(--color-text-muted);
-  font-size: 0.74rem;
+  color: var(--color-text-secondary);
+  font-size: 0.73rem;
   font-weight: 400;
   line-height: 1.35;
 }
 
-/* Tema: controle segmentado com rádios nativos. */
+/* ==========================================================================
+   Controle Segmentado de Tema (Compacto & Proporcional)
+   ========================================================================== */
 .segmented {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: inline-flex;
+  align-items: center;
   gap: 2px;
   padding: 2px;
-  background: var(--color-surface);
+  background: var(--color-surface-sunken);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
 .segment {
@@ -128,13 +170,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  height: 32px;
+  gap: 0.35rem;
+  height: 28px;
+  padding-inline: 0.6rem;
   border-radius: var(--radius-xs);
   color: var(--color-text-secondary);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   cursor: pointer;
+  user-select: none;
   transition:
     background-color var(--duration-fast) var(--ease-apple),
     color var(--duration-fast) var(--ease-apple),
@@ -147,9 +191,10 @@
   pointer-events: none;
 }
 
-.segment svg {
-  width: 15px;
-  height: 15px;
+.segmentIcon {
+  width: 14px;
+  height: 14px;
+  transition: color var(--duration-fast) var(--ease-apple);
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -160,86 +205,47 @@
 
 .segment:has(input:checked) {
   background: var(--color-surface-card);
-  color: var(--color-primary);
+  color: var(--color-text);
+  font-weight: 600;
   box-shadow: var(--shadow-sm), var(--rim-light);
+}
+
+.segment:has(input:checked) .segmentIcon {
+  color: var(--color-primary);
 }
 
 .segment:has(input:focus-visible) {
   box-shadow: var(--shadow-focus-ring);
 }
 
-/* Opções com switch. */
-.option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.optionText {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 0;
-}
-
-.switch {
-  position: relative;
-  flex-shrink: 0;
-  width: 36px;
-  height: 22px;
-  padding: 0;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-switch);
-  background: var(--color-surface-hover);
-  cursor: pointer;
-  touch-action: manipulation;
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    border-color var(--duration-fast) var(--ease-apple);
-}
-
-.switch::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: var(--radius-circle);
-  background: var(--color-on-primary);
-  box-shadow: var(--shadow-switch-thumb);
-  transition: transform var(--duration-normal) var(--ease-apple-spring);
-}
-
-.switch[aria-checked='true'] {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
-}
-
-.switch[aria-checked='true']::after {
-  /* !important: a posição indica o estado e precisa resistir à redução global de movimento. */
-  transform: translateX(14px) !important;
-}
-
-.switch:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus-ring);
-}
-
-.switch:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-/* Idioma: lista no mesmo padrão dos itens do dropdown de busca. */
+/* ==========================================================================
+   Lista de Idiomas (Menu de Seleção Legítimo)
+   ========================================================================== */
 .languages {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.languageItem {
+  margin: 0;
+  padding: 0;
+}
+
+.languageItem:first-child .language {
+  border-top-left-radius: var(--radius-md);
+  border-top-right-radius: var(--radius-md);
+}
+
+.languageItem:last-child .language {
+  border-bottom-left-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+.languageItem + .languageItem {
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .language {
@@ -248,10 +254,10 @@
   justify-content: space-between;
   gap: 0.75rem;
   width: 100%;
-  min-height: 36px;
-  padding: 0.45rem 0.6rem;
+  min-height: 44px;
+  padding: 0.6rem 0.85rem;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   background: transparent;
   color: var(--color-text);
   font-size: 0.84rem;
@@ -282,7 +288,12 @@
 .languageText {
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
+  gap: 0.15rem;
+}
+
+.languageName {
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 .check {
@@ -291,18 +302,36 @@
   height: 16px;
   color: var(--color-primary);
   opacity: 0;
-  transform: scale(0.7);
+  transform: scale(0.6);
   transition:
     opacity var(--duration-fast) var(--ease-apple),
     transform var(--duration-fast) var(--ease-apple-spring);
 }
 
+/* Estado Ativo/Selecionado */
 .language[data-selected='true'] {
-  color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-strong);
+}
+
+.language[data-selected='true'] .languageName {
   font-weight: 600;
 }
 
 .language[data-selected='true'] .check {
   opacity: 1;
   transform: scale(1);
+}
+
+/* Utilitário de Acessibilidade Oculto */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }

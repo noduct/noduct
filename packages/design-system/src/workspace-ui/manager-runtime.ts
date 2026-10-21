@@ -1,6 +1,6 @@
 import { createToast } from '../components/toast';
 import { getSelect, SELECT_CHANGE_EVENT } from '../controls/select';
-import { acceptsFile } from '../file-workflow/contracts';
+import { acceptsFile, resolveFileMimeType } from '../file-workflow/contracts';
 import { fileWorkflowMessages } from '../file-workflow/messages';
 import { confirmAction } from '../shell/confirm-dialog';
 import type { WorkspaceServices, WorkspaceSummaryLike } from './contracts';
@@ -99,6 +99,8 @@ export function armWorkspaceManager(
   const setView = (view: View, remember: boolean) => {
     list.dataset.view = view;
     loading.dataset.view = view;
+    if (view === 'grid') document.documentElement.dataset.workspaceView = 'grid';
+    else delete document.documentElement.dataset.workspaceView;
     views
       .querySelectorAll<HTMLButtonElement>('[data-view]')
       .forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
@@ -254,7 +256,10 @@ export function armWorkspaceManager(
     try {
       const message = await task();
       await sync.sync();
-      if (message) toast.show(message);
+      if (message) {
+        announce(message);
+        toast.show(message);
+      }
     } catch (error) {
       announce(formatWorkspaceError(error, locale));
     }
@@ -407,7 +412,7 @@ export function armWorkspaceManager(
           name: file.name,
           blob: file,
           size: file.size,
-          mimeType: file.type || 'application/pdf',
+          mimeType: resolveFileMimeType(file),
           retention: 'persistent'
         });
       }

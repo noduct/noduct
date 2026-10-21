@@ -27,7 +27,10 @@
 | [Pacotes e repositórios](architecture/repository-strategy.md) | Responsabilidades e extração do monorepo. |
 | [Histórico do recomeço estrutural](architecture/issue-39-rationale.md) | Causas e motivos do shell único, topologia e guardrails. |
 | [Modelo de ameaças PDF](security/pdf-threat-model.md) | Riscos do processamento local de PDFs e mitigações. |
+| [Arquitetura de segurança do backend](security/arquitetura-seguranca-backend.md) | Estudo técnico de mitigação de ameaças, sandbox e custo zero no tier free. |
 | [Avaliação de motores PDF](research/pdf-engine-evaluation.md) | Pesquisa que fundamenta o ADR 0002. |
+| [Modelo de sustentabilidade futuro](research/modelo-sustentabilidade-futuro.md) | Estudo exploratório de precificação, nuvem e sustentabilidade. |
+| [Viabilidade de backend em .NET](research/estudo-viabilidade-backend-dotnet.md) | Estudo técnico e FinOps de C# (.NET 8/9), Kestrel e Hangfire. |
 
 ## Interface, conteúdo e SEO
 

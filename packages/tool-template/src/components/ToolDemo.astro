@@ -31,7 +31,7 @@ const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.descripti
         id="tool-source-file"
         label={m.dropLabel}
         description={m.dropDescription}
-        accept="text/plain,.txt"
+        accept={tool.accept}
         multiple={false}
         {locale}
         workspace={{ confirmLabel: m.useFile }}

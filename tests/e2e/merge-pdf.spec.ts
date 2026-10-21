@@ -133,7 +133,7 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
   await expect(mergeBtn).toHaveCSS('opacity', '1');
 
   // Reorder items: move first down
-  const moveDownBtn = page.getByRole('button', { name: 'Move first.pdf down' });
+  const moveDownBtn = page.getByRole('button', { name: 'Move first.pdf later' });
   await moveDownBtn.click();
 
   // Verify order changed
@@ -174,6 +174,63 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
   await expect(downloadCard).toBeHidden();
   await expect(page.locator('#merge-file-list [data-reorder-item]')).toHaveCount(0);
   await expect(mergeBtn).toBeDisabled();
+});
+
+test('Merge PDF: pointer drag keeps the grid stable and commits the chosen order on release', async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(toolUrl);
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'false');
+  await page.locator('#merge-drop-zone').setInputFiles(
+    await Promise.all(
+      ['first', 'second', 'third', 'fourth'].map(async (name) => ({
+        name: `${name}.pdf`,
+        mimeType: 'application/pdf',
+        buffer: await makePdfBuffer(1, name)
+      }))
+    )
+  );
+
+  const items = page.locator('#merge-file-list [data-reorder-item]');
+  await expect(items).toHaveCount(4);
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'true');
+  await expect(page.locator('label[for="merge-drop-zone"]')).toBeVisible();
+  await expect(page.locator('[data-workspace-source]')).toBeVisible();
+  const names = page.locator('#merge-file-list [data-item-name]');
+  const mergeAction = await page.locator('#start-merge-btn').boundingBox();
+  const count = await page.locator('[data-merge-count]').boundingBox();
+  expect(mergeAction && mergeAction.y + mergeAction.height).toBeLessThan(800);
+  expect(count && count.y + count.height).toBeLessThan(800);
+  expect(await items.first().evaluate((item) => item.scrollWidth <= item.clientWidth)).toBe(true);
+  const start = await items.first().locator('[data-item-name]').boundingBox();
+  const destination = await items.nth(2).boundingBox();
+  expect(start).toBeTruthy();
+  expect(destination).toBeTruthy();
+
+  await page.mouse.move(start!.x + start!.width / 2, start!.y + start!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    destination!.x + destination!.width * 0.75,
+    destination!.y + destination!.height / 2,
+    { steps: 8 }
+  );
+  await expect(names).toHaveText(['first.pdf', 'second.pdf', 'third.pdf', 'fourth.pdf']);
+  await expect(items.nth(3)).toHaveAttribute('data-drop-before', 'true');
+  await page.mouse.up();
+
+  await expect(names).toHaveText(['second.pdf', 'third.pdf', 'first.pdf', 'fourth.pdf']);
+  await expect(items.locator('[data-item-index]')).toHaveText(['1', '2', '3', '4']);
+  await expect(page.locator('[data-reorder-status]')).toContainText('first.pdf');
+  await expect(
+    page.locator('#merge-file-list [data-drop-before], #merge-file-list [data-drop-after]')
+  ).toHaveCount(0);
+
+  const handle = page.getByRole('button', { name: 'Reorder first.pdf' });
+  await handle.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(names).toHaveText(['second.pdf', 'first.pdf', 'third.pdf', 'fourth.pdf']);
+  await expect(handle).toBeFocused();
 });
 
 test('Merge PDF: handles encrypted files with actionable alert without breaking valid files', async ({

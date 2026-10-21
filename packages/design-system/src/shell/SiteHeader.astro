@@ -2,9 +2,13 @@
 import { topology, type Category, type Locale, type Scope } from '@noduct/tool-runtime';
 import BrandMark from './BrandMark.astro';
 import Icon from '../icons/Icon.astro';
+import Button from '../components/Button.astro';
+import { categoryIcon } from '../icons/category';
 import { getShellMessages } from './messages';
 import SettingsMenu from './SettingsMenu.astro';
+import popover from './Popover.module.css';
 import styles from './Header.module.css';
+
 interface Props {
   locale?: Locale;
   scope: Scope;
@@ -30,66 +34,119 @@ const uid = `${scope.kind === 'hub' ? 'hub' : scope.slug}-${locale}`;
     </a>
 
     <nav aria-label={m.nav.primary} id={`${uid}-primary-nav`} class={styles.primaryNav}>
-      <a href={topology.hubPath('tools/', locale)} class={styles.navLink}>{m.nav.allTools}</a>
-      <details class={styles.detailsMenu} data-categories-menu>
-        <summary class={styles.navLink}>
-          <span>{m.nav.categories}</span>
-          <Icon class={styles.chevronIcon} name="chevron-down" />
-        </summary>
-        <div class={styles.menu}>
-          {
-            categories.map((category) => (
-              <a href={topology.hubPath(`${category.id}/`, locale)} class={styles.menuItem}>
-                {category.name}
-              </a>
-            ))
-          }
-        </div>
-      </details>
-      <a href={topology.hubPath('about/', locale)} class={styles.navLink}>{m.nav.about}</a>
+      <div class={styles.navIsland}>
+        <a href={topology.hubPath('tools/', locale)} class={styles.navLink}>
+          <Icon class={styles.navLinkIcon} name="layout-grid" />
+          <span class={styles.navLinkLabel}>{m.nav.allTools}</span>
+          <Icon class={styles.navLinkArrow} name="chevron-right" />
+        </a>
+
+        <details class={styles.detailsMenu} data-categories-menu>
+          <summary class={styles.navLink}>
+            <Icon class={styles.navLinkIcon} name="folder" />
+            <span class={styles.navLinkLabel}>{m.nav.categories}</span>
+            <Icon class={styles.chevronIcon} name="chevron-down" />
+          </summary>
+          <div class:list={[popover.panel, styles.menu]}>
+            <div class:list={[popover.header, styles.menuHeader]}>
+              <span class={popover.title}>{m.nav.categories}</span>
+            </div>
+            <div class={popover.body}>
+              <div class:list={[popover.card, styles.menuCard]}>
+                {
+                  categories.map((category) => (
+                    <a
+                      href={topology.hubPath(`${category.id}/`, locale)}
+                      class={styles.menuItem}
+                    >
+                      <span class={styles.categoryIconBox} aria-hidden="true">
+                        <Icon class={styles.categoryIcon} name={categoryIcon[category.id]} />
+                      </span>
+                      <span class={styles.menuItemLabel}>{category.name}</span>
+                      <Icon class={styles.menuItemArrow} name="chevron-right" />
+                    </a>
+                  ))
+                }
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <a href={topology.hubPath('about/', locale)} class={styles.navLink}>
+          <Icon class={styles.navLinkIcon} name="file-text" />
+          <span class={styles.navLinkLabel}>{m.nav.about}</span>
+          <Icon class={styles.navLinkArrow} name="chevron-right" />
+        </a>
+      </div>
     </nav>
 
     <div class={styles.actions}>
       <slot name="actions" />
       <div class={styles.navDivider} aria-hidden="true"></div>
-      <SettingsMenu locale={locale} languageHrefs={languageHrefs} showArtworkControls={showArtworkControls} idPrefix={uid} />
-      <button
+      <SettingsMenu
+        locale={locale}
+        languageHrefs={languageHrefs}
+        showArtworkControls={showArtworkControls}
+        idPrefix={uid}
+      />
+      <Button
+        variant="secondary"
+        iconOnly
         class={styles.menuButton}
         data-menu-button
-        type="button"
-        aria-controls={`${uid}-primary-nav`}
-        aria-expanded="false"
-        aria-label={m.nav.menu}
+        ariaControls={`${uid}-primary-nav`}
+        ariaExpanded="false"
+        ariaLabel={m.nav.menu}
       >
         <span class="sr-only">{m.nav.menu}</span>
         <Icon class={styles.menuIcon} name="menu" />
-      </button>
+      </Button>
     </div>
   </div>
 </header>
 
 <script>
   (() => {
-    const menu = document.querySelector('[data-menu-button]');
+    const menu = document.querySelector<HTMLElement>('[data-menu-button]');
     const nav = document.getElementById(menu?.getAttribute('aria-controls') ?? '');
+    const closeMobileMenu = () => {
+      if (menu?.getAttribute('aria-expanded') === 'true') {
+        menu.setAttribute('aria-expanded', 'false');
+        nav?.classList.remove('open');
+      }
+    };
+
     menu?.addEventListener('click', () => {
       const open = menu.getAttribute('aria-expanded') === 'true';
       menu.setAttribute('aria-expanded', String(!open));
       nav?.classList.toggle('open', !open);
     });
 
-    // Fechar dropdown de Categorias ao clicar fora
+    // Fechar dropdown de Categorias e menu mobile ao clicar fora
     const catDetails = document.querySelector('[data-categories-menu]');
     document.addEventListener('click', (event) => {
-      if (catDetails && catDetails.hasAttribute('open') && event.target instanceof Node && !catDetails.contains(event.target)) {
+      if (!(event.target instanceof Node)) return;
+      if (catDetails && catDetails.hasAttribute('open') && !catDetails.contains(event.target)) {
         catDetails.removeAttribute('open');
+      }
+      if (
+        menu &&
+        nav &&
+        menu.getAttribute('aria-expanded') === 'true' &&
+        !menu.contains(event.target) &&
+        !nav.contains(event.target)
+      ) {
+        closeMobileMenu();
       }
     });
 
     // Fechar ao pressionar Escape
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && catDetails && catDetails.hasAttribute('open')) {
-        catDetails.removeAttribute('open');
+      if (event.key === 'Escape') {
+        if (catDetails && catDetails.hasAttribute('open')) {
+          catDetails.removeAttribute('open');
+        }
+        closeMobileMenu();
       }
     });
 

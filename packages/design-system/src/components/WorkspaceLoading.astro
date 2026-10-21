@@ -1,6 +1,5 @@
 ---
 import styles from './WorkspaceLoading.module.css';
-import { WORKSPACE_VIEW_KEY } from '../workspace-ui/view-preference';
 
 interface Props {
   variant: 'recents' | 'manager';
@@ -13,16 +12,6 @@ const actionCount = variant === 'manager' ? 4 : 3;
 ---
 
 <div class={styles.root} data-workspace-loading data-variant={variant} data-view="list">
-  {variant === 'manager' && (
-    <script is:inline define:vars={{ viewKey: WORKSPACE_VIEW_KEY }}>
-      try {
-        const loading = document.currentScript?.parentElement;
-        if (loading && localStorage.getItem(viewKey) === 'grid') loading.dataset.view = 'grid';
-      } catch {
-        // Sem armazenamento, a lista continua sendo a visualização inicial.
-      }
-    </script>
-  )}
   <span class="sr-only" role="status">{label}</span>
   <div class={styles.items} aria-hidden="true">
     {Array.from({ length: 3 }, () => (

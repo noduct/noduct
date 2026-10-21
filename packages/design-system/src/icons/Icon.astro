@@ -10,6 +10,11 @@ interface Props {
 }
 
 const { name, size = '1em', label, class: className } = Astro.props;
+const nodes = iconRegistry[name];
+if (!nodes)
+  throw new Error(
+    `Unknown icon "${String(name)}": add it to packages/design-system/src/icons/registry.ts (skill noduct-icon).`
+  );
 ---
 
 <svg
@@ -26,5 +31,5 @@ const { name, size = '1em', label, class: className } = Astro.props;
   role={label ? 'img' : undefined}
 >
   {label && <title>{label}</title>}
-  <IconNode nodes={iconRegistry[name]} />
+  <IconNode nodes={nodes} />
 </svg>

@@ -12,11 +12,13 @@ interface Props {
   image?: string;
   noindex?: boolean;
   locale?: Locale;
+  /** Caminho do hub da página. Obrigatório quando a URL pedida não é a da página (404). */
+  path?: string;
 }
 
 const { title, description, image, noindex = false, locale = 'en' } = Astro.props;
 const parsed = topology.parse(Astro.url.pathname);
-const path = parsed?.scope.kind === 'hub' ? parsed.path : '';
+const path = Astro.props.path ?? (parsed?.scope.kind === 'hub' ? parsed.path : '');
 // A URL de apoio passa pela validação estrita (host, HTTPS, sem credenciais nem parâmetros).
 const supportUrl = getValidatedSupportUrl(siteConfig.support) ?? undefined;
 const imageAlt = getMessages(locale).home.badge;

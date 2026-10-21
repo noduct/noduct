@@ -1,4 +1,4 @@
-# Componentes de fluxo de arquivos — Design System 0.5.0
+# Componentes de fluxo de arquivos — Design System 0.8.0
 
 ## Escopo
 
@@ -29,7 +29,9 @@ O `WorkspacePicker` das ferramentas reutiliza `WorkspaceFileMeta`: abaixo do nom
 
 Os nomes dos eventos estão exportados como `FILES_SELECTED_EVENT`, `LIST_CHANGE_EVENT`, `CANCEL_EVENT` e `RESTART_EVENT`; todos borbulham a partir da raiz do componente. Os getters recebem o elemento raiz (`[data-drop-zone]`, `[data-reorderable-list]`, `[data-processing-feedback]`, `[data-download-card]`) e inicializam o componente sob demanda, independentemente da ordem dos scripts.
 
-`FileListItem` tem `id`, `name`, `size` em bytes e `pageCount` opcional. `setItems` substitui a lista inteira e usa somente nós de texto. Os utilitários `acceptsFile`, `formatFileSize` e `describeFileItem` são puros.
+`FileListItem` tem `id`, `name`, `size` em bytes e `pageCount` opcional. `setItems` substitui a lista inteira e usa somente nós de texto. Os utilitários `acceptsFile`, `resolveFileMimeType`, `formatFileSize` e `describeFileItem` são puros. O contrato exporta `FILE_ACCEPT` (`pdf`, `image`, `text`, `table`, `code`), `DEFAULT_PDF_ACCEPT` e `DEFAULT_WORKSPACE_ACCEPT` (`''`): na página `/workspace/`, o `WorkspaceManager` permite selecionar qualquer formato livremente e infere o MIME real pela extensão (`resolveFileMimeType`), enquanto cada ferramenta declara seu `accept` em `defineTool({ accept })` e o passa para `DropZone` (restringindo tanto o upload direto quanto o `WorkspacePicker`).
+
+`DropZoneController.setCompact(true)` reduz a zona a uma faixa com as duas origens e preserva a região de status para leitores de tela. `ReorderableList` aceita `variant="grid"` para cartões com posição numérica e prévia maior a partir de 600 px; a variante padrão continua em linhas. Na grade, o arrasto aponta o destino sem alterar a ordem durante o movimento e confirma a mudança ao soltar. Os botões e as setas do teclado oferecem a mesma reordenação.
 
 ## Comportamento e acessibilidade
 

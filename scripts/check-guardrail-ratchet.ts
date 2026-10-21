@@ -291,13 +291,19 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       const result = evaluateRatchet(baseline, current, label);
       for (const violation of result.violations) {
         const counter = /^([^ ]+) increased by/.exec(violation)?.[1];
-        const path = violation.startsWith('allowlist:')
-          ? CONFIG_PATH
-          : counter
-            ? [...current.files].find(([file, source]) =>
-                source.split(counter).length > (baseline.files.get(file) ?? '').split(counter).length
-              )?.[0] ?? CONFIG_PATH
-            : violation.split(' ')[0] || CONFIG_PATH;
+        const path = counter === 'allowlist:icons'
+          ? ICON_PATH
+          : counter === 'allowlist:reservedHubSegments'
+            ? TOPOLOGY_PATH
+            : counter?.startsWith('allowlist:')
+              ? CONFIG_PATH
+              : counter
+                ? [...current.files].find(([file, source]) => {
+                    const before = ratchetCounts({ files: new Map([[file, baseline.files.get(file) ?? '']]) });
+                    const after = ratchetCounts({ files: new Map([[file, source]]) });
+                    return (after.get(counter) ?? 0) > (before.get(counter) ?? 0);
+                  })?.[0] ?? CONFIG_PATH
+                : violation.split(' ')[0] || CONFIG_PATH;
         const before = (baseline.files.get(path) ?? '').split('\n');
         const after = (current.files.get(path) ?? '').split('\n');
         const line = Math.max(1, after.findIndex((content, index) => content !== before[index]) + 1);

@@ -131,6 +131,7 @@ export function showThumbnail(slot: Element | null, url: string | undefined): vo
     image = document.createElement('img');
     image.alt = '';
     image.decoding = 'async';
+    image.draggable = false;
     slot.append(image);
   }
   if (image.getAttribute('src') !== url) image.src = url;

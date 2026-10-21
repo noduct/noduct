@@ -150,44 +150,52 @@
 }
 
 .root[data-variant='manager'] .item {
-  grid-template-columns: 44px 40px minmax(0, 1fr) auto;
+  grid-template-columns: 44px 60px minmax(0, 1fr) auto;
   gap: var(--space-3);
   padding-left: var(--space-3);
   border-color: var(--color-border);
   background: var(--color-surface-card);
 }
 
-.root[data-variant='manager'][data-view='grid'] .items {
+.root[data-variant='manager'] .thumb {
+  width: 60px;
+  height: 80px;
+}
+
+.root[data-variant='manager'][data-view='grid'] .items,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .items {
   grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
   gap: var(--space-3);
 }
 
-.root[data-variant='manager'][data-view='grid'] .item {
+.root[data-variant='manager'][data-view='grid'] .item,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .item {
   grid-template-columns: minmax(0, 1fr);
   align-items: stretch;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
 }
 
-.root[data-variant='manager'][data-view='grid'] .check {
+.root[data-variant='manager'][data-view='grid'] .check,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .check {
   display: none;
 }
 
-.root[data-variant='manager'][data-view='grid'] .thumb {
+.root[data-variant='manager'][data-view='grid'] .thumb,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .thumb {
   width: 100%;
   height: auto;
   box-sizing: border-box;
   aspect-ratio: 3 / 4;
 }
 
-.root[data-variant='manager'][data-view='grid'] .item {
-  gap: var(--space-2);
-  padding-left: var(--space-2);
-}
-
-.root[data-variant='manager'][data-view='grid'] .copy {
+.root[data-variant='manager'][data-view='grid'] .copy,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .copy {
   padding-inline: var(--space-1);
 }
 
-.root[data-variant='manager'][data-view='grid'] .actions {
+.root[data-variant='manager'][data-view='grid'] .actions,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .actions {
   justify-content: space-between;
   padding-top: var(--space-1);
   border-top: 1px solid var(--color-border-subtle);
@@ -195,7 +203,7 @@
 
 @media (max-width: 720px) {
   .root[data-variant='manager'][data-view='list'] .item {
-    grid-template-columns: 44px 40px minmax(0, 1fr);
+    grid-template-columns: 44px 60px minmax(0, 1fr);
   }
 
   .root[data-variant='manager'][data-view='list'] .actions {
