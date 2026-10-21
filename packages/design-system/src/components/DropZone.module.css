@@ -16,7 +16,9 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .zone:not([data-disabled='true'], [data-state='dragover'], [data-state='rejected']):hover:not(:has(.sources:hover)) {
+  .zone:not([data-disabled='true'], [data-state='dragover'], [data-state='rejected']):hover:not(
+      :has(.sources:hover)
+    ) {
     border-color: var(--color-primary-border-active);
   }
 }
@@ -98,7 +100,7 @@
 
 .sources > :is(label, button) {
   flex: 1 1 0;
-  min-width: min(100%, 12rem);
+  min-width: min(100%, 12.5rem);
 }
 
 /* Segunda origem (ADR 0006): mesmo peso visual de um botão secundário, ao lado do primário. */
@@ -179,8 +181,8 @@
 }
 
 .zone[data-compact='true'] .sources > :is(label, button) {
-  flex: 0 0 auto;
-  min-width: 12rem;
+  flex: 0 0 12.5rem;
+  min-width: 12.5rem;
 }
 
 .zone[data-compact='true'] .trigger {

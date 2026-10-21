@@ -231,6 +231,29 @@ test('Merge PDF: pointer drag keeps the grid stable and commits the chosen order
   await page.keyboard.press('ArrowLeft');
   await expect(names).toHaveText(['second.pdf', 'first.pdf', 'third.pdf', 'fourth.pdf']);
   await expect(handle).toBeFocused();
+
+  await page.setViewportSize({ width: 320, height: 760 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1
+    )
+  ).toBe(true);
+  for (const control of await page
+    .locator('#merge-file-list button, [data-drop-zone] label, [data-workspace-source]')
+    .all()) {
+    const box = await control.boundingBox();
+    expect(box!.width).toBeGreaterThanOrEqual(44);
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+  for (const theme of ['light', 'dark']) {
+    await page.locator('html').evaluate((element, value) => {
+      (element as HTMLElement).dataset.theme = value;
+    }, theme);
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(results.violations, `${theme} theme with files`).toEqual([]);
+  }
 });
 
 test('Merge PDF: handles encrypted files with actionable alert without breaking valid files', async ({
