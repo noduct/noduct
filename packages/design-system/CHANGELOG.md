@@ -2,6 +2,9 @@
 
 ## 0.8.0 — 2026-10-20
 
+- `ToolInfoCard` e `ToolSharedInfo` padronizam os três cards abaixo da área funcional: o primeiro é o guia da ferramenta; **Limites** e **Privacidade** são iguais em todas as ferramentas. O corpo admite lista, **termos do sistema**, `rótulos de ação` e separadores tracejados, a partir de mensagens i18n (`**destaque**` e `` `ação` ``), sem HTML nas strings.
+
+
 - `Button` público unifica ações com texto, links apresentados como botões e controles de ícone em proporção 1x1 (`iconOnly`) em cinco variantes (`primary`, `secondary`, `quiet`, `danger`, `danger-quiet`) e três tamanhos (`sm`, `md`, `lg`), com suporte completo a atributos ARIA/HTML (`ariaPressed`, `ariaDescribedby`, `ariaHaspopup`, `title`, `target`, `rel`, `download`) e exportação pública de `./components/Button.module.css`.
 - Novos tokens `--color-action-primary`, `--color-action-danger` e respectivos `-hover`: fundos sólidos com texto branco AA nos dois temas (no escuro, o azul e o vermelho das ações ficam mais fechados que `--color-primary` e `--color-danger`).
 - Variantes elevadas usam o novo token `--rim-light-strong` (0,7 no claro, 0,24 no escuro), mais visível que o `--rim-light` das superfícies; foco, estado desabilitado, movimento reduzido e alvo de toque seguem o mesmo contrato.

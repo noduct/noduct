@@ -18,15 +18,10 @@ export const toolMessages = {
     resultFileName: 'cleaned-text.txt',
     howTitle: 'How it works',
     how: [
-      'Paste text, choose a .txt file, or pick one from your Local Workspace.',
-      'Select Clean text.',
-      'Download the result, or save it to your Local Workspace.'
-    ],
-    limitsTitle: 'Limitations',
-    limits:
-      'This example removes repeated spaces and reduces three or more line breaks to two. It does not review meaning or grammar.',
-    relatedTitle: 'Related tools',
-    related: 'Related links appear only after those apps are published.'
+      'Paste text, choose a .txt file, or pick one from **Local Workspace**.',
+      'Press `{action}`. The cleanup runs in **this browser**.',
+      'Download the result, or save it to **Local Workspace**.'
+    ]
   },
   'pt-BR': {
     name: 'Demonstração de limpeza de texto',
@@ -45,15 +40,10 @@ export const toolMessages = {
     resultFileName: 'texto-limpo.txt',
     howTitle: 'Como funciona',
     how: [
-      'Cole o texto, escolha um arquivo .txt ou selecione um da sua Área Local.',
-      'Selecione Limpar texto.',
-      'Baixe o resultado ou salve-o na Área Local.'
-    ],
-    limitsTitle: 'Limitações',
-    limits:
-      'Este exemplo remove espaços repetidos e reduz três ou mais quebras de linha para duas. Ele não revisa o sentido nem a gramática.',
-    relatedTitle: 'Ferramentas relacionadas',
-    related: 'Os links relacionados aparecem somente depois que esses aplicativos são publicados.'
+      'Cole o texto, escolha um arquivo .txt ou selecione um da **Área Local**.',
+      'Toque em `{action}`. A limpeza acontece **neste navegador**.',
+      'Baixe o resultado ou salve-o na **Área Local**.'
+    ]
   },
   es: {
     name: 'Demostración de limpieza de texto',
@@ -72,14 +62,9 @@ export const toolMessages = {
     resultFileName: 'texto-limpio.txt',
     howTitle: 'Cómo funciona',
     how: [
-      'Pega el texto, elige un archivo .txt o selecciona uno de tu área local.',
-      'Selecciona Limpiar texto.',
-      'Descarga el resultado o guárdalo en el área local.'
-    ],
-    limitsTitle: 'Limitaciones',
-    limits:
-      'Este ejemplo elimina espacios repetidos y reduce tres o más saltos de línea a dos. No revisa el sentido ni la gramática.',
-    relatedTitle: 'Herramientas relacionadas',
-    related: 'Los enlaces relacionados aparecen solo después de que esas aplicaciones se publiquen.'
+      'Pega el texto, elige un archivo .txt o selecciona uno del **área local**.',
+      'Pulsa `{action}`. La limpieza ocurre en **este navegador**.',
+      'Descarga el resultado o guárdalo en el **área local**.'
+    ]
   }
 } satisfies Record<Locale, Record<string, string | string[]>>;

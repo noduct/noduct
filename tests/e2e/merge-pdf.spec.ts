@@ -467,14 +467,19 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
     mimeType: 'application/pdf',
     buffer: await makePdfBuffer(1, 'Um')
   });
-  await expect(page.locator('[data-merge-count]')).toContainText('1 PDF válido selecionado');
+  await expect(page.locator('[data-merge-hint]')).toHaveText('Adicione mais 1 PDF para mesclar.');
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('1');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('1');
   await page.locator('#merge-drop-zone').setInputFiles({
     name: 'dois.pdf',
     mimeType: 'application/pdf',
     buffer: await makePdfBuffer(2, 'Dois')
   });
-  await expect(page.locator('[data-merge-count]')).toContainText(
-    '2 PDFs prontos para mesclar (3 páginas no total)'
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('2');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('3');
+  await expect(page.locator('[data-merge-count]')).toHaveAttribute(
+    'aria-label',
+    '2 PDFs, 3 páginas prontas para mesclar'
   );
   await page.locator('#merge-drop-zone').setInputFiles({
     name: 'bloqueado.pdf',
@@ -491,14 +496,19 @@ test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page
     mimeType: 'application/pdf',
     buffer: await makePdfBuffer(1, 'Uno')
   });
-  await expect(page.locator('[data-merge-count]')).toContainText('1 PDF válido seleccionado');
+  await expect(page.locator('[data-merge-hint]')).toHaveText('Añade 1 PDF más para combinar.');
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('1');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('1');
   await page.locator('#merge-drop-zone').setInputFiles({
     name: 'dos.pdf',
     mimeType: 'application/pdf',
     buffer: await makePdfBuffer(2, 'Dos')
   });
-  await expect(page.locator('[data-merge-count]')).toContainText(
-    '2 PDF listos para combinar (3 páginas en total)'
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('2');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('3');
+  await expect(page.locator('[data-merge-count]')).toHaveAttribute(
+    'aria-label',
+    '2 PDFs, 3 páginas listas para combinar'
   );
   await page.locator('#merge-drop-zone').setInputFiles({
     name: 'bloqueado.pdf',

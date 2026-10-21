@@ -1,0 +1,43 @@
+---
+import type { Locale } from '@noduct/tool-runtime';
+import {
+  formatToolInfoLine,
+  formatToolLimitLabels,
+  getToolInfoMessages,
+  type ToolLimitValues
+} from '../shell/tool-info-messages';
+import RichText from './RichText.astro';
+import ToolInfoCard from './ToolInfoCard.astro';
+
+interface Props {
+  locale: Locale;
+  limits: ToolLimitValues;
+}
+
+const { locale, limits } = Astro.props as Props;
+const m = getToolInfoMessages(locale);
+const labels = formatToolLimitLabels(locale, limits);
+---
+
+<ToolInfoCard title={m.limitsTitle}>
+  <p><RichText text={m.limitsIntro} /></p>
+  <hr />
+  <ul>
+    <li><RichText text={formatToolInfoLine(m.limitsDesktop, labels)} /></li>
+    <li><RichText text={formatToolInfoLine(m.limitsMobile, labels)} /></li>
+  </ul>
+  <hr />
+  <p><RichText text={m.limitsNote} /></p>
+</ToolInfoCard>
+
+<ToolInfoCard title={m.privacyTitle}>
+  <p><RichText text={m.privacyIntro} /></p>
+  <hr />
+  <ul>
+    {m.privacyPoints.map((point) => (
+      <li>
+        <RichText text={point} />
+      </li>
+    ))}
+  </ul>
+</ToolInfoCard>

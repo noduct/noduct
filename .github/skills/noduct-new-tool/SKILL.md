@@ -34,8 +34,9 @@ description: Cria uma ferramenta nova do Noduct em packages/<slug>/ com npm run 
      loadRenderer: () => import('@noduct/pdf-core/render')
    }));
    ```
-5. Acrescente o fluxo real a um spec e2e da ferramenta (skill `noduct-e2e-test`); a paridade do shell entra sozinha.
-6. Mantenha o status `planned` no catálogo até o lançamento decidido pelo dono.
+5. No slot `content` de `ToolPage`, mantenha o primeiro card como guia da ferramenta (`ToolInfoCard`, textos em `src/i18n.ts`) e os outros dois como `ToolSharedInfo` (limites e privacidade iguais em todas as ferramentas). Destaque recursos do sistema com `**Área Local**` e o rótulo da ação com `` `{action}` ``.
+6. Acrescente o fluxo real a um spec e2e da ferramenta (skill `noduct-e2e-test`); a paridade do shell entra sozinha.
+7. Mantenha o status `planned` no catálogo até o lançamento decidido pelo dono.
 
 ## Validação
 

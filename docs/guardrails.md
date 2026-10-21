@@ -31,6 +31,10 @@ SVG isolado ou glifo diverge do sistema de ícones. Use [Icon](../packages/desig
 ### no-hardcoded-text
 Texto visível fixo deixa idiomas incompletos. Use [mensagens do shell](../packages/design-system/src/shell/messages.ts) nos três idiomas, inclusive scripts cliente.
 
+<a id="no-emdash"></a>
+### no-emdash
+Travessão (U+2014) e traço médio (U+2013) não entram em texto visível nem em documentação de produto. Use ponto, vírgula, dois-pontos ou hífen ASCII. A verificação cobre arquivos de mensagens (`i18n.ts`, `messages.ts`, catálogos).
+
 <a id="token-value"></a>
 ### token-value
 Valor visual literal fragmenta os temas. Defina em [tokens.css](../packages/design-system/src/tokens.css) e use `var(--token)`.

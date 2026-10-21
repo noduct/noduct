@@ -33,6 +33,7 @@
     "./shell/support": "./src/shell/support.ts",
     "./shell/preferences": "./src/shell/preferences.ts",
     "./shell/messages": "./src/shell/messages.ts",
+    "./shell/tool-info-messages": "./src/shell/tool-info-messages.ts",
     "./shell/confirm": "./src/shell/confirm-dialog.ts",
     "./controls": "./src/controls/index.ts",
     "./components/Select.astro": "./src/components/Select.astro",
@@ -47,6 +48,9 @@
     "./components/WorkspaceRecents.astro": "./src/components/WorkspaceRecents.astro",
     "./components/Button.astro": "./src/components/Button.astro",
     "./components/Button.module.css": "./src/components/Button.module.css",
-    "./components/Switch.astro": "./src/components/Switch.astro"
+    "./components/Switch.astro": "./src/components/Switch.astro",
+    "./components/RichText.astro": "./src/components/RichText.astro",
+    "./components/ToolInfoCard.astro": "./src/components/ToolInfoCard.astro",
+    "./components/ToolSharedInfo.astro": "./src/components/ToolSharedInfo.astro"
   }
 }

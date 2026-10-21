@@ -4,8 +4,13 @@ import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
 import DropZone from '@noduct/design-system/components/DropZone.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
 import Button from '@noduct/design-system/components/Button.astro';
+import RichText from '@noduct/design-system/components/RichText.astro';
+import ToolInfoCard from '@noduct/design-system/components/ToolInfoCard.astro';
+import ToolSharedInfo from '@noduct/design-system/components/ToolSharedInfo.astro';
+import { formatToolInfoLine } from '@noduct/design-system/shell/tool-info-messages';
 import { toolJsonLd } from '@noduct/design-system/shell/tool-page';
 import type { Locale } from '@noduct/tool-runtime';
+import { DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } from '@noduct/workspace-core';
 import { tool } from '../config';
 import { toolMessages } from '../i18n';
 import styles from './ToolDemo.module.css';
@@ -63,18 +68,24 @@ const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.descripti
     </section>
 
     <Fragment slot="content">
-      <section class={styles.info}>
-        <h2>{m.howTitle}</h2>
-        <ol>{m.how.map((item) => <li>{item}</li>)}</ol>
-      </section>
-      <section class={styles.info}>
-        <h2>{m.limitsTitle}</h2>
-        <p>{m.limits}</p>
-      </section>
-      <section class={styles.info}>
-        <h2>{m.relatedTitle}</h2>
-        <p>{m.related}</p>
-      </section>
+      <ToolInfoCard title={m.howTitle}>
+        <ol>
+          {m.how.map((item) => (
+            <li>
+              <RichText text={formatToolInfoLine(item, { action: m.process })} />
+            </li>
+          ))}
+        </ol>
+      </ToolInfoCard>
+      <ToolSharedInfo
+        {locale}
+        limits={{
+          desktopFiles: DESKTOP_RESOURCE_BUDGET.maxFiles,
+          desktopSizeMb: DESKTOP_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024),
+          mobileFiles: MOBILE_RESOURCE_BUDGET.maxFiles,
+          mobileSizeMb: MOBILE_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024)
+        }}
+      />
     </Fragment>
 
     <script>

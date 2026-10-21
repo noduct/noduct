@@ -29,6 +29,8 @@ for (const [locale, catalog] of Object.entries({ 'pt-BR': ptBR, es }) as Array<
 }
 
 const inspect = (value: unknown, path: string): void => {
+  if (typeof value === 'string' && /[\u2013\u2014]/.test(value))
+    errors.push(`[no-emdash] ${path} — travessão em texto visível. Troque por ponto, vírgula, dois-pontos ou hífen ASCII. Ver docs/guardrails.md#no-emdash`);
   if (typeof value === 'string' && !value.trim()) errors.push(`mensagem vazia: ${path}`);
   else if (Array.isArray(value)) {
     if (!value.length) errors.push(`lista vazia: ${path}`);

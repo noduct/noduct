@@ -8,9 +8,14 @@ import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedb
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
 import Button from '@noduct/design-system/components/Button.astro';
 import Icon from '@noduct/design-system/icons/Icon.astro';
+import RichText from '@noduct/design-system/components/RichText.astro';
+import ToolInfoCard from '@noduct/design-system/components/ToolInfoCard.astro';
+import ToolSharedInfo from '@noduct/design-system/components/ToolSharedInfo.astro';
+import { formatToolInfoLine } from '@noduct/design-system/shell/tool-info-messages';
 import type { Locale } from '@noduct/tool-runtime';
+import { DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } from '@noduct/workspace-core';
 import { tool } from '../config';
-import { formatMergeLimits, mergeMessages } from '../i18n';
+import { mergeMessages } from '../i18n';
 import type { MergeClientMessages } from '../i18n';
 import styles from './MergePdfApp.module.css';
 
@@ -24,7 +29,8 @@ const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.descripti
 const clientMessages = {
   minFilesRequired: m.minFilesRequired,
   oneFileReady: m.oneFileReady,
-  filesReady: m.filesReady,
+  oneFileAnnounce: m.oneFileAnnounce,
+  statusReadyAnnounce: m.statusReadyAnnounce,
   remove: m.remove,
   removeFile: m.removeFile,
   errorEncrypted: m.errorEncrypted,
@@ -68,9 +74,28 @@ const clientMessages = {
         </div>
 
         <div class={styles.controlsBar}>
-          <p id="merge-file-count" class={styles.statusText} data-merge-count>
-            {m.minFilesRequired}
-          </p>
+          <div
+            id="merge-file-count"
+            class={styles.mergeSummary}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            data-merge-count
+            data-summary="empty"
+          >
+            <p class={styles.mergeHint} data-merge-hint>{m.minFilesRequired}</p>
+            <div class={styles.mergeStats} data-merge-stats hidden>
+              <div class={styles.mergeStat}>
+                <span class={styles.mergeStatValue} data-merge-files-count>0</span>
+                <span class={styles.mergeStatLabel}>{m.statFilesLabel}</span>
+              </div>
+              <span class={styles.mergeStatSep} aria-hidden="true"></span>
+              <div class={styles.mergeStat} data-merge-pages-stat>
+                <span class={styles.mergeStatValue} data-merge-pages-count>0</span>
+                <span class={styles.mergeStatLabel}>{m.statPagesLabel}</span>
+              </div>
+            </div>
+          </div>
           <div class={styles.actions}>
             <Button id="clear-all-btn" variant="secondary" hidden data-action="clear">
               {m.clear}
@@ -113,22 +138,28 @@ const clientMessages = {
     </section>
 
     <Fragment slot="content">
-      <section class={styles.infoSection}>
-        <h2>{m.howTitle}</h2>
+      <ToolInfoCard title={m.howTitle}>
         <ol>
-          {m.how.map((step) => <li>{step}</li>)}
+          {m.how.map((step) => (
+            <li>
+              <RichText text={formatToolInfoLine(step, { action: m.actionMerge })} />
+            </li>
+          ))}
         </ol>
-      </section>
-
-      <section class={styles.infoSection}>
-        <h2>{m.limitsTitle}</h2>
-        <p>{formatMergeLimits(locale)}</p>
-      </section>
-
-      <section class={styles.infoSection}>
-        <h2>{m.securityTitle}</h2>
-        <p>{m.security}</p>
-      </section>
+        <hr />
+        <p>
+          <RichText text={m.howNote} />
+        </p>
+      </ToolInfoCard>
+      <ToolSharedInfo
+        {locale}
+        limits={{
+          desktopFiles: DESKTOP_RESOURCE_BUDGET.maxFiles,
+          desktopSizeMb: DESKTOP_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024),
+          mobileFiles: MOBILE_RESOURCE_BUDGET.maxFiles,
+          mobileSizeMb: MOBILE_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024)
+        }}
+      />
     </Fragment>
     <script
       type="application/json"
@@ -199,6 +230,11 @@ const clientMessages = {
       const alertsEl = document.querySelector<HTMLElement>('[data-merge-alerts]')!;
       const budgetAlertEl = document.querySelector<HTMLElement>('[data-budget-alert]')!;
       const countEl = document.querySelector<HTMLElement>('[data-merge-count]')!;
+      const hintEl = document.querySelector<HTMLElement>('[data-merge-hint]')!;
+      const statsEl = document.querySelector<HTMLElement>('[data-merge-stats]')!;
+      const filesCountEl = document.querySelector<HTMLElement>('[data-merge-files-count]')!;
+      const pagesCountEl = document.querySelector<HTMLElement>('[data-merge-pages-count]')!;
+      const pagesStatEl = document.querySelector<HTMLElement>('[data-merge-pages-stat]')!;
       const mergeBtn = document.querySelector<HTMLButtonElement>('[data-action="merge"]')!;
       const clearBtn = document.querySelector<HTMLButtonElement>('[data-action="clear"]')!;
 
@@ -296,15 +332,42 @@ const clientMessages = {
         mergeBtn.disabled = !state.canMerge;
         clearBtn.hidden = !hasFiles;
 
-        if (validItems.length === 0) {
-          countEl.textContent = messages.minFilesRequired;
-        } else if (validItems.length === 1) {
-          countEl.textContent = messages.oneFileReady;
+        const filesCount = validItems.length;
+        if (filesCount === 0) {
+          countEl.dataset.summary = 'empty';
+          hintEl.hidden = false;
+          statsEl.hidden = true;
+          pagesStatEl.hidden = true;
+          hintEl.textContent = messages.minFilesRequired;
+          countEl.removeAttribute('aria-label');
+        } else if (filesCount === 1) {
+          countEl.dataset.summary = 'partial';
+          hintEl.hidden = false;
+          statsEl.hidden = false;
+          pagesStatEl.hidden = false;
+          filesCountEl.textContent = numberFormat.format(1);
+          pagesCountEl.textContent = numberFormat.format(state.totalPages);
+          hintEl.textContent = messages.oneFileReady;
+          countEl.setAttribute(
+            'aria-label',
+            formatMessage(messages.oneFileAnnounce, {
+              pages: numberFormat.format(state.totalPages)
+            })
+          );
         } else {
-          countEl.textContent = formatMessage(messages.filesReady, {
-            files: numberFormat.format(validItems.length),
-            pages: numberFormat.format(state.totalPages)
-          });
+          countEl.dataset.summary = 'ready';
+          hintEl.hidden = true;
+          statsEl.hidden = false;
+          pagesStatEl.hidden = false;
+          filesCountEl.textContent = numberFormat.format(filesCount);
+          pagesCountEl.textContent = numberFormat.format(state.totalPages);
+          countEl.setAttribute(
+            'aria-label',
+            formatMessage(messages.statusReadyAnnounce, {
+              files: numberFormat.format(filesCount),
+              pages: numberFormat.format(state.totalPages)
+            })
+          );
         }
       }
 

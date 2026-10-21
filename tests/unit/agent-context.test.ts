@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { skillViolations, unindexedDocuments } from '../../scripts/check-agents.ts';
 import { boundariesMarkdown, syncArchitectureDoc } from '../../scripts/validate-architecture.ts';
 import { toolAgentsMarkdown } from '../../scripts/cli/new-tool.ts';
-import { localAgentViolations } from '../../scripts/check-agents.ts';
+import { emdashViolations, localAgentViolations } from '../../scripts/check-agents.ts';
 
 const skill = '---\nname: noduct-sample\ndescription: Use ao testar.\n---\n\n# Sample\n';
 const rootAgents = '| Sample | [noduct-sample](.agents/skills/noduct-sample/SKILL.md) |';
@@ -67,6 +67,13 @@ describe('mapa de arquitetura gerado', () => {
 
   it('exige os marcadores', () => {
     expect(syncArchitectureDoc('sem marcadores')).toBeUndefined();
+  });
+});
+
+describe('no-emdash', () => {
+  it('acusa travessão em mensagem visível', () => {
+    expect(emdashViolations("Press Merge. Nothing is sent away.")).toEqual([]);
+    expect(emdashViolations('The pages join in this browser \u2014 nothing is sent away.')).toEqual([1]);
   });
 });
 

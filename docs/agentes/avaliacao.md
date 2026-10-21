@@ -20,7 +20,8 @@ Para cada execução registre: data, agente e versão, modelo, tarefa, base, ins
 
 | Data | Agente / versão | Base | Tarefas aprovadas sem intervenção | Regras violadas | Ação tomada |
 | --- | --- | --- | --- | --- | --- |
-| — | Nenhuma rodada executada ainda | — | — | — | Primeira rodada pendente após a introdução de skills, OpenSpec e hook. |
+| 2026-10-21 | Claude Code, Gemini CLI e Copilot: não executados | `fix/ecosystem-structural-reset` | — | Não avaliadas | Pendente do dono: disponibilizar os agentes e executar as cinco tarefas isoladas de 7.H com cada agente em uso. Não declarar paridade antes de conferir diff, `npm run check` e `npm run verify` em cada rodada. |
+| 2026-10-21 | Codex: rodada controlada não executada | `fix/ecosystem-structural-reset` | — | Não avaliadas | O trabalho da issue #39 não é uma rodada isolada a partir da mesma base; a avaliação de 7.F e 7.H permanece pendente. |
 
 ## Como usar o resultado
 

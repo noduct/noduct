@@ -28,7 +28,8 @@ description: Adiciona ou altera texto visível no Noduct em en, pt-BR e es, incl
 2. Script cliente: serialize só as mensagens do locale atual (`data-*` ou `<script type="application/json">`) e formate números com `Intl.NumberFormat(locale)`.
 3. Erro de domínio chega como `code` + `params`; traduza o código na interface, nunca no pacote de domínio.
 4. Rótulo acessível contém o texto visível de forma contígua.
-5. Teste os três locales quando houver texto novo no fluxo.
+5. Não use travessão (U+2014) nem traço médio (U+2013). Separe frases com ponto, vírgula, dois-pontos ou hífen ASCII.
+6. Teste os três locales quando houver texto novo no fluxo.
 
 ## Validação
 
@@ -37,5 +38,6 @@ description: Adiciona ou altera texto visível no Noduct em en, pt-BR e es, incl
 ## Erros comuns
 
 - `no-hardcoded-text`: literal em atributo, `textContent`, `innerHTML` ou `setAttribute`.
+- `no-emdash`: travessão ou traço médio em mensagem visível.
 - Anúncio `aria-live`, erro ou nome de arquivo sem tradução.
 - Frase montada em `pdf-core` ou `workspace-core`.

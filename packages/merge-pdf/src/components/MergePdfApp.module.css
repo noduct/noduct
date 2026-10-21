@@ -32,12 +32,63 @@
   border-top: 1px solid var(--color-border-subtle);
 }
 
-.statusText {
+.mergeSummary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  min-height: 36px;
+}
+
+.mergeHint {
   margin: 0;
   color: var(--color-text-secondary);
   font-size: 0.875rem;
-  font-weight: 550;
 }
+
+.mergeHint[hidden],
+.mergeStats[hidden],
+.mergeStat[hidden] {
+  display: none;
+}
+
+.mergeStats {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mergeStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-width: 2.75rem;
+}
+
+.mergeStatValue {
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.mergeStatLabel {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.mergeStatSep {
+  align-self: stretch;
+  width: 0;
+  min-height: 1.75rem;
+  border-left: 1px solid var(--color-border-subtle);
+}
+
 
 .actions {
   display: flex;
@@ -94,9 +145,8 @@
   border-top: none;
 }
 
-.workspace[data-has-files='true'] .statusText {
-  color: var(--color-text);
-  font-weight: 600;
+.workspace[data-has-files='true'] .mergeHint {
+  font-size: 0.8125rem;
 }
 
 .reorderContainer {
@@ -142,40 +192,6 @@
   color: var(--color-primary);
 }
 
-.infoSection {
-  margin: 0;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface-card);
-  box-shadow: var(--shadow-sm), var(--rim-light);
-}
-
-.infoSection h2 {
-  margin: 0 0 var(--space-3);
-  font-size: 1.05rem;
-  font-weight: 650;
-}
-
-.infoSection p {
-  margin: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-.infoSection ol {
-  margin: 0;
-  padding-left: var(--space-4);
-  color: var(--color-text-secondary);
-  font-size: 0.875rem;
-  line-height: 1.6;
-}
-
-.infoSection li + li {
-  margin-top: var(--space-2);
-}
-
 @media (max-width: 599px) {
   .controlsBar {
     flex-direction: column;
@@ -207,7 +223,8 @@
     width: 100%;
   }
 
-  .workspace[data-has-files='true'] .statusText {
-    text-align: center;
+  .workspace[data-has-files='true'] .mergeSummary {
+    justify-content: center;
+    width: 100%;
   }
 }

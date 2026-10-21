@@ -4,7 +4,7 @@ import { dirname, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deployedTools } from './pages-manifest.ts';
 import { checkNames } from './cli/check.ts';
-export const GUARDRAIL_IDS = ['agent-scope', 'agent-budget', 'agent-pointer', 'agent-link', 'agent-command', 'agent-anchor', 'agent-skill', 'agent-doc-index'];
+export const GUARDRAIL_IDS = ['agent-scope', 'agent-budget', 'agent-pointer', 'agent-link', 'agent-command', 'agent-anchor', 'agent-skill', 'agent-doc-index', 'no-emdash'];
 /** A fonte das skills do projeto é .agents/skills; as demais pastas recebem cópias idênticas. */
 const SKILL_SOURCE = '.agents/skills/';
 const SKILL_MIRRORS = ['.claude/skills/', '.github/skills/', '.gemini/skills/'];
@@ -41,6 +41,13 @@ const listFiles = (): string[] => execFileSync(
   .filter(existsSync);
 const copilotText =
   'As regras deste repositório estão em [AGENTS.md](../AGENTS.md) e [docs/guardrails.md](../docs/guardrails.md). Leia também o AGENTS.md da pasta em que trabalha.';
+const COPY_FILE = /(?:^|\/)(?:i18n\.ts|messages\.ts|tool-info-messages\.ts|catalog\/[^/]+\.json)$/;
+const EMDASH = /[\u2013\u2014]/;
+
+export function emdashViolations(source: string): number[] {
+  return source.split('\n').flatMap((line, index) => (EMDASH.test(line) ? [index + 1] : []));
+}
+
 export function localAgentViolations(source: string): string[] {
   const errors: string[] = [];
   if (!source.startsWith('Complementa [AGENTS.md](')) errors.push('agent-scope');
@@ -362,6 +369,20 @@ export function checkAgents(): string[] {
         'Acrescente uma linha em docs/README.md ou remova o documento.'
       )
     );
+  for (const path of files) {
+    const name = format(path);
+    if (!COPY_FILE.test(name)) continue;
+    for (const line of emdashViolations(read(path)))
+      errors.push(
+        fail(
+          'no-emdash',
+          path,
+          line,
+          'Travessão ou traço médio em texto visível.',
+          'Troque por ponto, vírgula, dois-pontos ou hífen ASCII.'
+        )
+      );
+  }
   for (const path of docs) {
     const source = read(path);
     for (const match of source.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {

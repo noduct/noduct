@@ -1,5 +1,4 @@
 import type { Locale } from '@noduct/tool-runtime';
-import { DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } from '@noduct/workspace-core';
 
 export interface MergeMessages {
   name: string;
@@ -15,7 +14,10 @@ export interface MergeMessages {
   remove: string;
   removeFile: string;
   oneFileReady: string;
-  filesReady: string;
+  oneFileAnnounce: string;
+  statFilesLabel: string;
+  statPagesLabel: string;
+  statusReadyAnnounce: string;
   processingLabel: string;
   statusValidating: string;
   statusMerging: string;
@@ -29,16 +31,14 @@ export interface MergeMessages {
   errorCorrupted: string;
   howTitle: string;
   how: string[];
-  limitsTitle: string;
-  limits: string;
-  securityTitle: string;
-  security: string;
+  howNote: string;
 }
 
 export type MergeClientMessages = Pick<MergeMessages,
   | 'minFilesRequired'
   | 'oneFileReady'
-  | 'filesReady'
+  | 'oneFileAnnounce'
+  | 'statusReadyAnnounce'
   | 'remove'
   | 'removeFile'
   | 'errorEncrypted'
@@ -51,17 +51,6 @@ export type MergeClientMessages = Pick<MergeMessages,
   | 'budgetWarningTitle'
   | 'budgetWarningConfirm'
 >;
-
-export function formatMergeLimits(locale: Locale): string {
-  const format = new Intl.NumberFormat(locale);
-  const values: Record<string, string> = {
-    desktopFiles: format.format(DESKTOP_RESOURCE_BUDGET.maxFiles),
-    desktopSize: format.format(DESKTOP_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024)),
-    mobileFiles: format.format(MOBILE_RESOURCE_BUDGET.maxFiles),
-    mobileSize: format.format(MOBILE_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024))
-  };
-  return mergeMessages[locale].limits.replace(/\{(desktopFiles|desktopSize|mobileFiles|mobileSize)\}/g, (_, key: string) => values[key] ?? '');
-}
 
 export const mergeMessages: Record<Locale, MergeMessages> = {
   en: {
@@ -77,8 +66,11 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     clear: 'Clear',
     remove: 'Remove',
     removeFile: 'Remove {name}',
-    oneFileReady: '1 valid PDF selected (select at least 1 more to merge).',
-    filesReady: '{files} PDFs ready to merge ({pages} total pages).',
+    oneFileReady: 'Add 1 more PDF to merge.',
+    oneFileAnnounce: '1 PDF selected, {pages} pages. Add 1 more to merge.',
+    statFilesLabel: 'PDFs',
+    statPagesLabel: 'pages',
+    statusReadyAnnounce: '{files} PDFs, {pages} pages ready to merge',
     processingLabel: 'Merging PDF documents',
     statusValidating: 'Inspecting PDF files...',
     statusMerging: 'Combining pages into a unified document...',
@@ -90,19 +82,14 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     budgetWarningConfirm: 'Merge anyway',
     errorEncrypted: '"{name}" is password-protected. Please remove it or provide an unencrypted version.',
     errorCorrupted: '"{name}" is corrupted or could not be parsed as a valid PDF.',
-    howTitle: 'How to merge PDF files',
+    howTitle: 'How to merge PDFs',
     how: [
-      'Select or drag 2 or more PDF documents into the file area, or choose files saved in your Local Workspace.',
-      'Reorder the files using the drag handle, arrow buttons, or keyboard shortcuts to set your desired page sequence.',
-      'Click "Merge PDF files" to initiate client-side merging.',
-      'Download the merged PDF, or save it to your Local Workspace to reuse it in another tool.'
+      'Add two or more PDFs. Drop them on the **file area**, pick them from this computer, or choose files already in **Local Workspace**.',
+      'Put the files in the order you want. Drag a file, use the arrows, or the keyboard.',
+      'Press `{action}`. The pages join in **this browser**. Nothing is sent away.',
+      'Download the result, or save it to **Local Workspace** to use in another tool.'
     ],
-    limitsTitle: 'Limitations & file capacity',
-    limits:
-      'Processing occurs entirely in your browser. The limit is {desktopFiles} files or {desktopSize} MB on desktop, and {mobileFiles} files or {mobileSize} MB on mobile. Password-protected files must be unlocked before merging.',
-    securityTitle: 'Privacy & Security Guarantee',
-    security:
-      'Noduct tools operate with 0% server uploads. Data never leaves your machine: your documents remain completely private.'
+    howNote: 'Unlock a **password-protected** PDF before adding it.'
   },
   'pt-BR': {
     name: 'Mesclar PDF',
@@ -117,8 +104,11 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     clear: 'Limpar',
     remove: 'Remover',
     removeFile: 'Remover {name}',
-    oneFileReady: '1 PDF válido selecionado (selecione mais 1 para mesclar).',
-    filesReady: '{files} PDFs prontos para mesclar ({pages} páginas no total).',
+    oneFileReady: 'Adicione mais 1 PDF para mesclar.',
+    oneFileAnnounce: '1 PDF selecionado, {pages} páginas. Adicione mais 1 para mesclar.',
+    statFilesLabel: 'PDFs',
+    statPagesLabel: 'páginas',
+    statusReadyAnnounce: '{files} PDFs, {pages} páginas prontas para mesclar',
     processingLabel: 'Mesclando documentos PDF',
     statusValidating: 'Inspecionando arquivos PDF...',
     statusMerging: 'Unindo páginas em um documento consolidado...',
@@ -130,19 +120,14 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     budgetWarningConfirm: 'Mesclar mesmo assim',
     errorEncrypted: '"{name}" está protegido por senha. Remova-o ou utilize uma versão sem senha.',
     errorCorrupted: '"{name}" está corrompido ou não é um documento PDF válido.',
-    howTitle: 'Como mesclar arquivos PDF',
+    howTitle: 'Como juntar PDFs',
     how: [
-      'Selecione ou arraste 2 ou mais documentos PDF para a área de arquivos, ou escolha arquivos salvos na sua Área Local.',
-      'Reordene os arquivos utilizando a alça de arrasto, os botões ou o teclado para definir a sequência desejada.',
-      'Clique em "Mesclar arquivos PDF" para executar a junção no seu navegador.',
-      'Baixe o PDF mesclado ou salve-o na Área Local para reutilizá-lo em outra ferramenta.'
+      'Inclua dois ou mais PDFs. Solte-os na **área de arquivos**, escolha-os neste computador ou use arquivos já salvos na **Área Local**.',
+      'Deixe os arquivos na ordem desejada. Arraste um arquivo, use as setas ou o teclado.',
+      'Toque em `{action}`. As páginas se juntam **neste navegador**. Nada é enviado para fora.',
+      'Baixe o resultado ou salve-o na **Área Local** para usar em outra ferramenta.'
     ],
-    limitsTitle: 'Limitações e capacidade',
-    limits:
-      'O processamento ocorre integralmente no navegador. O limite é de {desktopFiles} arquivos ou {desktopSize} MB no desktop e {mobileFiles} arquivos ou {mobileSize} MB no celular. Arquivos protegidos por senha precisam ser desbloqueados antes da mesclagem.',
-    securityTitle: 'Garantia de Privacidade e Segurança',
-    security:
-      'As ferramentas Noduct operam sem envio de dados para servidores. Nenhum dado sai do seu dispositivo: seus documentos permanecem 100% seguros.'
+    howNote: 'Desbloqueie um PDF **protegido por senha** antes de incluí-lo.'
   },
   es: {
     name: 'Combinar PDF',
@@ -157,8 +142,11 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     clear: 'Limpiar',
     remove: 'Quitar',
     removeFile: 'Quitar {name}',
-    oneFileReady: '1 PDF válido seleccionado (selecciona 1 más para combinar).',
-    filesReady: '{files} PDF listos para combinar ({pages} páginas en total).',
+    oneFileReady: 'Añade 1 PDF más para combinar.',
+    oneFileAnnounce: '1 PDF seleccionado, {pages} páginas. Añade 1 más para combinar.',
+    statFilesLabel: 'PDFs',
+    statPagesLabel: 'páginas',
+    statusReadyAnnounce: '{files} PDFs, {pages} páginas listas para combinar',
     processingLabel: 'Combinando documentos PDF',
     statusValidating: 'Inspeccionando archivos PDF...',
     statusMerging: 'Uniendo páginas en un documento consolidado...',
@@ -170,18 +158,13 @@ export const mergeMessages: Record<Locale, MergeMessages> = {
     budgetWarningConfirm: 'Combinar de todos modos',
     errorEncrypted: '"{name}" está protegido por contraseña. Quítalo o usa una versión sin contraseña.',
     errorCorrupted: '"{name}" está dañado o no es un documento PDF válido.',
-    howTitle: 'Cómo combinar archivos PDF',
+    howTitle: 'Cómo juntar PDFs',
     how: [
-      'Selecciona o arrastra 2 o más documentos PDF al área de archivos, o elige archivos guardados en tu área local.',
-      'Reordena los archivos usando el control de arrastre, los botones o el teclado para fijar el orden deseado.',
-      'Haz clic en "Combinar archivos PDF" para ejecutar la unión en tu navegador.',
-      'Descarga el PDF combinado o guárdalo en el área local para reutilizarlo en otra herramienta.'
+      'Añade dos o más PDF. Suéltalos en el **área de archivos**, elígelos en este equipo o usa archivos ya guardados en el **área local**.',
+      'Deja los archivos en el orden que quieras. Arrastra un archivo, usa las flechas o el teclado.',
+      'Pulsa `{action}`. Las páginas se unen en **este navegador**: no se envía nada fuera.',
+      'Descarga el resultado o guárdalo en el **área local** para usarlo en otra herramienta.'
     ],
-    limitsTitle: 'Limitaciones y capacidad',
-    limits:
-      'El procesamiento se realiza por completo en el navegador. El límite es de {desktopFiles} archivos o {desktopSize} MB en escritorio y {mobileFiles} archivos o {mobileSize} MB en móvil. Los archivos con contraseña deben desbloquearse antes de combinarlos.',
-    securityTitle: 'Garantía de Privacidad y Seguridad',
-    security:
-      'Las herramientas de Noduct funcionan sin subir datos a servidores. Ningún archivo sale de tu equipo: tus documentos permanecen privados.'
+    howNote: 'Desbloquea un PDF **protegido con contraseña** antes de añadirlo.'
   }
 };
