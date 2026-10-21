@@ -1,0 +1,103 @@
+---
+import WorkspaceRecents from '@noduct/design-system/components/WorkspaceRecents.astro';
+import { preferenceKeys } from '@noduct/design-system/shell/preferences';
+import { WORKSPACE_DB_NAME } from '@noduct/workspace-core';
+import type { Locale } from '@/i18n/config';
+import styles from './WorkspaceHomeSection.module.css';
+
+const { locale } = Astro.props as { locale: Locale };
+---
+
+<div
+  class={styles.wrap}
+  data-workspace-db={WORKSPACE_DB_NAME}
+  data-workspace-pref-key={preferenceKeys.workspaceRecents}
+>
+  <WorkspaceRecents id="home-workspace" {locale} />
+</div>
+
+<script>
+  // Sem banco salvo, a home não baixa o runtime do workspace nem cria IndexedDB; a seção fica só
+  // com a apresentação. O orçamento de scripts da home foi aprovado pelo dono (ADR 0006 D1).
+  const wrap = document.querySelector<HTMLElement>('[data-workspace-db]');
+  const section = wrap?.querySelector<HTMLElement>('[data-workspace-recents]');
+  const toggle = section?.querySelector<HTMLButtonElement>('[data-recents-toggle]');
+  const prefKey = wrap?.dataset.workspacePrefKey;
+  let connected = false;
+
+  const applyCollapsed = (collapsed: boolean) => {
+    if (!section || !toggle) return;
+    section.dataset.collapsed = collapsed ? 'true' : 'false';
+    const root = document.documentElement;
+    if (collapsed) root.dataset.workspaceRecents = 'collapsed';
+    else delete root.dataset.workspaceRecents;
+    toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    const label = (collapsed ? toggle.dataset.expandLabel : toggle.dataset.collapseLabel) ?? '';
+    if (label) {
+      toggle.setAttribute('aria-label', label);
+      toggle.title = label;
+    }
+  };
+
+  if (section && toggle) {
+    let initialCollapsed = document.documentElement.dataset.workspaceRecents === 'collapsed';
+    if (!initialCollapsed && prefKey) {
+      try {
+        initialCollapsed = localStorage.getItem(prefKey) === 'collapsed';
+      } catch {
+        /* Armazenamento indisponível */
+      }
+    }
+    applyCollapsed(initialCollapsed);
+    toggle.addEventListener('click', () => {
+      const next = section.dataset.collapsed !== 'true';
+      applyCollapsed(next);
+      if (prefKey) {
+        try {
+          if (next) localStorage.setItem(prefKey, 'collapsed');
+          else localStorage.removeItem(prefKey);
+        } catch {
+          /* Armazenamento indisponível */
+        }
+      }
+    });
+  }
+
+  const hasWorkspace = async (): Promise<boolean> => {
+    try {
+      if (!indexedDB.databases) return true;
+      const databases = await indexedDB.databases();
+      return databases.some((database) => database.name === wrap?.dataset.workspaceDb);
+    } catch {
+      return true;
+    }
+  };
+
+  const showIntro = () => {
+    const loading = section?.querySelector<HTMLElement>('[data-workspace-loading]');
+    const list = section?.querySelector<HTMLElement>('[data-recents-list]');
+    if (loading) loading.hidden = true;
+    list?.setAttribute('aria-busy', 'false');
+  };
+
+  const refresh = async () => {
+    if (!wrap || connected) return;
+    if (!(await hasWorkspace())) {
+      showIntro();
+      return;
+    }
+    connected = true;
+    try {
+      const { connectHubWorkspace } = await import('./WorkspaceIsland');
+      connectHubWorkspace();
+    } catch {
+      connected = false;
+      showIntro();
+    }
+  };
+
+  void refresh();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') void refresh();
+  });
+</script>

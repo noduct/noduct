@@ -1,8 +1,17 @@
-import { acceptsFile, FILES_SELECTED_EVENT, type FilesSelectedDetail } from './contracts';
+import {
+  acceptsFile,
+  FILES_SELECTED_EVENT,
+  type FileOrigin,
+  type FilesSelectedDetail
+} from './contracts';
 import { fileWorkflowMessages, resolveFileWorkflowLocale } from './messages';
 
 export interface DropZoneController {
   setDisabled(disabled: boolean): void;
+  /** Recolhe a zona numa faixa com as origens, mantendo seletor, arrasto e anúncios. */
+  setCompact(compact: boolean): void;
+  /** Entrega arquivos de outra origem (ex.: Área Local) pelo mesmo evento e anúncio. */
+  select(files: readonly File[], origin?: FileOrigin): void;
 }
 
 const controllers = new WeakMap<HTMLElement, DropZoneController>();
@@ -31,7 +40,7 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     zone.dataset.state = state;
   };
 
-  const select = (files: readonly File[]) => {
+  const select = (files: readonly File[], origin: FileOrigin = { source: 'device' }) => {
     const accepted = files.filter((file) => acceptsFile(file, accept));
     const rejected = files.filter((file) => !acceptsFile(file, accept));
     if (!multiple) rejected.push(...accepted.splice(1));
@@ -45,10 +54,16 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     zone.dispatchEvent(
       new CustomEvent<FilesSelectedDetail>(FILES_SELECTED_EVENT, {
         bubbles: true,
-        detail: { accepted, rejected }
+        detail: { accepted, rejected, ...origin }
       })
     );
   };
+  const source = zone.querySelector<HTMLButtonElement>('[data-workspace-source]');
+  const sourceControls = [
+    ...zone.querySelectorAll<HTMLElement>('label[for], [data-workspace-source]')
+  ];
+  let compactFrame = 0;
+  let compactAnimations: Animation[] = [];
 
   input.addEventListener('change', () => {
     select([...(input.files ?? [])]);
@@ -83,8 +98,42 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     setDisabled(value) {
       zone.dataset.disabled = value ? 'true' : 'false';
       input.disabled = value;
+      if (source) source.disabled = value || source.dataset.loading === 'true';
       depth = 0;
       setState('idle');
+    },
+    setCompact(value) {
+      if ((zone.dataset.compact === 'true') === value) return;
+      cancelAnimationFrame(compactFrame);
+      compactAnimations.forEach((animation) => animation.cancel());
+      compactAnimations = [];
+      const start = sourceControls.map((control) => control.getBoundingClientRect());
+      zone.dataset.compact = value ? 'true' : 'false';
+      if (
+        matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        document.documentElement.dataset.motion === 'reduce'
+      )
+        return;
+      compactFrame = requestAnimationFrame(() => {
+        const styles = getComputedStyle(zone);
+        const duration = Number.parseFloat(styles.getPropertyValue('--duration-normal'));
+        const easing = styles.getPropertyValue('--ease-apple').trim();
+        compactAnimations = sourceControls.flatMap((control, index) => {
+          const end = control.getBoundingClientRect();
+          const x = start[index]!.x - end.x;
+          const y = start[index]!.y - end.y;
+          if (Math.abs(x) < 1 && Math.abs(y) < 1) return [];
+          return [
+            control.animate(
+              [{ transform: `translate(${x}px, ${y}px)` }, { transform: 'translate(0, 0)' }],
+              { duration, easing }
+            )
+          ];
+        });
+      });
+    },
+    select(files, origin) {
+      if (!disabled()) select(files, origin);
     }
   };
   controllers.set(zone, controller);

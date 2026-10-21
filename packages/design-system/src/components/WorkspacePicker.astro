@@ -1,0 +1,98 @@
+---
+import { topology, type Locale } from '@noduct/tool-runtime';
+import Icon from '../icons/Icon.astro';
+import Button from './Button.astro';
+import WorkspaceFileMeta from './WorkspaceFileMeta.astro';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import item from './WorkspaceItem.module.css';
+import styles from './WorkspacePicker.module.css';
+import selectionStyles from './SelectionControl.module.css';
+
+export interface Props {
+  id: string;
+  confirmLabel: string;
+  locale?: Locale;
+}
+
+const { id, confirmLabel, locale = 'en' } = Astro.props;
+const currentLocale = resolveWorkspaceUiLocale(locale);
+const m = workspaceUiMessages[currentLocale];
+const titleId = `${id}-title`;
+const introId = `${id}-intro`;
+const searchId = `${id}-search`;
+const manageHref = topology.hubPath('workspace/', currentLocale);
+---
+
+<dialog
+  id={id}
+  class={styles.picker}
+  aria-labelledby={titleId}
+  aria-describedby={introId}
+  data-workspace-picker
+  data-locale={currentLocale}
+>
+  <div class={styles.panel}>
+    <header class={styles.header}>
+      <div class={styles.heading}>
+        <h2 id={titleId} class={styles.title}>{m.pickerTitle}</h2>
+        <p id={introId} class={styles.intro}>{m.pickerIntro}</p>
+      </div>
+      <Button variant="quiet" iconOnly icon="x" ariaLabel={m.close} data-picker-close />
+    </header>
+
+    <div class={styles.search}>
+      <Icon class={styles.searchIcon} name="search" />
+      <label for={searchId} class="sr-only">{m.searchLabel}</label>
+      <input
+        id={searchId}
+        class={styles.searchInput}
+        type="search"
+        placeholder={m.searchPlaceholder}
+        autocomplete="off"
+        data-picker-search
+      />
+    </div>
+
+    <div class={styles.body}>
+      <p class={styles.status} role="status" aria-live="polite" data-picker-status></p>
+      <fieldset class={styles.fieldset} data-picker-fieldset hidden>
+        <legend class="sr-only">{m.listLabel}</legend>
+        <ul class={styles.list} data-picker-list></ul>
+      </fieldset>
+      <div class={styles.empty} data-picker-empty hidden>
+        <span class={styles.emptyIcon}><Icon name="folder" /></span>
+        <p>{m.pickerEmpty}</p>
+      </div>
+      <p class={styles.note} data-picker-incompatible hidden></p>
+    </div>
+
+    <footer class={styles.footer}>
+      <Button variant="quiet" size="sm" href={manageHref} iconTrailing="arrow-right">
+        <span>{m.manageFiles}</span>
+      </Button>
+      <div class={styles.footerActions}>
+        <span class={styles.count} data-picker-count></span>
+        <Button
+          variant="primary"
+          disabled
+          data-picker-confirm
+          data-label={confirmLabel}>{confirmLabel}</Button
+        >
+      </div>
+    </footer>
+  </div>
+
+  <template data-picker-item>
+    <li class={styles.item}>
+      <label class={styles.option}>
+        <input class={styles.input} type="checkbox" data-picker-input />
+        <span class:list={[selectionStyles.box, styles.box]} aria-hidden="true"><Icon name="check" /></span>
+        <span class:list={[item.thumb, styles.thumb]} data-thumb><Icon name="file-text" /></span>
+        <span class={styles.text}>
+          <span class={styles.name} data-name></span>
+          <WorkspaceFileMeta />
+        </span>
+      </label>
+    </li>
+  </template>
+</dialog>

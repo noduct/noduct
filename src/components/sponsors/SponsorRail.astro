@@ -1,5 +1,6 @@
 ---
 import { sponsorships } from '@/data/sponsorships';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import { activeSponsorFor } from '@/lib/sponsorships';
 import { getMessages } from '@/i18n/messages';
 import { localizePath, type Locale } from '@/i18n/config';
@@ -26,9 +27,7 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
       <span class="description">{sponsor.description}</span>
       <span class="action">
         <span>{m.sponsors.visit}</span>
-        <svg class="action-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M4.5 11.5l7-7M5.5 4.5h6v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <Icon class="action-icon" name="arrow-up-right" />
         <span class="sr-only"> ({m.common.opensNewTab})</span>
       </span>
     </a>
@@ -42,9 +41,7 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
     <span class="description">{m.sponsors.description}</span>
     <span class="action">
       <span>{m.sponsors.advertise}</span>
-      <svg class="action-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <use href="#icon-chevron" />
-      </svg>
+      <Icon class="action-icon" name="chevron-right" />
     </span>
   </a>
 </aside>
@@ -54,6 +51,7 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
     display: flex;
     flex-direction: column;
     gap: 12px;
+    width: 100%;
   }
 
   .rail-header {
@@ -65,81 +63,104 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
   .rail-title {
     margin: 0;
     color: var(--color-text-secondary);
-    font-size: .72rem;
+    font-size: 0.72rem;
     font-weight: 600;
-    letter-spacing: .06em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
-  .sponsor, .advertise {
+  .sponsor,
+  .advertise {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 1.1rem;
+    align-items: flex-start;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1.25rem;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     background: var(--color-surface-card);
+    box-shadow: var(--shadow-sm), var(--rim-light);
     color: var(--color-text);
     text-decoration: none;
-    transition: border-color .15s ease, background-color .15s ease, box-shadow .15s ease;
+    transition:
+      border-color var(--duration-fast) var(--ease-apple),
+      background-color var(--duration-fast) var(--ease-apple),
+      box-shadow var(--duration-fast) var(--ease-apple),
+      transform var(--duration-fast) var(--ease-apple);
   }
 
-  .sponsor:hover, .advertise:hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface-hover);
-    box-shadow: var(--shadow-sm);
+  @media (hover: hover) and (pointer: fine) {
+    .sponsor:hover,
+    .advertise:hover {
+      border-color: var(--color-border-strong);
+      background: var(--color-surface-card);
+      box-shadow: var(--shadow-card-hover), var(--rim-light);
+      transform: translateY(-2px);
+    }
   }
 
   .sponsor-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    width: 100%;
+    gap: 0.5rem;
   }
 
   .badge {
     display: inline-flex;
-    padding: .15rem .4rem;
+    align-items: center;
+    width: fit-content;
+    padding: 0.2rem 0.5rem;
     border-radius: var(--radius-xs);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     color: var(--color-text-secondary);
-    font-size: .65rem;
+    font-size: 0.65rem;
     font-weight: 600;
-    letter-spacing: .04em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 
   strong {
-    font-size: .88rem;
-    font-weight: 600;
+    font-size: 0.92rem;
+    font-weight: 650;
     line-height: 1.35;
+    letter-spacing: -0.01em;
     color: var(--color-text);
   }
 
   .description {
     color: var(--color-text-secondary);
-    font-size: .8rem;
-    line-height: 1.45;
+    font-size: 0.82rem;
+    line-height: 1.5;
   }
 
   .action {
     display: inline-flex;
     align-items: center;
-    gap: .35rem;
-    margin-top: 4px;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
     color: var(--color-primary);
-    font-size: .8rem;
+    font-size: 0.82rem;
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .action-icon {
     width: 14px;
     height: 14px;
-    transition: transform .15s ease;
+    flex-shrink: 0;
+    transition: transform var(--duration-fast) var(--ease-apple);
   }
 
-  .sponsor:hover .action-icon, .advertise:hover .action-icon {
-    transform: translateX(2px);
+  @media (hover: hover) and (pointer: fine) {
+    .sponsor:hover .action-icon,
+    .advertise:hover .action-icon {
+      transform: translateX(2px);
+    }
   }
 
   .logo {
@@ -147,27 +168,21 @@ const sponsors = ['home-rail-primary', 'home-rail-secondary']
     border-radius: var(--radius-xs);
   }
 
-  @media (min-width: 1061px) {
+  @media (min-width: 1025px) {
     .rail {
       position: sticky;
       top: 72px;
     }
   }
 
-  @media (max-width: 1060px) {
+  @media (max-width: 1024px) {
     .rail {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     }
+
     .rail-header {
       grid-column: 1 / -1;
-    }
-  }
-
-  @media (max-width: 620px) {
-    .rail {
-      display: flex;
-      flex-direction: column;
     }
   }
 </style>

@@ -37,6 +37,7 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(result.decision).toBe('allowed');
+    expect(result.code).toBeUndefined();
     expect(result.details.totalBytes).toBe(15 * 1024 * 1024);
     expect(result.details.fileCount).toBe(2);
     expect(result.details.totalPages).toBe(30);
@@ -50,7 +51,15 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(mobileResult.decision).toBe('blocked');
-    expect(mobileResult.reason).toContain('exceeds the 25 MB limit');
+    expect(mobileResult).toMatchObject({
+      code: 'FILE_TOO_LARGE',
+      params: {
+        fileName: 'large.pdf',
+        sizeBytes: 30 * 1024 * 1024,
+        limitBytes: 25 * 1024 * 1024,
+        profile: 'mobile'
+      }
+    });
 
     // 120 MB file on Desktop (limit: 100 MB)
     const desktopResult = await evaluateResourceBudget({
@@ -59,35 +68,41 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(desktopResult.decision).toBe('blocked');
-    expect(desktopResult.reason).toContain('exceeds the 100 MB limit');
+    expect(desktopResult).toMatchObject({
+      code: 'FILE_TOO_LARGE',
+      params: {
+        fileName: 'huge.pdf',
+        sizeBytes: 120 * 1024 * 1024,
+        limitBytes: 100 * 1024 * 1024,
+        profile: 'desktop'
+      }
+    });
   });
 
   it('blocks total batch size exceeding platform ceilings', async () => {
     // 60 MB total on Mobile (limit: 50 MB)
     const mobileResult = await evaluateResourceBudget({
-      inputs: [
-        { size: 20 * 1024 * 1024 },
-        { size: 20 * 1024 * 1024 },
-        { size: 20 * 1024 * 1024 }
-      ],
+      inputs: [{ size: 20 * 1024 * 1024 }, { size: 20 * 1024 * 1024 }, { size: 20 * 1024 * 1024 }],
       deviceProfile: 'mobile'
     });
 
     expect(mobileResult.decision).toBe('blocked');
-    expect(mobileResult.reason).toContain('50 MB');
+    expect(mobileResult).toMatchObject({
+      code: 'TOTAL_SIZE_EXCEEDED',
+      params: { sizeBytes: 60 * 1024 * 1024, limitBytes: 50 * 1024 * 1024, profile: 'mobile' }
+    });
 
     // 250 MB total on Desktop (limit: 200 MB)
     const desktopResult = await evaluateResourceBudget({
-      inputs: [
-        { size: 90 * 1024 * 1024 },
-        { size: 90 * 1024 * 1024 },
-        { size: 70 * 1024 * 1024 }
-      ],
+      inputs: [{ size: 90 * 1024 * 1024 }, { size: 90 * 1024 * 1024 }, { size: 70 * 1024 * 1024 }],
       deviceProfile: 'desktop'
     });
 
     expect(desktopResult.decision).toBe('blocked');
-    expect(desktopResult.reason).toContain('200 MB');
+    expect(desktopResult).toMatchObject({
+      code: 'TOTAL_SIZE_EXCEEDED',
+      params: { sizeBytes: 250 * 1024 * 1024, limitBytes: 200 * 1024 * 1024, profile: 'desktop' }
+    });
   });
 
   it('blocks when file count exceeds capacity', async () => {
@@ -99,7 +114,10 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(result.decision).toBe('blocked');
-    expect(result.reason).toContain('8 files for mobile devices');
+    expect(result).toMatchObject({
+      code: 'FILE_COUNT_EXCEEDED',
+      params: { fileCount: 10, limit: 8, profile: 'mobile' }
+    });
   });
 
   it('blocks when page count exceeds capacity', async () => {
@@ -110,7 +128,10 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(result.decision).toBe('blocked');
-    expect(result.reason).toContain('100 page capacity limit for mobile');
+    expect(result).toMatchObject({
+      code: 'PAGE_COUNT_EXCEEDED',
+      params: { pageCount: 150, limit: 100, profile: 'mobile' }
+    });
   });
 
   it('blocks when total workspace storage limit would be breached', async () => {
@@ -122,7 +143,10 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(result.decision).toBe('blocked');
-    expect(result.reason).toContain('75 MB workspace limit');
+    expect(result).toMatchObject({
+      code: 'WORKSPACE_STORAGE_EXCEEDED',
+      params: { sizeBytes: 80 * 1024 * 1024, limitBytes: 75 * 1024 * 1024, profile: 'mobile' }
+    });
   });
 
   it('returns warning when resource consumption is high (> 80% of capacity)', async () => {
@@ -136,7 +160,10 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(result.decision).toBe('warning');
-    expect(result.reason).toContain('High memory usage predicted');
+    expect(result).toMatchObject({
+      code: 'HIGH_RESOURCE_USAGE',
+      params: { sizeBytes: 42 * 1024 * 1024, profile: 'mobile' }
+    });
   });
 
   it('checks browser storage estimate provider', async () => {
@@ -150,6 +177,9 @@ describe('ResourceBudget & Memory Protection', () => {
     });
 
     expect(result.decision).toBe('blocked');
-    expect(result.reason).toContain('browser disk quota is nearly full');
+    expect(result).toMatchObject({
+      code: 'BROWSER_QUOTA_EXCEEDED',
+      params: { sizeBytes: 25 * 1024 * 1024, quotaBytes: 20 * 1024 * 1024, profile: 'desktop' }
+    });
   });
 });

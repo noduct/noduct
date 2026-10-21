@@ -5,11 +5,14 @@ import {
   type ListChangeDetail
 } from './contracts';
 import { fileWorkflowMessages, resolveFileWorkflowLocale } from './messages';
+import { ObjectUrls, showThumbnail } from '../workspace-ui/thumbnails';
 
 export interface ReorderableListController {
   /** Replaces every item. Rendering uses text nodes only. */
   setItems(items: readonly FileListItem[]): void;
   getIds(): string[];
+  /** Shows a first-page preview for an item; it survives reordering and re-renders. */
+  setThumbnail(id: string, image: Blob | undefined): void;
 }
 
 const controllers = new WeakMap<HTMLElement, ReorderableListController>();
@@ -25,6 +28,9 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
   if (!list || !template || !status) return undefined;
   const locale = resolveFileWorkflowLocale(root.dataset.locale);
   const messages = fileWorkflowMessages[locale];
+  const grid = root.dataset.variant === 'grid';
+  const moveEarlier = grid ? messages.moveBefore : messages.moveUp;
+  const moveLater = grid ? messages.moveAfter : messages.moveDown;
 
   const items = () => [...list.querySelectorAll<HTMLLIElement>(':scope > [data-reorder-item]')];
   const nameOf = (item: HTMLElement) =>
@@ -34,6 +40,10 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
   const sync = () => {
     const entries = items();
     entries.forEach((item, index) => {
+      const position = String(index + 1);
+      item.dataset.position = position;
+      const badge = item.querySelector('[data-item-index]');
+      if (badge && badge.textContent !== position) badge.textContent = position;
       item.querySelector('[data-move="up"]')?.setAttribute('aria-disabled', String(index === 0));
       item
         .querySelector('[data-move="down"]')
@@ -100,47 +110,104 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
     else if (control.hasAttribute('data-remove')) remove(item, control);
   });
 
+  // In the grid, horizontal and vertical arrow keys follow the reading order.
+  const earlierKeys = grid ? ['ArrowUp', 'ArrowLeft'] : ['ArrowUp'];
+  const laterKeys = grid ? ['ArrowDown', 'ArrowRight'] : ['ArrowDown'];
+
   list.addEventListener('keydown', (event) => {
-    if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return;
+    const earlier = earlierKeys.includes(event.key);
+    if (!earlier && !laterKeys.includes(event.key)) return;
     const control = (event.target as Element).closest<HTMLElement>('button');
     const item = control?.closest<HTMLLIElement>('[data-reorder-item]');
     if (!control || !item) return;
     if (!event.altKey && !control.hasAttribute('data-reorder-handle')) return;
     event.preventDefault();
-    step(item, event.key === 'ArrowUp' ? -1 : 1);
+    step(item, earlier ? -1 : 1);
   });
 
   list.addEventListener('pointerdown', (event) => {
-    const handle = (event.target as Element).closest<HTMLElement>('[data-reorder-handle]');
-    const item = handle?.closest<HTMLLIElement>('[data-reorder-item]');
-    if (!handle || !item || event.button !== 0) return;
+    const target = event.target as Element;
+    // Não inicia drag se clicou num botão de ação (mover, remover)
+    const actionBtn = target.closest<HTMLButtonElement>('[data-move], [data-remove]');
+    if (actionBtn || event.button !== 0) return;
+
+    const handle = target.closest<HTMLElement>('[data-reorder-handle]');
+    const thumb = target.closest<HTMLElement>('[data-item-thumb]');
+    const cardHeader = target.closest<HTMLElement>('[data-reorder-header]');
+    const item = target.closest<HTMLLIElement>('[data-reorder-item]');
+    if (!item || (!grid && !handle)) return;
+    if (event.pointerType !== 'mouse' && !handle && !thumb && !cardHeader) return;
+
     event.preventDefault();
-    handle.focus();
-    handle.setPointerCapture(event.pointerId);
+    const captureTarget = (handle ?? item) as HTMLElement;
+    (handle ?? item.querySelector<HTMLElement>('[data-reorder-handle]'))?.focus();
+    captureTarget.setPointerCapture(event.pointerId);
+
     const start = items().indexOf(item);
-    item.dataset.dragging = 'true';
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startRect = item.getBoundingClientRect();
+    // Freeze hit targets before changing DOM order to avoid oscillation.
+    const otherRects = items()
+      .filter((entry) => entry !== item)
+      .map((entry) => entry.getBoundingClientRect());
+    let isDragging = false;
+    let targetIndex = start;
+
+    const targetFor = (pointer: PointerEvent) => {
+      const columns = grid && matchMedia('(min-width: 600px)').matches;
+      return otherRects.filter((rect) => {
+        if (!columns) return pointer.clientY > rect.top + rect.height / 2;
+        if (pointer.clientY >= rect.bottom) return true;
+        return pointer.clientY >= rect.top && pointer.clientX > rect.left + rect.width / 2;
+      }).length;
+    };
+
     const move = (moveEvent: PointerEvent) => {
-      const target = items()
-        .filter((entry) => entry !== item)
-        .filter((entry) => {
-          const rect = entry.getBoundingClientRect();
-          return moveEvent.clientY > rect.top + rect.height / 2;
-        }).length;
-      moveTo(item, target);
+      const deltaX = moveEvent.clientX - startX;
+      const deltaY = moveEvent.clientY - startY;
+
+      if (!isDragging) {
+        if (Math.hypot(deltaX, deltaY) < 3) return;
+        isDragging = true;
+        item.dataset.dragging = 'true';
+        item.style.zIndex = '50';
+        item.style.willChange = 'transform';
+      }
+
+      const nextIndex = targetFor(moveEvent);
+      if (nextIndex !== targetIndex) {
+        moveTo(item, nextIndex);
+        targetIndex = nextIndex;
+        sync();
+      }
+      // Follow the pointer from the original position after the grid slot changes.
+      item.style.transform = '';
+      const slot = item.getBoundingClientRect();
+      item.style.transform = `translate3d(${startRect.left + deltaX - slot.left}px, ${startRect.top + deltaY - slot.top}px, 0)`;
     };
-    const end = () => {
-      handle.removeEventListener('pointermove', move);
-      handle.removeEventListener('pointerup', end);
-      handle.removeEventListener('pointercancel', end);
+
+    const end = (endEvent: PointerEvent) => {
+      captureTarget.removeEventListener('pointermove', move);
+      captureTarget.removeEventListener('pointerup', end);
+      captureTarget.removeEventListener('pointercancel', end);
+      item.style.transform = '';
+      item.style.zIndex = '';
+      item.style.willChange = '';
       delete item.dataset.dragging;
-      sync();
-      if (items().indexOf(item) === start) return;
-      announceMove(item);
-      emit('move', item);
+      if (isDragging && endEvent.type === 'pointercancel' && targetIndex !== start) {
+        moveTo(item, start);
+        sync();
+      }
+      if (isDragging && endEvent.type === 'pointerup' && targetIndex !== start) {
+        announceMove(item);
+        emit('move', item);
+      }
     };
-    handle.addEventListener('pointermove', move);
-    handle.addEventListener('pointerup', end);
-    handle.addEventListener('pointercancel', end);
+
+    captureTarget.addEventListener('pointermove', move);
+    captureTarget.addEventListener('pointerup', end);
+    captureTarget.addEventListener('pointercancel', end);
   });
 
   const render = (entry: FileListItem) => {
@@ -150,25 +217,39 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
     item.dataset.itemId = entry.id;
     const name = item.querySelector('[data-item-name]');
     const meta = item.querySelector('[data-item-meta]');
-    if (name) name.textContent = entry.name;
+    if (name) {
+      name.textContent = entry.name;
+      name.setAttribute('title', entry.name);
+    }
     if (meta) meta.textContent = describeFileItem(entry, locale);
     item
       .querySelector('[data-reorder-handle]')
       ?.setAttribute('aria-label', messages.reorder(entry.name));
-    item.querySelector('[data-move="up"]')?.setAttribute('aria-label', messages.moveUp(entry.name));
-    item
-      .querySelector('[data-move="down"]')
-      ?.setAttribute('aria-label', messages.moveDown(entry.name));
+    item.querySelector('[data-move="up"]')?.setAttribute('aria-label', moveEarlier(entry.name));
+    item.querySelector('[data-move="down"]')?.setAttribute('aria-label', moveLater(entry.name));
     item.querySelector('[data-remove]')?.setAttribute('aria-label', messages.remove(entry.name));
+    showThumbnail(item.querySelector('[data-item-thumb]'), thumbnailUrls.get(entry.id));
     return item;
   };
 
+  const thumbnails = new ObjectUrls();
+  const thumbnailUrls = new Map<string, string>();
+
   const controller: ReorderableListController = {
     setItems(entries) {
+      const present = entries.map((entry) => entry.id);
+      thumbnails.retain(present);
+      for (const id of thumbnailUrls.keys()) if (!present.includes(id)) thumbnailUrls.delete(id);
       list.replaceChildren(...entries.flatMap((entry) => render(entry) ?? []));
       sync();
     },
-    getIds: ids
+    getIds: ids,
+    setThumbnail(id, image) {
+      if (image) thumbnailUrls.set(id, thumbnails.get(id, image));
+      else thumbnailUrls.delete(id);
+      const item = items().find((entry) => entry.dataset.itemId === id);
+      showThumbnail(item?.querySelector('[data-item-thumb]') ?? null, thumbnailUrls.get(id));
+    }
   };
   sync();
   controllers.set(root, controller);

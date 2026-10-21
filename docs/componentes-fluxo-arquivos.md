@@ -1,4 +1,4 @@
-# Componentes de fluxo de arquivos — Design System 0.4.0
+# Componentes de fluxo de arquivos — Design System 0.8.0
 
 ## Escopo
 
@@ -8,18 +8,30 @@ Os componentes renderizam HTML estático e carregam um runtime nativo, sem frame
 
 Todos aceitam `locale` (`en`, `pt-BR` ou `es`, padrão `en`) para textos genéricos e anúncios. Rótulos específicos da ferramenta são props.
 
+A Área de Trabalho Local é híbrida ([ADR 0006](adr/0006-hybrid-local-workspace.md)) e não tem entrada no header. Com `workspace`, a `DropZone` ganha a origem `Da Área Local` (diálogo `WorkspacePicker`) e o `DownloadCard` ganha “Salvar na Área Local”, sempre opt-in. A página `/workspace/` usa `WorkspaceManager`, e a home usa `WorkspaceRecents`. `connectLocalWorkspace(root, services)` liga todas as superfícies; `createWorkspaceServices({ loadWorkspace, loadRenderer })` injeta cliente e renderer por `import()` dinâmico, sem o design system depender de `workspace-core` ou `pdf-core`. Veja [Local Workspace](architecture/local-workspace.md) e [guardrails](guardrails.md).
+
+Enquanto o runtime local carrega, a home e a página do workspace mostram o componente `WorkspaceLoading`, com cartões estáticos no formato da superfície. A página lê a preferência salva de lista ou grade antes de desenhar o skeleton, evitando a troca de layout durante a inicialização. Nas ferramentas, o botão `Da Área Local` da `DropZone` ocupa seu espaço desde o HTML inicial: fica desabilitado, com indicador de espera e nome acessível de carregamento, até `connectLocalWorkspace()` ligar o seletor. O indicador respeita movimento reduzido. Ao concluir ou falhar a leitura, os skeletons saem e a superfície exibe documentos, estado vazio ou erro.
+
+Na página de gestão, a seleção mostra uma ilha fixa no rodapé da janela com contagem, seleção dos itens visíveis, limpeza, download e exclusão. Ela não participa do fluxo da grade. A página reserva espaço de rolagem conforme a altura real da ilha para manter os últimos arquivos acessíveis, inclusive em telas estreitas, e desloca notificações acima dela. Renomear arquivos não é uma ação oferecida nesta interface.
+
+Na home e na página de gestão, um ícone discreto aparece ao lado do nome do arquivo, sem cobrir a miniatura. PDF usa documento em vermelho; imagens usam imagem em azul; planilhas e CSV usam tabela em verde; formatos de código e dados usam código; os demais usam documento neutro. A miniatura mantém apenas seu ícone neutro de fallback até a prévia carregar. A classificação privilegia extensões conhecidas quando o MIME salvo é genérico ou incorreto.
+
+O `WorkspacePicker` das ferramentas reutiliza `WorkspaceFileMeta`: abaixo do nome, a data salva aparece com calendário e o tamanho com o ícone de armazenamento, em linhas separadas como no hub. O seletor do Merge PDF já filtra arquivos compatíveis e não adiciona um indicador de tipo ao item.
+
 ## API
 
-| Componente           | Props                                                                                                                         | Controlador (`get*`)                          | Evento                                       |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------- |
-| `DropZone`           | `id`, `label`, `description?`, `accept?` (padrão `application/pdf,.pdf`), `multiple?` (padrão `true`), `disabled?`, `locale?` | `getDropZone(zone).setDisabled(bool)`         | `noduct:files` → `{ accepted, rejected }`    |
-| `ReorderableList`    | `id`, `label`, `items?`, `locale?`                                                                                            | `setItems(items)`, `getIds()`                 | `noduct:list-change` → `{ action, id, ids }` |
-| `ProcessingFeedback` | `label`, `status`, `value?` (0–100; ausente = indeterminado), `cancellable?`, `hidden?`, `locale?`                            | `update({ status, value? })`, `isCancelled()` | `noduct:cancel`                              |
-| `DownloadCard`       | `id`, `title?`, `fileName?`, `fileSize?`, `downloadUrl?`, `hidden?`, `locale?`                                                | `show({ file, fileName })`, `reset()`         | `noduct:restart`                             |
+| Componente           | Props                                                                                                                                       | Controlador (`get*`)                                                                         | Evento                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `DropZone`           | `id`, `label`, `description?`, `accept?` (padrão `application/pdf,.pdf`), `multiple?` (padrão `true`), `disabled?`, `locale?`, `workspace?` | `setDisabled(bool)`, `select(files, origin?)`                                                | `noduct:files` → `{ accepted, rejected, source, documentIds? }` |
+| `ReorderableList`    | `id`, `label`, `items?`, `locale?`                                                                                                          | `setItems(items)`, `getIds()`, `setThumbnail(id, blob)`                                      | `noduct:list-change` → `{ action, id, ids }`                    |
+| `ProcessingFeedback` | `label`, `status`, `value?` (0–100; ausente = indeterminado), `cancellable?`, `hidden?`, `locale?`                                          | `update({ status, value? })`, `isCancelled()`                                                | `noduct:cancel`                                                 |
+| `DownloadCard`       | `id`, `title?`, `fileName?`, `fileSize?`, `downloadUrl?`, `hidden?`, `locale?`, `workspace?`                                                | `show({ file, fileName })`, `reset()`, `setPreview(blob)`, `enableSave(save, describeError)` | `noduct:restart`, `noduct:download-ready`                       |
 
 Os nomes dos eventos estão exportados como `FILES_SELECTED_EVENT`, `LIST_CHANGE_EVENT`, `CANCEL_EVENT` e `RESTART_EVENT`; todos borbulham a partir da raiz do componente. Os getters recebem o elemento raiz (`[data-drop-zone]`, `[data-reorderable-list]`, `[data-processing-feedback]`, `[data-download-card]`) e inicializam o componente sob demanda, independentemente da ordem dos scripts.
 
-`FileListItem` tem `id`, `name`, `size` em bytes e `pageCount` opcional. `setItems` substitui a lista inteira e usa somente nós de texto. Os utilitários `acceptsFile`, `formatFileSize` e `describeFileItem` são puros.
+`FileListItem` tem `id`, `name`, `size` em bytes e `pageCount` opcional. `setItems` substitui a lista inteira e usa somente nós de texto. Os utilitários `acceptsFile`, `resolveFileMimeType`, `formatFileSize` e `describeFileItem` são puros. O contrato exporta `FILE_ACCEPT` (`pdf`, `image`, `text`, `table`, `code`), `DEFAULT_PDF_ACCEPT` e `DEFAULT_WORKSPACE_ACCEPT` (`''`): na página `/workspace/`, o `WorkspaceManager` permite selecionar qualquer formato livremente e infere o MIME real pela extensão (`resolveFileMimeType`), enquanto cada ferramenta declara seu `accept` em `defineTool({ accept })` e o passa para `DropZone` (restringindo tanto o upload direto quanto o `WorkspacePicker`).
+
+`DropZoneController.setCompact(true)` reduz a zona a uma faixa com as duas origens e preserva a região de status para leitores de tela. No estado vazio e no compacto, as ações de dispositivo e Área Local têm altura mínima de 44 px, largura equivalente e o mesmo rim light; o hover fica no botão, sem contorno da zona ao redor. `ReorderableList` aceita `variant="grid"` para cartões com posição numérica e prévia maior a partir de 600 px; abaixo disso, o cartão usa cabeçalho compacto e prévia em linha. A lista padrão permanece vertical. Durante o arrasto, o cartão acompanha o ponteiro e os vizinhos mudam de posição em tempo real. As áreas de destino são calculadas a partir da geometria inicial, evitando oscilações quando a grade muda. Soltar mantém a ordem exibida; cancelar restaura a ordem inicial. Os botões e as setas do teclado oferecem a mesma reordenação.
 
 ## Comportamento e acessibilidade
 

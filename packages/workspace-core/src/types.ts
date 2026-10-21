@@ -6,8 +6,22 @@ export interface WorkspaceDocument {
   readonly pageCount?: number | undefined;
   readonly createdAt: number;
   readonly updatedAt: number;
+  readonly lastAccessedAt: number;
+  readonly retention: WorkspaceRetention;
+  readonly sourceTool?: string | undefined;
   readonly blob: Blob;
   readonly metadata?: Record<string, unknown> | undefined;
+}
+
+/** Metadados sem o payload; listar e renovar prazo não tocam no Blob (schema v4). */
+export type WorkspaceDocumentSummary = Omit<WorkspaceDocument, 'blob'>;
+
+/** Prévia derivada do documento (ADR 0006); apagada junto com ele. */
+export interface WorkspaceThumbnail {
+  readonly id: string;
+  readonly blob: Blob;
+  readonly width: number;
+  readonly height: number;
 }
 
 export interface NewWorkspaceDocument {
@@ -18,7 +32,11 @@ export interface NewWorkspaceDocument {
   readonly pageCount?: number | undefined;
   readonly blob: Blob;
   readonly metadata?: Record<string, unknown> | undefined;
+  readonly retention?: WorkspaceRetention | undefined;
+  readonly sourceTool?: string | undefined;
 }
+
+export type WorkspaceRetention = 'ephemeral' | 'persistent';
 
 export interface WorkspaceStateRecord {
   readonly key: string;
@@ -30,18 +48,40 @@ export type WorkspaceChangeType =
   | 'document_added'
   | 'document_updated'
   | 'document_deleted'
-  | 'workspace_cleared';
+  | 'workspace_cleared'
+  | 'thumbnail_updated';
 
 export interface WorkspaceChangeEvent {
   readonly type: WorkspaceChangeType;
   readonly documentId?: string | undefined;
+  /** `expired`: limpeza de 24 h; `accessed`: só renovou o prazo (leitura), sem mudar o conteúdo. */
+  readonly reason?: 'expired' | 'accessed' | undefined;
   readonly timestamp: number;
 }
 
 export type WorkspaceChangeListener = (event: WorkspaceChangeEvent) => void;
 
+export type WorkspaceErrorCode =
+  | 'WORKSPACE_UNAVAILABLE'
+  | 'DOCUMENT_NOT_FOUND'
+  | 'TRANSFER_NOT_FOUND'
+  | 'TRANSFER_EXPIRED'
+  | 'TRANSFER_ALREADY_CONSUMED'
+  | 'INVALID_TOOL_TARGET'
+  | 'DB_OPEN_ERROR'
+  | 'SCHEMA_VERSION_UNSUPPORTED'
+  | 'DB_UPGRADE_BLOCKED'
+  | 'REQUEST_ERROR'
+  | 'TRANSACTION_ABORTED'
+  | 'TRANSACTION_ERROR';
+
 export class WorkspaceError extends Error {
-  constructor(message: string, readonly code: string, override readonly cause?: unknown) {
+  constructor(
+    message: string,
+    readonly code: WorkspaceErrorCode,
+    override readonly cause?: unknown,
+    readonly params: Readonly<Record<string, string | number>> = {}
+  ) {
     super(message);
     this.name = 'WorkspaceError';
   }
@@ -56,7 +96,12 @@ export class WorkspaceUnavailableError extends WorkspaceError {
 
 export class DocumentNotFoundError extends WorkspaceError {
   constructor(id: string) {
-    super(`Document with ID "${id}" was not found in the local workspace.`, 'DOCUMENT_NOT_FOUND');
+    super(
+      `Document with ID "${id}" was not found in the local workspace.`,
+      'DOCUMENT_NOT_FOUND',
+      undefined,
+      { id }
+    );
     this.name = 'DocumentNotFoundError';
   }
 }
@@ -73,29 +118,44 @@ export interface WorkspaceTransferRecord {
 
 export class TransferNotFoundError extends WorkspaceError {
   constructor(transferId: string) {
-    super(`Transfer ticket "${transferId}" was not found or does not exist.`, 'TRANSFER_NOT_FOUND');
+    super(
+      `Transfer ticket "${transferId}" was not found or does not exist.`,
+      'TRANSFER_NOT_FOUND',
+      undefined,
+      { transferId }
+    );
     this.name = 'TransferNotFoundError';
   }
 }
 
 export class TransferExpiredError extends WorkspaceError {
   constructor(transferId: string) {
-    super(`Transfer ticket "${transferId}" has expired.`, 'TRANSFER_EXPIRED');
+    super(`Transfer ticket "${transferId}" has expired.`, 'TRANSFER_EXPIRED', undefined, {
+      transferId
+    });
     this.name = 'TransferExpiredError';
   }
 }
 
 export class TransferAlreadyConsumedError extends WorkspaceError {
   constructor(transferId: string) {
-    super(`Transfer ticket "${transferId}" has already been consumed.`, 'TRANSFER_ALREADY_CONSUMED');
+    super(
+      `Transfer ticket "${transferId}" has already been consumed.`,
+      'TRANSFER_ALREADY_CONSUMED',
+      undefined,
+      { transferId }
+    );
     this.name = 'TransferAlreadyConsumedError';
   }
 }
 
 export class InvalidToolTargetError extends WorkspaceError {
-  constructor(message: string) {
-    super(message, 'INVALID_TOOL_TARGET');
+  constructor(
+    message: string,
+    cause?: unknown,
+    params: Readonly<Record<string, string | number>> = {}
+  ) {
+    super(message, 'INVALID_TOOL_TARGET', cause, params);
     this.name = 'InvalidToolTargetError';
   }
 }
-

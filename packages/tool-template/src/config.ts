@@ -1,8 +1,13 @@
-export const toolConfig = {
+import { defineTool } from '@noduct/tool-runtime';
+
+/*
+ * Troque o slug e a categoria ao criar uma ferramenta. URLs, canonical e site/base do Astro
+ * derivam daqui via @noduct/tool-runtime — nunca escreva URLs do produto à mão.
+ */
+export const tool = defineTool({
   slug: 'example-tool',
-  canonicalUrl: 'https://noduct.github.io/example-tool/',
-  sponsorPlacementId: 'example-tool.primary',
-  sponsorshipEnabled: false,
-  sponsorshipRegistryUrl: 'https://noduct.github.io/noduct/data/sponsorships.json',
-  published: false
-};
+  category: 'text-tools',
+  accept: 'text/plain,.txt',
+  published: false,
+  sponsorshipEnabled: false
+});

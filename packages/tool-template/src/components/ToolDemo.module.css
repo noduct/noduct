@@ -1,0 +1,37 @@
+.workspace {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.workspace h2 {
+  margin: 0;
+}
+
+.workspace textarea {
+  width: 100%;
+  min-height: 180px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: inherit;
+  background: var(--color-background);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.notice {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.result {
+  padding: var(--space-4);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+

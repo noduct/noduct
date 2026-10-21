@@ -6,7 +6,7 @@ import {
   assessResources,
   inspectDocument,
   mergeDocuments
-} from '../../packages/pdf-core/src/index';
+} from '@noduct/pdf-core';
 
 async function createPdf(pages: number): Promise<ArrayBuffer> {
   const document = await PDFDocument.create();

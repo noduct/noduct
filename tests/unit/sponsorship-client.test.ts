@@ -3,7 +3,7 @@ import {
   createSponsorshipClient,
   resolveCampaign,
   bindSponsorLogoFallback
-} from '../../packages/design-system/src/sponsorship';
+} from '@noduct/design-system/sponsorship';
 import { campaignFixture, placementFixture, registryFixture } from '../fixtures/sponsorship';
 
 const registryUrl = 'https://example.com/sponsorship/registry.json';

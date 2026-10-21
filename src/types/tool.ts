@@ -1,14 +1,10 @@
-export const categoryIds = [
-  'pdf-tools',
-  'image-tools',
-  'text-tools',
-  'data-tools',
-  'developer-tools',
-  'general-utilities'
-] as const;
+import { CATEGORY_IDS, type CategoryId, type ToolStatus as RuntimeToolStatus } from '@noduct/tool-runtime';
 
-export type ToolCategory = (typeof categoryIds)[number];
-export type ToolStatus = 'planned' | 'beta' | 'published' | 'ready' | 'new';
+/* Ids de categoria e status vêm de @noduct/tool-runtime (fonte única, ADR 0005). */
+export const categoryIds = CATEGORY_IDS;
+
+export type ToolCategory = CategoryId;
+export type ToolStatus = RuntimeToolStatus;
 
 export interface ToolDefinition {
   id: string;
@@ -19,9 +15,7 @@ export interface ToolDefinition {
   categoryId?: ToolCategory | undefined;
   keywords: string[];
   tags?: string[] | undefined;
-  icon: string;
   url?: string | undefined;
-  directoryUrl?: string | undefined;
   repositoryUrl?: string | undefined;
   status: ToolStatus;
   featured: boolean;
@@ -34,5 +28,4 @@ export interface CategoryDefinition {
   name: string;
   shortName: string;
   description: string;
-  icon: string;
 }

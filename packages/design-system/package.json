@@ -1,13 +1,19 @@
 {
   "name": "@noduct/design-system",
-  "version": "0.4.0",
+  "version": "0.8.0",
   "private": true,
   "type": "module",
   "peerDependencies": {
     "astro": "^5.0.0"
   },
   "dependencies": {
+    "@noduct/tool-runtime": "*",
+    "lucide": "1.50.0",
     "zod": "^3.25.0"
+  },
+  "scripts": {
+    "check": "astro check --root .",
+    "test": "vitest run --root ../.. packages/design-system/src"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -15,17 +21,36 @@
     "./file-workflow": "./src/file-workflow/index.ts",
     "./workspace-ui": "./src/workspace-ui/index.ts",
     "./tokens.css": "./src/tokens.css",
-    "./components/BrandHeader.astro": "./src/components/BrandHeader.astro",
-    "./components/BrandFooter.astro": "./src/components/BrandFooter.astro",
-    "./components/SeoHead.astro": "./src/components/SeoHead.astro",
-    "./components/SponsoredPlacement.astro": "./src/components/SponsoredPlacement.astro",
+    "./base.css": "./src/base.css",
+    "./theme": "./src/theme.ts",
+    "./icons": "./src/icons/registry.ts",
+    "./icons/category": "./src/icons/category.ts",
+    "./icons/Icon.astro": "./src/icons/Icon.astro",
+    "./icons/IconSprite.astro": "./src/icons/IconSprite.astro",
+    "./shell/AppShell.astro": "./src/shell/AppShell.astro",
+    "./shell/ToolPage.astro": "./src/shell/ToolPage.astro",
+    "./shell/tool-page": "./src/shell/tool-page.ts",
+    "./shell/support": "./src/shell/support.ts",
+    "./shell/preferences": "./src/shell/preferences.ts",
+    "./shell/messages": "./src/shell/messages.ts",
+    "./shell/tool-info-messages": "./src/shell/tool-info-messages.ts",
+    "./shell/confirm": "./src/shell/confirm-dialog.ts",
+    "./controls": "./src/controls/index.ts",
+    "./components/Select.astro": "./src/components/Select.astro",
+    "./shell/Popover.module.css": "./src/shell/Popover.module.css",
     "./components/SponsorCard.astro": "./src/components/SponsorCard.astro",
     "./components/SponsorshipSlot.astro": "./src/components/SponsorshipSlot.astro",
-    "./components/ToolFrame.astro": "./src/components/ToolFrame.astro",
     "./components/DropZone.astro": "./src/components/DropZone.astro",
     "./components/ReorderableList.astro": "./src/components/ReorderableList.astro",
     "./components/ProcessingFeedback.astro": "./src/components/ProcessingFeedback.astro",
     "./components/DownloadCard.astro": "./src/components/DownloadCard.astro",
-    "./components/WorkspaceDrawer.astro": "./src/components/WorkspaceDrawer.astro"
+    "./components/WorkspaceManager.astro": "./src/components/WorkspaceManager.astro",
+    "./components/WorkspaceRecents.astro": "./src/components/WorkspaceRecents.astro",
+    "./components/Button.astro": "./src/components/Button.astro",
+    "./components/Button.module.css": "./src/components/Button.module.css",
+    "./components/Switch.astro": "./src/components/Switch.astro",
+    "./components/RichText.astro": "./src/components/RichText.astro",
+    "./components/ToolInfoCard.astro": "./src/components/ToolInfoCard.astro",
+    "./components/ToolSharedInfo.astro": "./src/components/ToolSharedInfo.astro"
   }
 }

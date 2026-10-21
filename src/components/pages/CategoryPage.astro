@@ -1,5 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
+import { getShellMessages } from '@noduct/design-system/shell/messages';
 import ToolCard from '@/components/tools/ToolCard.astro';
 import { getLocalizedCategories } from '@/data/categories';
 import { getLocalizedTools } from '@/data/tools';
@@ -8,21 +10,17 @@ import { localizePath, type Locale } from '@/i18n/config';
 import type { ToolCategory } from '@/types/tool';
 const { locale, categoryId } = Astro.props as { locale: Locale; categoryId: ToolCategory };
 const m = getMessages(locale); const category = getLocalizedCategories(locale).find((item) => item.id === categoryId)!; const tools = getLocalizedTools(locale).filter((tool) => tool.category === categoryId);
+const shellMessages = getShellMessages(locale);
 ---
 <BaseLayout title={category.name} description={m.categoryPage.description(category.name, category.description)} locale={locale}>
   <header class="page-head">
     <div class="container">
-      <nav class="breadcrumb" aria-label={m.categoryPage.breadcrumb}>
+      <nav class="breadcrumb" aria-label={shellMessages.nav.breadcrumb}>
         <a class="breadcrumb-link" href={localizePath('/', locale)}>
-          <svg class="breadcrumb-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M2.5 6.5L8 2.2l5.5 4.3V13a1 1 0 01-1 1h-9a1 1 0 01-1-1V6.5z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M6 14V8.5h4V14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>{m.common.home}</span>
+          <Icon class="breadcrumb-icon" name="house" />
+          <span>{shellMessages.nav.breadcrumbHome}</span>
         </a>
-        <svg class="breadcrumb-sep" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-          <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <Icon class="breadcrumb-sep" name="chevron-right" />
         <span class="breadcrumb-current" aria-current="page">{category.name}</span>
       </nav>
 
@@ -49,7 +47,8 @@ const m = getMessages(locale); const category = getLocalizedCategories(locale).f
     padding: 1.15rem 1.4rem;
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-sm), var(--rim-light-subtle);
+    border-left: 3px solid var(--color-primary);
+    box-shadow: var(--shadow-sm), var(--rim-light);
   }
 
   .notice strong {

@@ -1,20 +1,143 @@
 ---
-import SeoHead from '@noduct/design-system/components/SeoHead.astro';
-import ToolFrame from '@noduct/design-system/components/ToolFrame.astro';
-import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
-import type { DesignLocale } from '@noduct/design-system';
-import { toolConfig } from '../config';
+import AppShell from '@noduct/design-system/shell/AppShell.astro';
+import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
+import DropZone from '@noduct/design-system/components/DropZone.astro';
+import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
+import Button from '@noduct/design-system/components/Button.astro';
+import RichText from '@noduct/design-system/components/RichText.astro';
+import ToolInfoCard from '@noduct/design-system/components/ToolInfoCard.astro';
+import ToolSharedInfo from '@noduct/design-system/components/ToolSharedInfo.astro';
+import { formatToolInfoLine } from '@noduct/design-system/shell/tool-info-messages';
+import { toolJsonLd } from '@noduct/design-system/shell/tool-page';
+import type { Locale } from '@noduct/tool-runtime';
+import { DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } from '@noduct/workspace-core';
+import { tool } from '../config';
 import { toolMessages } from '../i18n';
-const { locale } = Astro.props as { locale: DesignLocale }; const m = toolMessages[locale];
-const prefix = locale === 'en' ? '' : locale === 'pt-BR' ? 'pt-br/' : 'es/';
+import styles from './ToolDemo.module.css';
+
+const { locale } = Astro.props as { locale: Locale };
+const m = toolMessages[locale];
+const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.description });
 ---
-<!doctype html><html lang={locale}><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width"/><SeoHead title={`${m.name} | ${m.template}`} description={m.description as string} canonical={`${toolConfig.canonicalUrl}${prefix}`} noindex={!toolConfig.published}/></head><body>
-  <ToolFrame locale={locale}>
-    <nav class="crumbs" aria-label={m.breadcrumb as string}><a href={`https://noduct.github.io/${prefix}`}>Noduct</a> / <a href={`https://noduct.github.io/${prefix}text-tools/`}>{m.category}</a> / <span aria-current="page">{m.name}</span></nav>
-    <h1>{m.name}</h1><p>{m.description}</p>
-    <section class="tool" aria-labelledby="tool-title"><h2 id="tool-title">{m.toolTitle}</h2><label for="source">{m.label}</label><textarea id="source" placeholder={m.placeholder as string}></textarea><div class="actions"><button id="process" type="button">{m.process}</button><button id="clear" class="secondary" type="button">{m.clear}</button></div><p class="notice">{m.privacy}</p><div class="result" id="result" role="status" aria-live="polite" data-empty-message={m.empty} hidden></div></section>
-    <SponsorshipSlot placementId={toolConfig.sponsorPlacementId} registryUrl={toolConfig.sponsorshipRegistryUrl} enabled={toolConfig.sponsorshipEnabled} locale={locale}/><section><h2>{m.howTitle}</h2><ol>{(m.how as string[]).map((item) => <li>{item}</li>)}</ol></section><section><h2>{m.limitsTitle}</h2><p>{m.limits}</p></section><section><h2>{m.relatedTitle}</h2><p>{m.related}</p></section>
-  </ToolFrame>
-  <script>import { cleanText } from '../lib/clean-text'; const source=document.querySelector('#source');const result=document.querySelector('#result');document.querySelector('#process')?.addEventListener('click',()=>{if(!(source instanceof HTMLTextAreaElement)||!(result instanceof HTMLElement))return;result.textContent=cleanText(source.value)||result.dataset.emptyMessage||'';result.hidden=false});document.querySelector('#clear')?.addEventListener('click',()=>{if(source instanceof HTMLTextAreaElement)source.value='';if(result instanceof HTMLElement){result.textContent='';result.hidden=true}if(source instanceof HTMLElement)source.focus()});</script>
-</body></html>
-<style>.crumbs{margin:2rem 0 1rem;font-size:.9rem;color:var(--color-text-secondary)}.crumbs a{color:inherit}h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.1}.tool{margin:2rem 0;padding:1.25rem;border:1px solid var(--color-border);border-radius:var(--radius-lg);background:var(--color-surface)}textarea{width:100%;min-height:180px;padding:1rem;border:1px solid var(--color-border);border-radius:var(--radius-md);color:inherit;background:var(--color-background)}.actions{display:flex;gap:.75rem;margin-top:.75rem}button{min-height:44px;padding:.6rem 1rem;border:0;border-radius:var(--radius-md);background:var(--color-primary);color:#fff;font-weight:700;cursor:pointer}button.secondary{border:1px solid var(--color-border);background:var(--color-background);color:var(--color-text)}.notice{color:var(--color-text-secondary);font-size:.9rem}.result{margin-top:1rem;padding:1rem;border-left:4px solid var(--color-primary);background:var(--color-background)}section{margin:2.5rem 0}</style>
+
+<AppShell
+  scope={tool.scope}
+  {locale}
+  title={m.name}
+  description={m.description}
+  noindex={!tool.published}
+  {jsonLd}
+>
+  <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
+    <section class={styles.workspace} aria-labelledby="tool-title">
+      <h2 id="tool-title">{m.toolTitle}</h2>
+      {/* Padrão híbrido (ADR 0006): duas origens de entrada e salvar resultado como opt-in. */}
+      <DropZone
+        id="tool-source-file"
+        label={m.dropLabel}
+        description={m.dropDescription}
+        accept={tool.accept}
+        multiple={false}
+        {locale}
+        workspace={{ confirmLabel: m.useFile }}
+      />
+      <label for="source">{m.label}</label>
+      <textarea id="source" placeholder={m.placeholder}></textarea>
+      <div class={styles.actions}>
+        <Button id="process" variant="primary">{m.process}</Button>
+        <Button id="clear" variant="secondary">{m.clear}</Button>
+      </div>
+      <p class={styles.notice}>{m.privacy}</p>
+      <div
+        class={styles.result}
+        id="result"
+        role="status"
+        aria-live="polite"
+        data-empty-message={m.empty}
+        hidden
+      >
+      </div>
+      <DownloadCard
+        id="tool-download"
+        title={m.downloadTitle}
+        fileName={m.resultFileName}
+        hidden={true}
+        {locale}
+        workspace={{ sourceTool: tool.slug }}
+      />
+    </section>
+
+    <Fragment slot="content">
+      <ToolInfoCard title={m.howTitle}>
+        <ol>
+          {m.how.map((item) => (
+            <li>
+              <RichText text={formatToolInfoLine(item, { action: m.process })} />
+            </li>
+          ))}
+        </ol>
+      </ToolInfoCard>
+      <ToolSharedInfo
+        {locale}
+        limits={{
+          desktopFiles: DESKTOP_RESOURCE_BUDGET.maxFiles,
+          desktopSizeMb: DESKTOP_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024),
+          mobileFiles: MOBILE_RESOURCE_BUDGET.maxFiles,
+          mobileSizeMb: MOBILE_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024)
+        }}
+      />
+    </Fragment>
+
+    <script>
+      import { cleanText } from '../lib/clean-text';
+      import {
+        FILES_SELECTED_EVENT,
+        getDownloadCard,
+        RESTART_EVENT,
+        type FilesSelectedDetail
+      } from '@noduct/design-system/file-workflow';
+      import {
+        connectLocalWorkspace,
+        createWorkspaceServices
+      } from '@noduct/design-system/workspace-ui';
+
+      // Uma linha liga seletor, salvar resultado e prévias; ferramentas de PDF passam também
+      // `loadRenderer: () => import('@noduct/pdf-core/render')` para ter miniaturas.
+      connectLocalWorkspace(
+        document,
+        createWorkspaceServices({ loadWorkspace: () => import('@noduct/workspace-core') })
+      );
+
+      const source = document.querySelector<HTMLTextAreaElement>('#source');
+      const result = document.querySelector<HTMLElement>('#result');
+      const cardElement = document.querySelector<HTMLElement>('[data-download-card]');
+      const card = cardElement ? getDownloadCard(cardElement) : undefined;
+      const fileName = cardElement?.querySelector('[data-download-name]')?.textContent ?? '';
+
+      // Arquivos do dispositivo e da Área Local chegam pelo mesmo evento.
+      document.addEventListener(FILES_SELECTED_EVENT, async (event) => {
+        const [file] = (event as CustomEvent<FilesSelectedDetail>).detail.accepted;
+        if (file && source) source.value = await file.text();
+      });
+      document.querySelector('#process')?.addEventListener('click', () => {
+        if (!source || !result) return;
+        const cleaned = cleanText(source.value);
+        result.textContent = cleaned || result.dataset.emptyMessage || '';
+        result.hidden = false;
+        if (cleaned) card?.show({ file: new Blob([cleaned], { type: 'text/plain' }), fileName });
+        else card?.reset();
+      });
+      const clear = () => {
+        if (source) source.value = '';
+        if (result) {
+          result.textContent = '';
+          result.hidden = true;
+        }
+        card?.reset();
+        source?.focus();
+      };
+      document.querySelector('#clear')?.addEventListener('click', clear);
+      document.addEventListener(RESTART_EVENT, clear);
+    </script>
+  </ToolPage>
+</AppShell>

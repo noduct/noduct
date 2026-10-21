@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { siteBasePath } from '../../src/i18n/config';
+import { topology } from '@noduct/tool-runtime';
 
 test('browser Portuguese opens the complete PT-BR experience', async ({ browser }) => {
   const context = await browser.newContext({ locale: 'pt-BR' });
   const page = await context.newPage();
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await page.waitForURL('**/pt-br/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'pt-BR');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Ferramentas');
@@ -21,7 +21,7 @@ test('browser Portuguese opens the complete PT-BR experience', async ({ browser 
 test('browser Spanish opens Spanish and keeps localized links', async ({ browser }) => {
   const context = await browser.newContext({ locale: 'es-MX' });
   const page = await context.newPage();
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await page.waitForURL('**/es/');
   await expect(page.locator('html')).toHaveAttribute('lang', 'es');
   await expect(page.getByRole('heading', { name: 'Combinar PDF' })).toBeVisible();
@@ -36,7 +36,7 @@ test('browser Spanish opens Spanish and keeps localized links', async ({ browser
 test('unmapped browser language falls back to English', async ({ browser }) => {
   const context = await browser.newContext({ locale: 'fr-FR' });
   const page = await context.newPage();
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('heading', { name: 'Merge PDF' })).toBeVisible();
@@ -44,19 +44,19 @@ test('unmapped browser language falls back to English', async ({ browser }) => {
 });
 
 test('localized SEO metadata is self-consistent', async ({ page }) => {
-  await page.goto(`${siteBasePath}/pt-br/privacy/`);
+  await page.goto(topology.hubPath('privacy/', 'pt-BR'));
   await expect(page).toHaveTitle(/Política de Privacidade/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
     'href',
-    `https://noduct.github.io${siteBasePath}/pt-br/privacy/`
+    topology.hubUrl('privacy/', 'pt-BR')
   );
   await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute(
     'href',
-    `https://noduct.github.io${siteBasePath}/privacy/`
+    topology.hubUrl('privacy/', 'en')
   );
   await expect(page.locator('link[rel="alternate"][hreflang="es"]')).toHaveAttribute(
     'href',
-    `https://noduct.github.io${siteBasePath}/es/privacy/`
+    topology.hubUrl('privacy/', 'es')
   );
 });
 
@@ -65,12 +65,12 @@ test('manual language choice overrides the browser language and can be reset to 
 }) => {
   const context = await browser.newContext({ locale: 'pt-BR' });
   const page = await context.newPage();
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await page.waitForURL('**/pt-br/');
   await page.getByRole('button', { name: 'Abrir configurações' }).click();
   await page.getByRole('link', { name: 'Español' }).click();
   await page.waitForURL('**/es/');
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await page.waitForURL('**/es/');
   await page.getByRole('button', { name: 'Abrir configuración' }).click();
   await page.getByRole('button', { name: /Automático/ }).click();
@@ -83,12 +83,12 @@ test('manual language choice to English stays on English and does not revert to 
 }) => {
   const context = await browser.newContext({ locale: 'pt-BR' });
   const page = await context.newPage();
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await page.waitForURL('**/pt-br/');
   await page.getByRole('button', { name: 'Abrir configurações' }).click();
   await page.getByRole('link', { name: 'English' }).click();
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await page.goto(`${siteBasePath}/`);
+  await page.goto(topology.hubPath());
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await context.close();
 });

@@ -1,0 +1,231 @@
+/* Base de botão com feedback tátil Apple e alvos WCAG 2.1 AA */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--duration-fast) var(--ease-apple),
+    border-color var(--duration-fast) var(--ease-apple),
+    color var(--duration-fast) var(--ease-apple),
+    box-shadow var(--duration-fast) var(--ease-apple),
+    transform var(--duration-instant) var(--ease-out-quad);
+}
+
+.button[hidden] {
+  display: none;
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
+}
+
+.button:active:not(:disabled, [aria-disabled='true']) {
+  transform: scale(var(--scale-active-button));
+  transition-duration: var(--duration-instant);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}
+
+.button:disabled,
+.button[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Tamanhos */
+.sm {
+  min-height: 36px;
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.8125rem;
+}
+
+.md {
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+}
+
+.lg {
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+}
+
+@media (pointer: coarse) {
+  .sm {
+    min-height: 44px;
+  }
+}
+
+/* Modo 1x1 (Icon-Only): proporção quadrada exata com escala tátil de ícone */
+.iconOnly {
+  padding: 0;
+  gap: 0;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+}
+
+.iconOnly.sm {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+}
+
+.iconOnly.md {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+.iconOnly.lg {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+}
+
+@media (pointer: coarse) {
+  .iconOnly.sm {
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+
+.iconOnly:active:not(:disabled, [aria-disabled='true']) {
+  transform: scale(var(--scale-active-icon));
+}
+
+/* Variante: Primary (CTA de destaque) com iluminação especular rim-light */
+.primary {
+  border: 1px solid transparent;
+  /* Fundo de ação sólido: texto branco com contraste AA nos dois temas. */
+  background: var(--color-action-primary);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm), var(--rim-light-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .primary:hover:not(:disabled, [aria-disabled='true']) {
+    background: var(--color-action-primary-hover);
+  }
+}
+
+.primary:disabled,
+.primary[aria-disabled='true'] {
+  border-color: var(--color-border);
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+}
+
+/* Variante: Secondary (Superfície tátil) com iluminação especular rim-light */
+.secondary {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm), var(--rim-light-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .secondary:hover:not(:disabled, [aria-disabled='true'], [aria-expanded='true'], [aria-pressed='true']) {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+}
+
+.secondary[aria-expanded='true'],
+.secondary[aria-pressed='true'] {
+  border-color: var(--color-primary-border-active);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+/* Variante: Quiet / Ghost (Sutil, sem superfície em repouso) */
+.quiet {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-secondary);
+  box-shadow: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .quiet:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-border);
+    background: var(--color-surface-hover);
+    color: var(--color-text);
+  }
+}
+
+.quiet[aria-pressed='true'] {
+  border-color: var(--color-primary-border-soft);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+/* Variante: Danger (Destrutivo Proeminente) com rim-light */
+.danger {
+  border: 1px solid transparent;
+  background: var(--color-action-danger);
+  color: var(--color-on-primary);
+  box-shadow: var(--shadow-sm), var(--rim-light-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .danger:hover:not(:disabled, [aria-disabled='true']) {
+    background: var(--color-action-danger-hover);
+  }
+}
+
+/* Variante: Danger-Quiet (Destrutivo Sutil) */
+.danger-quiet {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-danger);
+  box-shadow: none;
+}
+
+.danger-quiet.iconOnly {
+  color: var(--color-text-secondary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .danger-quiet:hover:not(:disabled, [aria-disabled='true']) {
+    border-color: var(--color-danger-soft);
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+  }
+}
+
+/* Ícones */
+.iconLeading,
+.iconTrailing,
+.iconGlyph,
+.iconOnly > svg {
+  flex: none;
+  width: 18px;
+  height: 18px;
+}

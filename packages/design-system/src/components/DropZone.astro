@@ -1,6 +1,11 @@
 ---
 import { DEFAULT_PDF_ACCEPT } from '../file-workflow/contracts';
-import type { DesignLocale } from '../i18n';
+import Icon from '../icons/Icon.astro';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import WorkspacePicker from './WorkspacePicker.astro';
+import Button from './Button.astro';
+import buttonStyles from './Button.module.css';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './DropZone.module.css';
 
 export interface Props {
@@ -10,7 +15,12 @@ export interface Props {
   accept?: string;
   multiple?: boolean;
   disabled?: boolean;
-  locale?: DesignLocale;
+  locale?: Locale;
+  /**
+   * Oferece a origem `Da Área Local` (ADR 0006). `confirmLabel` nomeia a ação da ferramenta,
+   * por exemplo “Adicionar à mesclagem”. A página liga o seletor com `connectLocalWorkspace()`.
+   */
+  workspace?: { readonly confirmLabel: string } | undefined;
 }
 
 const {
@@ -20,10 +30,13 @@ const {
   accept = DEFAULT_PDF_ACCEPT,
   multiple = true,
   disabled = false,
-  locale = 'en'
+  locale = 'en',
+  workspace
 } = Astro.props;
 const descriptionId = `${id}-description`;
 const statusId = `${id}-status`;
+const pickerId = `${id}-workspace-picker`;
+const workspaceMessages = workspaceUiMessages[resolveWorkspaceUiLocale(locale)];
 ---
 
 <div
@@ -33,9 +46,11 @@ const statusId = `${id}-status`;
   data-accept={accept}
   data-multiple={multiple ? 'true' : 'false'}
   data-disabled={disabled ? 'true' : 'false'}
+  data-compact="false"
   data-state="idle"
+  data-workspace-picker-id={workspace ? pickerId : undefined}
 >
-  <span class={styles.icon} aria-hidden="true">↥</span>
+  <span class={styles.icon}><Icon name="upload" /></span>
   {
     description && (
       <p id={descriptionId} class={styles.description}>
@@ -43,19 +58,46 @@ const statusId = `${id}-status`;
       </p>
     )
   }
-  <input
-    id={id}
-    class={styles.input}
-    type="file"
-    accept={accept}
-    multiple={multiple}
-    disabled={disabled}
-    aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
-    data-drop-input
-  />
-  <label for={id} class={styles.trigger}>{label}</label>
+  <div class={styles.sources}>
+    <input
+      id={id}
+      class={styles.input}
+      type="file"
+      accept={accept}
+      multiple={multiple}
+      disabled={disabled}
+      aria-describedby={description ? `${descriptionId} ${statusId}` : statusId}
+      data-drop-input
+    />
+    <label
+      for={id}
+      class:list={[buttonStyles.button, buttonStyles.primary, buttonStyles.md, styles.trigger]}
+    >
+      <Icon name="upload" class={buttonStyles.iconLeading} />
+      <span>{label}</span>
+    </label>
+    {
+      workspace && (
+        <Button
+          variant="secondary"
+          class={styles.workspaceSource}
+          aria-haspopup="dialog"
+          aria-controls={pickerId}
+          ariaLabel={workspaceMessages.loading}
+          disabled
+          data-loading="true"
+          data-workspace-source
+        >
+          <Icon name="folder" class={styles.sourceIcon} />
+          <span class={styles.sourceSpinner} aria-hidden="true" />
+          <span>{workspaceMessages.fromWorkspace}</span>
+        </Button>
+      )
+    }
+  </div>
   <p id={statusId} class={styles.status} role="status" data-drop-status></p>
 </div>
+{workspace && <WorkspacePicker id={pickerId} confirmLabel={workspace.confirmLabel} {locale} />}
 
 <script>
   import { initializeDropZones } from '../file-workflow/drop-zone-runtime';

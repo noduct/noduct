@@ -1,6 +1,7 @@
 ---
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import Button from './Button.astro';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './ProcessingFeedback.module.css';
 
 export interface Props {
@@ -9,7 +10,7 @@ export interface Props {
   value?: number;
   cancellable?: boolean;
   hidden?: boolean;
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { label, status, value, cancellable = true, hidden = false, locale = 'en' } = Astro.props;
@@ -43,9 +44,9 @@ const progress = value === undefined ? undefined : Math.round(Math.min(100, Math
   </div>
   {
     cancellable && (
-      <button type="button" class={styles.cancel} data-processing-cancel>
+      <Button variant="secondary" class={styles.cancel} data-processing-cancel>
         {fileWorkflowMessages[locale].cancel}
-      </button>
+      </Button>
     )
   }
 </section>

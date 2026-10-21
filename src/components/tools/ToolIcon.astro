@@ -1,11 +1,13 @@
 ---
 import type { ToolCategory } from '@/types/tool';
+import Icon from '@noduct/design-system/icons/Icon.astro';
+import { categoryIcon } from '@noduct/design-system/icons/category';
 
 const { category, label } = Astro.props as { category: ToolCategory; label?: string };
 ---
 
 <span class="icon" data-category={category} aria-hidden={label ? undefined : 'true'} aria-label={label}>
-  <svg viewBox="0 0 24 24"><use href={`#tool-icon-${category}`} /></svg>
+  <Icon name={categoryIcon[category]} label={label} />
 </span>
 
 <style>
@@ -16,16 +18,18 @@ const { category, label } = Astro.props as { category: ToolCategory; label?: str
     height: 32px;
     border-radius: var(--radius-sm);
     background: var(--color-surface);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-border-subtle);
+    box-shadow: var(--rim-light-subtle);
     color: var(--color-primary);
     flex-shrink: 0;
     transition:
       background-color var(--duration-fast) var(--ease-apple),
-      border-color var(--duration-fast) var(--ease-apple);
+      border-color var(--duration-fast) var(--ease-apple),
+      color var(--duration-fast) var(--ease-apple);
   }
 
-  svg {
-    width: 17px;
-    height: 17px;
+  .icon :global(svg) {
+    width: 16px;
+    height: 16px;
   }
 </style>

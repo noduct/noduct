@@ -1,0 +1,33 @@
+---
+import styles from './WorkspaceLoading.module.css';
+
+interface Props {
+  variant: 'recents' | 'manager';
+  label: string;
+}
+
+const { variant, label } = Astro.props;
+// Mesmo número de botões de ícone do item real, para a linha de ações ter a largura final.
+const actionCount = variant === 'manager' ? 4 : 3;
+---
+
+<div class={styles.root} data-workspace-loading data-variant={variant} data-view="list">
+  <span class="sr-only" role="status">{label}</span>
+  <div class={styles.items} aria-hidden="true">
+    {Array.from({ length: 3 }, () => (
+      <div class={styles.item}>
+        {variant === 'manager' && <span class={styles.check}></span>}
+        <span class={styles.thumb}></span>
+        <span class={styles.copy}>
+          <span class={styles.name}></span>
+          <span class={styles.line}></span>
+          <span class={styles.short}></span>
+          {variant === 'manager' && <span class={styles.badge}></span>}
+        </span>
+        <span class={styles.actions}>
+          {Array.from({ length: actionCount }, () => <span></span>)}
+        </span>
+      </div>
+    ))}
+  </div>
+</div>

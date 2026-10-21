@@ -1,1 +1,1 @@
-export * from '../../../packages/design-system/src/sponsorship/contracts';
+export * from '@noduct/design-system/sponsorship';

@@ -1,0 +1,17 @@
+.workspace {
+  padding: clamp(var(--space-4), 3vw, var(--space-6));
+}
+
+.content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  align-items: stretch;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+@media (max-width: 599px) {
+  .workspace {
+    padding: var(--space-4);
+  }
+}

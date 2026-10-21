@@ -1,0 +1,14 @@
+---
+import Icon from '../icons/Icon.astro';
+import styles from './SelectionControl.module.css';
+
+interface Props {
+  class?: string | undefined;
+}
+
+const { class: className } = Astro.props;
+---
+
+<button type="button" class:list={[styles.control, className]} aria-pressed="false" data-select-document>
+  <span class={styles.box}><Icon name="check" /></span>
+</button>

@@ -6,7 +6,8 @@
       "@noduct/design-system": ["../design-system/src/index.ts"],
       "@noduct/design-system/*": ["../design-system/*"],
       "@noduct/pdf-core": ["../pdf-core/src/index.ts"],
-      "@noduct/workspace-core": ["../workspace-core/src/index.ts"]
+      "@noduct/workspace-core": ["../workspace-core/src/index.ts"],
+      "@noduct/tool-runtime": ["../tool-runtime/src/index.ts"]
     }
   },
   "include": [".astro/types.d.ts", "**/*"],

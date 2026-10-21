@@ -2,33 +2,41 @@
 import ReorderableItemMarkup from './ReorderableItemMarkup.astro';
 import type { FileListItem } from '../file-workflow/contracts';
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import type { Locale } from '@noduct/tool-runtime';
 import styles from './ReorderableList.module.css';
 
 export interface Props {
   id: string;
   label: string;
   items?: readonly FileListItem[];
-  locale?: DesignLocale;
+  locale?: Locale;
+  /** `grid` mostra cartões com prévia ampliada a partir de 600 px; `list` mantém linhas. */
+  variant?: 'list' | 'grid';
 }
 
-const { id, label, items = [], locale = 'en' } = Astro.props;
+const { id, label, items = [], locale = 'en', variant = 'list' } = Astro.props;
 const instructionsId = `${id}-instructions`;
 ---
 
-<div class={styles.root} data-reorderable-list data-locale={locale}>
+<div class={styles.root} data-reorderable-list data-locale={locale} data-variant={variant}>
   <p id={instructionsId} class={styles.srOnly}>
     {fileWorkflowMessages[locale].reorderInstructions}
   </p>
   <ol id={id} class={styles.list} aria-label={label} tabindex="-1" data-reorder-items>
     {
-      items.map((item) => (
-        <ReorderableItemMarkup item={item} instructionsId={instructionsId} locale={locale} />
+      items.map((item, index) => (
+        <ReorderableItemMarkup
+          item={item}
+          position={index + 1}
+          instructionsId={instructionsId}
+          locale={locale}
+          variant={variant}
+        />
       ))
     }
   </ol>
   <template data-reorder-template>
-    <ReorderableItemMarkup instructionsId={instructionsId} locale={locale} />
+    <ReorderableItemMarkup instructionsId={instructionsId} locale={locale} variant={variant} />
   </template>
   <p class={styles.srOnly} aria-live="polite" data-reorder-status></p>
 </div>

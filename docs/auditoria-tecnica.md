@@ -29,7 +29,7 @@ A suíte anterior cobria desktop e mobile, mas não tablet, todas as rotas, erro
 
 Não havia regressão automatizada para categorias Lighthouse e métricas de laboratório.
 
-**Correção:** adição de `@lhci/cli`, `lighthouserc.cjs`, comando `npm run test:lighthouse` e etapa no workflow de CI. Metas bloqueantes: Performance ≥ 90, Acessibilidade/Best Practices/SEO ≥ 95, LCP ≤ 2,5 s, CLS ≤ 0,1 e TBT ≤ 200 ms.
+**Correção:** adição de `@lhci/cli`, `lighthouserc.cjs`, comando `npx lhci autorun` e etapa no workflow de CI. Metas bloqueantes: Performance ≥ 90, Acessibilidade/Best Practices/SEO ≥ 95, LCP ≤ 2,5 s, CLS ≤ 0,1 e TBT ≤ 200 ms.
 
 ## Resultados
 
@@ -56,17 +56,17 @@ Outras verificações concluídas:
 
 ## GitHub Pages
 
-O hub usa caminhos raiz apropriados ao project site `noduct.github.io/noduct`. O template define `base: /example-tool` e canonical no project site; seus links de retorno ao hub são absolutos. O build do template foi validado anteriormente. Cada ferramenta precisa substituir `example-tool`, publicar em repositório próprio e registrar URL real no catálogo antes do status `published`.
+Esta seção registra a auditoria histórica de 13/10/2026. Desde a issue #39, a topologia prevista é hub na raiz de `noduct.github.io` e ferramenta em `/<slug>/`, derivada de `@noduct/tool-runtime`. O build composto monta o template e as ferramentas em `dist-pages/`; publicação depende do rename autorizado pelo dono. Para o estado atual e a validação, consulte [deploy](deploy-github-pages.md) e [guardrails](guardrails.md).
 
 Não foi encontrado link quebrado interno no hub. A validação externa de Pages, headers HTTP, domínio e project sites permanece pendente até existir deploy autorizado.
 
 ## Comandos de regressão
 
 ```bash
-npm run lint
-npm run typecheck
+npm run check
+npm run check -- types
 npm test
 npm run build
 npm run test:e2e
-npm run test:lighthouse
+npx lhci autorun
 ```

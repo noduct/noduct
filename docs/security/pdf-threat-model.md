@@ -36,8 +36,15 @@ documentos; ambos alteram apenas o impacto de disponibilidade/privacidade.
 - `pdf-core`: valida tamanho/estrutura e chama adaptadores de mutação ou render.
 - Worker PDF: processa buffers e devolve resultado/erros sem bloquear a UI.
 - `workspace-core`: IndexedDB, quota, namespace, expiração e tickets opacos.
-- GitHub Pages: entrega HTML/JS/CSS próprios; `astro.config.mjs` confirma saída
-  estática e base `/noduct`.
+- GitHub Pages: entrega HTML/JS/CSS próprios na origem única definida por
+  `@noduct/tool-runtime`.
+- Todo project site da conta `noduct.github.io` compartilha a mesma origem, o
+  IndexedDB e o `BroadcastChannel`. Somente repositórios confiáveis e revisados
+  podem publicar Pages nessa conta.
+
+  A revisão de publicação precisa verificar a origem de todos os project sites da
+  conta, porque código de qualquer um deles pode acessar o mesmo armazenamento
+  local. O [Contrato de conformidade](../../AGENTS.md#contrato-de-conformidade) exige publicação autorizada e `npm run verify`.
 
 ### Data flows and trust boundaries
 
@@ -139,7 +146,7 @@ P["Static host"] --> T
 | `packages/pdf-core/`       | parser, budget e política de ações PDF | TM-001, TM-002     |
 | `packages/workspace-core/` | IndexedDB, tickets, quota e limpeza    | TM-003, TM-004     |
 | `packages/design-system/`  | preview e nomes exibidos               | TM-002, TM-005     |
-| `astro.config.mjs`         | origem/base/artefato estático          | TM-003             |
+| `packages/tool-runtime/`   | origem/base/artefato estático          | TM-003             |
 | `package.json` e lockfile  | supply chain e scripts de build        | TM-006             |
 | `docs/privacidade.md`      | promessa pública de tratamento local   | TM-002, TM-003     |
 

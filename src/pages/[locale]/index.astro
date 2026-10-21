@@ -1,7 +1,8 @@
 ---
 import HomePage from '@/components/pages/HomePage.astro';
+import { localeStaticPaths } from '@noduct/tool-runtime';
 import type { Locale } from '@/i18n/config';
-export function getStaticPaths() { return [{ params: { locale: 'pt-br' }, props: { locale: 'pt-BR' } }, { params: { locale: 'es' }, props: { locale: 'es' } }]; }
+export const getStaticPaths = localeStaticPaths;
 const { locale } = Astro.props as { locale: Locale };
 ---
 <HomePage locale={locale} />

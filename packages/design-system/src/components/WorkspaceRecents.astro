@@ -1,0 +1,97 @@
+---
+import { topology, type Locale } from '@noduct/tool-runtime';
+import Icon from '../icons/Icon.astro';
+import { resolveWorkspaceUiLocale, workspaceUiMessages } from '../workspace-ui/messages';
+import Button from './Button.astro';
+import Toast from './Toast.astro';
+import WorkspaceFileMeta from './WorkspaceFileMeta.astro';
+import WorkspaceFileTypeIcon from './WorkspaceFileTypeIcon.astro';
+import WorkspaceLoading from './WorkspaceLoading.astro';
+import item from './WorkspaceItem.module.css';
+import styles from './WorkspaceRecents.module.css';
+
+export interface Props {
+  id?: string;
+  locale?: Locale;
+}
+
+const { id = 'workspace-recents', locale = 'en' } = Astro.props;
+const currentLocale = resolveWorkspaceUiLocale(locale);
+const m = workspaceUiMessages[currentLocale];
+const titleId = `${id}-title`;
+const bodyId = `${id}-body`;
+const manageHref = topology.hubPath('workspace/', currentLocale);
+---
+
+<section
+  id={id}
+  class={styles.section}
+  aria-labelledby={titleId}
+  data-workspace-recents
+  data-locale={currentLocale}
+  data-state="intro"
+>
+  <div class={styles.head}>
+    <span class={styles.badge}><Icon name="folder" /></span>
+    <div class={styles.copy}>
+      <h2 id={titleId} class={styles.title}>{m.recentsTitle}</h2>
+      <p class={styles.intro}>{m.recentsIntro}</p>
+    </div>
+    <div class={styles.headActions}>
+      <span class={styles.count} data-recents-count></span>
+      <Button
+        variant="secondary"
+        href={manageHref}
+        iconTrailing="arrow-right"
+        data-recents-link
+      >
+        <span data-recents-link-label data-intro={m.openWorkspace} data-list={m.viewAll}
+          >{m.openWorkspace}</span
+        >
+      </Button>
+      <Button
+        variant="quiet"
+        size="sm"
+        iconOnly
+        icon="chevron-down"
+        class={styles.toggleBtn}
+        aria-expanded="true"
+        aria-controls={bodyId}
+        aria-label={m.collapseRecents}
+        title={m.collapseRecents}
+        data-recents-toggle
+        data-collapse-label={m.collapseRecents}
+        data-expand-label={m.expandRecents}
+      />
+    </div>
+  </div>
+  <div id={bodyId} class={styles.body} data-recents-body>
+    <p class={styles.status} role="status" aria-live="polite" data-recents-status></p>
+    <WorkspaceLoading variant="recents" label={m.loading} />
+    <ul class={styles.list} aria-label={m.recentsLabel} aria-busy="true" hidden data-recents-list></ul>
+  </div>
+  <Toast />
+  <template data-recents-item>
+    <li class={styles.card}>
+      <span class:list={[item.thumb, styles.thumb]} data-thumb><Icon name="file-text" /></span>
+      <span class={styles.text}>
+        <span class={item.nameLine}><WorkspaceFileTypeIcon /><span class={item.name} data-name></span></span>
+        <WorkspaceFileMeta />
+      </span>
+      <span class:list={[item.actions, styles.actions]}>
+        <Button variant="quiet" iconOnly icon="eye" data-action="preview" />
+        <Button variant="quiet" iconOnly icon="download" data-action="download" />
+        <Button variant="danger-quiet" iconOnly icon="trash-2" data-action="delete" />
+      </span>
+    </li>
+  </template>
+  <template data-recents-more>
+    <li class={styles.moreCard}>
+      <a class={styles.moreLink} href={manageHref} data-recents-more-link>
+        <span class={styles.moreNumber} aria-hidden="true" data-recents-more-count></span>
+        <span class={styles.moreLabel} data-recents-more-label></span>
+        <Icon name="arrow-right" />
+      </a>
+    </li>
+  </template>
+</section>

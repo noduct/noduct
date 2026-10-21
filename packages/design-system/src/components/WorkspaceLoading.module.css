@@ -1,0 +1,214 @@
+.root[hidden] {
+  display: none;
+}
+
+/* Só aparece se a leitura demorar: em carregamentos rápidos o esqueleto não pisca. */
+.items {
+  display: grid;
+  gap: var(--space-2);
+  animation: skeleton-in var(--duration-fast) var(--ease-in-out) var(--duration-normal) both;
+}
+
+.item {
+  display: grid;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.thumb,
+.check,
+.name,
+.line,
+.short,
+.badge,
+.actions span {
+  display: block;
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-sunken);
+  animation: skeleton-pulse calc(var(--duration-slow) * 2) var(--ease-in-out) infinite alternate;
+}
+
+@keyframes skeleton-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes skeleton-pulse {
+  to {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .items,
+  .items span {
+    animation: none;
+  }
+}
+
+:global(html[data-motion='reduce']) .items,
+:global(html[data-motion='reduce']) .items span {
+  animation: none;
+}
+
+.thumb {
+  width: 40px;
+  height: 52px;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.check {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  justify-self: center;
+  border: 1px solid var(--color-border-subtle);
+}
+
+/*
+ * Cada barra ocupa a altura da linha de texto real (nome, duas linhas de metadados e selo) e
+ * desenha só o miolo, para o bloco ter a mesma altura do item carregado.
+ */
+.copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name,
+.line,
+.short,
+.badge {
+  box-sizing: border-box;
+  background-clip: content-box;
+}
+
+.name {
+  width: 62%;
+  height: 21px;
+  padding-block: 5px;
+}
+
+.line,
+.short {
+  height: 18px;
+  padding-block: 4px;
+}
+
+.line {
+  width: 85%;
+}
+
+/* As duas linhas de metadados são um só bloco no item real, sem o espaço da grade entre elas. */
+.short {
+  width: 42%;
+  margin-top: -2px;
+}
+
+.badge {
+  width: 30%;
+  height: 15px;
+  padding-block: 4px;
+}
+
+/* Cada marca ocupa o lugar de um botão de ícone real (44 px) e desenha só o miolo. */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.actions span {
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background-clip: content-box;
+}
+
+.root[data-variant='recents'] .items {
+  grid-template-columns: repeat(auto-fill, minmax(min(250px, 100%), 1fr));
+}
+
+.root[data-variant='recents'] .item {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: minmax(52px, 1fr) auto;
+}
+
+.root[data-variant='recents'] .actions {
+  grid-column: 1 / -1;
+  justify-content: flex-end;
+  gap: 0;
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.root[data-variant='manager'] .item {
+  grid-template-columns: 44px 60px minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  padding-left: var(--space-3);
+  border-color: var(--color-border);
+  background: var(--color-surface-card);
+}
+
+.root[data-variant='manager'] .thumb {
+  width: 60px;
+  height: 80px;
+}
+
+.root[data-variant='manager'][data-view='grid'] .items,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .items {
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-3);
+}
+
+.root[data-variant='manager'][data-view='grid'] .item,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .item {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--space-2);
+  padding-left: var(--space-2);
+}
+
+.root[data-variant='manager'][data-view='grid'] .check,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .check {
+  display: none;
+}
+
+.root[data-variant='manager'][data-view='grid'] .thumb,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .thumb {
+  width: 100%;
+  height: auto;
+  box-sizing: border-box;
+  aspect-ratio: 3 / 4;
+}
+
+.root[data-variant='manager'][data-view='grid'] .copy,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .copy {
+  padding-inline: var(--space-1);
+}
+
+.root[data-variant='manager'][data-view='grid'] .actions,
+:global(html[data-workspace-view='grid']) .root[data-variant='manager'] .actions {
+  justify-content: space-between;
+  padding-top: var(--space-1);
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+@media (max-width: 720px) {
+  .root[data-variant='manager'][data-view='list'] .item {
+    grid-template-columns: 44px 60px minmax(0, 1fr);
+  }
+
+  .root[data-variant='manager'][data-view='list'] .actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+}

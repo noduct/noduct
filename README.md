@@ -8,34 +8,48 @@
 
 # Noduct
 
-Noduct is a suite of fast, private utilities for documents, images, text, data, and everyday work. Processing happens locally in the browser: no account, no upload pipeline, and no server handling your files.
+**Noduct** is an open-source, privacy-first web tools suite designed for corporate and routine workflows. Built entirely on client-side technology, it provides essential utilities for documents, images, data, and everyday tasks without data ingestion, server storage, or user telemetry.
 
-## Principles
+> **Zero-Duct Architecture:** Data never leaves your machine. Processing takes place strictly inside your browser session, eliminating data exfiltration risks and regulatory compliance concerns.
 
-- **100% client-side:** Web APIs and browser storage keep work on your device whenever practical.
-- **Clear privacy:** Every tool must accurately describe its processing behavior.
-- **Accessible by default:** Semantic HTML, keyboard support, visible focus, contrast, and reduced-motion support are baseline requirements.
-- **Static and lightweight:** The hub is built with Astro and ships essential content without JavaScript.
+---
 
-## Workspace
+## Key Features
 
-```text
-noduct/
-├── src/                    # Astro hub
-├── packages/design-system/ # Reusable UI primitives and tokens
-├── packages/tool-template/ # Standalone tool foundation
-└── docs/                   # Architecture and operating documentation
-```
+- **100% Client-Side Processing:** All computations run locally using modern Web APIs and isolated browser storage. Files and payloads are never sent to external servers.
+- **Zero Telemetry & Tracking:** No user tracking, no session recording, and no analytic data collection. Your workflows remain completely confidential.
+- **No Storage Footprint:** Operates without persistent server-side storage or user accounts. Session data stays ephemeral and strictly under user control.
+- **Public & Auditable Source:** The codebase is open source and publicly inspectable, providing complete transparency into all processing routines.
+- **Enterprise-Ready Privacy:** Eliminates intermediary cloud processing vectors, simplifying compliance with corporate data protection policies and regulations (GDPR, LGPD).
+- **Universal Accessibility:** Built according to accessibility standards (WCAG), featuring full keyboard navigation, high contrast, and reduced-motion compliance.
 
-## Development
+## Core Capabilities
 
-```bash
-npm install
-npm run dev
-npm run validate
-```
+- **Document & PDF Tools:** Merge, split, organize, and inspect documents locally.
+- **Image Operations:** Optimize, resize, convert, and inspect images without third-party exposure.
+- **Data & Text Utilities:** Format, validate, and manipulate text and structured data in real time.
+- **Routine Productivity:** Lightweight, distraction-free utilities designed to streamline operational tasks.
 
-See [DEVELOPMENT.md](DEVELOPMENT.md) for local setup and [docs/arquitetura.md](docs/arquitetura.md) for the technical architecture.
+## Security & Privacy Commitment
+
+| Attribute | Implementation |
+| :--- | :--- |
+| **Data Ingestion** | None. Zero uploads to external servers. |
+| **Server Storage** | None. No cloud database or persistent file storage. |
+| **User Telemetry** | None. No trackers, telemetry, or analytics scripts. |
+| **Authentication** | None required. Instant access without accounts or credentials. |
+| **Source Transparency** | Fully open source. Publicly auditable code. |
+| **Execution Environment** | Client-side sandbox (Browser Web APIs & WebAssembly). |
+
+---
+
+## Open Source & Contribution Policy
+
+Noduct is distributed under the [MIT License](LICENSE). The entire source code is public and open for inspection, enabling users and organizations to independently audit and verify its security, privacy, and client-side execution models.
+
+> **Contribution Policy:** Noduct is maintained as a focused, self-contained suite. While anyone is welcome to inspect, audit, or fork the repository under the terms of the MIT License, this project **does not accept external contributions or pull requests**.
+
+---
 
 ## License
 

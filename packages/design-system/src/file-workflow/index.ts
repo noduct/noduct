@@ -13,8 +13,10 @@ export {
   type ProcessingUpdate
 } from './processing-feedback-runtime';
 export {
+  DOWNLOAD_READY_EVENT,
   getDownloadCard,
   initializeDownloadCards,
   type DownloadCardController,
-  type DownloadResult
+  type DownloadResult,
+  type SaveToWorkspace
 } from './download-card-runtime';

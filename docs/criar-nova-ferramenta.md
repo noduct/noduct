@@ -1,38 +1,29 @@
 # Criar uma nova ferramenta
 
-## 1. Iniciar
-
-Crie um repositório a partir de `packages/tool-template` e use um slug inglês curto, por exemplo `word-counter`.
+## 1. Gerar
 
 ```bash
-cp -R packages/tool-template ../word-counter
-cd ../word-counter
-npm install
-npm run dev
+npm run new:tool -- <slug> --category <id>
 ```
 
-## 2. Configurar
+Use um slug inglês em kebab-case e um ID de categoria de `CATEGORY_IDS`. O comando recusa slugs reservados, já usados no catálogo ou existentes em `packages/`, sem alterar arquivos. Ele copia `packages/tool-template`, declara `noduct.slug` no pacote, configura `defineTool()`, cria a entrada `planned` no catálogo e adiciona traduções iniciais.
 
-Troque nome do pacote, `site`, `base`, nome, slug, categoria, descrição, canonical e aviso de privacidade. O `base` deve ser `/<slug>`. Preserve `noindex` enquanto for demonstração.
+O gerador executa `npm install` e `npm run check`. A checagem acusa `TODO(i18n)` até que textos de en, pt-BR e es sejam traduzidos e revisados. Substitua também a lógica demonstrativa do template pela funcionalidade real.
 
-## 3. Implementar
+## 2. Implementar
 
-Coloque a função antes de textos longos. Implemente estados idle/loading/success/error, entradas adequadas, preview/download quando necessário e limites explícitos. Se usar arquivos, teste drag and drop, múltiplos arquivos e memória. Reuse tokens do design system.
+Mantenha o slug em `src/config.ts` e no manifesto do pacote. Origem, base, canonical, hreflang, links do hub e registry vêm de `topology`. Use `AppShell` e `ToolPage` do design system, processamento local e mensagens honestas sobre privacidade. No slot `content`, o primeiro card é o guia da ferramenta (`ToolInfoCard` + i18n próprio); os outros dois são sempre `ToolSharedInfo` (limites do orçamento e privacidade compartilhados). O catálogo tipado decide o status público: enquanto `planned`, o hub não publica link operacional.
 
-## 4. Conteúdo e SEO
+Ferramentas que recebem ou produzem arquivos seguem a [Área de Trabalho Local híbrida](adr/0006-hybrid-local-workspace.md): declare os formatos aceitos pela ferramenta de maneira limpa em `src/config.ts` via `defineTool({ slug, category, accept, ... })` (ou use o default automático da categoria em `CATEGORY_DEFAULT_ACCEPT`), passe `accept={tool.accept}` para a `DropZone` com `workspace={{ confirmLabel }}`, configure o `DownloadCard` com `workspace={{ sourceTool: tool.slug }}` e ligue tudo no script com `connectLocalWorkspace(document, createWorkspaceServices({ loadWorkspace, loadRenderer }))`. Enquanto a página `/workspace/` aceita formatos livres, a `DropZone` e o `WorkspacePicker` dentro da ferramenta restringem a seleção apenas aos arquivos compatíveis com `tool.accept`. Arquivos das duas origens chegam pelo mesmo evento `noduct:files`. O template já demonstra o fluxo.
 
-Escreva title e description próprios, um H1, instruções reais, limitações, privacidade e FAQ somente quando útil. Adicione BreadcrumbList e SoftwareApplication apenas com propriedades verdadeiras. Remova `noindex` no lançamento.
+Forneça title, description, um H1, canonical autorreferente, hreflang recíproco e JSON-LD verdadeiro. Traduza interface, erros e anúncios para os três idiomas. Componentes visuais reutilizáveis pertencem ao design system; páginas Astro apenas compõem a ferramenta.
 
-## 5. Patrocínio
-
-Use o placement `<slug>-primary` depois da área funcional. Sem registro ativo, não reserve vazio. Nunca misture dados financeiros à configuração pública.
-
-## 6. Testar e publicar
+## 3. Validar
 
 ```bash
-npm run typecheck
-npm run build
-npx playwright test
+npm run verify
 ```
 
-Configure Pages no repositório, valide `https://noduct.github.io/<slug>/`, sitemap e canonical. Então adicione URL e repositoryUrl ao catálogo do hub, mude status para `published`, escolha `featured` manualmente e rode `npm run validate`. Confira links e envie o sitemap próprio ao Search Console.
+O `build` descobre o pacote automaticamente pelo campo `noduct.slug`, monta `/<slug>/` em `dist-pages/` e o teste de paridade o inclui automaticamente quando o slug também consta no catálogo. `verify` valida contratos, páginas, SEO e Playwright sem recompilar ferramentas no E2E.
+
+Antes de declarar pronto, confira o [Contrato de conformidade](../AGENTS.md#contrato-de-conformidade) e a skill [noduct-new-tool](../.agents/skills/noduct-new-tool/SKILL.md). A nova ferramenta recebe um `AGENTS.md` local gerado e `CLAUDE.md` somente como ponteiro, além de entrar na paridade por descoberta. Não acrescente scripts ou slugs ao manifesto raiz.

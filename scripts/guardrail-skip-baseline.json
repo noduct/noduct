@@ -1,0 +1,14 @@
+[
+  {
+    "path": "tests/e2e/artwork.spec.ts",
+    "marker": "test.skip(testInfo.project.name !== 'desktop'",
+    "count": 2,
+    "reason": "Artwork visual is only compared in the desktop project."
+  },
+  {
+    "path": "tests/e2e/shell-baseline.spec.ts",
+    "marker": "test.skip(Boolean(process.env.CI)",
+    "count": 1,
+    "reason": "Migration baseline is Windows-only; shell-parity.spec.ts is the continuous CI check."
+  }
+]

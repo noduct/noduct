@@ -1,53 +1,86 @@
 :root {
   /* Brand & Accents */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-strong: #1e40af;
-  --color-primary-soft: #eff6ff;
+  --color-primary: #1d58d8;
+  --color-primary-hover: #1849b8;
+  --color-primary-strong: #173da6;
+  /* Fundo de botão sólido com texto `--color-on-primary` (branco): AA nos dois temas. */
+  --color-action-primary: #1d58d8;
+  --color-action-primary-hover: #1849b8;
+  --color-action-danger: #b91c1c;
+  --color-action-danger-hover: #991b1b;
+  --color-primary-soft: #edf4ff;
 
-  /* Surfaces & Canvas */
-  --color-background: #ffffff;
-  --color-surface: #f8f9fb;
+  /* Surfaces & Canvas (Warm Alabaster & Crisp Porcelain) */
+  --color-background: #fafaf9;
+  --color-surface: #f4f4f2;
   --color-surface-card: #ffffff;
-  --color-surface-hover: #f1f3f6;
+  --color-surface-hover: #ebebea;
+  --color-surface-sunken: #efeeec;
+  --color-surface-alt: #efeeec;
 
   /* Borders & Dividers */
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1;
-  --color-border-subtle: #edf2f7;
+  --color-border: #e4e4e0;
+  --color-border-strong: #cfcfc9;
+  --color-border-subtle: #ededeb;
 
   /* Typography (WCAG AA compliant) */
-  --color-text: #0f172a;           /* Ratio ~15:1 */
-  --color-text-secondary: #475569; /* Ratio ~7.5:1 */
-  --color-text-muted: #596780;     /* Ratio ~5.1:1 */
+  --color-text: #121316; /* Ratio ~16.9:1 on surface, 18.6:1 on card */
+  --color-text-secondary: #454852; /* Ratio ~8.3:1 on surface, 9.1:1 on card */
+  --color-text-muted: #5d616e; /* Ratio ~5.6:1 on surface, 6.2:1 on card */
 
   /* Functional */
-  --color-focus: #2563eb;
-  --color-focus-ring: rgba(37, 99, 235, 0.28);
-  --color-success: #15803d;
+  --color-focus: #1d58d8;
+  --color-focus-ring: rgba(29, 88, 216, 0.26);
+  --color-success: #137535;
   --color-error: #b91c1c;
+  --color-danger: var(--color-error);
+  --color-on-primary: #ffffff;
+  --color-brand-support: #9a4204;
+  --color-overlay: rgba(9, 9, 11, 0.58);
+  --color-danger-soft: rgba(185, 28, 28, 0.08);
+  --color-success-soft: rgba(19, 117, 53, 0.1);
+  --color-success-border: rgba(19, 117, 53, 0.28);
+  --color-warning: #9a4204;
+  --color-warning-soft: rgba(154, 66, 4, 0.1);
+  --color-warning-border: rgba(154, 66, 4, 0.28);
+  --color-text-muted-soft: color-mix(in srgb, var(--color-text-muted) 10%, transparent);
+  --color-primary-border-soft: color-mix(in srgb, var(--color-primary) 30%, transparent);
+  --color-primary-border-active: color-mix(in srgb, var(--color-primary) 40%, var(--color-border));
+  --color-error-soft-hover: color-mix(in srgb, var(--color-error) 8%, transparent);
+  --color-mask-opaque: #000000;
+  --brand-mark-primary: var(--color-primary);
+  --brand-mark-lock: var(--color-success);
 
   /* Apple-inspired Layered Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 1px 3px -1px rgba(15, 23, 42, 0.03);
-  --shadow-lg: 0 12px 28px -4px rgba(15, 23, 42, 0.08), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
-  --shadow-card-hover: 0 8px 24px -2px rgba(15, 23, 42, 0.07), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 2px 0 rgba(18, 19, 22, 0.04);
+  --shadow-md: 0 2px 6px -1px rgba(18, 19, 22, 0.06), 0 1px 3px -1px rgba(18, 19, 22, 0.03);
+  --shadow-lg: 0 12px 28px -4px rgba(18, 19, 22, 0.08), 0 4px 8px -2px rgba(18, 19, 22, 0.03);
+  --shadow-card-hover:
+    0 8px 24px -2px rgba(18, 19, 22, 0.07), 0 2px 6px -1px rgba(18, 19, 22, 0.04);
+  --shadow-popover: 0 16px 40px -8px rgba(0, 0, 0, 0.28);
+  --shadow-switch-thumb: 0 1px 2px rgba(18, 19, 22, 0.22);
+  --shadow-inset-subtle: inset 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-key: 0 1px 1px rgba(0, 0, 0, 0.05);
+  --shadow-focus-ring: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring);
+  --shadow-focus-footer: 0 0 0 1.5px var(--color-surface), 0 0 0 3.5px var(--color-focus-ring);
+  --shadow-border: 0 0 0 1px var(--color-border);
 
   /* Rim Light / Specular Edge Highlight (Polimento Ótico Apple) */
-  --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
-  --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+  --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  --rim-light-strong: inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
 
   /* Apple Motion Timing & Easing Curves */
-  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);       /* Deceleração quintic fluida Apple */
+  --ease-apple: cubic-bezier(0.16, 1, 0.3, 1); /* Deceleração quintic fluida Apple */
   --ease-apple-spring: cubic-bezier(0.175, 0.885, 0.32, 1.15); /* Micro-ressalto mecânico */
   --ease-out-quad: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* Motion Durations */
-  --duration-instant: 100ms;  /* Feedback de clique / :active */
-  --duration-fast: 180ms;     /* Hovers, ícones, cores */
-  --duration-normal: 260ms;   /* Modais, expansões, cards */
-  --duration-slow: 400ms;     /* Transições de página e gavetas */
+  --duration-instant: 100ms; /* Feedback de clique / :active */
+  --duration-fast: 180ms; /* Hovers, ícones, cores */
+  --duration-normal: 260ms; /* Modais, expansões, cards */
+  --duration-slow: 400ms; /* Transições de página e gavetas */
 
   /* Scale Press Ratios */
   --scale-active-button: 0.98;
@@ -59,7 +92,20 @@
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
+  --radius-pill: 9999px;
+  --radius-switch: 999px;
+  --radius-circle: 50%;
   --content-width: 1280px;
+  --layout-max-width: var(--content-width);
+  --layout-padding: 1rem;
+  --icon-stroke: 1.75;
+  --z-artwork: 0;
+  --z-sticky: 15;
+  --z-header: 30;
+  --z-popover: 40;
+  --z-drawer: 50;
+  --z-modal: 60;
+  --z-search: 999;
 
   /* Shared spacing and sponsorship geometry */
   --space-1: 0.25rem;
@@ -73,74 +119,118 @@
 
   /* Custom Scrollbar Tokens */
   --scrollbar-width: 8px;
-  --scrollbar-thumb: rgba(100, 116, 139, 0.32);
-  --scrollbar-thumb-hover: rgba(100, 116, 139, 0.55);
+  --scrollbar-thumb: rgba(93, 97, 110, 0.3);
+  --scrollbar-thumb-hover: rgba(93, 97, 110, 0.52);
   --scrollbar-track: transparent;
 }
 
 [data-theme='dark'] {
-  --color-primary: #3b82f6;
-  --color-primary-hover: #60a5fa;
-  --color-primary-strong: #93c5fd;
-  --color-primary-soft: rgba(59, 130, 246, 0.18);
+  --color-primary: #5294ff;
+  --color-primary-hover: #73abff;
+  --color-primary-strong: #9cc3ff;
+  --color-action-primary: #1d58d8;
+  --color-action-primary-hover: #1849b8;
+  --color-action-danger: #dc2626;
+  --color-action-danger-hover: #b91c1c;
+  --color-primary-soft: rgba(59, 130, 246, 0.14);
 
-  --color-background: #0b0f17;
-  --color-surface: #111827;
-  --color-surface-card: #161f30;
-  --color-surface-hover: #1f2c42;
+  /* Surfaces & Canvas (Obsidian & Carbon Graphite — non-blue) */
+  --color-background: #09090b;
+  --color-surface: #0e0e11;
+  --color-surface-card: #141418;
+  --color-surface-hover: #1c1c21;
+  --color-surface-sunken: #0b0b0e;
+  --color-surface-alt: #1c1c21;
 
-  --color-border: #28374d;
-  --color-border-strong: #3b4c66;
-  --color-border-subtle: #1e293b;
+  /* Borders & Dividers */
+  --color-border: #26262c;
+  --color-border-strong: #383842;
+  --color-border-subtle: #1c1c21;
 
-  --color-text: #f8fafc;           /* Ratio ~16:1 */
-  --color-text-secondary: #cbd5e1; /* Ratio ~10.9:1 */
-  --color-text-muted: #94a3b8;     /* Ratio ~6.4:1 */
+  /* Typography (WCAG AA compliant) */
+  --color-text: #f4f4f6; /* Ratio ~17.5:1 on surface */
+  --color-text-secondary: #c2c2ca; /* Ratio ~10.9:1 on surface */
+  --color-text-muted: #9696a1; /* Ratio ~6.6:1 on surface, >=4.9:1 on primary-soft */
 
-  --color-focus: #60a5fa;
-  --color-focus-ring: rgba(96, 165, 250, 0.32);
+  --color-focus: #5294ff;
+  --color-focus-ring: rgba(82, 148, 255, 0.32);
   --color-success: #4ade80;
   --color-error: #f87171;
+  --color-danger: var(--color-error);
+  --color-brand-support: #fbbf24;
+  --color-danger-soft: rgba(248, 113, 113, 0.14);
+  --color-success-soft: rgba(74, 222, 128, 0.14);
+  --color-success-border: rgba(74, 222, 128, 0.3);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgba(251, 191, 36, 0.14);
+  --color-warning-border: rgba(251, 191, 36, 0.3);
 
-  --scrollbar-thumb: rgba(148, 163, 184, 0.3);
-  --scrollbar-thumb-hover: rgba(148, 163, 184, 0.58);
+  --scrollbar-thumb: rgba(150, 150, 161, 0.28);
+  --scrollbar-thumb-hover: rgba(150, 150, 161, 0.54);
   --scrollbar-track: transparent;
 
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 14px 34px 0 rgba(0, 0, 0, 0.7);
-  --shadow-card-hover: 0 8px 26px 0 rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.65);
+  --shadow-lg: 0 14px 34px 0 rgba(0, 0, 0, 0.8);
+  --shadow-card-hover: 0 8px 26px 0 rgba(0, 0, 0, 0.75);
 
   /* Rim Light no modo escuro (borda interna translúcida que simula vidro biselado) */
-  --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
   --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+  --rim-light-strong: inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-primary: #3b82f6;
-    --color-primary-hover: #60a5fa;
-    --color-primary-strong: #93c5fd;
-    --color-primary-soft: rgba(59, 130, 246, 0.18);
+    --color-primary: #5294ff;
+    --color-primary-hover: #73abff;
+    --color-primary-strong: #9cc3ff;
+    --color-action-primary: #1d58d8;
+    --color-action-primary-hover: #1849b8;
+    --color-action-danger: #dc2626;
+    --color-action-danger-hover: #b91c1c;
+    --color-primary-soft: rgba(59, 130, 246, 0.14);
 
-    --color-background: #0b0f17;
-    --color-surface: #111827;
-    --color-surface-card: #161f30;
-    --color-surface-hover: #1f2c42;
+    --color-background: #09090b;
+    --color-surface: #0e0e11;
+    --color-surface-card: #141418;
+    --color-surface-hover: #1c1c21;
+    --color-surface-sunken: #0b0b0e;
+    --color-surface-alt: #1c1c21;
 
-    --color-border: #28374d;
-    --color-border-strong: #3b4c66;
-    --color-border-subtle: #1e293b;
+    --color-border: #26262c;
+    --color-border-strong: #383842;
+    --color-border-subtle: #1c1c21;
 
-    --color-text: #f8fafc;
-    --color-text-secondary: #cbd5e1;
-    --color-text-muted: #94a3b8;
+    --color-text: #f4f4f6;
+    --color-text-secondary: #c2c2ca;
+    --color-text-muted: #9696a1;
 
-    --color-focus: #60a5fa;
-    --color-focus-ring: rgba(96, 165, 250, 0.32);
+    --color-focus: #5294ff;
+    --color-focus-ring: rgba(82, 148, 255, 0.32);
+    --color-success: #4ade80;
+    --color-error: #f87171;
+    --color-danger: var(--color-error);
+    --color-brand-support: #fbbf24;
+    --color-danger-soft: rgba(248, 113, 113, 0.14);
+    --color-success-soft: rgba(74, 222, 128, 0.14);
+    --color-success-border: rgba(74, 222, 128, 0.3);
+    --color-warning: #fbbf24;
+    --color-warning-soft: rgba(251, 191, 36, 0.14);
+    --color-warning-border: rgba(251, 191, 36, 0.3);
 
-    --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    --scrollbar-thumb: rgba(150, 150, 161, 0.28);
+    --scrollbar-thumb-hover: rgba(150, 150, 161, 0.54);
+    --scrollbar-track: transparent;
+
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.65);
+    --shadow-lg: 0 14px 34px 0 rgba(0, 0, 0, 0.8);
+    --shadow-card-hover: 0 8px 26px 0 rgba(0, 0, 0, 0.75);
+
+    --rim-light: inset 0 1px 0 0 rgba(255, 255, 255, 0.07);
     --rim-light-subtle: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
+    --rim-light-strong: inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
   }
 }
 

@@ -1,0 +1,5 @@
+---
+import AppShell from '@noduct/design-system/shell/AppShell.astro';
+---
+<!-- <AppShell /> -->
+<main />

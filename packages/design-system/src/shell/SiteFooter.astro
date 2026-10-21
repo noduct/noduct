@@ -1,0 +1,69 @@
+---
+import { topology, type Locale } from '@noduct/tool-runtime';
+import BrandMark from './BrandMark.astro';
+import Icon from '../icons/Icon.astro';
+import Button from '../components/Button.astro';
+import { getShellMessages } from './messages';
+import styles from './Footer.module.css';
+
+const { locale = 'en', supportUrl: rawSupportUrl } = Astro.props as { locale?: Locale; supportUrl?: string };
+const m = getShellMessages(locale);
+let supportUrl: string | undefined;
+if (rawSupportUrl) {
+  const parsed = new URL(rawSupportUrl);
+  if (parsed.protocol !== 'https:') throw new Error('The support URL must use HTTPS.');
+  supportUrl = parsed.href;
+}
+---
+
+<footer class={styles.footer}>
+  <div class:list={['container', styles.footerGrid]}>
+    <div class={styles.brandCol}>
+      <div class={styles.brandRow}>
+        <span class={styles.brandMark} aria-hidden="true">
+          <BrandMark size={24} />
+        </span>
+        <strong class={styles.brandTitle}>Noduct</strong>
+      </div>
+      <p class={styles.tagline}>{m.footer.tagline}</p>
+    </div>
+
+    <nav aria-label={m.nav.footer} class={styles.nav}>
+      <a href={topology.hubPath('tools/', locale)}>{m.nav.allTools}</a>
+      <a href={topology.hubPath('about/', locale)}>{m.nav.about}</a>
+      <a href={topology.hubPath('sponsor/', locale)}>{m.nav.sponsor}</a>
+      <a href={topology.hubPath('contact/', locale)}>{m.nav.contact}</a>
+      <a href={topology.hubPath('privacy/', locale)}>{m.nav.privacy}</a>
+      <a href={topology.hubPath('terms/', locale)}>{m.nav.terms}</a>
+    </nav>
+
+    {
+      supportUrl && (
+        <aside class={styles.support} aria-label={m.footer.supportLink}>
+          <div class={styles.supportHeader}>
+            <span class={styles.supportBadge} aria-hidden="true">
+              <Icon class={styles.supportBadgeIcon} name="coffee" />
+            </span>
+            <p class={styles.supportPrompt}>{m.footer.supportPrompt}</p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            class={styles.supportLink}
+            href={supportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            ariaLabel={m.footer.supportAriaLabel}
+          >
+            <Icon class={styles.supportIcon} name="coffee" />
+            <span>{m.footer.supportLink}</span>
+            <Icon class={styles.supportArrow} name="arrow-up-right" />
+          </Button>
+        </aside>
+      )
+    }
+  </div>
+  <div class:list={['container', styles.legal]}>
+    <p>{m.footer.legal(new Date().getFullYear())}</p>
+  </div>
+</footer>

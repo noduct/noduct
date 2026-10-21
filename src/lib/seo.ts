@@ -1,5 +1,5 @@
-import { siteConfig } from '@/config/site';
-import { assetPath, localizePath, type Locale } from '@/i18n/config';
+import { fullTitle, HUB_SCOPE, pageSeo, topology } from '@noduct/tool-runtime';
+import type { Locale } from '@/i18n/config';
 
 export interface SeoMetadata {
   title: string;
@@ -18,12 +18,14 @@ export function createSeoMetadata(
   noindex = false,
   locale: Locale = 'en'
 ): SeoMetadata {
+  const parsed = topology.parse(pathname.startsWith('/') ? pathname : `/${pathname}`);
+  const path = parsed?.scope.kind === 'hub' ? parsed.path : '';
   return {
     title,
-    fullTitle: title.includes('Noduct') ? title : `${title} | Noduct`,
+    fullTitle: fullTitle(title),
     description,
-    canonical: new URL(localizePath(pathname, locale), siteConfig.url),
-    image: new URL(assetPath(image), siteConfig.url),
+    canonical: new URL(pageSeo(HUB_SCOPE, path, locale).canonical),
+    image: new URL(topology.hubAssetUrl(image.replace(/^\/+/, ''))),
     noindex
   };
 }

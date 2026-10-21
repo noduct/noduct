@@ -1,0 +1,26 @@
+# Guardrail changes require review by the repository owner.
+/guardrails.config.ts @noduct
+/package.json @noduct
+/**/eslint.config.* @noduct
+/**/stylelint.config.* @noduct
+/**/tsconfig*.json @noduct
+/**/astro.config.* @noduct
+/**/vitest.config.* @noduct
+/**/playwright*.config.* @noduct
+/eslint.config.js @noduct
+/stylelint.config.mjs @noduct
+/eslint-rules/ @noduct
+/scripts/check-guardrail-ratchet.ts @noduct
+/scripts/guardrail-skip-baseline.json @noduct
+/scripts/check-scripts.ts @noduct
+/scripts/check-agents.ts @noduct
+/scripts/validate-ui.ts @noduct
+/scripts/validate-architecture.ts @noduct
+/scripts/cli/check.ts @noduct
+/scripts/cli/verify.ts @noduct
+/scripts/cli/ratchet-base.ts @noduct
+/scripts/*-formatter.mjs @noduct
+/tests/e2e/shell-parity.spec.ts @noduct
+/.github/workflows/ @noduct
+/playwright.config.ts @noduct
+/tsconfig.json @noduct

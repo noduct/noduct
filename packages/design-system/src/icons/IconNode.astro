@@ -1,0 +1,12 @@
+---
+import type { IconNode } from 'lucide';
+
+const { nodes } = Astro.props as { nodes: IconNode };
+---
+
+{
+  nodes.map(([tag, attributes]) => {
+    const Element = tag;
+    return <Element {...attributes} />;
+  })
+}

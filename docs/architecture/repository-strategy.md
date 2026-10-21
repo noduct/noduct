@@ -42,3 +42,16 @@ importa Astro, `window` ou `document`.
 5. Remover o pacote local apenas depois de não haver consumidores workspace.
 
 Não criar repositório remoto nem publicar pacote como parte desta decisão.
+
+## Estado atual e extração do monorepo
+
+Este repositório é um workspace transitório com hub, pacotes compartilhados, template e ferramentas, para evoluir contratos em conjunto antes da separação ([ADR 0003](../adr/0003-package-and-repository-strategy.md)). Cada área tem `AGENTS.md` local; `npm run check -- agents` verifica a hierarquia e `npm run check -- architecture` verifica a direção dos imports descrita no [mapa de pacotes](README.md).
+
+Para extrair um pacote:
+
+1. Crie o repositório e copie o pacote, preservando o histórico com `git subtree split` se desejado.
+2. Publique o pacote ou referencie uma versão Git fixa.
+3. Troque as dependências de workspace por versões publicadas.
+4. Rode `npm run verify` nos repositórios envolvidos.
+
+Cada ferramenta extraída publica em `/<slug>/` da mesma origem; o hub nunca gera uma página substituta para ela. Workflows e configurações remotas são ativados só no repositório correto e após revisão. Criar repositórios é ação do dono.

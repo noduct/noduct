@@ -1,0 +1,89 @@
+/*
+ * Peças comuns dos itens da Área Local (página e home): miniatura, selo de retenção e botões de
+ * ícone. Nenhuma transição de hover usa transform no item, para não haver tremor sob o mouse.
+ */
+.thumb {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-muted);
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.thumb[data-ready] > svg {
+  display: none;
+}
+
+.nameLine {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  max-width: 100%;
+  margin-top: 2px;
+  padding: 1px var(--space-2);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 550;
+  line-height: 1.4;
+}
+
+.badge[data-kept='true'] {
+  border-color: var(--color-primary-border-soft);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+/* Retenção: ampulheta = temporário; relógio cortado (pressionado) = mantido neste dispositivo. */
+.kept,
+.temporary {
+  display: none;
+}
+
+[data-kept='false'] > .temporary,
+[data-kept='true'] > .kept {
+  display: inline;
+}

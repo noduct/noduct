@@ -1,11 +1,12 @@
 ---
 import ToolIcon from './ToolIcon.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
 import ToolCard from './ToolCard.astro';
 import { getCategory } from '@/data/categories';
 import type { ToolDefinition } from '@/types/tool';
 import { getMessages } from '@/i18n/messages';
-import { localizePath, type Locale } from '@/i18n/config';
-import popover from '@/components/ui/Popover.module.css';
+import type { Locale } from '@/i18n/config';
+import popover from '@noduct/design-system/shell/Popover.module.css';
 
 interface Props {
   tools: ToolDefinition[];
@@ -18,112 +19,129 @@ const { tools, compact = false, showDirectory = false, locale = 'en' } = Astro.p
 const m = getMessages(locale);
 ---
 
-<div class="search" data-tool-search data-compact={compact ? 'true' : 'false'} data-one-result={m.search.oneResult} data-many-results={m.search.results}>
-  <label for="tool-search" class="sr-only">{m.search.label}</label>
-  <div class="input-wrap">
-    <svg class="search-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <path d="M9 15A6 6 0 1 0 9 3a6 6 0 0 0 0 12zM16 16l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-    <input
-      id="tool-search"
-      type="search"
-      placeholder={m.search.placeholder}
-      autocomplete="off"
-      spellcheck="false"
-      role="combobox"
-      aria-expanded="false"
-      aria-autocomplete="list"
-      aria-controls="search-dropdown-menu"
-      aria-describedby="search-help search-status"
-    />
-    <kbd aria-hidden="true">Ctrl K</kbd>
-  </div>
-  <small id="search-help" class="sr-only">{m.search.help}</small>
-  <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
-
-  <!-- Menu Select Flutuante em Live Search (Apple Spotlight Style) -->
-  <div id="search-dropdown-menu" class:list={[popover.panel, 'search-dropdown']} data-dropdown hidden>
-    <div class={popover.header}>
-      <span class={popover.title}>{m.search.suggested}</span>
-      <span class="dropdown-count" data-count-badge>0 {m.search.results}</span>
+<div
+  class="search"
+  data-tool-search
+  data-compact={compact ? 'true' : 'false'}
+  data-one-result={m.search.oneResult}
+  data-many-results={m.search.results}
+>
+  <div class="search-box">
+    <label for="tool-search" class="sr-only">{m.search.label}</label>
+    <div class="input-wrap">
+      <Icon class="search-icon" name="search" />
+      <input
+        id="tool-search"
+        type="search"
+        placeholder={m.search.placeholder}
+        autocomplete="off"
+        spellcheck="false"
+        role="combobox"
+        aria-expanded="false"
+        aria-autocomplete="list"
+        aria-controls="search-dropdown-menu"
+        aria-describedby="search-help search-status"
+      />
+      <kbd aria-hidden="true">{m.search.shortcut}</kbd>
     </div>
+    <small id="search-help" class="sr-only">{m.search.help}</small>
+    <p id="search-status" class="sr-status" role="status" aria-live="polite"></p>
 
-    <ul class="dropdown-list" role="listbox" data-dropdown-list></ul>
+    <!-- Menu Select Flutuante em Live Search (Padrão Popover + Inset Grouped) -->
+    <div
+      id="search-dropdown-menu"
+      class:list={[popover.panel, 'search-dropdown']}
+      data-dropdown
+      hidden
+    >
+      <div class={popover.header}>
+        <span class={popover.title}>{m.search.suggested}</span>
+        <span class={popover.badge} data-count-badge>0 {m.search.results}</span>
+      </div>
 
-    <!--
-      Itens da busca em <template>: conteúdo inerte (fora do cálculo de estilo e layout) até o
-      primeiro uso. Metade do DOM da página ficava aqui, escondida, em todo carregamento.
-    -->
-    <template data-dropdown-items>
-      {tools.map((tool) => {
-        const cat = getCategory(tool.category, locale);
-        const url = tool.url || localizePath(tool.directoryUrl || `/tools/${tool.id}/`, locale);
-        const isClickable = tool.status === 'published' || tool.status === 'beta' || tool.status === 'ready';
+      <div class={popover.body}>
+        <div class={popover.card}>
+          <ul class="dropdown-list" role="listbox" data-dropdown-list></ul>
 
-        return (
-          <li
-            class="dropdown-item"
-            role="option"
-            data-search-item
-            data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
-            data-url={url}
-            data-clickable={isClickable ? 'true' : 'false'}
-            hidden
-          >
-            <a
-              href={isClickable ? url : undefined}
-              class="item-link"
-              tabindex="-1"
-            >
-              <span class="item-icon-box" aria-hidden="true">
-                <ToolIcon category={tool.category} />
-              </span>
-              <div class="item-body">
-                <div class="item-head">
-                  <span class="item-title">{tool.name}</span>
-                  <span class="item-category">{cat?.name}</span>
-                </div>
-                <p class="item-desc">{tool.description}</p>
-              </div>
-              <div class="item-meta">
-                <span class:list={['status-tag', `status-${tool.status}`]}>
-                  <span class="status-dot"></span>
-                  <span>{tool.status === 'published' || tool.status === 'ready' ? m.common.open : tool.status === 'beta' ? m.common.beta : m.common.planned}</span>
-                </span>
-                {isClickable ? (
-                  <svg class="item-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <use href="#icon-chevron" />
-                  </svg>
-                ) : (
-                  <span class="roadmap-badge">{m.search.roadmap}</span>
-                )}
-              </div>
-            </a>
-          </li>
-        );
-      })}
-    </template>
+          <!-- Estado Vazio Dentro da Ilha do Dropdown -->
+          <div class="dropdown-empty" data-empty hidden>
+            <span class="empty-icon-box" aria-hidden="true">
+              <Icon class="empty-icon" name="search-x" />
+            </span>
+            <p class="empty-title">{m.search.noResults}</p>
+            <p class="empty-desc">{m.search.noResultsHelp}</p>
+          </div>
+        </div>
+      </div>
 
-    <!-- Estado Vazio Dentro do Dropdown -->
-    <div class="dropdown-empty" data-empty hidden>
-      <svg class="empty-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.5" />
-        <path d="m20 20-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-        <path d="M8.5 11h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-      </svg>
-      <p class="empty-title">{m.search.noResults}</p>
-      <p class="empty-desc">{m.search.noResultsHelp}</p>
+      <!--
+        Itens da busca em <template>: conteúdo inerte (fora do cálculo de estilo e layout) até o
+        primeiro uso. Metade do DOM da página ficava aqui, escondida, em todo carregamento.
+      -->
+      <template data-dropdown-items>
+        {
+          tools.map((tool) => {
+            const cat = getCategory(tool.category, locale);
+            const url = tool.url ?? '';
+            const isClickable = Boolean(tool.url);
+
+            return (
+              <li
+                class="dropdown-item"
+                role="option"
+                data-search-item
+                data-search={`${tool.name} ${tool.description} ${cat?.name ?? ''} ${tool.keywords.join(' ')}`}
+                data-url={url}
+                data-clickable={isClickable ? 'true' : 'false'}
+                hidden
+              >
+                <a href={isClickable ? url : undefined} class="item-link" tabindex="-1">
+                  <span class="item-icon-box" aria-hidden="true">
+                    <ToolIcon category={tool.category} />
+                  </span>
+                  <div class="item-body">
+                    <div class="item-head">
+                      <span class="item-title">{tool.name}</span>
+                      <span class="item-category">{cat?.name}</span>
+                    </div>
+                    <p class="item-desc">{tool.description}</p>
+                  </div>
+                  <div class="item-meta">
+                    <span class:list={['status-tag', `status-${tool.status}`]}>
+                      <span class="status-dot" />
+                      <span>
+                        {tool.status === 'published' || tool.status === 'ready'
+                          ? m.common.open
+                          : tool.status === 'beta'
+                            ? m.common.beta
+                            : m.common.planned}
+                      </span>
+                    </span>
+                    {isClickable ? (
+                      <Icon class="item-arrow" name="chevron-right" />
+                    ) : (
+                      <span class="roadmap-badge">{m.search.roadmap}</span>
+                    )}
+                  </div>
+                </a>
+              </li>
+            );
+          })
+        }
+      </template>
     </div>
   </div>
 
   <!-- Diretório estático quando renderizado em páginas completas (ex: /tools/) -->
-  {showDirectory && (
-    <div class="grid grid-3 directory-grid">
-      {tools.map((tool) => (
-        <ToolCard tool={tool} locale={locale} />
-      ))}
-    </div>
-  )}
+  {
+    showDirectory && (
+      <div class="grid grid-3 directory-grid">
+        {tools.map((tool) => (
+          <ToolCard tool={tool} locale={locale} />
+        ))}
+      </div>
+    )
+  }
 </div>
 
 <script>
@@ -194,6 +212,7 @@ const m = getMessages(locale);
       }
 
       openDropdown();
+      if (list) list.hidden = count === 0;
       if (empty) empty.hidden = count !== 0;
       const label = count === 1 ? root.dataset.oneResult : root.dataset.manyResults;
       if (countBadge) countBadge.textContent = `${count} ${label}`;
@@ -263,6 +282,11 @@ const m = getMessages(locale);
 
 <style>
   .search {
+    width: 100%;
+  }
+
+  /* Âncora isolada da barra de busca para que o popover nunca dependa da altura do directory-grid */
+  .search-box {
     position: relative;
     width: 100%;
   }
@@ -270,9 +294,9 @@ const m = getMessages(locale);
   .input-wrap {
     display: flex;
     align-items: center;
-    gap: .75rem;
+    gap: 0.75rem;
     height: 44px;
-    padding: 0 .75rem 0 1rem;
+    padding: 0 0.75rem 0 1rem;
     background: var(--color-surface-card);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -283,10 +307,16 @@ const m = getMessages(locale);
       background-color var(--duration-fast) var(--ease-apple);
   }
 
+  @media (hover: hover) and (pointer: fine) {
+    .input-wrap:hover:not(:focus-within) {
+      border-color: var(--color-border-strong);
+    }
+  }
+
   /* Halo de foco ótico Apple na cápsula externa */
   .input-wrap:focus-within {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 1.5px var(--color-surface-card), 0 0 0 4px var(--color-focus-ring), var(--shadow-md);
+    box-shadow: var(--shadow-focus-ring), var(--shadow-md);
   }
 
   .search-icon {
@@ -294,7 +324,9 @@ const m = getMessages(locale);
     height: 18px;
     color: var(--color-text-muted);
     flex-shrink: 0;
-    transition: color var(--duration-fast) var(--ease-apple), transform var(--duration-fast) var(--ease-apple);
+    transition:
+      color var(--duration-fast) var(--ease-apple),
+      transform var(--duration-fast) var(--ease-apple);
   }
 
   .input-wrap:focus-within .search-icon {
@@ -311,7 +343,7 @@ const m = getMessages(locale);
     padding: 0;
     background: transparent;
     color: var(--color-text);
-    font-size: .88rem;
+    font-size: 0.88rem;
     box-shadow: none !important;
     -webkit-appearance: none;
     appearance: none;
@@ -342,53 +374,42 @@ const m = getMessages(locale);
     display: inline-flex;
     align-items: center;
     height: 22px;
-    padding: 0 .45rem;
+    padding: 0 0.45rem;
     border: 1px solid var(--color-border);
     border-bottom-width: 2px;
     border-radius: var(--radius-xs);
-    background: var(--color-surface);
+    background: var(--color-surface-sunken);
     color: var(--color-text-secondary);
-    font-size: .68rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    letter-spacing: .02em;
+    letter-spacing: 0.02em;
     white-space: nowrap;
     user-select: none;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    box-shadow: var(--shadow-key), var(--rim-light);
   }
 
-  /* Popover da busca: casca visual em Popover.module.css; aqui só posição e altura. */
+  /* Popover da busca: casca visual em Popover.module.css; aqui só posição e estrutura Inset Grouped */
   .search-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
     right: 0;
-    z-index: 999;
-    max-height: 420px;
+    z-index: var(--z-search);
   }
 
   .search-dropdown[hidden] {
     display: none;
   }
 
-  .dropdown-count {
-    font-size: .7rem;
-    font-weight: 500;
-    color: var(--color-text-muted);
-    padding: .1rem .45rem;
-    border-radius: 999px;
-    background: var(--color-surface-sunken);
-  }
-
   .dropdown-list {
     margin: 0;
-    padding: .35rem;
+    padding: 0;
     list-style: none;
     overflow-y: auto;
     overscroll-behavior: contain;
-    max-height: 320px;
+    max-height: 340px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) transparent;
   }
@@ -403,7 +424,7 @@ const m = getMessages(locale);
 
   .dropdown-list::-webkit-scrollbar-thumb {
     background-color: var(--scrollbar-thumb);
-    border-radius: 9999px;
+    border-radius: var(--radius-pill);
     border: 1px solid transparent;
     background-clip: padding-box;
   }
@@ -413,8 +434,12 @@ const m = getMessages(locale);
   }
 
   .dropdown-item {
-    border-radius: var(--radius-sm);
     transition: background-color var(--duration-fast) var(--ease-apple);
+  }
+
+  /* Hairline divider apenas entre itens visíveis consecutivos dentro da ilha */
+  .dropdown-item:not([hidden]) ~ .dropdown-item:not([hidden]) {
+    border-top: 1px solid var(--color-border-subtle);
   }
 
   .dropdown-item.is-active,
@@ -422,11 +447,15 @@ const m = getMessages(locale);
     background: var(--color-surface-hover);
   }
 
+  .dropdown-item[data-clickable='false'] .item-link {
+    cursor: default;
+  }
+
   .item-link {
     display: flex;
     align-items: center;
-    gap: .75rem;
-    padding: .55rem .65rem;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -439,6 +468,12 @@ const m = getMessages(locale);
     flex-shrink: 0;
   }
 
+  .dropdown-item.is-active .item-icon-box :global(.icon),
+  .dropdown-item:hover .item-icon-box :global(.icon) {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary-border-soft);
+  }
+
   .item-body {
     flex: 1;
     min-width: 0;
@@ -447,32 +482,40 @@ const m = getMessages(locale);
   .item-head {
     display: flex;
     align-items: center;
-    gap: .5rem;
-    line-height: 1.2;
+    gap: 0.45rem;
+    line-height: 1.25;
   }
 
   .item-title {
     margin: 0;
-    font-size: .88rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--color-text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color var(--duration-fast) var(--ease-apple);
+  }
+
+  .dropdown-item[data-clickable='true'].is-active .item-title,
+  .dropdown-item[data-clickable='true']:hover .item-title {
+    color: var(--color-primary);
   }
 
   .item-category {
-    font-size: .7rem;
-    color: var(--color-text-muted);
-    padding: .05rem .35rem;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    padding: 0.08rem 0.4rem;
     background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border-subtle);
     border-radius: var(--radius-xs);
     white-space: nowrap;
   }
 
   .item-desc {
-    margin: .2rem 0 0;
-    font-size: .78rem;
+    margin: 0.2rem 0 0;
+    font-size: 0.76rem;
     color: var(--color-text-secondary);
     white-space: nowrap;
     overflow: hidden;
@@ -482,7 +525,7 @@ const m = getMessages(locale);
   .item-meta {
     display: flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
     flex-shrink: 0;
   }
 
@@ -490,33 +533,33 @@ const m = getMessages(locale);
   .status-tag {
     display: inline-flex;
     align-items: center;
-    gap: .3rem;
-    font-size: .68rem;
+    gap: 0.3rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: .15rem .5rem;
-    border-radius: 999px;
-    letter-spacing: .02em;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-pill);
+    letter-spacing: 0.02em;
     white-space: nowrap;
   }
 
   .status-dot {
     width: 5px;
     height: 5px;
-    border-radius: 50%;
+    border-radius: var(--radius-circle);
     background: currentColor;
   }
 
   .status-published,
   .status-ready {
-    background: rgba(16, 185, 129, 0.12);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.28);
+    background: var(--color-success-soft);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
   }
 
   .status-beta {
-    background: rgba(245, 158, 11, 0.12);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.28);
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+    border: 1px solid var(--color-warning-border);
   }
 
   .status-planned {
@@ -526,7 +569,8 @@ const m = getMessages(locale);
   }
 
   .roadmap-badge {
-    font-size: .68rem;
+    font-size: 0.68rem;
+    font-weight: 500;
     color: var(--color-text-muted);
   }
 
@@ -534,7 +578,9 @@ const m = getMessages(locale);
     width: 14px;
     height: 14px;
     color: var(--color-text-muted);
-    transition: transform var(--duration-fast) var(--ease-apple), color var(--duration-fast) var(--ease-apple);
+    transition:
+      transform var(--duration-fast) var(--ease-apple),
+      color var(--duration-fast) var(--ease-apple);
   }
 
   .dropdown-item.is-active .item-arrow,
@@ -543,33 +589,43 @@ const m = getMessages(locale);
     transform: translateX(2px);
   }
 
-  /* Estado vazio no dropdown */
+  /* Estado vazio dentro da ilha do dropdown */
   .dropdown-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem 1rem;
+    padding: 2rem 1.25rem;
     text-align: center;
   }
 
-  .empty-icon {
-    width: 28px;
-    height: 28px;
+  .empty-icon-box {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    margin-bottom: 0.6rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-sunken);
+    border: 1px solid var(--color-border-subtle);
     color: var(--color-text-muted);
-    margin-bottom: .5rem;
+  }
+
+  .empty-icon {
+    width: 18px;
+    height: 18px;
   }
 
   .empty-title {
     margin: 0;
-    font-size: .88rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--color-text);
   }
 
   .empty-desc {
-    margin: .25rem 0 0;
-    font-size: .78rem;
+    margin: 0.25rem 0 0;
+    font-size: 0.76rem;
     color: var(--color-text-secondary);
     max-width: 280px;
   }
@@ -592,6 +648,10 @@ const m = getMessages(locale);
 
   @media (max-width: 620px) {
     kbd {
+      display: none;
+    }
+
+    .roadmap-badge {
       display: none;
     }
   }

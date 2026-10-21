@@ -1,0 +1,58 @@
+name: Tarefa de engenharia
+description: Issue verificável, com contrato e comandos explícitos
+body:
+  - type: textarea
+    id: contexto
+    attributes: { label: Contexto, description: 'Problema observado, causa e referências.' }
+    validations: { required: true }
+  - type: textarea
+    id: objetivo
+    attributes: { label: Objetivo, description: 'Resultado observável esperado.' }
+    validations: { required: true }
+  - type: textarea
+    id: escopo
+    attributes: { label: Escopo, description: 'Pacotes, rotas e contratos afetados.' }
+    validations: { required: true }
+  - type: textarea
+    id: nao_escopo
+    attributes: { label: Não-escopo }
+    validations: { required: true }
+  - type: textarea
+    id: requisitos
+    attributes: { label: Requisitos Técnicos }
+    validations: { required: true }
+  - type: textarea
+    id: dependencias
+    attributes: { label: Dependências }
+    validations: { required: true }
+  - type: textarea
+    id: contrato
+    attributes:
+      label: 'Conformidade com o Contrato (AGENTS.md)'
+      description: 'Descreva shell, URLs, ícones, tokens, i18n, SEO, acessibilidade, testes e guardrails aplicáveis; justifique itens não aplicáveis. Mudança de comportamento: cite a mudança OpenSpec (openspec/changes/<nome>).'
+    validations: { required: true }
+  - type: textarea
+    id: aceite
+    attributes:
+      label: Critérios de Aceite
+      description: 'Use checkboxes verificáveis, por exemplo: - [ ] O cenário funciona nos três idiomas.'
+      placeholder: '- [ ] ...'
+    validations: { required: true }
+  - type: textarea
+    id: validacao
+    attributes:
+      label: Validação
+      description: 'Liste os comandos exatos e inspeções manuais.'
+      placeholder: 'npm run check; npm run verify'
+    validations: { required: true }
+  - type: textarea
+    id: dod
+    attributes:
+      { label: DoD, description: 'Evidência de CI, documentação, commit e comentário na issue.' }
+    validations: { required: true }
+  - type: dropdown
+    id: estimativa
+    attributes:
+      label: Estimativa
+      options: [XS, S, M, L, XL, XXL]
+    validations: { required: true }

@@ -1,7 +1,10 @@
 ---
+import { topology, type Locale } from '@noduct/tool-runtime';
 import { formatFileSize } from '../file-workflow/contracts';
+import Icon from '../icons/Icon.astro';
+import Button from './Button.astro';
 import { fileWorkflowMessages } from '../file-workflow/messages';
-import type { DesignLocale } from '../i18n';
+import { workspaceUiMessages } from '../workspace-ui/messages';
 import styles from './DownloadCard.module.css';
 
 export interface Props {
@@ -11,11 +14,25 @@ export interface Props {
   fileSize?: number;
   downloadUrl?: string;
   hidden?: boolean;
-  locale?: DesignLocale;
+  locale?: Locale;
+  /**
+   * Oferece “Salvar na Área Local” (ADR 0006): salvar é opt-in e o documento fica até o
+   * usuário excluí-lo. `sourceTool` identifica a ferramenta de origem.
+   */
+  workspace?: { readonly sourceTool: string } | undefined;
 }
 
-const { id, fileName = '', fileSize, downloadUrl, hidden = false, locale = 'en' } = Astro.props;
+const {
+  id,
+  fileName = '',
+  fileSize,
+  downloadUrl,
+  hidden = false,
+  locale = 'en',
+  workspace
+} = Astro.props;
 const m = fileWorkflowMessages[locale];
+const wm = workspaceUiMessages[locale];
 const title = Astro.props.title ?? m.downloadTitle;
 const titleId = `${id}-title`;
 ---
@@ -27,8 +44,9 @@ const titleId = `${id}-title`;
   hidden={hidden}
   data-download-card
   data-locale={locale}
+  data-workspace-source-tool={workspace?.sourceTool}
 >
-  <span class={styles.icon} aria-hidden="true">✓</span>
+  <span class={styles.icon} data-download-preview><Icon name="circle-check" /></span>
   <div class={styles.body}>
     <h2 id={titleId} class={styles.title} tabindex="-1" data-download-title>{title}</h2>
     <p class={styles.meta}>
@@ -39,11 +57,40 @@ const titleId = `${id}-title`;
     </p>
   </div>
   <div class={styles.actions}>
-    <a class={styles.primary} href={downloadUrl} download={fileName} data-download-link>
+    <Button variant="primary" icon="download" data-download-link data-download-url={downloadUrl}>
       {m.download}
-    </a>
-    <button type="button" class={styles.secondary} data-download-restart>{m.startOver}</button>
+    </Button>
+    {
+      workspace && (
+        <Button
+          variant="secondary"
+          icon="folder"
+          hidden
+          data-download-save
+          data-state="idle"
+        >
+          {wm.saveToWorkspace}
+        </Button>
+      )
+    }
+    <Button variant="secondary" data-download-restart>{m.startOver}</Button>
   </div>
+  {
+    workspace && (
+      <p class={styles.saveStatus} data-download-save-status hidden>
+        <span role="status" aria-live="polite" data-download-save-message />
+        <a
+          class={styles.saveLink}
+          href={topology.hubPath('workspace/', locale)}
+          hidden
+          data-download-saved-link
+        >
+          {wm.viewInWorkspace}
+          <Icon name="arrow-right" />
+        </a>
+      </p>
+    )
+  }
 </section>
 
 <script>

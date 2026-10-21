@@ -1,0 +1,75 @@
+---
+import Icon from '../icons/Icon.astro';
+import type { IconName } from '../icons/registry';
+import styles from './Select.module.css';
+
+export interface SelectOption {
+  readonly value: string;
+  readonly label: string;
+  readonly icon?: IconName | undefined;
+}
+
+export interface Props {
+  id: string;
+  label: string;
+  options: readonly SelectOption[];
+  value?: string | undefined;
+  /** Mantém o rótulo só para leitores de tela (o contexto visual já o explica). */
+  labelHidden?: boolean | undefined;
+}
+
+const { id, label, options, labelHidden = false } = Astro.props;
+const selected = options.find((option) => option.value === Astro.props.value) ?? options[0];
+const labelId = `${id}-label`;
+const listId = `${id}-listbox`;
+const optionId = (value: string) => `${id}-option-${value}`;
+---
+
+<div class={styles.select} data-select data-value={selected?.value}>
+  <span id={labelId} class:list={[styles.label, labelHidden && 'sr-only']}>{label}</span>
+  <button
+    type="button"
+    id={id}
+    class={styles.trigger}
+    role="combobox"
+    aria-haspopup="listbox"
+    aria-expanded="false"
+    aria-controls={listId}
+    aria-labelledby={`${labelId} ${id}`}
+    data-select-trigger
+  >
+    {selected?.icon && <Icon class={styles.leading} name={selected.icon} />}
+    <span class={styles.value} data-select-value>{selected?.label}</span>
+    <Icon class={styles.chevron} name="chevron-down" />
+  </button>
+  <ul
+    id={listId}
+    class={styles.listbox}
+    role="listbox"
+    aria-labelledby={labelId}
+    tabindex="-1"
+    hidden
+    data-select-listbox
+  >
+    {
+      options.map((option) => (
+        <li
+          id={optionId(option.value)}
+          class={styles.option}
+          role="option"
+          aria-selected={option.value === selected?.value ? 'true' : 'false'}
+          data-value={option.value}
+        >
+          {option.icon && <Icon class={styles.leading} name={option.icon} />}
+          <span class={styles.optionLabel}>{option.label}</span>
+          <Icon class={styles.check} name="check" />
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  import { initializeSelects } from '../controls/select';
+  initializeSelects(document);
+</script>

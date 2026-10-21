@@ -2,19 +2,22 @@
 import CategoriesPage from '@/components/pages/CategoriesPage.astro';
 import CategoryPage from '@/components/pages/CategoryPage.astro';
 import InfoPage from '@/components/pages/InfoPage.astro';
+import WorkspacePage from '@/components/workspace/WorkspacePage.astro';
 import { categories } from '@/data/categories';
 import type { Locale } from '@/i18n/config';
+import { localeStaticPaths } from '@noduct/tool-runtime';
 import type { ToolCategory } from '@/types/tool';
 
 type InfoKind = 'about' | 'contact' | 'privacy' | 'terms' | 'sponsor' | '404';
-type Props = { locale: Locale; page: 'categories' } | { locale: Locale; page: 'category'; categoryId: ToolCategory } | { locale: Locale; page: 'info'; kind: InfoKind };
+type Props = { locale: Locale; page: 'categories' } | { locale: Locale; page: 'category'; categoryId: ToolCategory } | { locale: Locale; page: 'info'; kind: InfoKind } | { locale: Locale; page: 'workspace' };
 export function getStaticPaths() {
-  const localeEntries: Array<{ segment: string; locale: Locale }> = [{ segment: 'pt-br', locale: 'pt-BR' }, { segment: 'es', locale: 'es' }];
+  const localeEntries = localeStaticPaths().map(({ params, props }) => ({ segment: params.locale, locale: props.locale }));
   const info: InfoKind[] = ['about', 'contact', 'privacy', 'terms', 'sponsor', '404'];
   return localeEntries.flatMap(({ segment, locale }) => [
     { params: { locale: segment, slug: 'categories' }, props: { locale, page: 'categories' as const } },
     ...categories.map((category) => ({ params: { locale: segment, slug: category.id }, props: { locale, page: 'category' as const, categoryId: category.id } })),
-    ...info.map((kind) => ({ params: { locale: segment, slug: kind }, props: { locale, page: 'info' as const, kind } }))
+    ...info.map((kind) => ({ params: { locale: segment, slug: kind }, props: { locale, page: 'info' as const, kind } })),
+    { params: { locale: segment, slug: 'workspace' }, props: { locale, page: 'workspace' as const } }
   ]);
 }
 const props = Astro.props as Props;
@@ -22,3 +25,4 @@ const props = Astro.props as Props;
 {props.page === 'categories' && <CategoriesPage locale={props.locale} />}
 {props.page === 'category' && <CategoryPage locale={props.locale} categoryId={props.categoryId} />}
 {props.page === 'info' && <InfoPage locale={props.locale} kind={props.kind} />}
+{props.page === 'workspace' && <WorkspacePage locale={props.locale} />}

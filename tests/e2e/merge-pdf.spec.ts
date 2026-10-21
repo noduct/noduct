@@ -1,8 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { PDFDocument } from 'pdf-lib';
 
-const toolUrl = 'http://127.0.0.1:4324/merge-pdf/';
+const toolUrl = '/merge-pdf/';
 
 async function makePdfBuffer(pages: number, label: string): Promise<Buffer> {
   const doc = await PDFDocument.create();
@@ -25,18 +25,68 @@ test('Merge PDF: loads with clean quiet-productivity layout, SEO tags and JSON-L
   await page.goto(toolUrl);
   await expect(page).toHaveTitle(/Merge PDF \| Noduct/);
   await expect(page.locator('h1')).toHaveText('Merge PDF');
+  await expect(page.locator('h1')).toHaveCount(1);
+  await expect(page.getByRole('banner').locator('[data-workspace-trigger]')).toHaveCount(0);
+  await expect(page.locator('[data-workspace-source]')).toBeVisible();
+  const breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+  await expect(breadcrumb.locator('a, [aria-current="page"]')).toHaveCount(3);
+  await expect(breadcrumb.locator('a').first()).toHaveAttribute('href', '/');
+  await expect(breadcrumb.locator('a').nth(1)).toHaveAttribute('href', '/pdf-tools/');
+  await expect(breadcrumb.locator('[aria-current="page"]')).toHaveText('Merge PDF');
 
   // Verify JSON-LD
+  await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(1);
   const jsonLd = await page.locator('script[type="application/ld+json"]').textContent();
   expect(jsonLd).toBeTruthy();
   const parsed = JSON.parse(jsonLd!);
   expect(parsed['@graph']).toHaveLength(2);
   expect(parsed['@graph'][0]['@type']).toBe('SoftwareApplication');
   expect(parsed['@graph'][1]['@type']).toBe('BreadcrumbList');
+  expect(parsed['@graph'][1].itemListElement.map((item: { name: string }) => item.name)).toEqual([
+    'Home',
+    'PDF Tools',
+    'Merge PDF'
+  ]);
 
   // Merge button initially disabled
   const mergeBtn = page.locator('#start-merge-btn');
   await expect(mergeBtn).toBeDisabled();
+});
+
+test('Merge PDF: applies the shared hub theme preference before rendering', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('noduct-theme', 'dark');
+    const recordTheme = () => {
+      if (document.documentElement?.dataset.theme === 'dark') {
+        (window as Window & { __darkThemeAt?: number }).__darkThemeAt = performance.now();
+        observer.disconnect();
+      }
+    };
+    const observer = new MutationObserver(recordTheme);
+    observer.observe(document, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+    recordTheme();
+  });
+  await page.goto(toolUrl);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  const timing = await page.evaluate(async () => {
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    return {
+      darkAt: (window as Window & { __darkThemeAt?: number }).__darkThemeAt,
+      firstPaint: performance
+        .getEntriesByType('paint')
+        .find((entry) => entry.name === 'first-contentful-paint')?.startTime
+    };
+  });
+  expect(timing.darkAt).toBeDefined();
+  if (timing.firstPaint !== undefined)
+    expect(timing.darkAt!).toBeLessThanOrEqual(timing.firstPaint);
+  await expect(page.getByRole('banner').locator('[data-workspace-trigger]')).toHaveCount(0);
+  await expect(page.locator('[data-workspace-source]')).toBeVisible();
 });
 
 test('Merge PDF: end-to-end selection, reordering, merging and download with zero network leaks', async ({
@@ -78,9 +128,12 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
 
   const mergeBtn = page.locator('#start-merge-btn');
   await expect(mergeBtn).toBeEnabled();
+  // Enabled at runtime, the shared Button must also look enabled.
+  await expect(mergeBtn).not.toHaveAttribute('aria-disabled', 'true');
+  await expect(mergeBtn).toHaveCSS('opacity', '1');
 
   // Reorder items: move first down
-  const moveDownBtn = page.getByRole('button', { name: 'Move first.pdf down' });
+  const moveDownBtn = page.getByRole('button', { name: 'Move first.pdf later' });
   await moveDownBtn.click();
 
   // Verify order changed
@@ -96,12 +149,13 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
   await expect(downloadCard).toBeVisible({ timeout: 10_000 });
 
   // Click download
-  const downloadLink = downloadCard.getByRole('link', { name: 'Download' });
-  await expect(downloadLink).toBeVisible();
-  await downloadLink.click();
+  const downloadButton = downloadCard.getByRole('button', { name: 'Download' });
+  await expect(downloadButton).toBeVisible();
+  await downloadButton.click();
 
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe('merged.pdf');
+  expect(download.url()).toMatch(/^blob:/);
 
   // Inspect the downloaded PDF bytes!
   const path = await download.path();
@@ -120,6 +174,171 @@ test('Merge PDF: end-to-end selection, reordering, merging and download with zer
   await expect(downloadCard).toBeHidden();
   await expect(page.locator('#merge-file-list [data-reorder-item]')).toHaveCount(0);
   await expect(mergeBtn).toBeDisabled();
+});
+
+test('Merge PDF: pointer drag reorders live without oscillating and keeps the final order', async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(toolUrl);
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'false');
+  await page.locator('#merge-drop-zone').setInputFiles(
+    await Promise.all(
+      ['first', 'second', 'third', 'fourth'].map(async (name) => ({
+        name: `${name}.pdf`,
+        mimeType: 'application/pdf',
+        buffer: await makePdfBuffer(1, name)
+      }))
+    )
+  );
+
+  const items = page.locator('#merge-file-list [data-reorder-item]');
+  await expect(items).toHaveCount(4);
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'true');
+  await expect(page.locator('label[for="merge-drop-zone"]')).toBeVisible();
+  await expect(page.locator('[data-workspace-source]')).toBeVisible();
+  const names = page.locator('#merge-file-list [data-item-name]');
+  const mergeAction = await page.locator('#start-merge-btn').boundingBox();
+  const count = await page.locator('[data-merge-count]').boundingBox();
+  expect(mergeAction && mergeAction.y + mergeAction.height).toBeLessThan(800);
+  expect(count && count.y + count.height).toBeLessThan(800);
+  expect(await items.first().evaluate((item) => item.scrollWidth <= item.clientWidth)).toBe(true);
+  const start = await items.first().locator('[data-item-name]').boundingBox();
+  const destination = await items.nth(2).boundingBox();
+  expect(start).toBeTruthy();
+  expect(destination).toBeTruthy();
+
+  await page.mouse.move(start!.x + start!.width / 2, start!.y + start!.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(
+    destination!.x + destination!.width * 0.75,
+    destination!.y + destination!.height / 2,
+    { steps: 8 }
+  );
+  await expect(names).toHaveText(['second.pdf', 'third.pdf', 'first.pdf', 'fourth.pdf']);
+  await expect(items.locator('[data-item-index]')).toHaveText(['1', '2', '3', '4']);
+  await page.mouse.move(
+    destination!.x + destination!.width * 0.76,
+    destination!.y + destination!.height / 2
+  );
+  await expect(names).toHaveText(['second.pdf', 'third.pdf', 'first.pdf', 'fourth.pdf']);
+  await page.mouse.up();
+
+  await expect(names).toHaveText(['second.pdf', 'third.pdf', 'first.pdf', 'fourth.pdf']);
+  await expect(items.locator('[data-item-index]')).toHaveText(['1', '2', '3', '4']);
+  await expect(page.locator('[data-reorder-status]')).toContainText('first.pdf');
+  await expect(page.locator('#merge-file-list [data-dragging]')).toHaveCount(0);
+
+  const handle = page.getByRole('button', { name: 'Reorder first.pdf' });
+  await handle.focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(names).toHaveText(['second.pdf', 'first.pdf', 'third.pdf', 'fourth.pdf']);
+  await expect(handle).toBeFocused();
+
+  await page.setViewportSize({ width: 320, height: 760 });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1
+    )
+  ).toBe(true);
+  for (const control of await page
+    .locator('#merge-file-list button, [data-drop-zone] label, [data-workspace-source]')
+    .all()) {
+    const box = await control.boundingBox();
+    expect(box!.width).toBeGreaterThanOrEqual(44);
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+  }
+  for (const theme of ['light', 'dark']) {
+    await page.locator('html').evaluate((element, value) => {
+      (element as HTMLElement).dataset.theme = value;
+    }, theme);
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+      .analyze();
+    expect(results.violations, `${theme} theme with files`).toEqual([]);
+  }
+});
+
+test('Merge PDF: file sources keep equal targets and move smoothly into the compact row', async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(toolUrl);
+  const device = page.locator('label[for="merge-drop-zone"]');
+  const local = page.locator('[data-workspace-source]');
+  const emptyDevice = await device.boundingBox();
+  const emptyLocal = await local.boundingBox();
+  expect(emptyDevice).toBeTruthy();
+  expect(emptyLocal).toBeTruthy();
+  expect(emptyDevice!.width).toBeCloseTo(emptyLocal!.width, 0);
+  expect(emptyDevice!.height).toBeCloseTo(emptyLocal!.height, 0);
+  expect(emptyDevice!.height).toBeGreaterThanOrEqual(44);
+
+  await page.evaluate(() => {
+    const zone = document.querySelector<HTMLElement>('[data-drop-zone]')!;
+    const deviceControl = zone.querySelector<HTMLElement>('label[for="merge-drop-zone"]')!;
+    const observer = new MutationObserver(() => {
+      if (zone.dataset.compact !== 'true') return;
+      observer.disconnect();
+      requestAnimationFrame(() => {
+        const movement = deviceControl.getAnimations().find((animation) => {
+          const effect = animation.effect;
+          return (
+            effect instanceof KeyframeEffect &&
+            effect.getKeyframes().some((keyframe) => typeof keyframe.transform === 'string')
+          );
+        });
+        if (!movement) return;
+        movement.pause();
+        movement.currentTime = Number(movement.effect!.getComputedTiming().duration) / 2;
+        (window as Window & { compactMidpoint?: number }).compactMidpoint =
+          deviceControl.getBoundingClientRect().x;
+        movement.finish();
+      });
+    });
+    observer.observe(zone, { attributes: true, attributeFilter: ['data-compact'] });
+  });
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'layout.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Layout')
+  });
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'true');
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as Window & { compactMidpoint?: number }).compactMidpoint)
+    )
+    .not.toBeUndefined();
+  const midpoint = await page.evaluate(
+    () => (window as Window & { compactMidpoint?: number }).compactMidpoint!
+  );
+
+  const compactDevice = await device.boundingBox();
+  const compactLocal = await local.boundingBox();
+  expect(midpoint).toBeGreaterThan(Math.min(emptyDevice!.x, compactDevice!.x));
+  expect(midpoint).toBeLessThan(Math.max(emptyDevice!.x, compactDevice!.x));
+  expect(compactDevice!.width).toBeCloseTo(compactLocal!.width, 0);
+  expect(compactDevice!.height).toBeCloseTo(compactLocal!.height, 0);
+  expect(compactDevice!.height).toBeGreaterThanOrEqual(44);
+  expect(compactDevice!.y).toBeCloseTo(compactLocal!.y, 0);
+
+  await page.setViewportSize({ width: 320, height: 760 });
+  const mobileDevice = await device.boundingBox();
+  const mobileLocal = await local.boundingBox();
+  expect(mobileDevice!.width).toBeCloseTo(mobileLocal!.width, 0);
+  expect(mobileDevice!.height).toBeCloseTo(mobileLocal!.height, 0);
+  expect(mobileDevice!.height).toBeGreaterThanOrEqual(44);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('#clear-all-btn').click();
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'false');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'reduced-motion.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Reduced motion')
+  });
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'true');
+  expect(await device.evaluate((control) => control.getAnimations().length)).toBe(0);
 });
 
 test('Merge PDF: handles encrypted files with actionable alert without breaking valid files', async ({
@@ -145,6 +364,17 @@ test('Merge PDF: handles encrypted files with actionable alert without breaking 
   await expect(alerts).toBeVisible();
   await expect(alerts).toContainText('locked.pdf');
   await expect(alerts).toContainText('password-protected');
+  await expect(alerts.locator('[data-alert-item]')).toHaveCSS('display', 'flex');
+  const alertBorder = await alerts.locator('[data-alert-item]').evaluate((element) => {
+    const computed = getComputedStyle(element);
+    const probe = document.createElement('span');
+    probe.style.color = 'var(--color-error)';
+    document.body.append(probe);
+    const expected = getComputedStyle(probe).color;
+    probe.remove();
+    return { actual: computed.borderTopColor, expected };
+  });
+  expect(alertBorder.actual).toBe(alertBorder.expected);
 
   // Only the good file is in the reorderable merge list
   const items = page.locator('#merge-file-list [data-reorder-item]');
@@ -213,80 +443,372 @@ test('Merge PDF: passes WCAG AA axe accessibility tests in light and dark themes
 
     expect(results.violations, `${theme} theme accessibility`).toEqual([]);
   }
+
+  // O seletor da Área Local aberto também precisa passar nos dois temas (ADR 0006).
+  await page.locator('[data-workspace-source]').click();
+  await expect(page.locator('[data-workspace-picker]')).toBeVisible();
+  for (const theme of ['light', 'dark']) {
+    await page.locator('html').evaluate((element, value) => {
+      (element as HTMLElement).dataset.theme = value;
+    }, theme);
+    const results = await new AxeBuilder({ page })
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    expect(results.violations, `${theme} theme picker accessibility`).toEqual([]);
+  }
 });
 
 test('Merge PDF: localized routes load in Portuguese and Spanish', async ({ page }) => {
-  await page.goto('http://127.0.0.1:4324/merge-pdf/pt-br/');
+  await page.goto('/merge-pdf/pt-br/');
   await expect(page.locator('h1')).toHaveText('Mesclar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Mesclar arquivos PDF');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'um.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Um')
+  });
+  await expect(page.locator('[data-merge-hint]')).toHaveText('Adicione mais 1 PDF para mesclar.');
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('1');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('1');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'dois.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(2, 'Dois')
+  });
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('2');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('3');
+  await expect(page.locator('[data-merge-count]')).toHaveAttribute(
+    'aria-label',
+    '2 PDFs, 3 páginas prontas para mesclar'
+  );
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'bloqueado.pdf',
+    mimeType: 'application/pdf',
+    buffer: makeEncryptedPdfBuffer()
+  });
+  await expect(page.locator('[data-merge-alerts]')).toContainText('protegido por senha');
 
-  await page.goto('http://127.0.0.1:4324/merge-pdf/es/');
+  await page.goto('/merge-pdf/es/');
   await expect(page.locator('h1')).toHaveText('Combinar PDF');
   await expect(page.locator('#start-merge-btn')).toHaveText('Combinar archivos PDF');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'uno.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Uno')
+  });
+  await expect(page.locator('[data-merge-hint]')).toHaveText('Añade 1 PDF más para combinar.');
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('1');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('1');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'dos.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(2, 'Dos')
+  });
+  await expect(page.locator('[data-merge-files-count]')).toHaveText('2');
+  await expect(page.locator('[data-merge-pages-count]')).toHaveText('3');
+  await expect(page.locator('[data-merge-count]')).toHaveAttribute(
+    'aria-label',
+    '2 PDFs, 3 páginas listas para combinar'
+  );
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'bloqueado.pdf',
+    mimeType: 'application/pdf',
+    buffer: makeEncryptedPdfBuffer()
+  });
+  await expect(page.locator('[data-merge-alerts]')).toContainText('protegido por contraseña');
 });
 
-test('Merge PDF: Local Workspace drawer opens, shows privacy notice, manages files, and clears data', async ({
+for (const locale of [
+  { path: '/merge-pdf/', fileName: 'merged.pdf', error: 'Could not merge' },
+  {
+    path: '/merge-pdf/pt-br/',
+    fileName: 'documento-mesclado.pdf',
+    error: 'Não foi possível mesclar'
+  },
+  { path: '/merge-pdf/es/', fileName: 'documento-combinado.pdf', error: 'No se pudieron combinar' }
+]) {
+  test(`Merge PDF: localized download and merge error in ${locale.path}`, async ({ page }) => {
+    await page.goto(locale.path);
+    await page.locator('#merge-drop-zone').setInputFiles([
+      { name: 'first.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'First') },
+      { name: 'second.pdf', mimeType: 'application/pdf', buffer: await makePdfBuffer(1, 'Second') }
+    ]);
+    const merge = page.locator('#start-merge-btn');
+    await expect(merge).toBeEnabled();
+    await page.evaluate(() => {
+      const state = window as Window & {
+        __originalFileArrayBuffer?: typeof File.prototype.arrayBuffer;
+      };
+      state.__originalFileArrayBuffer = File.prototype.arrayBuffer;
+      File.prototype.arrayBuffer = async () => {
+        throw new Error('Simulated read failure');
+      };
+    });
+    await merge.click();
+    await expect(page.locator('[data-merge-alerts]')).toContainText(locale.error);
+    await page.evaluate(() => {
+      const state = window as Window & {
+        __originalFileArrayBuffer?: typeof File.prototype.arrayBuffer;
+      };
+      if (state.__originalFileArrayBuffer)
+        File.prototype.arrayBuffer = state.__originalFileArrayBuffer;
+    });
+    await merge.click();
+    const card = page.locator('[data-download-card]');
+    await expect(card).toBeVisible();
+    const downloadPromise = page.waitForEvent('download');
+    await card.locator('[data-download-link]').click();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe(locale.fileName);
+    expect(download.url()).toMatch(/^blob:/);
+  });
+}
+
+// ADR 0006: a Área de Trabalho Local é híbrida. Salvar é opt-in no resultado, a reutilização
+// entra pela DropZone, a gestão fica em /workspace/ e a home mostra os recentes.
+async function mergeTwo(page: Page, names: [string, string] = ['alpha.pdf', 'beta.pdf']) {
+  await page.locator('#merge-drop-zone').setInputFiles(
+    await Promise.all(
+      names.map(async (name, index) => ({
+        name,
+        mimeType: 'application/pdf',
+        buffer: await makePdfBuffer(1, `Doc ${index + 1}`)
+      }))
+    )
+  );
+  await expect(page.locator('#start-merge-btn')).toBeEnabled({ timeout: 15_000 });
+  await page.locator('#start-merge-btn').click();
+  await expect(page.locator('#merge-download-card')).toBeVisible({ timeout: 15_000 });
+}
+
+async function saveResult(page: Page, savedLabel = 'Saved to Local Workspace') {
+  const save = page.locator('[data-download-save]');
+  await expect(save).toBeVisible();
+  await save.click();
+  await expect(save).toHaveText(savedLabel);
+  await expect(page.locator('[data-download-saved-link]')).toBeVisible();
+}
+
+async function revisitWorkspace(page: Page) {
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
+}
+
+test('Merge PDF: result is saved only on request and comes back through the Local Workspace picker', async ({
   page
 }) => {
   await page.goto(toolUrl);
+  await expect(page.getByRole('banner').locator('[data-workspace-trigger]')).toHaveCount(0);
+  const source = page.locator('[data-workspace-source]');
+  await expect(source).toHaveText('From Local Workspace');
 
-  const trigger = page.locator('[data-workspace-trigger]');
-  await expect(trigger).toBeVisible();
-  await expect(trigger).toHaveText(/Local Workspace/);
+  await mergeTwo(page);
+  // Prévia da primeira página do resultado.
+  await expect(page.locator('[data-download-preview][data-ready] img')).toBeVisible({
+    timeout: 15_000
+  });
 
-  // Open drawer
-  await trigger.click();
-  const dialog = page.locator('[data-workspace-dialog]');
-  await expect(dialog).toBeVisible();
-
-  // Verify privacy notice is rendered
-  const privacyNotice = page.locator('[data-workspace-dialog] p');
-  await expect(privacyNotice.first()).toContainText('IndexedDB');
-
-  // Verify empty state initially
-  await expect(page.locator('[data-workspace-empty]')).toBeVisible();
-
-  // Close via close button
-  await page.locator('[data-workspace-close]').click();
-  await expect(dialog).not.toHaveAttribute('open');
-
-  // Perform a merge to persist a document in workspace
-  const file1 = {
-    name: 'alpha.pdf',
-    mimeType: 'application/pdf',
-    buffer: await makePdfBuffer(1, 'Alpha')
-  };
-  const file2 = {
-    name: 'beta.pdf',
-    mimeType: 'application/pdf',
-    buffer: await makePdfBuffer(1, 'Beta')
-  };
-
-  await page.locator('#merge-drop-zone').setInputFiles([file1, file2]);
-  await page.locator('#start-merge-btn').click();
-  await expect(page.locator('#merge-download-card')).toBeVisible();
-
-  // Re-open workspace drawer
-  await trigger.click();
-  await expect(dialog).toBeVisible();
-
-  // The merged file should now be listed in workspace
-  const item = page.locator('[data-workspace-item]');
-  await expect(item).toBeVisible();
-  await expect(item).toContainText('merged.pdf');
-
-  // Clear all files
-  page.on('dialog', (d) => d.accept());
-  const clearAllBtn = page.locator('[data-workspace-clear-all]');
-  await expect(clearAllBtn).toBeVisible();
-  await clearAllBtn.click();
-
-  // Workspace list should now be empty again
-  await expect(page.locator('[data-workspace-empty]')).toBeVisible();
-  await expect(page.locator('[data-workspace-item]')).toHaveCount(0);
-
-  // Close via Escape
+  // Nada foi gravado sem pedido: o seletor ainda está vazio.
+  await source.click();
+  const picker = page.getByRole('dialog', { name: 'Choose from Local Workspace' });
+  await expect(picker).toBeVisible();
+  await expect(picker.locator('[data-picker-empty]')).toBeVisible();
   await page.keyboard.press('Escape');
-  await expect(dialog).not.toHaveAttribute('open');
+  await expect(picker).toBeHidden();
+  await expect(source).toBeFocused();
+
+  await saveResult(page);
+  await page.locator('[data-download-restart]').click();
+  await expect(page.locator('#merge-file-list [data-reorder-item]')).toHaveCount(0);
+
+  await source.click();
+  const option = picker.getByRole('checkbox', { name: /merged\.pdf/ });
+  await expect(option).toBeVisible();
+  await expect(picker.locator('[data-thumb][data-ready] img')).toBeVisible({ timeout: 15_000 });
+  const confirm = picker.getByRole('button', { name: 'Add to merge' });
+  await expect(confirm).toBeDisabled();
+  await option.check();
+  await expect(picker.locator('[data-picker-count]')).toHaveText('1 selected');
+  await confirm.click();
+  await expect(picker).toBeHidden();
+  await expect(page.locator('#merge-file-list [data-item-name]')).toHaveText(['merged.pdf']);
+  await expect(page.locator('#merge-file-list [data-item-meta]')).toContainText('2 pages');
+  await expect(page.locator('[data-drop-status]')).toHaveText('1 file added.');
+  await expect(page.locator('#merge-file-list [data-item-thumb][data-ready] img')).toBeVisible({
+    timeout: 15_000
+  });
 });
 
+test('Local Workspace: the hub page and home section manage what tools saved', async ({ page }) => {
+  await page.goto('/');
+  const home = page.locator('[data-workspace-recents]');
+  await expect(home.getByRole('heading', { name: 'Your Local Workspace' })).toBeVisible();
+  await expect(home.getByRole('link', { name: 'Open Local Workspace' })).toHaveAttribute(
+    'href',
+    '/workspace/'
+  );
+  await expect(home.locator('[data-recents-list]')).toBeHidden();
+
+  await page.goto(toolUrl);
+  await mergeTwo(page);
+  await saveResult(page);
+  await page.locator('[data-download-saved-link]').click();
+
+  await expect(page).toHaveURL(/\/workspace\/$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Local Workspace');
+  await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toContainText('Home');
+  const item = page.locator('[data-workspace-manager] [data-document-id]');
+  await expect(item).toHaveCount(1);
+  await expect(item.locator('[data-name]')).toHaveText('merged.pdf');
+  await expect(item.locator('[data-retention]')).toHaveText('Kept');
+  await expect(item.locator('[data-thumb][data-ready] img')).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('[data-manager-usage]')).toContainText(
+    test.info().project.name === 'mobile' ? '75 MB' : '250 MB'
+  );
+  const meter = page.getByRole('meter', { name: 'Storage used by Noduct files' });
+  await expect(meter).toHaveAttribute('aria-valuetext', /merged|Noduct files/);
+
+  // Retenção é um botão de ícone com estado (ampulheta × relógio cortado).
+  const keep = item.getByRole('button', { name: 'Keep merged.pdf on this device' });
+  await expect(keep).toHaveAttribute('aria-pressed', 'true');
+  await keep.click();
+  await expect(keep).toHaveAttribute('aria-pressed', 'false');
+  await expect(item.locator('[data-retention]')).toContainText('Expires in');
+  await keep.click();
+  await expect(keep).toHaveAttribute('aria-pressed', 'true');
+
+  // Visualização em grade é lembrada; o Select do sistema ordena.
+  await page.getByRole('button', { name: 'Grid' }).click();
+  await expect(page.locator('[data-manager-list]')).toHaveAttribute('data-view', 'grid');
+  await page.reload();
+  await expect(page.locator('[data-manager-list]')).toHaveAttribute('data-view', 'grid');
+  await expect(page.getByRole('button', { name: 'Grid' })).toHaveAttribute('aria-pressed', 'true');
+  const sort = page.getByRole('combobox', { name: /Sort by/ });
+  await sort.click();
+  await page.getByRole('option', { name: 'Name' }).click();
+  await expect(sort).toContainText('Name');
+  await expect(sort).toHaveAttribute('aria-expanded', 'false');
+
+  // A home mostra o recente com ações rápidas.
+  await page.goto('/');
+  await expect(home.locator('[data-recents-list] [data-name]')).toHaveText(['merged.pdf']);
+  await expect(home.locator('[data-recents-count]')).toHaveText('1 file in this browser');
+  await expect(home.getByRole('link', { name: 'View all files' })).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await home.getByRole('button', { name: 'Download merged.pdf' }).click();
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toBe('merged.pdf');
+  expect(download.url()).toMatch(/^blob:/);
+
+  // Excluir usa o diálogo do sistema; cancelar não apaga nada.
+  await home.getByRole('button', { name: 'Delete merged.pdf' }).click();
+  const confirm = page.getByRole('dialog', { name: 'Delete merged.pdf?' });
+  await expect(confirm).toBeVisible();
+  await expect(confirm.getByRole('button', { name: 'Cancel' })).toBeFocused();
+  await confirm.getByRole('button', { name: 'Cancel' }).click();
+  await expect(home.locator('[data-recents-list] [data-name]')).toHaveText(['merged.pdf']);
+
+  await page.goto('/workspace/');
+  await page.getByRole('button', { name: 'Delete all files' }).click();
+  const clearAll = page.getByRole('dialog', { name: 'Delete all files?' });
+  await clearAll.getByRole('button', { name: 'Delete all' }).click();
+  await expect(page.locator('[data-manager-empty]')).toBeVisible();
+  await expect(page.locator('[data-workspace-manager] [data-document-id]')).toHaveCount(0);
+  await expect(page.locator('[data-manager-status]')).toHaveText('All files were deleted.');
+});
+
+for (const locale of [
+  {
+    path: '',
+    tool: toolUrl,
+    saved: 'Saved to Local Workspace',
+    keep: 'Keep merged.pdf on this device',
+    removed: '1 temporary document was removed',
+    file: 'merged.pdf'
+  },
+  {
+    path: '/pt-br',
+    tool: '/merge-pdf/pt-br/',
+    saved: 'Salvo na Área Local',
+    keep: 'Manter documento-mesclado.pdf neste dispositivo',
+    removed: 'documento temporário foi removido',
+    file: 'documento-mesclado.pdf'
+  }
+]) {
+  test(`Local Workspace ${locale.path || '/en'}: a document allowed to expire is removed after 24 hours and announced`, async ({
+    page
+  }) => {
+    await page.clock.install({ time: new Date('2026-10-17T12:00:00Z') });
+    await page.goto(locale.tool);
+    await mergeTwo(page);
+    await saveResult(page, locale.saved);
+    await page.goto(`${locale.path}/workspace/`);
+    const item = page.locator('[data-workspace-manager] [data-document-id]');
+    await expect(item.locator('[data-name]')).toHaveText(locale.file);
+    await item.getByRole('button', { name: locale.keep }).click();
+    await expect(item).toHaveAttribute('data-retention', 'ephemeral');
+
+    await page.clock.fastForward(24 * 60 * 60 * 1000 + 1);
+    await revisitWorkspace(page);
+    await expect(item).toHaveCount(0);
+    await expect(page.locator('[data-manager-status]')).toContainText(locale.removed);
+  });
+}
+
+test('Local Workspace: another tab cannot expire a document held by a shared Web Lock', async ({
+  page
+}) => {
+  const now = new Date('2026-10-19T12:00:00Z');
+  await page.clock.install({ time: now });
+  await page.goto(toolUrl);
+  await mergeTwo(page, ['one.pdf', 'two.pdf']);
+  await saveResult(page);
+  await page.goto('/workspace/');
+  const item = page.locator('[data-workspace-manager] [data-document-id]');
+  await item.getByRole('button', { name: 'Keep merged.pdf on this device' }).click();
+  await expect(item).toHaveAttribute('data-retention', 'ephemeral');
+  const id = await item.getAttribute('data-document-id');
+  expect(id).toBeTruthy();
+  await page.evaluate((documentId) => {
+    const state = window as Window & { __lockHeld?: boolean; __releaseDocument?: () => void };
+    void navigator.locks.request(`noduct-doc-${documentId}`, { mode: 'shared' }, async () => {
+      state.__lockHeld = true;
+      await new Promise<void>((resolve) => {
+        state.__releaseDocument = resolve;
+      });
+    });
+  }, id);
+  await expect
+    .poll(() => page.evaluate(() => (window as Window & { __lockHeld?: boolean }).__lockHeld))
+    .toBe(true);
+
+  const other = await page.context().newPage();
+  try {
+    await other.clock.install({ time: now });
+    await other.goto('/workspace/');
+    await other.clock.fastForward(24 * 60 * 60 * 1000 + 5 * 60 * 1000);
+    await revisitWorkspace(other);
+    const otherItems = other.locator('[data-workspace-manager] [data-document-id]');
+    await expect(otherItems).toHaveCount(1);
+    await expect(otherItems.locator('[data-retention]')).toHaveText(
+      'Expiration pending while this file is in use'
+    );
+    await page.evaluate(() =>
+      (window as Window & { __releaseDocument?: () => void }).__releaseDocument?.()
+    );
+    await expect
+      .poll(() =>
+        page.evaluate(
+          async (documentId) =>
+            (await navigator.locks.query()).held?.some(
+              (lock) => lock.name === `noduct-doc-${documentId}`
+            ),
+          id
+        )
+      )
+      .toBe(false);
+    await revisitWorkspace(other);
+    await expect(otherItems).toHaveCount(0);
+  } finally {
+    await other.close();
+  }
+});

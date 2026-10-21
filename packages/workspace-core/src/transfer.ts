@@ -1,9 +1,5 @@
-import {
-  dbConsumeTransfer,
-  dbGetDocument,
-  dbGetTransfer,
-  dbPutTransfer
-} from './db';
+import { topology as defaultTopology, type Locale, type Topology } from '@noduct/tool-runtime';
+import { dbConsumeTransfer, dbGetTransfer, dbPutTransfer, dbTouchDocument } from './db';
 import {
   DocumentNotFoundError,
   InvalidToolTargetError,
@@ -18,8 +14,11 @@ export const DEFAULT_TRANSFER_TTL_MS = 15 * 60 * 1000; // 15 minutes
 
 export interface CreateTransferOptions {
   readonly ttlMs?: number | undefined;
-  readonly baseUrl?: string | undefined;
   readonly sourceTool?: string | undefined;
+  /** Locale da ferramenta de destino; preserva o idioma do usuário na navegação. */
+  readonly locale?: Locale | undefined;
+  /** Topologia injetável (testes); o padrão é a de produção (ADR 0005). */
+  readonly topology?: Topology | undefined;
 }
 
 export interface CreateTransferResult {
@@ -34,13 +33,29 @@ export async function createTransferTicket(
   targetTool: string,
   options?: CreateTransferOptions
 ): Promise<CreateTransferResult> {
-  const doc = await dbGetDocument(db, documentId);
+  const doc = await dbTouchDocument(db, documentId);
   if (!doc) {
     throw new DocumentNotFoundError(documentId);
   }
 
   if (!targetTool || typeof targetTool !== 'string') {
-    throw new InvalidToolTargetError('Target tool identifier must be a non-empty string.');
+    throw new InvalidToolTargetError(
+      'Target tool identifier must be a non-empty string.',
+      undefined,
+      { targetTool: String(targetTool) }
+    );
+  }
+
+  const topology = options?.topology ?? defaultTopology;
+  let targetUrl: string;
+  try {
+    targetUrl = topology.toolUrl(targetTool, '', options?.locale);
+  } catch (cause) {
+    throw new InvalidToolTargetError(
+      `Target tool "${targetTool}" is not a valid tool slug.`,
+      cause,
+      { targetTool }
+    );
   }
 
   const transferId = crypto.randomUUID();
@@ -59,11 +74,8 @@ export async function createTransferTicket(
 
   await dbPutTransfer(db, record);
 
-  // Generate URL
-  const baseUrl = options?.baseUrl ?? (typeof window !== 'undefined' ? window.location.origin : 'https://noduct.github.io');
-  // Format tool path (e.g. /merge-pdf/)
-  const normalizedPath = targetTool.startsWith('/') ? targetTool : `/${targetTool}/`;
-  const url = new URL(normalizedPath, baseUrl);
+  // URL da ferramenta de destino vem da topologia: /<slug>/ ou /<slug>/<locale>/, só com o ticket opaco.
+  const url = new URL(targetUrl);
   url.searchParams.set('transferId', transferId);
 
   return {
@@ -97,12 +109,14 @@ export async function resolveTransferTicket(
     const cleanTarget = transfer.targetTool.replace(/^\/|\/$/g, '');
     if (cleanCurrent !== cleanTarget) {
       throw new InvalidToolTargetError(
-        `Transfer was intended for "${transfer.targetTool}", but accessed from "${currentTool}".`
+        `Transfer was intended for "${transfer.targetTool}", but accessed from "${currentTool}".`,
+        undefined,
+        { targetTool: transfer.targetTool, currentTool }
       );
     }
   }
 
-  const doc = await dbGetDocument(db, transfer.documentId);
+  const doc = await dbTouchDocument(db, transfer.documentId);
   if (!doc) {
     throw new DocumentNotFoundError(transfer.documentId);
   }
@@ -135,4 +149,3 @@ export async function consumeTransferFromUrl(
 
   return doc;
 }
-

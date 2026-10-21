@@ -1,7 +1,7 @@
 .zone {
   display: grid;
   justify-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   box-sizing: border-box;
   width: 100%;
   padding: var(--space-6) var(--space-4);
@@ -13,6 +13,14 @@
   transition:
     background-color var(--duration-fast) var(--ease-apple),
     border-color var(--duration-fast) var(--ease-apple);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zone:not([data-disabled='true'], [data-state='dragover'], [data-state='rejected']):hover:not(
+      :has(.sources:hover)
+    ) {
+    border-color: var(--color-primary-border-active);
+  }
 }
 
 .zone[data-state='dragover'] {
@@ -33,9 +41,18 @@
 }
 
 .icon {
-  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--color-primary-border-soft);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-soft);
+  box-shadow: var(--rim-light-subtle);
+  font-size: 1.35rem;
   line-height: 1;
-  color: var(--color-text-secondary);
+  color: var(--color-primary);
 }
 
 .description {
@@ -58,36 +75,12 @@
 }
 
 .trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  min-width: 44px;
-  min-height: 44px;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-primary);
-  color: var(--color-background);
-  font-size: 0.9375rem;
-  font-weight: 600;
   cursor: pointer;
-  box-shadow: var(--shadow-sm);
-  transition:
-    background-color var(--duration-fast) var(--ease-apple),
-    transform var(--duration-instant) var(--ease-out-quad);
-}
-
-.trigger:hover {
-  background: var(--color-primary-hover);
-}
-
-.trigger:active {
-  transform: scale(var(--scale-active-button));
 }
 
 .input:focus-visible + .trigger {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: var(--shadow-focus-ring);
 }
 
 .input:disabled + .trigger {
@@ -95,6 +88,60 @@
   color: var(--color-text-muted);
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.sources {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.sources > :is(label, button) {
+  flex: 0 1 12.5rem;
+  width: 12.5rem;
+  min-width: min(100%, 12.5rem);
+  min-height: 44px;
+}
+
+/* Segunda origem (ADR 0006): mesmo peso visual de um botão secundário, ao lado do primário. */
+.zone .workspaceSource[data-loading='true'] {
+  cursor: progress;
+  opacity: 1;
+  background: var(--color-surface-sunken);
+  color: var(--color-text-secondary);
+}
+
+.workspaceSource[data-loading='true'] .sourceIcon,
+.workspaceSource:not([data-loading='true']) .sourceSpinner {
+  display: none;
+}
+
+.sourceSpinner {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-strong);
+  border-top-color: currentColor;
+  border-radius: var(--radius-circle);
+  animation: source-spin calc(var(--duration-slow) * 2) linear infinite;
+}
+
+@keyframes source-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sourceSpinner {
+    animation: none;
+  }
+}
+
+:global(html[data-motion='reduce']) .sourceSpinner {
+  animation: none;
 }
 
 .status {
@@ -105,8 +152,70 @@
   overflow-wrap: anywhere;
 }
 
+.status:empty {
+  display: none;
+}
+
 .zone[data-state='rejected'] .status {
   color: var(--color-error);
+}
+
+/*
+ * Modo compacto (setCompact): com arquivos já na ferramenta, a zona vira uma faixa com as duas
+ * origens. O status sai da tela, mas segue como região viva para os anúncios.
+ */
+.zone[data-compact='true'] {
+  display: flex;
+  justify-items: start;
+  width: auto;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  text-align: start;
+}
+
+.zone[data-compact='true'] :is(.icon, .description) {
+  display: none;
+}
+
+.zone[data-compact='true'] .sources {
+  justify-content: flex-start;
+}
+
+.zone[data-compact='true'] .sources > :is(label, button) {
+  flex: 0 0 12.5rem;
+}
+
+.zone[data-compact='true'] .trigger {
+  background: var(--color-surface-card);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm), var(--rim-light-strong);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .zone[data-compact='true'] .trigger:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-border-strong);
+    box-shadow: var(--shadow-sm), var(--rim-light-strong);
+  }
+}
+
+.zone[data-compact='true'] .status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.zone[data-compact='true'][data-state='dragover'] {
+  outline: 2px dashed var(--color-primary);
+  outline-offset: var(--space-1);
+  border-radius: var(--radius-md);
 }
 
 @media (max-width: 599px) {
@@ -114,7 +223,18 @@
     padding: var(--space-4) var(--space-3);
   }
 
-  .trigger {
+  .sources {
     width: 100%;
+  }
+
+  .sources > :is(label, button) {
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .zone[data-compact='true'] .sources > :is(label, button) {
+    flex: 1 1 100%;
+    min-width: 0;
   }
 }

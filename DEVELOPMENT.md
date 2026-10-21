@@ -1,78 +1,44 @@
-# Noduct — Development & Workspace Guide
+# Noduct — desenvolvimento local
 
-This guide covers everything you need to run, test, build, and contribute to the **Noduct** workspace.
+## Pré-requisitos
 
----
-
-## Prerequisites
-
-* **Node.js:** `20.19` or higher
-* **npm:** `10.0` or higher
-
----
-
-## Getting Started
-
-Install workspace dependencies and launch the local development server:
+Node.js 22.18+ e npm 10+. No PowerShell, use `npm.cmd` caso a política de execução bloqueie `npm.ps1`.
 
 ```bash
-# Install dependencies across all packages
 npm install
-
-# Start the Astro development server
 npm run dev
 ```
 
-The terminal will output the local URL (defaults to `http://localhost:4321/`).
+`dev` inicia o hub e todas as ferramentas declaradas por `noduct.slug` em `packages/*/package.json`. Acesse `http://localhost:4321/`; cada ferramenta também está disponível na mesma origem em `/<slug>/`. As portas internas começam em 4331 e são atribuídas apenas às ferramentas iniciadas. `npm run dev -- merge-pdf` limita as ferramentas iniciadas. `npm run dev -- --only merge-pdf` inicia somente a ferramenta na porta 4321; links do hub podem retornar 404.
 
----
+O Astro da ferramenta emite imports absolutos sem o prefixo da ferramenta. O proxy de mesma origem reescreve respostas em streaming e alterações de módulos da ferramenta provocam recarga completa da página. O hub mantém seu HMR normal.
 
-## Quality & Verification
+## Comandos públicos
 
-Run the verification pipeline to ensure code quality, type-safety, tests, and SEO compliance:
+| Comando                                      | Função                                                       |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| `npm run dev`                                | Hub e ferramentas em desenvolvimento                         |
+| `npm run build`                              | Compila o hub e cada ferramenta uma vez; monta `dist-pages/` |
+| `npm run preview`                            | Serve exatamente `dist-pages/` em 4321                       |
+| `npm run check`                              | Lint, CSS, tipos, contratos, testes e guardrails             |
+| `npm run test` / `npm run test:watch`        | Vitest                                                       |
+| `npm run test:e2e`                           | Playwright com artefato já compilado                         |
+| `npm run verify`                             | `check`, `build`, páginas, SEO e E2E nessa ordem             |
+| `npm run new:tool -- <slug> --category <id>` | Cria uma ferramenta a partir do template                     |
+| `npm run format`                             | Formata o repositório                                        |
+| `npm run github -- ...`                      | Automação GitHub aprovada                                    |
 
-```bash
-# Run TypeScript diagnostics across the workspace
-npm run typecheck
+`check` aceita um verificador isolado: `ui`, `architecture`, `catalog`, `i18n`, `sponsors`, `ratchet`, `css`, `types`, `scripts`, `agents`, `pages` ou `seo`. Os dois últimos exigem `dist-pages/` atualizado. `build` aceita slugs opcionais para um build parcial, mas apenas o build completo gera um artefato Pages utilizável por `preview` e E2E.
 
-# Execute unit and contract tests (Vitest)
-npm test
+`test:e2e` rejeita artefatos ausentes ou antigos com base no hash de código e configuração em `dist-pages/.build-info.json`. O `build` também prepara a fixture de testes; o E2E não recompila nada. Na primeira execução, instale Chromium com `npx playwright install chromium`.
+O teste dedicado da mesma origem em desenvolvimento pode ser executado com `npx playwright test --config playwright.dev.config.ts`.
 
-# Build the production static bundle and run SEO validation
-npm run build
+## Nova ferramenta
 
-# Run end-to-end integration tests (Playwright)
-npm run test:e2e
-```
+Execute `npm run new:tool -- <slug> --category <id>`. O gerador valida slug e categoria, prepara a ferramenta em diretório temporário, atualiza catálogo e traduções e instala o workspace. Ele conclui com sucesso quando a geração funciona; `npm run check` acusa os campos `TODO(i18n)` até serem traduzidos e revisados. Veja [docs/criar-nova-ferramenta.md](docs/criar-nova-ferramenta.md).
 
-> **Note:** First-time E2E runs require installing browser binaries once via `npx playwright install chromium`.
+## Publicação
 
----
+O workflow de Pages valida a URL configurada, executa `npm run verify` e publica somente `dist-pages/`. O fluxo de branch por épico e as regras de engenharia estão em [AGENTS.md](AGENTS.md).
 
-## Workspace Structure
-
-The project is structured as a modular monorepo:
-
-* `src/`: The core Astro SSG hub, pages, layouts, and data catalog.
-* `packages/design-system/`: Centralized tokens, CSS variables, Apple-grade motion curves, and reusable components (`ScrollArea`, `ToolFrame`, headers, footers).
-* `packages/tool-template/`: Standalone demonstrator application and starter template for independent micro-apps.
-* `docs/`: Technical specifications, architecture decisions (ADRs), SEO strategy, and interface guardrails.
-* `scripts/`: Automated validation scripts for catalog schema, SEO integrity, and sponsorships.
-* `tests/`: Vitest unit tests and Playwright end-to-end suites.
-
----
-
-## Building & Publishing
-
-The static production artifact is generated into the `dist/` directory.
-
-Deployment is handled via GitHub Pages workflow upon push to `main`. For hosting conditions and deployment details, refer to:
-* [`docs/deploy-github-pages.md`](docs/deploy-github-pages.md)
-* [`docs/padroes-interface.md`](docs/padroes-interface.md)
-* [`docs/arquitetura.md`](docs/arquitetura.md)
-
----
-
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.
+Agentes e pessoas seguem a mesma fonte de regras. Leia [AGENTS.md](AGENTS.md), o arquivo aninhado da área editada e [docs/guardrails.md](docs/guardrails.md). `npm run check -- agents` valida ponteiros do Claude/Copilot, configuração do Gemini, limites de contexto, links e comandos; `npm run check` inclui essa verificação. As [skills do projeto](docs/agentes/README.md#skills), o [fluxo OpenSpec](docs/agentes/openspec.md) e a [avaliação](docs/agentes/avaliacao.md) ajudam a repetir tarefas entre agentes.

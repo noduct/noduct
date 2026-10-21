@@ -1,183 +1,176 @@
 ---
-import SeoHead from '@noduct/design-system/components/SeoHead.astro';
-import ToolFrame from '@noduct/design-system/components/ToolFrame.astro';
+import AppShell from '@noduct/design-system/shell/AppShell.astro';
+import ToolPage from '@noduct/design-system/shell/ToolPage.astro';
+import { toolJsonLd } from '@noduct/design-system/shell/tool-page';
 import DropZone from '@noduct/design-system/components/DropZone.astro';
 import ReorderableList from '@noduct/design-system/components/ReorderableList.astro';
 import ProcessingFeedback from '@noduct/design-system/components/ProcessingFeedback.astro';
 import DownloadCard from '@noduct/design-system/components/DownloadCard.astro';
-import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
-import WorkspaceDrawer from '@noduct/design-system/components/WorkspaceDrawer.astro';
-import type { DesignLocale } from '@noduct/design-system';
-import { toolConfig } from '../config';
+import Button from '@noduct/design-system/components/Button.astro';
+import Icon from '@noduct/design-system/icons/Icon.astro';
+import RichText from '@noduct/design-system/components/RichText.astro';
+import ToolInfoCard from '@noduct/design-system/components/ToolInfoCard.astro';
+import ToolSharedInfo from '@noduct/design-system/components/ToolSharedInfo.astro';
+import { formatToolInfoLine } from '@noduct/design-system/shell/tool-info-messages';
+import type { Locale } from '@noduct/tool-runtime';
+import { DESKTOP_RESOURCE_BUDGET, MOBILE_RESOURCE_BUDGET } from '@noduct/workspace-core';
+import { tool } from '../config';
 import { mergeMessages } from '../i18n';
+import type { MergeClientMessages } from '../i18n';
 import styles from './MergePdfApp.module.css';
 
 interface Props {
-  locale?: DesignLocale;
+  locale?: Locale;
 }
 
 const { locale = 'en' } = Astro.props;
 const m = mergeMessages[locale];
-const prefix = locale === 'en' ? '' : locale === 'pt-BR' ? 'pt-br/' : 'es/';
-const canonicalUrl = `${toolConfig.canonicalUrl}${prefix}`;
-const hubUrl = `https://noduct.github.io/${prefix}`;
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'SoftwareApplication',
-      name: m.name,
-      description: m.description,
-      applicationCategory: 'UtilityApplication',
-      operatingSystem: 'Any',
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'USD'
-      }
-    },
-    {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          name: 'Noduct',
-          item: hubUrl
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: m.category,
-          item: `${hubUrl}pdf-tools/`
-        },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          name: m.name,
-          item: canonicalUrl
-        }
-      ]
-    }
-  ]
-};
+const jsonLd = toolJsonLd(tool, locale, { name: m.name, description: m.description });
+const clientMessages = {
+  minFilesRequired: m.minFilesRequired,
+  oneFileReady: m.oneFileReady,
+  oneFileAnnounce: m.oneFileAnnounce,
+  statusReadyAnnounce: m.statusReadyAnnounce,
+  remove: m.remove,
+  removeFile: m.removeFile,
+  errorEncrypted: m.errorEncrypted,
+  errorCorrupted: m.errorCorrupted,
+  statusValidating: m.statusValidating,
+  statusMerging: m.statusMerging,
+  statusSaving: m.statusSaving,
+  downloadFileName: m.downloadFileName,
+  errorMergeFailed: m.errorMergeFailed,
+  budgetWarningTitle: m.budgetWarningTitle,
+  budgetWarningConfirm: m.budgetWarningConfirm
+} satisfies MergeClientMessages;
 ---
 
-<!doctype html>
-<html lang={locale}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <SeoHead
-      title={`${m.name} | Noduct`}
-      description={m.description}
-      canonical={canonicalUrl}
-      noindex={!toolConfig.published}
-    />
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
-  </head>
-  <body>
-    <ToolFrame hubUrl={hubUrl} locale={locale}>
-      <nav class={styles.crumbs} aria-label={m.breadcrumb}>
-        <a href={hubUrl}>Noduct</a> /
-        <a href={`${hubUrl}pdf-tools/`}>{m.category}</a> /
-        <span aria-current="page">{m.name}</span>
-      </nav>
-
-      <div class={styles.headerRow}>
-        <h1 class={styles.title}>{m.name}</h1>
-        <WorkspaceDrawer id="merge-workspace-drawer" locale={locale} />
-      </div>
-      <p class={styles.lead}>{m.description}</p>
-
-      <section class={styles.workspace} aria-label={m.name}>
-        <DropZone
-          id="merge-drop-zone"
-          label={m.dropLabel}
-          description={m.dropDescription}
-          multiple={true}
-          locale={locale}
-        />
-
-        <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
-
-        <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} />
-
-        <div class={styles.controlsBar}>
-          <p id="merge-file-count" class={styles.statusText} data-merge-count>
-            {m.minFilesRequired}
-          </p>
-          <div class={styles.actions}>
-            <button
-              id="clear-all-btn"
-              type="button"
-              class={styles.clearButton}
-              hidden
-              data-action="clear"
-            >
-              Clear
-            </button>
-            <button
-              id="start-merge-btn"
-              type="button"
-              class={styles.mergeButton}
-              disabled
-              data-action="merge"
-            >
-              {m.actionMerge}
-            </button>
-          </div>
+<AppShell
+  scope={tool.scope}
+  {locale}
+  title={m.name}
+  description={m.description}
+  noindex={!tool.published}
+  {jsonLd}
+>
+  <ToolPage {tool} {locale} heading={m.name} lede={m.description}>
+    <section
+      class={styles.workspace}
+      aria-label={m.name}
+      data-merge-workspace
+      data-has-files="false"
+    >
+      <div class={styles.workbenchBar}>
+        <div class={styles.dropZoneWrap}>
+          <DropZone
+            id="merge-drop-zone"
+            label={m.dropLabel}
+            description={m.dropDescription}
+            accept={tool.accept}
+            multiple={true}
+            locale={locale}
+            workspace={{ confirmLabel: m.addToMerge }}
+          />
         </div>
 
-        <ProcessingFeedback
-          label={m.processingLabel}
-          status={m.statusValidating}
-          cancellable={true}
-          hidden={true}
-          locale={locale}
-        />
+        <div class={styles.controlsBar}>
+          <div
+            id="merge-file-count"
+            class={styles.mergeSummary}
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            data-merge-count
+            data-summary="empty"
+          >
+            <p class={styles.mergeHint} data-merge-hint>{m.minFilesRequired}</p>
+            <div class={styles.mergeStats} data-merge-stats hidden>
+              <div class={styles.mergeStat}>
+                <span class={styles.mergeStatValue} data-merge-files-count>0</span>
+                <span class={styles.mergeStatLabel}>{m.statFilesLabel}</span>
+              </div>
+              <span class={styles.mergeStatSep} aria-hidden="true"></span>
+              <div class={styles.mergeStat} data-merge-pages-stat>
+                <span class={styles.mergeStatValue} data-merge-pages-count>0</span>
+                <span class={styles.mergeStatLabel}>{m.statPagesLabel}</span>
+              </div>
+            </div>
+          </div>
+          <div class={styles.actions}>
+            <Button id="clear-all-btn" variant="secondary" hidden data-action="clear">
+              {m.clear}
+            </Button>
+            <Button id="start-merge-btn" variant="primary" disabled data-action="merge">
+              {m.actionMerge}
+            </Button>
+          </div>
+        </div>
+      </div>
 
-        <DownloadCard
-          id="merge-download-card"
-          title={m.downloadTitle}
-          fileName={m.downloadFileName}
-          hidden={true}
-          locale={locale}
-        />
+      <div id="merge-alerts" class={styles.alerts} role="alert" hidden data-merge-alerts></div>
+      <p class={styles.alerts} role="alert" hidden data-budget-alert></p>
 
-        <p class={styles.privacyNotice}>
-          <span aria-hidden="true">🔒</span>
-          {m.privacyNotice}
-        </p>
-      </section>
+      <div class={styles.reorderContainer}>
+        <ReorderableList id="merge-file-list" label={m.listLabel} locale={locale} variant="grid" />
+      </div>
 
-      <SponsorshipSlot
-        placementId={toolConfig.sponsorPlacementId}
-        registryUrl={toolConfig.sponsorshipRegistryUrl}
-        enabled={toolConfig.sponsorshipEnabled}
+      <ProcessingFeedback
+        label={m.processingLabel}
+        status={m.statusValidating}
+        cancellable={true}
+        hidden={true}
         locale={locale}
       />
 
-      <section class={styles.infoSection}>
-        <h2>{m.howTitle}</h2>
+      <DownloadCard
+        id="merge-download-card"
+        title={m.downloadTitle}
+        fileName={m.downloadFileName}
+        hidden={true}
+        locale={locale}
+        workspace={{ sourceTool: tool.slug }}
+      />
+
+      <p class={styles.privacyNotice}>
+        <Icon name="lock" aria-hidden="true" />
+        {m.privacyNotice}
+      </p>
+    </section>
+
+    <Fragment slot="content">
+      <ToolInfoCard title={m.howTitle}>
         <ol>
-          {m.how.map((step) => <li>{step}</li>)}
+          {m.how.map((step) => (
+            <li>
+              <RichText text={formatToolInfoLine(step, { action: m.actionMerge })} />
+            </li>
+          ))}
         </ol>
-      </section>
-
-      <section class={styles.infoSection}>
-        <h2>{m.limitsTitle}</h2>
-        <p>{m.limits}</p>
-      </section>
-
-      <section class={styles.infoSection}>
-        <h2>{m.securityTitle}</h2>
-        <p>{m.security}</p>
-      </section>
-    </ToolFrame>
-
+        <hr />
+        <p>
+          <RichText text={m.howNote} />
+        </p>
+      </ToolInfoCard>
+      <ToolSharedInfo
+        {locale}
+        limits={{
+          desktopFiles: DESKTOP_RESOURCE_BUDGET.maxFiles,
+          desktopSizeMb: DESKTOP_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024),
+          mobileFiles: MOBILE_RESOURCE_BUDGET.maxFiles,
+          mobileSizeMb: MOBILE_RESOURCE_BUDGET.maxTotalBytes / (1024 * 1024)
+        }}
+      />
+    </Fragment>
+    <script
+      type="application/json"
+      id="merge-messages"
+      set:html={JSON.stringify(clientMessages).replace(/</g, '\\u003c')}
+    />
     <script>
+      import type { MergeClientMessages } from '../i18n';
+      import clientStyles from './MergePdfApp.module.css';
+      import buttonStyles from '@noduct/design-system/components/Button.module.css';
+      import type { Locale } from '@noduct/tool-runtime';
       import {
         CANCEL_EVENT,
         FILES_SELECTED_EVENT,
@@ -191,12 +184,30 @@ const jsonLd = {
         type ListChangeDetail
       } from '@noduct/design-system/file-workflow';
       import {
-        getWorkspaceDrawer,
-        WORKSPACE_ACTION_EVENT,
-        WORKSPACE_OPEN_EVENT,
-        type WorkspaceActionDetail
+        connectLocalWorkspace,
+        createWorkspaceServices
       } from '@noduct/design-system/workspace-ui';
       import type { MergeWorkflow, WorkflowFileItem } from '../lib/merge-workflow';
+      import { OperationCancelledError } from '@noduct/pdf-core';
+      import { confirmAction } from '@noduct/design-system/shell/confirm';
+      import { formatBudgetIssue } from '../lib/workspace-budget-messages';
+
+      const language = document.documentElement.lang;
+      const clientLocale: Locale = language === 'pt-BR' || language === 'es' ? language : 'en';
+      const messageNode = document.querySelector<HTMLScriptElement>('#merge-messages');
+      if (!messageNode?.textContent) throw new Error('Missing localized merge messages');
+      const messages = JSON.parse(messageNode.textContent) as MergeClientMessages;
+      const numberFormat = new Intl.NumberFormat(clientLocale);
+      const formatMessage = (template: string, values: Record<string, string>) =>
+        template.replace(/\{(name|files|pages)\}/g, (_, key: string) => values[key] ?? '');
+
+      // Área de Trabalho Local híbrida (ADR 0006): origem local na DropZone, salvar opt-in no
+      // resultado e miniaturas. Nada é carregado até o primeiro uso.
+      const workspace = createWorkspaceServices({
+        loadWorkspace: () => import('@noduct/workspace-core'),
+        loadRenderer: () => import('@noduct/pdf-core/render')
+      });
+      connectLocalWorkspace(document, workspace);
 
       // Lazy load workflow module to optimize LCP < 1.5s
       let workflowPromise: Promise<MergeWorkflow> | undefined;
@@ -211,12 +222,19 @@ const jsonLd = {
         return workflowPromise;
       }
 
+      const workspaceEl = document.querySelector<HTMLElement>('[data-merge-workspace]')!;
       const dropZoneEl = document.querySelector<HTMLElement>('[data-drop-zone]')!;
       const listEl = document.querySelector<HTMLElement>('[data-reorderable-list]')!;
       const feedbackEl = document.querySelector<HTMLElement>('[data-processing-feedback]')!;
       const downloadEl = document.querySelector<HTMLElement>('[data-download-card]')!;
       const alertsEl = document.querySelector<HTMLElement>('[data-merge-alerts]')!;
+      const budgetAlertEl = document.querySelector<HTMLElement>('[data-budget-alert]')!;
       const countEl = document.querySelector<HTMLElement>('[data-merge-count]')!;
+      const hintEl = document.querySelector<HTMLElement>('[data-merge-hint]')!;
+      const statsEl = document.querySelector<HTMLElement>('[data-merge-stats]')!;
+      const filesCountEl = document.querySelector<HTMLElement>('[data-merge-files-count]')!;
+      const pagesCountEl = document.querySelector<HTMLElement>('[data-merge-pages-count]')!;
+      const pagesStatEl = document.querySelector<HTMLElement>('[data-merge-pages-stat]')!;
       const mergeBtn = document.querySelector<HTMLButtonElement>('[data-action="merge"]')!;
       const clearBtn = document.querySelector<HTMLButtonElement>('[data-action="clear"]')!;
 
@@ -224,6 +242,29 @@ const jsonLd = {
       const reorderList = getReorderableList(listEl)!;
       const feedback = getProcessingFeedback(feedbackEl)!;
       const downloadCard = getDownloadCard(downloadEl)!;
+
+      // Soltar arquivos em qualquer ponto da bancada inteira quando ativa
+      workspaceEl.addEventListener('dragover', (event) => {
+        if (!event.dataTransfer?.types.includes('Files')) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+        workspaceEl.dataset.dragOver = 'true';
+      });
+
+      workspaceEl.addEventListener('dragleave', (event) => {
+        if (!workspaceEl.contains(event.relatedTarget as Node | null)) {
+          delete workspaceEl.dataset.dragOver;
+        }
+      });
+
+      workspaceEl.addEventListener('drop', (event) => {
+        delete workspaceEl.dataset.dragOver;
+        if (dropZoneEl.contains(event.target as Node)) return;
+        const files = event.dataTransfer?.files;
+        if (!files || files.length === 0) return;
+        event.preventDefault();
+        dropZone.select([...files]);
+      });
 
       function renderAlerts(items: readonly WorkflowFileItem[], workflow: MergeWorkflow) {
         const invalid = items.filter((i) => i.status !== 'valid');
@@ -237,20 +278,24 @@ const jsonLd = {
         alertsEl.replaceChildren(
           ...invalid.map((item) => {
             const div = document.createElement('div');
-            div.className = '_alertItem_1k021_31'; // fallback class or dataset
+            div.className = clientStyles.alertItem!;
             div.setAttribute('data-alert-item', item.id);
 
             const msg = document.createElement('span');
             msg.textContent =
               item.status === 'encrypted'
-                ? `"${item.name}" is password-protected and cannot be processed.`
-                : `"${item.name}" is corrupted or not a valid PDF.`;
+                ? formatMessage(messages.errorEncrypted, { name: item.name })
+                : formatMessage(messages.errorCorrupted, { name: item.name });
 
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.textContent = 'Remove';
-            btn.setAttribute('aria-label', `Remove ${item.name}`);
-            btn.className = '_alertDismiss_1k021_43';
+            btn.textContent = messages.remove;
+            btn.setAttribute('aria-label', formatMessage(messages.removeFile, { name: item.name }));
+            btn.className = [
+              buttonStyles.button,
+              buttonStyles['danger-quiet'],
+              buttonStyles.sm
+            ].join(' ');
             btn.addEventListener('click', () => {
               workflow.removeItem(item.id);
             });
@@ -264,19 +309,65 @@ const jsonLd = {
       function updateUI(workflow: MergeWorkflow) {
         const state = workflow.getState();
         const validItems = state.items.filter((i) => i.status === 'valid');
+        const hasFiles = state.items.length > 0;
 
-        reorderList.setItems(validItems);
+        dropZone.setCompact(hasFiles);
+        workspaceEl.dataset.hasFiles = hasFiles ? 'true' : 'false';
+
+        const displayedIds = reorderList.getIds();
+        if (
+          displayedIds.length !== validItems.length ||
+          validItems.some((item, index) => item.id !== displayedIds[index])
+        ) {
+          reorderList.setItems(validItems);
+        }
+        // Prévia da primeira página de cada PDF da pilha; o cache evita renderizar de novo.
+        for (const item of validItems) {
+          void workspace.thumbnails.forFile(item.file).then((preview) => {
+            if (preview) reorderList.setThumbnail(item.id, preview.blob);
+          });
+        }
         renderAlerts(state.items, workflow);
 
         mergeBtn.disabled = !state.canMerge;
-        clearBtn.hidden = state.items.length === 0;
+        clearBtn.hidden = !hasFiles;
 
-        if (validItems.length === 0) {
-          countEl.textContent = 'Select at least 2 PDF files to merge.';
-        } else if (validItems.length === 1) {
-          countEl.textContent = '1 valid PDF selected (select at least 1 more to merge).';
+        const filesCount = validItems.length;
+        if (filesCount === 0) {
+          countEl.dataset.summary = 'empty';
+          hintEl.hidden = false;
+          statsEl.hidden = true;
+          pagesStatEl.hidden = true;
+          hintEl.textContent = messages.minFilesRequired;
+          countEl.removeAttribute('aria-label');
+        } else if (filesCount === 1) {
+          countEl.dataset.summary = 'partial';
+          hintEl.hidden = false;
+          statsEl.hidden = false;
+          pagesStatEl.hidden = false;
+          filesCountEl.textContent = numberFormat.format(1);
+          pagesCountEl.textContent = numberFormat.format(state.totalPages);
+          hintEl.textContent = messages.oneFileReady;
+          countEl.setAttribute(
+            'aria-label',
+            formatMessage(messages.oneFileAnnounce, {
+              pages: numberFormat.format(state.totalPages)
+            })
+          );
         } else {
-          countEl.textContent = `${validItems.length} PDFs ready to merge (${state.totalPages} total pages).`;
+          countEl.dataset.summary = 'ready';
+          hintEl.hidden = true;
+          statsEl.hidden = false;
+          pagesStatEl.hidden = false;
+          filesCountEl.textContent = numberFormat.format(filesCount);
+          pagesCountEl.textContent = numberFormat.format(state.totalPages);
+          countEl.setAttribute(
+            'aria-label',
+            formatMessage(messages.statusReadyAnnounce, {
+              files: numberFormat.format(filesCount),
+              pages: numberFormat.format(state.totalPages)
+            })
+          );
         }
       }
 
@@ -296,12 +387,36 @@ const jsonLd = {
         } else if (detail.action === 'remove') {
           workflow.removeItem(detail.id);
         }
-        updateUI(workflow);
       });
 
       mergeBtn.addEventListener('click', async () => {
         const workflow = await getWorkflow();
         if (!workflow.getState().canMerge) return;
+
+        const { evaluateResourceBudget } = await import('@noduct/workspace-core');
+        const validItems = workflow.getState().items.filter((item) => item.status === 'valid');
+        const assessment = await evaluateResourceBudget({
+          inputs: validItems.map((item) => ({
+            name: item.name,
+            size: item.size,
+            pageCount: item.pageCount
+          }))
+        });
+        budgetAlertEl.hidden = true;
+        if (assessment.decision === 'blocked') {
+          budgetAlertEl.textContent = formatBudgetIssue(assessment, clientLocale);
+          budgetAlertEl.hidden = false;
+          return;
+        }
+        if (
+          assessment.decision === 'warning' &&
+          !(await confirmAction({
+            title: messages.budgetWarningTitle,
+            message: formatBudgetIssue(assessment, clientLocale),
+            confirmLabel: messages.budgetWarningConfirm
+          }))
+        )
+          return;
 
         dropZone.setDisabled(true);
         mergeBtn.disabled = true;
@@ -309,7 +424,7 @@ const jsonLd = {
         feedbackEl.hidden = false;
         downloadCard.reset();
 
-        feedback.update({ status: 'Starting PDF merge...', value: 0 });
+        feedback.update({ status: messages.statusValidating, value: 0 });
 
         try {
           const testDelay = (window as unknown as { __MERGE_STEP_DELAY_MS__?: number })
@@ -319,35 +434,26 @@ const jsonLd = {
             onProgress: ({ phase, percent }) => {
               const statusText =
                 phase === 'loading'
-                  ? 'Loading PDF files...'
+                  ? messages.statusValidating
                   : phase === 'processing'
-                    ? 'Combining pages into unified document...'
-                    : 'Saving final PDF document...';
+                    ? messages.statusMerging
+                    : messages.statusSaving;
               feedback.update({ status: statusText, value: percent });
             }
           });
 
           feedbackEl.hidden = true;
           dropZone.setDisabled(false);
-          downloadCard.show({ file: result.blob, fileName: result.fileName });
-
-          try {
-            const { openWorkspace } = await import('@noduct/workspace-core');
-            const ws = await openWorkspace();
-            await ws.saveDocument({
-              name: result.fileName,
-              mimeType: 'application/pdf',
-              blob: result.blob,
-              size: result.blob.size,
-              metadata: { toolSource: 'merge-pdf' }
-            });
-          } catch {
-            // Gracefully ignore local workspace save errors if storage is unavailable
-          }
-        } catch {
+          // Salvar na Área Local é opt-in, pelo próprio cartão (ADR 0006 D3).
+          downloadCard.show({ file: result.blob, fileName: messages.downloadFileName });
+        } catch (error) {
           feedbackEl.hidden = true;
           dropZone.setDisabled(false);
           updateUI(workflow);
+          if (!(error instanceof OperationCancelledError)) {
+            alertsEl.textContent = messages.errorMergeFailed;
+            alertsEl.hidden = false;
+          }
         }
       });
 
@@ -366,6 +472,7 @@ const jsonLd = {
         dropZone.setDisabled(false);
         alertsEl.replaceChildren();
         alertsEl.hidden = true;
+        budgetAlertEl.hidden = true;
         updateUI(workflow);
         document.querySelector<HTMLInputElement>('#merge-drop-zone')?.focus();
       }
@@ -379,65 +486,6 @@ const jsonLd = {
         const workflow = await getWorkflow();
         handleReset(workflow);
       });
-
-      const workspaceRoot = document.querySelector<HTMLElement>('[data-workspace-root]');
-      if (workspaceRoot) {
-        const drawer = getWorkspaceDrawer(workspaceRoot);
-
-        async function syncWorkspace() {
-          try {
-            const { openWorkspace } = await import('@noduct/workspace-core');
-            const ws = await openWorkspace();
-            const docs = await ws.listDocuments();
-            const size = await ws.getWorkspaceSize();
-            drawer?.setItems(
-              docs.map((d) => ({
-                id: d.id,
-                name: d.name,
-                size: d.size,
-                createdAt: d.createdAt
-              })),
-              size.totalBytes,
-              250 * 1024 * 1024
-            );
-          } catch {
-            // Gracefully handle if storage unavailable
-          }
-        }
-
-        document.addEventListener(WORKSPACE_OPEN_EVENT, () => {
-          syncWorkspace();
-        });
-
-        document.addEventListener(WORKSPACE_ACTION_EVENT, async (event) => {
-          const detail = (event as CustomEvent<WorkspaceActionDetail>).detail;
-          try {
-            const { openWorkspace } = await import('@noduct/workspace-core');
-            const ws = await openWorkspace();
-            if (detail.action === 'clear-all') {
-              await ws.clearDocuments();
-              await syncWorkspace();
-            } else if (detail.action === 'delete' && detail.documentId) {
-              await ws.deleteDocument(detail.documentId);
-              await syncWorkspace();
-            } else if (detail.action === 'download' && detail.documentId) {
-              const doc = await ws.getDocument(detail.documentId);
-              if (doc) {
-                const url = URL.createObjectURL(doc.blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = doc.name;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-              }
-            }
-          } catch {
-            // ignore
-          }
-        });
-      }
     </script>
-  </body>
-</html>
+  </ToolPage>
+</AppShell>

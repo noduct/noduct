@@ -1,7 +1,7 @@
 ---
 import ToolDemo from '../../components/ToolDemo.astro';
-import type { DesignLocale } from '@noduct/design-system';
-export function getStaticPaths() { return [{ params: { locale: 'pt-br' }, props: { locale: 'pt-BR' } }, { params: { locale: 'es' }, props: { locale: 'es' } }]; }
-const { locale } = Astro.props as { locale: DesignLocale };
+import { localeStaticPaths, type Locale } from '@noduct/tool-runtime';
+export const getStaticPaths = localeStaticPaths;
+const { locale } = Astro.props as { locale: Locale };
 ---
 <ToolDemo locale={locale} />

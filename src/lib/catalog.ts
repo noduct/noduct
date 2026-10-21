@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { RESERVED_HUB_SEGMENTS, TOOL_STATUSES, topology } from '@noduct/tool-runtime';
 import { categoryIds, type ToolDefinition } from '@/types/tool';
 
 const slug = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -11,11 +12,9 @@ const schema = z.object({
   categoryId: z.enum(categoryIds).optional(),
   keywords: z.array(z.string().min(1)).min(1),
   tags: z.array(z.string().min(1)).optional(),
-  icon: z.string().min(1),
-  url: z.string().url().or(z.string().startsWith('/')).optional(),
-  directoryUrl: z.string().optional(),
+  url: z.string().url().optional(),
   repositoryUrl: z.string().url().optional(),
-  status: z.enum(['planned', 'beta', 'published', 'ready', 'new']),
+  status: z.enum(TOOL_STATUSES),
   featured: z.boolean(),
   visible: z.boolean().optional(),
   sponsorPlacementId: z.string().optional()
@@ -31,6 +30,9 @@ export function validateCatalog(items: ToolDefinition[]): string[] {
     if (ids.has(item.id)) errors.push(`Duplicate tool id: ${item.id}`);
     if (slugs.has(item.slug)) errors.push(`Duplicate tool slug: ${item.slug}`);
     if (item.status !== 'planned' && !item.url) errors.push(`Available tool has no URL: ${item.id}`);
+    if (RESERVED_HUB_SEGMENTS.has(item.slug)) errors.push(`Tool slug is reserved by the hub: ${item.slug}`);
+    if (item.url && !item.url.startsWith(topology.toolUrl(item.slug))) errors.push(`Tool URL must come from the topology: ${item.id}`);
+    if (item.status === 'planned' && item.url) errors.push(`Planned tool must not have an operational URL: ${item.id}`);
     if (item.featured && item.status !== 'published') errors.push(`Only published tools may be featured: ${item.id}`);
     ids.add(item.id);
     slugs.add(item.slug);

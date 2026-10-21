@@ -11,11 +11,20 @@ export default defineConfig({
       '@noduct/design-system/workspace-ui': fileURLToPath(
         new URL('./packages/design-system/src/workspace-ui/index.ts', import.meta.url)
       ),
+      '@noduct/design-system/sponsorship': fileURLToPath(
+        new URL('./packages/design-system/src/sponsorship/index.ts', import.meta.url)
+      ),
+      '@noduct/design-system/theme': fileURLToPath(
+        new URL('./packages/design-system/src/theme.ts', import.meta.url)
+      ),
       '@noduct/design-system': fileURLToPath(
         new URL('./packages/design-system/src/index.ts', import.meta.url)
       ),
       '@noduct/pdf-core': fileURLToPath(
         new URL('./packages/pdf-core/src/index.ts', import.meta.url)
+      ),
+      '@noduct/tool-runtime': fileURLToPath(
+        new URL('./packages/tool-runtime/src/index.ts', import.meta.url)
       ),
       '@noduct/workspace-core': fileURLToPath(
         new URL('./packages/workspace-core/src/index.ts', import.meta.url)
@@ -24,6 +33,7 @@ export default defineConfig({
   },
   test: {
     include: ['tests/unit/**/*.test.ts', 'packages/*/src/**/*.test.ts'],
+    maxWorkers: 4,
     coverage: { reporter: ['text', 'html'] }
   }
 });

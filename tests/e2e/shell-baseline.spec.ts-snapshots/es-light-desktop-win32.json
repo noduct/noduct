@@ -1,0 +1,762 @@
+{
+  "headerAria": "- banner:\n  - link \"Inicio de Noduct\":\n    - /url: /es/\n    - text: Noduct\n  - navigation \"Navegación principal\":\n    - link \"Todas las herramientas\":\n      - /url: /es/tools/\n    - group: Categorías\n    - link \"Acerca de\":\n      - /url: /es/about/\n  - button \"Abrir configuración\"",
+  "footerAria": "- contentinfo:\n  - strong: Noduct\n  - paragraph: Herramientas online rápidas, gratuitas y privadas para el trabajo cotidiano.\n  - navigation \"Navegación del pie de página\":\n    - link \"Todas las herramientas\":\n      - /url: /es/tools/\n    - link \"Acerca de\":\n      - /url: /es/about/\n    - link \"Patrocinio\":\n      - /url: /es/sponsor/\n    - link \"Contacto\":\n      - /url: /es/contact/\n    - link \"Privacidad\":\n      - /url: /es/privacy/\n    - link \"Términos\":\n      - /url: /es/terms/\n  - complementary \"Invítame a un café\":\n    - paragraph: ¿Te resulta útil Noduct? Apoya el proyecto.\n    - link \"Apoya a Noduct en Buy Me a Coffee (se abre en una pestaña nueva)\":\n      - /url: https://buymeacoffee.com/plajiw\n      - text: Invítame a un café\n  - paragraph: © 2026 Noduct. Herramientas online rápidas, gratuitas y privadas.",
+  "headerStyles": [
+    {
+      "tag": "header",
+      "role": null,
+      "text": "Noduct Todas las herramientas Categorías Categorías Herramientas de PDF Herramientas de imagen Herramientas de texto Herramientas de datos Herramientas de desarrollo Utilidades generales Acerca de Configuración Tema Tema Tema Claro Oscuro Arte de fondo Puntos decorativos en pantallas anchas Reducir animaciones Mantiene el arte quieto y acorta las transiciones Idioma Automático Sigue el navegador English Português (Brasil) Español Menú",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 59
+      },
+      "style": {
+        "display": "block",
+        "position": "sticky",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgb(250, 250, 249)",
+        "borderColor": "rgb(18, 19, 22) rgb(18, 19, 22) rgb(228, 228, 224)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Noduct",
+      "box": {
+        "x": 16,
+        "y": 15,
+        "width": 95.06,
+        "height": 28
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "10.4px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Todas las herramientas",
+      "box": {
+        "x": 830.88,
+        "y": 11,
+        "width": 168.06,
+        "height": 36
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "6px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.76px",
+        "fontWeight": "550",
+        "lineHeight": "20.64px",
+        "padding": "6.4px 12px",
+        "gap": "5.6px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Herramientas de PDF",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "8px 8px 0px 0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "500",
+        "lineHeight": "20.16px",
+        "padding": "8px 12px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Herramientas de imagen",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(237, 237, 235) rgb(18, 19, 22) rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "500",
+        "lineHeight": "20.16px",
+        "padding": "8px 12px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Herramientas de texto",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(237, 237, 235) rgb(18, 19, 22) rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "500",
+        "lineHeight": "20.16px",
+        "padding": "8px 12px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Herramientas de datos",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(237, 237, 235) rgb(18, 19, 22) rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "500",
+        "lineHeight": "20.16px",
+        "padding": "8px 12px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Herramientas de desarrollo",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(237, 237, 235) rgb(18, 19, 22) rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "500",
+        "lineHeight": "20.16px",
+        "padding": "8px 12px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Utilidades generales",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(237, 237, 235) rgb(18, 19, 22) rgb(18, 19, 22)",
+        "borderRadius": "0px 0px 8px 8px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "500",
+        "lineHeight": "20.16px",
+        "padding": "8px 12px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Acerca de",
+      "box": {
+        "x": 1118.78,
+        "y": 11,
+        "width": 87.03,
+        "height": 36
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgba(0, 0, 0, 0)",
+        "borderRadius": "6px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.76px",
+        "fontWeight": "550",
+        "lineHeight": "20.64px",
+        "padding": "6.4px 12px",
+        "gap": "5.6px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "English",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "400",
+        "lineHeight": "20.16px",
+        "padding": "9.6px 13.6px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Português (Brasil)",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "400",
+        "lineHeight": "20.16px",
+        "padding": "9.6px 13.6px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Español",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "0px 0px 8px 8px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "400",
+        "lineHeight": "20.16px",
+        "padding": "9.6px 13.6px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "text": "",
+      "box": {
+        "x": 1226,
+        "y": 10,
+        "width": 38,
+        "height": 38
+      },
+      "style": {
+        "display": "inline-flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(228, 228, 224)",
+        "borderRadius": "6px",
+        "boxShadow": "rgba(18, 19, 22, 0.04) 0px 1px 2px 0px, rgba(255, 255, 255, 0.8) 0px 1px 0px 0px inset",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "lineHeight": "14px",
+        "padding": "0px",
+        "gap": "0px"
+      }
+    },
+    {
+      "tag": "button",
+      "role": "switch",
+      "text": "",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "inline-flex",
+        "position": "relative",
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(29, 88, 216)",
+        "borderColor": "rgb(29, 88, 216)",
+        "borderRadius": "999px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "button",
+      "role": "switch",
+      "text": "",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "inline-flex",
+        "position": "relative",
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(235, 235, 234)",
+        "borderColor": "rgb(207, 207, 201)",
+        "borderRadius": "999px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "text": "Automático Sigue el navegador",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(23, 61, 166)",
+        "backgroundColor": "rgb(237, 244, 255)",
+        "borderColor": "rgb(23, 61, 166)",
+        "borderRadius": "8px 8px 0px 0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.44px",
+        "fontWeight": "400",
+        "lineHeight": "20.16px",
+        "padding": "9.6px 13.6px",
+        "gap": "12px"
+      }
+    },
+    {
+      "tag": "button",
+      "role": null,
+      "text": "Menú",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "none",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(228, 228, 224)",
+        "borderRadius": "6px",
+        "boxShadow": "rgba(18, 19, 22, 0.04) 0px 1px 2px 0px, rgba(255, 255, 255, 0.8) 0px 1px 0px 0px inset",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "lineHeight": "14px",
+        "padding": "0px",
+        "gap": "0px"
+      }
+    },
+    {
+      "tag": "nav",
+      "role": null,
+      "text": "Todas las herramientas Categorías Categorías Herramientas de PDF Herramientas de imagen Herramientas de texto Herramientas de datos Herramientas de desarrollo Utilidades generales Acerca de",
+      "box": {
+        "x": 830.88,
+        "y": 11,
+        "width": 374.94,
+        "height": 36
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "div",
+      "role": "dialog",
+      "text": "Configuración Tema Tema Tema Claro Oscuro Arte de fondo Puntos decorativos en pantallas anchas Reducir animaciones Mantiene el arte quieto y acorta las transiciones Idioma Automático Sigue el navegador English Português (Brasil) Español",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "style": {
+        "display": "none",
+        "position": "absolute",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderColor": "rgb(228, 228, 224)",
+        "borderRadius": "8px",
+        "boxShadow": "rgba(0, 0, 0, 0.28) 0px 16px 40px -8px, rgb(228, 228, 224) 0px 0px 0px 1px, rgba(255, 255, 255, 0.8) 0px 1px 0px 0px inset",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "normal"
+      }
+    }
+  ],
+  "footerStyles": [
+    {
+      "tag": "footer",
+      "role": null,
+      "text": "Noduct Herramientas online rápidas, gratuitas y privadas para el trabajo cotidiano. Todas las herramientas Acerca de Patrocinio Contacto Privacidad Términos ¿Te resulta útil Noduct? Apoya el proyecto. Invítame a un café © 2026 Noduct. Herramientas online rápidas, gratuitas y privadas.",
+      "box": {
+        "x": 0,
+        "y": 3871.19,
+        "width": 1280,
+        "height": 271.56
+      },
+      "style": {
+        "display": "block",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgb(244, 244, 242)",
+        "borderColor": "rgb(228, 228, 224) rgb(18, 19, 22) rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "48px 0px 32px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Todas las herramientas",
+      "box": {
+        "x": 570.48,
+        "y": 3940.17,
+        "width": 156.41,
+        "height": 34
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(69, 72, 82)",
+        "borderRadius": "4px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.6px",
+        "fontWeight": "500",
+        "lineHeight": "20.4px",
+        "padding": "0px 8px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Acerca de",
+      "box": {
+        "x": 734.89,
+        "y": 3940.17,
+        "width": 79.75,
+        "height": 34
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(69, 72, 82)",
+        "borderRadius": "4px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.6px",
+        "fontWeight": "500",
+        "lineHeight": "20.4px",
+        "padding": "0px 8px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Patrocinio",
+      "box": {
+        "x": 822.64,
+        "y": 3940.17,
+        "width": 78.17,
+        "height": 34
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(69, 72, 82)",
+        "borderRadius": "4px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.6px",
+        "fontWeight": "500",
+        "lineHeight": "20.4px",
+        "padding": "0px 8px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Contacto",
+      "box": {
+        "x": 570.48,
+        "y": 3980.56,
+        "width": 156.41,
+        "height": 34
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(69, 72, 82)",
+        "borderRadius": "4px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.6px",
+        "fontWeight": "500",
+        "lineHeight": "20.4px",
+        "padding": "0px 8px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Privacidad",
+      "box": {
+        "x": 734.89,
+        "y": 3980.56,
+        "width": 79.75,
+        "height": 34
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(69, 72, 82)",
+        "borderRadius": "4px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.6px",
+        "fontWeight": "500",
+        "lineHeight": "20.4px",
+        "padding": "0px 8px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Términos",
+      "box": {
+        "x": 822.64,
+        "y": 3980.56,
+        "width": 78.17,
+        "height": 34
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(69, 72, 82)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(69, 72, 82)",
+        "borderRadius": "4px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13.6px",
+        "fontWeight": "500",
+        "lineHeight": "20.4px",
+        "padding": "0px 8px",
+        "gap": "normal"
+      }
+    },
+    {
+      "tag": "a",
+      "role": null,
+      "text": "Invítame a un café",
+      "box": {
+        "x": 961,
+        "y": 3983.56,
+        "width": 286,
+        "height": 36
+      },
+      "style": {
+        "display": "flex",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgb(244, 244, 242)",
+        "borderColor": "rgba(154, 66, 4, 0.28)",
+        "borderRadius": "6px",
+        "boxShadow": "rgba(18, 19, 22, 0.04) 0px 1px 2px 0px, rgba(255, 255, 255, 0.8) 0px 1px 0px 0px inset",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "13px",
+        "fontWeight": "600",
+        "lineHeight": "13px",
+        "padding": "4px 12px",
+        "gap": "8px"
+      }
+    },
+    {
+      "tag": "nav",
+      "role": null,
+      "text": "Todas las herramientas Acerca de Patrocinio Contacto Privacidad Términos",
+      "box": {
+        "x": 578.48,
+        "y": 3940.17,
+        "width": 314.33,
+        "height": 74.39
+      },
+      "style": {
+        "display": "grid",
+        "position": "static",
+        "color": "rgb(18, 19, 22)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderColor": "rgb(18, 19, 22)",
+        "borderRadius": "0px",
+        "boxShadow": "none",
+        "fontFamily": "-apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "padding": "0px",
+        "gap": "6.4px 24px"
+      }
+    }
+  ]
+}

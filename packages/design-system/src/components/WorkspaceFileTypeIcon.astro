@@ -1,0 +1,11 @@
+---
+import Icon from '../icons/Icon.astro';
+import styles from './WorkspaceFileTypeIcon.module.css';
+---
+
+<span class={styles.icon} data-file-kind-icon data-kind="file" aria-hidden="true">
+  <Icon name="file-text" class={styles.file} />
+  <Icon name="image" class={styles.image} />
+  <Icon name="table-2" class={styles.table} />
+  <Icon name="code-2" class={styles.code} />
+</span>

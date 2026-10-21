@@ -1,16 +1,10 @@
 ---
 import MergePdfApp from '../../components/MergePdfApp.astro';
-import type { DesignLocale } from '@noduct/design-system';
+import { localeStaticPaths, type Locale } from '@noduct/tool-runtime';
 
-export function getStaticPaths() {
-  return [
-    { params: { locale: 'pt-br' }, props: { locale: 'pt-BR' } },
-    { params: { locale: 'es' }, props: { locale: 'es' } }
-  ];
-}
+export const getStaticPaths = localeStaticPaths;
 
-const { locale } = Astro.props as { locale: DesignLocale };
+const { locale } = Astro.props as { locale: Locale };
 ---
 
 <MergePdfApp locale={locale} />
-

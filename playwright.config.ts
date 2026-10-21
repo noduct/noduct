@@ -1,39 +1,47 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const pagesUrl = 'http://127.0.0.1:4324';
+
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
+  // Axe and PDF rendering compete for the same browser resources across profiles.
+  workers: 2,
   retries: process.env.CI ? 2 : 0,
   reporter: 'html',
-  use: { baseURL: 'http://127.0.0.1:4321', trace: 'on-first-retry' },
+  use: { baseURL: pagesUrl, trace: 'on-first-retry' },
   webServer: [
     {
-      command: 'npm run preview -- --host 127.0.0.1',
-      port: 4321,
+      command: 'node scripts/serve-pages.mjs',
+      url: `${pagesUrl}/`,
+      env: { PORT: '4324' },
       timeout: 180_000,
-      reuseExistingServer: !process.env.CI
+      reuseExistingServer: false
     },
     {
       command:
-        'npm run preview -- --root tests/fixtures/sponsorship-app --host 127.0.0.1 --port 4323',
-      port: 4323,
-      timeout: 180_000,
-      reuseExistingServer: !process.env.CI
-    },
-    {
-      command:
-        'npm run preview -- --root packages/merge-pdf --host 127.0.0.1 --port 4324',
-      port: 4324,
+        'npx astro preview --root tests/fixtures/sponsorship-app --host 127.0.0.1 --port 4323',
+      url: 'http://127.0.0.1:4323/active/',
       timeout: 180_000,
       reuseExistingServer: !process.env.CI
     }
   ],
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'desktop',
+      testIgnore: ['**/shell-parity.spec.ts', '**/dev-same-origin.spec.ts'],
+      use: { ...devices['Desktop Chrome'] }
+    },
     {
       name: 'tablet',
+      testIgnore: ['**/shell-parity.spec.ts', '**/dev-same-origin.spec.ts'],
       use: { ...devices['Desktop Chrome'], viewport: { width: 820, height: 1180 }, hasTouch: true }
     },
-    { name: 'mobile', use: { ...devices['Pixel 7'] } }
+    {
+      name: 'mobile',
+      testIgnore: ['**/shell-parity.spec.ts', '**/dev-same-origin.spec.ts'],
+      use: { ...devices['Pixel 7'] }
+    },
+    { name: 'pages', testMatch: '**/shell-parity.spec.ts', use: { ...devices['Desktop Chrome'] } }
   ]
 });

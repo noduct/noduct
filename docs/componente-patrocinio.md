@@ -1,8 +1,8 @@
-# Componente de patrocínio — Design System 0.3.0
+# Componente de patrocínio — Design System 0.5.0
 
 ## API compartilhada
 
-O Design System oferece `SponsorCard` e `SponsorshipSlot` para consumidores Astro. A versão do pacote é `0.3.0`; o manifesto mantém `schemaVersion: 1`. Os contratos de campanha e elegibilidade continuam em [Contratos de patrocínio](contratos-patrocinio.md), e a distribuição estática em [Registry de patrocínios](registry-patrocinio.md).
+O Design System oferece `SponsorCard` e `SponsorshipSlot` para consumidores Astro. A versão do pacote é `0.5.0`; o manifesto mantém `schemaVersion: 1`. Os contratos de campanha e elegibilidade continuam em [Contratos de patrocínio](contratos-patrocinio.md), e a distribuição estática em [Registry de patrocínios](registry-patrocinio.md).
 
 `SponsorCard({ campaign, locale })` recebe uma campanha pública e renderiza o cartão em HTML. `locale` aceita `en`, `pt-BR` ou `es`, com padrão `en`. O consumidor deve fornecer uma campanha já validada e elegível; a seleção de campanha pertence ao slot e aos auxiliares compartilhados.
 
@@ -41,12 +41,13 @@ Consumidores devem importar os componentes do pacote compartilhado e carregar se
 ```astro
 ---
 import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.astro';
+import { topology } from '@noduct/tool-runtime';
 ---
 
 <section><!-- Workspace and primary actions --></section>
 <SponsorshipSlot
   placementId="merge-pdf.primary"
-  registryUrl="https://noduct.github.io/noduct/data/sponsorships.json"
+  registryUrl={topology.registryUrl}
   enabled={false}
 />
 <section><!-- Complementary information --></section>
@@ -54,6 +55,6 @@ import SponsorshipSlot from '@noduct/design-system/components/SponsorshipSlot.as
 
 Esse exemplo mantém a exibição desabilitada. O template de ferramenta já compõe o slot nessa posição, com `sponsorshipEnabled: false`. A ativação depende de posicionamento conhecido e habilitado, campanha aprovada e decisão comercial separada. A integração real publicada continua no M6.
 
-O import antigo `SponsoredPlacement.astro` foi mantido como adaptador depreciado para `SponsorCard`, mas seu prop `sponsor` agora exige um `SponsorCampaign` v1 completo. O criativo antigo sem datas (`name`, `description`, `url`) não é aceito. Os consumidores existentes do workspace não forneciam esse criativo; para novos consumidores, usar os dois componentes novos.
+O adaptador antigo `SponsoredPlacement.astro` foi removido na versão 0.5.0. Use `SponsorCard` ou `SponsorshipSlot` com contratos v1 completos. O criativo antigo sem datas (`name`, `description`, `url`) não é aceito.
 
 A verificação do marco cobre estados válidos e vazios, atualização remota, expiração, falhas de rede e logo, teclado, temas, telas estreitas e deslocamento das ações principais. Fixtures sintéticas não representam ativação de uma campanha ou integração comercial com uma ferramenta publicada.

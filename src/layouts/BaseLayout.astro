@@ -1,87 +1,42 @@
 ---
-import Header from '@/components/layout/Header.astro';
-import Footer from '@/components/layout/Footer.astro';
-import AmbientArtwork from '@/components/layout/AmbientArtwork.astro';
-import IconSprite from '@/components/ui/IconSprite.astro';
+import AppShell from '@noduct/design-system/shell/AppShell.astro';
+import { HUB_SCOPE, organization, topology } from '@noduct/tool-runtime';
 import { siteConfig } from '@/config/site';
-import { createSeoMetadata } from '@/lib/seo';
-import { assetPath, localizePath, type Locale } from '@/i18n/config';
-import '@/styles/global.css';
+import { getMessages } from '@/i18n/messages';
+import { getValidatedSupportUrl } from '@/lib/support';
+import type { Locale } from '@/i18n/config';
 
-interface Props { title: string; description: string; image?: string; noindex?: boolean; locale?: Locale; }
-const { title, description, image = '/brand/og-image.png', noindex = false, locale = 'en' } = Astro.props;
-const seo = createSeoMetadata(Astro.url.pathname, title, description, image, noindex, locale);
-const speculationRules = { prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { selector_matches: '[target], [download], [rel~=nofollow]' } }] }, eagerness: 'moderate' }] };
-const organization = { '@context': 'https://schema.org', '@type': 'Organization', name: 'Noduct', url: siteConfig.url };
-const alternates = { en: localizePath(Astro.url.pathname, 'en'), ptBR: localizePath(Astro.url.pathname, 'pt-BR'), es: localizePath(Astro.url.pathname, 'es') };
-const redirectPaths = locale === 'en' ? { ptBR: alternates.ptBR, es: alternates.es } : undefined;
-const faviconPaths = { light: assetPath('/brand/favicon-light.svg'), dark: assetPath('/brand/favicon-dark.svg') };
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  noindex?: boolean;
+  locale?: Locale;
+  /** Caminho do hub da página. Obrigatório quando a URL pedida não é a da página (404). */
+  path?: string;
+}
+
+const { title, description, image, noindex = false, locale = 'en' } = Astro.props;
+const parsed = topology.parse(Astro.url.pathname);
+const path = Astro.props.path ?? (parsed?.scope.kind === 'hub' ? parsed.path : '');
+// A URL de apoio passa pela validação estrita (host, HTTPS, sem credenciais nem parâmetros).
+const supportUrl = getValidatedSupportUrl(siteConfig.support) ?? undefined;
+const imageAlt = getMessages(locale).home.badge;
 ---
-<!doctype html>
-<html lang={locale} data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={seo.description} />
-    {seo.noindex && <meta name="robots" content="noindex,follow" />}
-    <link rel="canonical" href={seo.canonical} />
-    <link rel="alternate" hreflang="en" href={new URL(alternates.en, siteConfig.url)} />
-    <link rel="alternate" hreflang="pt-BR" href={new URL(alternates.ptBR, siteConfig.url)} />
-    <link rel="alternate" hreflang="es" href={new URL(alternates.es, siteConfig.url)} />
-    <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, siteConfig.url)} />
-    <link id="site-favicon" rel="icon" href={faviconPaths.light} type="image/svg+xml" />
-    <link rel="apple-touch-icon" href={assetPath('/brand/apple-touch-icon.png')} />
-    <meta name="theme-color" content="#2563eb" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Noduct" />
-    <meta property="og:title" content={seo.fullTitle} />
-    <meta property="og:description" content={seo.description} />
-    <meta property="og:url" content={seo.canonical} />
-    <meta property="og:image" content={seo.image} />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="360" />
-    <meta property="og:image:alt" content="Noduct — Free Online Tools" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={seo.fullTitle} />
-    <meta name="twitter:description" content={seo.description} />
-    <meta name="twitter:image" content={seo.image} />
-    <title>{seo.fullTitle}</title>
-    <script type="application/ld+json" set:html={JSON.stringify(organization)} />
-    {/* Navegação instantânea: Chrome/Edge pré-renderizam links internos após ~200ms de hover. Sem JS; outros navegadores ignoram. */}
-    <script type="speculationrules" set:html={JSON.stringify(speculationRules)} />
-    {/* Aplica as preferências salvas antes da pintura; chaves espelham src/lib/preferences.ts. Tema claro é o padrão. */}
-    <script is:inline define:vars={{ faviconPaths }}>
-      (() => {
-        const root = document.documentElement;
-        const themeColor = document.querySelector('meta[name="theme-color"]');
-        const syncThemeAssets = () => {
-          const theme = root.dataset.theme === 'dark' ? 'dark' : 'light';
-          const favicon = document.querySelector('#site-favicon');
-          if (favicon?.parentNode) {
-            const replacement = favicon.cloneNode();
-            replacement.href = `${faviconPaths[theme]}?theme=${theme}`;
-            favicon.parentNode.replaceChild(replacement, favicon);
-          }
-          if (themeColor) themeColor.content = theme === 'dark' ? '#3b82f6' : '#2563eb';
-        };
-        try {
-          if (localStorage.getItem('noduct-theme') === 'dark') root.dataset.theme = 'dark';
-          if (localStorage.getItem('noduct-art') === 'off') root.dataset.art = 'off';
-          if (localStorage.getItem('noduct-motion') === 'reduce') root.dataset.motion = 'reduce';
-        } catch { /* armazenamento indisponível */ }
-        syncThemeAssets();
-        window.addEventListener('noduct:preferences', syncThemeAssets);
-      })();
-    </script>
-    {redirectPaths && <script is:inline define:vars={{ redirectPaths }}>(() => { let saved = null; try { saved = localStorage.getItem('noduct-locale'); } catch { /* armazenamento indisponível */ } const list = navigator.languages?.length ? navigator.languages : [navigator.language]; let locale = 'en'; if (saved === 'en' || saved === 'pt-BR' || saved === 'es') locale = saved; else for (const value of list) { const code = String(value).toLowerCase(); if (code === 'pt' || code.startsWith('pt-')) { locale = 'pt-BR'; break; } if (code === 'es' || code.startsWith('es-')) { locale = 'es'; break; } if (code === 'en' || code.startsWith('en-')) break; } const target = locale === 'pt-BR' ? redirectPaths.ptBR : locale === 'es' ? redirectPaths.es : ''; if (target && location.pathname !== target) { document.documentElement.style.display = 'none'; location.replace(`${target}${location.search}${location.hash}`); } })();</script>}
-  </head>
-  <body>
-    <IconSprite />
-    <AmbientArtwork />
-    <Header locale={locale} />
-    <main id="main-content"><slot /></main>
-    <Footer locale={locale} />
-  </body>
-</html>
+
+<AppShell
+  variant="page"
+  scope={HUB_SCOPE}
+  {locale}
+  {path}
+  {title}
+  {description}
+  {image}
+  {imageAlt}
+  {noindex}
+  {supportUrl}
+  jsonLd={{ '@context': 'https://schema.org', '@graph': [organization()] }}
+  redirectLocale={locale === 'en'}
+>
+  <slot />
+</AppShell>

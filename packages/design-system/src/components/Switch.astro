@@ -1,0 +1,51 @@
+---
+import styles from './Switch.module.css';
+
+export interface Props {
+  checked?: boolean | 'true' | 'false' | undefined;
+  disabled?: boolean | undefined;
+  blocked?: boolean | undefined;
+  id?: string | undefined;
+  name?: string | undefined;
+  value?: string | undefined;
+  class?: string | undefined;
+  ariaLabel?: string | undefined;
+  ariaLabelledby?: string | undefined;
+  ariaDescribedby?: string | undefined;
+  [key: `data-${string}`]: unknown;
+}
+
+const {
+  checked = false,
+  disabled = false,
+  blocked = false,
+  id,
+  name,
+  value,
+  class: className,
+  ariaLabel,
+  ariaLabelledby,
+  ariaDescribedby,
+  ...rest
+} = Astro.props;
+
+const isChecked = checked === true || checked === 'true';
+const isBlocked = Boolean(blocked || disabled);
+---
+
+<button
+  type="button"
+  role="switch"
+  id={id}
+  name={name}
+  value={value}
+  aria-checked={isChecked ? 'true' : 'false'}
+  aria-disabled={isBlocked ? 'true' : undefined}
+  disabled={isBlocked ? true : undefined}
+  data-blocked={isBlocked ? 'true' : undefined}
+  aria-label={ariaLabel}
+  aria-labelledby={ariaLabelledby}
+  aria-describedby={ariaDescribedby}
+  class:list={[styles.switch, className]}
+  {...rest}
+></button>

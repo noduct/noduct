@@ -1,6 +1,6 @@
 import { placements } from '../../sponsorship/placements';
 import { sponsorshipRegistrySchema } from '../features/sponsorship';
-import { resolveCampaign } from '../../packages/design-system/src/sponsorship/resolver';
+import { resolveCampaign } from '@noduct/design-system/sponsorship';
 
 export function validateSponsorships(items: unknown, now = new Date()): string[] {
   const result = sponsorshipRegistrySchema.safeParse({

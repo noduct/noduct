@@ -1,9 +1,17 @@
 {
   "name": "@noduct/pdf-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./render": "./src/render/index.ts"
+  },
+  "scripts": {
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --root ../.. packages/pdf-core/src tests/unit/pdf-core.test.ts"
+  },
+  "dependencies": {
+    "pdfjs-dist": "6.3.289"
   }
 }

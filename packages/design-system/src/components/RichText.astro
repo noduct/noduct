@@ -1,0 +1,21 @@
+---
+import { parseRichText } from '../content/rich-text';
+
+interface Props {
+  text: string;
+}
+
+const parts = parseRichText((Astro.props as Props).text);
+---
+
+{
+  parts.map((part) =>
+    part.type === 'strong' ? (
+      <strong>{part.value}</strong>
+    ) : part.type === 'code' ? (
+      <code>{part.value}</code>
+    ) : (
+      part.value
+    )
+  )
+}

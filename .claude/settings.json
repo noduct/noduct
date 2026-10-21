@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run check)",
+      "Bash(npm run check -- *)",
+      "Bash(npm run build)",
+      "Bash(npm run build -- *)",
+      "Bash(npm run test:e2e)",
+      "Bash(npm run test:e2e -- *)",
+      "Bash(npm run verify)",
+      "Bash(npm test)",
+      "Bash(npx vitest run *)",
+      "Bash(npx openspec list *)",
+      "Bash(npx openspec show *)",
+      "Bash(npx openspec status *)",
+      "Bash(npx openspec validate *)",
+      "Bash(npx openspec context *)",
+      "Bash(npx openspec instructions *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)"
+    ],
+    "deny": [
+      "Bash(git push *)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/post-edit.mjs\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

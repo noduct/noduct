@@ -1,0 +1,35 @@
+.icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  /* Mesmo tamanho dos ícones de metadados (14 px), para formarem uma só coluna com o texto alinhado. */
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+}
+
+.icon svg {
+  display: none;
+}
+
+.icon[data-kind='file'] .file,
+.icon[data-kind='pdf'] .file,
+.icon[data-kind='image'] .image,
+.icon[data-kind='table'] .table,
+.icon[data-kind='code'] .code {
+  display: block;
+}
+
+.icon[data-kind='pdf'] {
+  color: var(--color-danger);
+}
+
+.icon[data-kind='image'] {
+  color: var(--color-primary);
+}
+
+.icon[data-kind='table'] {
+  color: var(--color-success);
+}

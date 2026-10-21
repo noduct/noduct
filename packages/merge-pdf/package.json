@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "noduct": {
+    "slug": "merge-pdf"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "typecheck": "astro check",
-    "test": "vitest run"
+    "check": "astro check",
+    "test": "vitest run --root ../.. packages/merge-pdf/src"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.6.0",
     "@noduct/design-system": "*",
     "@noduct/pdf-core": "*",
+    "@noduct/tool-runtime": "*",
     "@noduct/workspace-core": "*",
     "astro": "^5.14.0"
   },
