@@ -259,6 +259,88 @@ test('Merge PDF: pointer drag reorders live without oscillating and keeps the fi
   }
 });
 
+test('Merge PDF: file sources keep equal targets and move smoothly into the compact row', async ({
+  page
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto(toolUrl);
+  const device = page.locator('label[for="merge-drop-zone"]');
+  const local = page.locator('[data-workspace-source]');
+  const emptyDevice = await device.boundingBox();
+  const emptyLocal = await local.boundingBox();
+  expect(emptyDevice).toBeTruthy();
+  expect(emptyLocal).toBeTruthy();
+  expect(emptyDevice!.width).toBeCloseTo(emptyLocal!.width, 0);
+  expect(emptyDevice!.height).toBeCloseTo(emptyLocal!.height, 0);
+  expect(emptyDevice!.height).toBeGreaterThanOrEqual(44);
+
+  await page.evaluate(() => {
+    const zone = document.querySelector<HTMLElement>('[data-drop-zone]')!;
+    const deviceControl = zone.querySelector<HTMLElement>('label[for="merge-drop-zone"]')!;
+    const observer = new MutationObserver(() => {
+      if (zone.dataset.compact !== 'true') return;
+      observer.disconnect();
+      requestAnimationFrame(() => {
+        const movement = deviceControl.getAnimations().find((animation) => {
+          const effect = animation.effect;
+          return (
+            effect instanceof KeyframeEffect &&
+            effect.getKeyframes().some((keyframe) => typeof keyframe.transform === 'string')
+          );
+        });
+        if (!movement) return;
+        movement.pause();
+        movement.currentTime = Number(movement.effect!.getComputedTiming().duration) / 2;
+        (window as Window & { compactMidpoint?: number }).compactMidpoint =
+          deviceControl.getBoundingClientRect().x;
+        movement.finish();
+      });
+    });
+    observer.observe(zone, { attributes: true, attributeFilter: ['data-compact'] });
+  });
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'layout.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Layout')
+  });
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'true');
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as Window & { compactMidpoint?: number }).compactMidpoint)
+    )
+    .not.toBeUndefined();
+  const midpoint = await page.evaluate(
+    () => (window as Window & { compactMidpoint?: number }).compactMidpoint!
+  );
+
+  const compactDevice = await device.boundingBox();
+  const compactLocal = await local.boundingBox();
+  expect(midpoint).toBeGreaterThan(Math.min(emptyDevice!.x, compactDevice!.x));
+  expect(midpoint).toBeLessThan(Math.max(emptyDevice!.x, compactDevice!.x));
+  expect(compactDevice!.width).toBeCloseTo(compactLocal!.width, 0);
+  expect(compactDevice!.height).toBeCloseTo(compactLocal!.height, 0);
+  expect(compactDevice!.height).toBeGreaterThanOrEqual(44);
+  expect(compactDevice!.y).toBeCloseTo(compactLocal!.y, 0);
+
+  await page.setViewportSize({ width: 320, height: 760 });
+  const mobileDevice = await device.boundingBox();
+  const mobileLocal = await local.boundingBox();
+  expect(mobileDevice!.width).toBeCloseTo(mobileLocal!.width, 0);
+  expect(mobileDevice!.height).toBeCloseTo(mobileLocal!.height, 0);
+  expect(mobileDevice!.height).toBeGreaterThanOrEqual(44);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.locator('#clear-all-btn').click();
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'false');
+  await page.locator('#merge-drop-zone').setInputFiles({
+    name: 'reduced-motion.pdf',
+    mimeType: 'application/pdf',
+    buffer: await makePdfBuffer(1, 'Reduced motion')
+  });
+  await expect(page.locator('[data-drop-zone]')).toHaveAttribute('data-compact', 'true');
+  expect(await device.evaluate((control) => control.getAnimations().length)).toBe(0);
+});
+
 test('Merge PDF: handles encrypted files with actionable alert without breaking valid files', async ({
   page
 }) => {

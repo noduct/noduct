@@ -275,8 +275,8 @@ const clientMessages = {
         const validItems = state.items.filter((i) => i.status === 'valid');
         const hasFiles = state.items.length > 0;
 
-        workspaceEl.dataset.hasFiles = hasFiles ? 'true' : 'false';
         dropZone.setCompact(hasFiles);
+        workspaceEl.dataset.hasFiles = hasFiles ? 'true' : 'false';
 
         const displayedIds = reorderList.getIds();
         if (
@@ -407,8 +407,6 @@ const clientMessages = {
         feedbackEl.hidden = true;
         downloadCard.reset();
         dropZone.setDisabled(false);
-        dropZone.setCompact(false);
-        workspaceEl.dataset.hasFiles = 'false';
         alertsEl.replaceChildren();
         alertsEl.hidden = true;
         budgetAlertEl.hidden = true;

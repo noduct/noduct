@@ -99,8 +99,10 @@
 }
 
 .sources > :is(label, button) {
-  flex: 1 1 0;
+  flex: 0 1 12.5rem;
+  width: 12.5rem;
   min-width: min(100%, 12.5rem);
+  min-height: 44px;
 }
 
 /* Segunda origem (ADR 0006): mesmo peso visual de um botão secundário, ao lado do primário. */
@@ -182,7 +184,6 @@
 
 .zone[data-compact='true'] .sources > :is(label, button) {
   flex: 0 0 12.5rem;
-  min-width: 12.5rem;
 }
 
 .zone[data-compact='true'] .trigger {

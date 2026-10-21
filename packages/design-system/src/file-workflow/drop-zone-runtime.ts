@@ -59,6 +59,11 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
     );
   };
   const source = zone.querySelector<HTMLButtonElement>('[data-workspace-source]');
+  const sourceControls = [
+    ...zone.querySelectorAll<HTMLElement>('label[for], [data-workspace-source]')
+  ];
+  let compactFrame = 0;
+  let compactAnimations: Animation[] = [];
 
   input.addEventListener('change', () => {
     select([...(input.files ?? [])]);
@@ -98,7 +103,34 @@ export function armDropZone(zone: HTMLElement): DropZoneController | undefined {
       setState('idle');
     },
     setCompact(value) {
+      if ((zone.dataset.compact === 'true') === value) return;
+      cancelAnimationFrame(compactFrame);
+      compactAnimations.forEach((animation) => animation.cancel());
+      compactAnimations = [];
+      const start = sourceControls.map((control) => control.getBoundingClientRect());
       zone.dataset.compact = value ? 'true' : 'false';
+      if (
+        matchMedia('(prefers-reduced-motion: reduce)').matches ||
+        document.documentElement.dataset.motion === 'reduce'
+      )
+        return;
+      compactFrame = requestAnimationFrame(() => {
+        const styles = getComputedStyle(zone);
+        const duration = Number.parseFloat(styles.getPropertyValue('--duration-normal'));
+        const easing = styles.getPropertyValue('--ease-apple').trim();
+        compactAnimations = sourceControls.flatMap((control, index) => {
+          const end = control.getBoundingClientRect();
+          const x = start[index]!.x - end.x;
+          const y = start[index]!.y - end.y;
+          if (Math.abs(x) < 1 && Math.abs(y) < 1) return [];
+          return [
+            control.animate(
+              [{ transform: `translate(${x}px, ${y}px)` }, { transform: 'translate(0, 0)' }],
+              { duration, easing }
+            )
+          ];
+        });
+      });
     },
     select(files, origin) {
       if (!disabled()) select(files, origin);
