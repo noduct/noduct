@@ -146,21 +146,17 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
     const start = items().indexOf(item);
     const startX = event.clientX;
     const startY = event.clientY;
+    const startRect = item.getBoundingClientRect();
+    // Freeze hit targets before changing DOM order to avoid oscillation.
+    const otherRects = items()
+      .filter((entry) => entry !== item)
+      .map((entry) => entry.getBoundingClientRect());
     let isDragging = false;
     let targetIndex = start;
 
-    const clearTarget = () => {
-      items().forEach((entry) => {
-        delete entry.dataset.dropBefore;
-        delete entry.dataset.dropAfter;
-      });
-    };
-
     const targetFor = (pointer: PointerEvent) => {
-      const otherItems = items().filter((entry) => entry !== item);
       const columns = grid && matchMedia('(min-width: 600px)').matches;
-      return otherItems.filter((entry) => {
-        const rect = entry.getBoundingClientRect();
+      return otherRects.filter((rect) => {
         if (!columns) return pointer.clientY > rect.top + rect.height / 2;
         if (pointer.clientY >= rect.bottom) return true;
         return pointer.clientY >= rect.top && pointer.clientX > rect.left + rect.width / 2;
@@ -179,31 +175,31 @@ export function armReorderableList(root: HTMLElement): ReorderableListController
         item.style.willChange = 'transform';
       }
 
-      const reducedMotion =
-        matchMedia('(prefers-reduced-motion: reduce)').matches ||
-        document.documentElement.dataset.motion === 'reduce';
-      if (!reducedMotion) item.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0)`;
-      targetIndex = targetFor(moveEvent);
-      clearTarget();
-      if (targetIndex === start) return;
-      const otherItems = items().filter((entry) => entry !== item);
-      const next = otherItems[targetIndex];
-      if (next) next.dataset.dropBefore = 'true';
-      else if (otherItems.length) otherItems[otherItems.length - 1]!.dataset.dropAfter = 'true';
+      const nextIndex = targetFor(moveEvent);
+      if (nextIndex !== targetIndex) {
+        moveTo(item, nextIndex);
+        targetIndex = nextIndex;
+        sync();
+      }
+      // Follow the pointer from the original position after the grid slot changes.
+      item.style.transform = '';
+      const slot = item.getBoundingClientRect();
+      item.style.transform = `translate3d(${startRect.left + deltaX - slot.left}px, ${startRect.top + deltaY - slot.top}px, 0)`;
     };
 
     const end = (endEvent: PointerEvent) => {
       captureTarget.removeEventListener('pointermove', move);
       captureTarget.removeEventListener('pointerup', end);
       captureTarget.removeEventListener('pointercancel', end);
-      clearTarget();
       item.style.transform = '';
       item.style.zIndex = '';
       item.style.willChange = '';
       delete item.dataset.dragging;
-      if (isDragging && endEvent.type === 'pointerup' && targetIndex !== start) {
-        moveTo(item, targetIndex);
+      if (isDragging && endEvent.type === 'pointercancel' && targetIndex !== start) {
+        moveTo(item, start);
         sync();
+      }
+      if (isDragging && endEvent.type === 'pointerup' && targetIndex !== start) {
         announceMove(item);
         emit('move', item);
       }

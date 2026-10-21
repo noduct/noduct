@@ -59,35 +59,6 @@
   transition: none;
 }
 
-.item[data-drop-before='true']::before,
-.item[data-drop-after='true']::after {
-  position: absolute;
-  right: 0;
-  left: 0;
-  height: 3px;
-  border-radius: var(--radius-xs);
-  background: var(--color-primary);
-  content: '';
-}
-
-.item[data-drop-before='true']::before {
-  top: calc(-1 * var(--space-1));
-}
-
-.item[data-drop-after='true']::after {
-  bottom: calc(-1 * var(--space-1));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .item[data-dragging='true'] {
-    transform: none;
-  }
-}
-
-:global(html[data-motion='reduce']) .item[data-dragging='true'] {
-  transform: none;
-}
-
 .position {
   display: inline-flex;
   align-items: center;
@@ -220,23 +191,6 @@
     align-items: stretch;
     gap: var(--space-2);
     padding: var(--space-3);
-  }
-
-  .root[data-variant='grid'] .item[data-drop-before='true']::before,
-  .root[data-variant='grid'] .item[data-drop-after='true']::after {
-    top: 0;
-    bottom: 0;
-    right: auto;
-    width: 3px;
-    height: auto;
-  }
-
-  .root[data-variant='grid'] .item[data-drop-before='true']::before {
-    left: calc(-1 * var(--space-2));
-  }
-
-  .root[data-variant='grid'] .item[data-drop-after='true']::after {
-    left: calc(100% + var(--space-2));
   }
 
   .root[data-variant='grid'] .cardHeader {

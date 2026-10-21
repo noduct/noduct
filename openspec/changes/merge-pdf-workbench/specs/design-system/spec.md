@@ -25,10 +25,10 @@ Todo item da `ReorderableList` SHALL exibir sua posição atual (`1`, `2`, `3`�
 - **WHEN** o usuário move o segundo cartão para antes do primeiro, por botão, teclado ou arrasto
 - **THEN** os cartões exibem as posições `1` e `2` trocadas, a região viva anuncia a nova posição e o controle mantém foco após movimento por teclado
 
-#### Scenario: Arrasto livre sem oscilação
+#### Scenario: Arrasto livre com reordenação imediata e sem oscilação
 
 - **WHEN** o usuário arrasta um cartão sobre os demais na grade
-- **THEN** um marcador mostra a posição de destino sem trocar os cartões durante o gesto, e a ordem muda ao soltar; o cancelamento preserva a ordem inicial
+- **THEN** o cartão acompanha o ponteiro, os demais mudam de posição durante o gesto sem oscilar, as posições numéricas acompanham a ordem, e o cancelamento restaura a ordem inicial
 
 #### Scenario: Grade em tela estreita
 
